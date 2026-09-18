@@ -49,7 +49,7 @@ The `Setting` TOML table specifies basic information about the LTC file.
  - `DisplayLanguage`: (string) The display language of the LTC tool; unrelated to the rest of the file. (default: `"English"`)
  - `CalendarSystem`: (string) The calendar system that the times in this file will use. (default: `"Gregorian"`)
  - `NoteFormat`: (string) The format of `Note`s for [events](#Event). (default: `"Markdown"`)
- - `Categories`: (array of strings) All categories that appear at least once in [chart-local events](#Event). This field will be auto-corrected while loading or saving the LTC file if any category appears in [chart-local events](#Event) but not in the array. Categories without any events will also be preserved.
+ - `Categories`: (array of strings) All categories that appear at least once in chart-local events. This field is auto-corrected when loading or saving the LTC file if any category appears in chart-local events but not in the array. Categories without any events will also be preserved.
 
 #### Entity
 
