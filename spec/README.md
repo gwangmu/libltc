@@ -1,4 +1,4 @@
-# LTC Specification
+# Lifetime Chart (LTC) Format Specification
 
 ## Introduction
 
@@ -26,27 +26,54 @@ The LTC format implements the above principles as follows:
 
 The ["sample" directory](./sample) collects the sample LTC file for each version. The sample file is for demonstration purposes only; it is syntactically correct but may be semantically invalid (e.g., mutually incompatible `Attrs`). The _default_ is applied when the corresponding field is unspecified or invalid, and all unrecognized fields and attributes are ignored but preserved across the LTC file load/save boundary. If not specified separately, the specification is based on the lowest version (`26.09.1`).
 
-### Common
+### LTC Object Taxonomy
 
-#### Attributes
+The format consists of _LTC objects_ that specify a dedicated aspect of the chart. LTC objects are classified into two categories: common and main. Common objects represent chart-independent generic concepts and are embedded in other objects. Main objects represent information that makes up the chart itself.
 
-Each TOML table may specify specialized attributes via the `Attrs` field. `Attrs` is an array of string-type attributes, each of which can either be a single value or a colon-separated (`:`) key-value pair; if a colon character exists, the leftmost colon separates the key-value pair. (default: empty)
+The default value of common objects can be overridden depending on how they are used in the enclosing object.
+
+For convenience, each LTC object is recommended to be described in a dedicated TOML object, but it's also valid to be described in other equivalent TOML objects. For example, an LTC object recommended as an inline TOML table _may_ also be represented as a fully expanded TOML table.
+
+### Common Objects
+
+#### Attribute List
+
+ - TOML object: array of strings.
+ - Default: empty
+
+An attribute list is an array of strings, each representing a colon-separated (`:`) key-value attribute pair. If multiple colons exist in a string, the leftmost colon separates the key-value pair. If no colon exists, the attribute is given an empty value (`""`).
+
+The same attribute key can appear multiple times in an attribute list. In this case, the duplicated attribute key's values are chained together to the same key.
 
 #### Time
 
-In the LTC file, a time is specified in a predefined TOML table that contains six optional fields: `Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`. All fields are integer-typed.  The default value is `1` for `Day` and `0` for all others, but it can be overridden depending on the specific usage of the time.
+ - TOML object: inline table.
+ - Default: `1` for `Day`, `0` for others.
 
-If an attribute `Incremental` is set, the time is added to the [chart entity](#Entity)'s `StartDate`; the chart entity's `StartDate` does not recognize the `Incremental` attribute.
+A time object consists of six optional integer-typed fields: `Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`. If no field is specified, the time is regarded as _unknown_.
 
-### Tables
+If an attribute `Incremental` is set, the time is added to the [chart entity](#Entity)'s `StartDate`. The `Incremental` attribute of the chart entity's `StartDate` is ignored.
 
-#### Top-level
+#### Name
 
-The top-level TOML table specifies the LTC format version with the `Version` field. (default: `26.09.1`; the lowest version).
+ - TOML object: inline table.
+ - Default: `Unknown` for `First`, empty for others.
+
+A name object consists of three optional string-typed fields: `First`, `Middle`, and `Last`.
+
+### Main Objects 
+
+#### Header
+
+ - TOML object: top-level table.
+
+The header object specifies the LTC format version with the `Version` field. (default: `26.09.1`; the lowest version).
 
 #### Setting
 
-The `Setting` TOML table specifies basic information about the LTC file.
+ - TOML object: `Setting` table.
+
+The setting object specifies basic information about the LTC file. Fields below:
 
  - `DisplayLanguage`: (string) The display language of the LTC tool; unrelated to the rest of the file. (default: `"English"`)
  - `CalendarSystem`: (string) The calendar system that the times in this file will use. (default: `"Gregorian"`)
@@ -55,13 +82,26 @@ The `Setting` TOML table specifies basic information about the LTC file.
 
 #### Entity
 
-The `Entity` TOML table specifies basic information about the subject of the LTC file. The subject is primarily a person, but it can also be a non-person, such as a group of people (e.g., race, country, company, friend group, ...) or a time-sensitive event sequence (e.g., global conflict, curriculum, public gathering, ...)
+ - TOML object: `Entity` table.
+
+The entity object specifies basic information about the LTC file's subject. The subject is primarily a person, but it can also be a non-person, such as a group of people (e.g., race, country, company, friend group, ...) or a time-sensitive event sequence (e.g., global conflict, curriculum, public gathering, ...). Fields below:
+
+ - `Name`: (name object) The name of the entity. (default: name object default)
+ - `StartDate`: (time object) The start date of this entity. If the entity is a person, the start date is simply their birthday. (default: earliest `StartDate` in chart-local events, or unknown time if no chart-local events exist)
+ - `EndDate`: (time object) The end date of this entity. If the entity is a person, the end date is their day of death. (default: unknown time)
+ - `Sex`: (string) The _congenital_ sex of this entity. Because the identified gender can change over time, it's better to specify it as a period in its own category. (default: empty)
 
 #### Event
 
-Two kinds of events: chart-local. imported.
+ - TOML object: `Event` table array.
 
-Three types of events: plain, embedded, subchart.
+An event object is a fundamental object of the LTC file. It describes a specific event or period during the entity's lifetime. Notice that a _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format represents a period as an event object.
+
+Event objects have two key dimensions. On one dimension (_kind_), event objects are classified into _chart-local_ and _imported_. Chart-local event objects are those contained in the current LTC file. Imported event objects are those imported from other LTC files via (import objects)[#Import]. 
+
+On the other dimension (_type_), event objects are classified into _plain_, _embedding_, and _subchart_. Plain event objects directly describe the event in the LTC file. Embedding event objects embed an event from another LTC file. Subchart event objects embed the whole external LTC file.
+
+There is an important distinction between subchart event objects and (import objects)[#Import]. An external LTC file embedded via a subchart event object is still a separate LTC file; the event object may link to the embedded chart, but the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file. As a result, the categories with the same name display both the chart-local and imported event objects.
 
 #### Annex
 
