@@ -24,17 +24,19 @@ The LTC format implements the above principles as follows:
 
 ## Specification
 
-The ["sample" directory](./sample) collects the sample LTC file for each version. The sample file is for demonstration purposes only; it is syntactically correct but may be semantically invalid (e.g., mutually incompatible `Attrs`). The _default_ is applied when the corresponding field is unspecified or invalid. If not specified separately, the specification is based on the lowest version (`26.09.1`).
+The ["sample" directory](./sample) collects the sample LTC file for each version. The sample file is for demonstration purposes only; it is syntactically correct but may be semantically invalid (e.g., mutually incompatible `Attrs`). The _default_ is applied when the corresponding field is unspecified or invalid, and all unrecognized fields and attributes are ignored but preserved across the LTC file load/save boundary. If not specified separately, the specification is based on the lowest version (`26.09.1`).
 
 ### Common
 
 #### Attributes
 
-Each TOML table may specify specialized attributes via the `Attrs` field. `Attrs` is an array of string-type attributes, each of which can either be a single value or a colon-separated (`:`) key-value pair (if a colon character exists). The key-value pair is separated on the leftmost colon in the string. Unrecognized attributes (i.e., unrecognized attribute values, keys, or values) are order-and-value-preserved across the LTC file load/save boundary. (default: empty)
+Each TOML table may specify specialized attributes via the `Attrs` field. `Attrs` is an array of string-type attributes, each of which can either be a single value or a colon-separated (`:`) key-value pair; if a colon character exists, the leftmost colon separates the key-value pair. (default: empty)
 
 #### Time
 
 In the LTC file, a time is specified in a predefined TOML table that contains six optional fields: `Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`. All fields are integer-typed.  The default value is `1` for `Day` and `0` for all others, but it can be overridden depending on the specific usage of the time.
+
+If an attribute `Incremental` is set, the time is added to the [chart entity](#Entity)'s `StartDate`; the chart entity's `StartDate` does not recognize the `Incremental` attribute.
 
 ### Tables
 
@@ -49,9 +51,11 @@ The `Setting` TOML table specifies basic information about the LTC file.
  - `DisplayLanguage`: (string) The display language of the LTC tool; unrelated to the rest of the file. (default: `"English"`)
  - `CalendarSystem`: (string) The calendar system that the times in this file will use. (default: `"Gregorian"`)
  - `NoteFormat`: (string) The format of `Note`s for [events](#Event). (default: `"Markdown"`)
- - `Categories`: (array of strings) All categories that appear at least once in chart-local events. This field is auto-corrected when loading or saving the LTC file if any category appears in chart-local events but not in the array. Categories without any events will also be preserved.
+ - `Categories`: (array of strings) All categories that appear at least once in chart-local events. This field is auto-corrected when loading or saving the LTC file if any category appears in chart-local events but not in the array. Categories without events are also preserved.
 
 #### Entity
+
+The `Entity` TOML table specifies basic information about the subject of the LTC file. The subject is primarily a person, but it can also be a non-person, such as a group of people (e.g., race, country, company, friend group, ...) or a time-sensitive event sequence (e.g., global conflict, curriculum, public gathering, ...)
 
 #### Event
 
