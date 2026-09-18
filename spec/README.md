@@ -22,3 +22,4 @@ The LTC format implements the above principles as follows:
 
 ## Specification
 
+The ["sample" directory](./sample)
