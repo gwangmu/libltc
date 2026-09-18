@@ -57,7 +57,7 @@ The `Setting` TOML table specifies basic information about the LTC file.
 
 Two kinds of events: chart-local. imported.
 
-Three types of events: direct, embedded, subchart.
+Three types of events: plain, embedded, subchart.
 
 #### Annex
 
