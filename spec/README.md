@@ -98,7 +98,7 @@ Note on the _identified_ sex: because it can change over time, it's better to sp
 
  - TOML object: `Event` table array.
 
-An event object is a fundamental object of the LTC file. It describes a specific event or period during the entity's lifetime. Notice that a _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format represents a period as an event object.
+An event object is a fundamental object of the LTC file. It describes a specific event or period during the subject's lifetime. Note that _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format represents a period as an event object as well.
 
 Event objects have two key dimensions. On one dimension (_kind_), event objects are classified into _chart-local_ and _imported_. Chart-local event objects are those contained in the current LTC file. Imported event objects are those imported from other LTC files via (import objects)[#Import]. 
 
