@@ -28,11 +28,9 @@ The ["sample" directory](./sample) collects the sample LTC file for each version
 
 ### LTC Object Taxonomy
 
-The format consists of _LTC objects_ that specify a dedicated aspect of the chart. LTC objects are classified into two categories: common and main. Common objects represent chart-independent generic concepts and are embedded in other objects. Main objects represent information that makes up the chart itself.
+The format consists of _LTC objects_ that specify a dedicated aspect of the chart. LTC objects are divided into two categories: common and main. Common objects represent chart-independent generic concepts and are embedded in other objects. Main objects represent information that makes up the chart itself. The default value of common objects can be overridden depending on how they are used in the enclosing object.
 
-The default value of common objects can be overridden depending on how they are used in the enclosing object.
-
-For convenience, each LTC object is recommended to be described in a dedicated TOML object, but it's also valid to be described in other equivalent TOML objects. For example, an LTC object recommended as an inline TOML table _may_ also be represented as a fully expanded TOML table.
+Each LTC object is recommended to be described in a dedicated TOML object, but it's also valid to be described in other equivalent TOML objects. For example, an LTC object recommended as an inline TOML table _may_ also be represented as a fully expanded TOML table.
 
 ### Common Objects
 
