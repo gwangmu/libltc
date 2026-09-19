@@ -11,7 +11,7 @@ Categories = [
     "Personal & External Issue"
 ]
 
-[Entity]
+[Subject]
 Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
 StartDate = { Year = 1991, Month = 3, Day = 29 }
 EndDate = { Year = 9999 }
