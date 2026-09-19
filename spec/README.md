@@ -100,9 +100,9 @@ Note on the _identified_ sex: because it can change over time, it's better to sp
 
 An event object is a fundamental object of the LTC file. It describes a specific event or period during the subject's lifetime. Note that _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format represents a period as an event object as well.
 
-Event objects have two key dimensions. On one dimension (_kind_), event objects are classified into _chart-local_ and _imported_. Chart-local event objects are those contained in the current LTC file. Imported event objects are those imported from other LTC files via (import objects)[#Import]. 
+Event objects have two key dimensions: kind and type. On the _kind_ dimension, event objects are classified into _chart-local_ and _imported_. Chart-local event objects are those contained in the current LTC file. Imported event objects are those imported from other LTC files via [import objects](#Import). 
 
-On the other dimension (_type_), event objects are classified into _plain_, _embedding_, and _subchart_. Plain event objects directly describe the event in the LTC file. Embedding event objects embed an event from another LTC file. Subchart event objects embed the whole external LTC file.
+On the _type_ dimension, event objects are classified into _plain_, _embedding_, and _subchart_. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event from another LTC file. Subchart event objects embed another LTC file in its entirety.
 
 There is an important distinction between subchart event objects and (import objects)[#Import]. An external LTC file embedded via a subchart event object is still a separate LTC file; the event object may link to the embedded chart, but the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file. As a result, the categories with the same name display both the chart-local and imported event objects.
 
