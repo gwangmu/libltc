@@ -108,7 +108,7 @@ Note on the _identified_ sex: Because the identified gender can change over time
 
 #### Event
 
- - TOML object: `Event` table array.
+ - TOML object: a table in an `Event` table array.
 
 An event object is a fundamental object of the LTC file. It describes a specific event or period during the subject's lifetime. Note that _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format does not distinguish them and uses the same event object,
 
