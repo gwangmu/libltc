@@ -50,9 +50,9 @@ The same attribute key can appear multiple times in an attribute list. In this c
  - TOML object: inline table.
  - Default: `1` for `Day`, `0` for others.
 
-A time object consists of six optional integer-typed fields: `Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`. If no field is specified, the time is considered _unknown_.
+A time object consists of six optional integer-typed fields: `Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`. If no field is specified, the time is considered _unknown_. The timezone is always UTC.
 
-If an attribute `Incremental` is set, the time is added to the [chart subject](#Subject)'s `StartDate`. The `Incremental` attribute of the chart subject's `StartDate` is ignored.
+If an attribute `Incremental` is set, the time is added to the [chart subject](#Subject)'s `StartDate`. The `Incremental` attribute of the chart subject's `StartDate` is ignored. 
 
 #### Name
 
@@ -75,8 +75,7 @@ The header object specifies the LTC format version with the `Version` field. (de
 
 The setting object specifies basic information about the LTC file. Fields below:
 
- - `DisplayLanguage`: (string) The display language of the front-end LTC tool. This field is irrelevant to the rest of the file contents. (default: `"English"`)
- - `CalendarSystem`: (string) The calendar system that the times in this file will use. (default: `"Gregorian"`)
+ - `CalendarSystem`: (string) The calendar system that the [time objects](#Time) will use. (default: `"Gregorian"`)
  - `NoteFormat`: (string) The format of `Note`s for [events](#Event). (default: `"Markdown"`)
  - `Categories`: (array of strings) All categories that appear at least once in chart-local events. This field is auto-corrected when loading or saving the LTC file if any category appears in chart-local events but not in the array. Categories without events are also preserved.
 
