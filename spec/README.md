@@ -18,7 +18,7 @@ The LTC format is intended to record the _whole life_ of a subject, so becoming 
 
 The LTC format implements the above principles as follows:
 
- - The format is _open_ (MIT License with conditions) and _human-readable_ ([TOML](https://toml.io/en/)-compatible).
+ - The format is _open_ (MIT License with an "always-downloadable" condition) and _human-readable_ ([TOML](https://toml.io/en/)-compatible).
  - The format attempts to _auto-correct_ the deviations from the specification in a _reasonable_ (not wrong) way, and reports them when it does.
  - A recent version of the format is a _strict superset_ of any preceding versions.
 
