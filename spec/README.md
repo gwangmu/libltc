@@ -92,7 +92,7 @@ The subject object specifies basic information about the LTC file's subject. The
  - `EndDate`: (time object) The end date of this subject. For a human subject, this is considered their date of death. (default: time object default)
  - `Sex`: (string) The _congenital_ sex of this subject. (default: empty)
 
-Note on the _identified_ sex: because it can change over time, it's better to specify it as a [period](#Event) in a separate category (e.g., "Identified Gender") rather than to be included in the subject object. 
+Note on the _identified_ sex: because it can change over time, it's better to specify it as a [period](#Event) in a separate category (e.g., "Identified Gender") rather than to be included in the subject object that lacks the capability of the passage of time.
 
 #### Event
 
