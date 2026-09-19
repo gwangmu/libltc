@@ -56,9 +56,9 @@ A time object consists of six optional integer-typed fields: `Year`, `Month`, `D
 
 The timezone may depend on the subject's physical location associated with the enclosing object, but it's always set to UTC for internal representation. Recognized attributes below:
 
- - `Incremental`: The time is added to the [chart subject](#Subject)'s `StartDate`. The `Incremental` attribute of the chart subject's `StartDate` is ignored.
+ - `Incremental`: If not the [chart subject](#Subject)'s `StartDate`, the time is added to the chart subject's `StartDate`.
  - `Approx`: The time is approximate.
- - `Untracked`: The time is started to be tracked after or ended to be untracked before.
+ - `Untracked`: At the boundary of a certain period, the time outside this period is untracked.
  - `Emphasized`: The time should be emphasized.
 
 #### Name
@@ -73,7 +73,7 @@ A name object consists of three optional string-typed fields: `First`, `Middle`,
  - TOML object: string.
  - Default: empty.
 
-An ID object is a unique string within the LTC file; the LTC file shouldn't contain duplicate ID object values, regardless of the enclosing object's type. If an ID object is empty, a unique ID is auto-assigned across the LTC file load/save boundary. If any ID object values are duplicated, they are replaced with new unique IDs, and their old duplicate ID object value is added to the enclosing object's attribute list with a key `OldID`.
+An ID object is a string that represents the unique ID of the enclosing object within the LTC file. The LTC file shouldn't contain duplicate ID object values regardless of the enclosing object's type. Across the LTC file load/save boundary, a duplicate or empty ID object is assigned a new unique value, and its old value is added to the enclosing object's attribute list with a key `OldID` (if it was non-empty).
 
 ### Main Objects 
 
@@ -104,35 +104,35 @@ The subject object specifies basic information about the LTC file's subject. The
  - `EndDate`: (time object) The end date of this subject. For a human subject, this is considered their date of death. (default: time object default)
  - `Sex`: (string) The _congenital_ sex of this subject. (default: empty)
 
-Note on the _identified_ sex: Because the identified gender can change over time, it's better to specify it as a [period](#Event) in a separate category (e.g., "Identified Gender") rather than to be included in the subject object that lacks the capability of the passage of time.
+Note on the _identified_ sex: Because the identified gender can change over time, it's better to specify it as a [period](#Event) in a separate category (e.g., "Identified Gender") rather than as a field in the subject object that lacks the representation capability of the passage of time.
 
 #### Event
 
  - TOML object: `Event` table array.
 
-An event object is a fundamental object of the LTC file. It describes a specific event or period during the subject's lifetime. Note that _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format represents a period as an event object as well.
+An event object is a fundamental object of the LTC file. It describes a specific event or period during the subject's lifetime. Note that _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format does not distinguish them and uses the same event object,
 
 Event objects have two key dimensions: kind and type. On the _kind_ dimension, event objects are classified into _chart-local_ and _imported_. Chart-local event objects are those contained in the current LTC file. Imported event objects are those imported from other LTC files via [import objects](#Import). 
 
-On the _type_ dimension, event objects are classified into _plain_, _embedding_, and _subchart_. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event from another LTC file. Subchart event objects embed another LTC file in its entirety.
-
-Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects. Fields below:
+On the _type_ dimension, event objects are classified into _plain_, _embedding_, and _subchart_. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event of another LTC file. Subchart event objects embed an entire LTC file. Fields below:
 
  - `ID`: (ID object) The ID of the event. (default: ID object default)
  - `Title`: (string) The descriptive summary ("title") of the event. (default: empty)
  - `Category`: (string) The category of the event. (default: empty)
  - `StartDate`: (time object) The start date of the event. (default: time object default)
  - `EndDate`: (time object) The end date of the event. (default: time object default)
- - `Subchart`: (string) The URI to the external LTC file to embed as a subchart. See [referencing](#Referencing) for a valid URI. (default: empty)
- - `Embed`: (string) The URI to the event of an external LTC file to embed. See [referencing](#Referencing) for a valid URI. (default: empty)
+ - `Subchart`: (string) The URI to an embed-target LTC file as a "subchart". See [referencing](#Referencing) for a valid URI. (default: empty)
+ - `Embed`: (string) The URI to an embed-target event. See [referencing](#Referencing) for a valid URI. (default: empty)
  - `Note`: (string) The note of the event. (default: empty)
 
-An event object is _embedding-typed_ with a non-empty `Embed` field, _subchart-typed_ with a non-empty `Subchart` field, or _plain-typed_ otherwise. The `Embed` and `Subchart` fields are mutually exclusive; if they both exist, the front-end LTC tool arbitrarily takes one of them.
+An event object is _embedding-typed_ with a non-empty `Embed` field, _subchart-typed_ with a non-empty `Subchart` field, or _plain-typed_ otherwise. The `Embed` and `Subchart` fields are mutually exclusive; if they both exist, the front-end LTC tool arbitrarily takes one of them and reports that the other was ignored. `Subchart`s can reference the current LTC file, and `Embed`s can reference an event in the current LTC file. By default, nested referencing is limited to 10 times, but the front-end LTC tool may adjust this.
 
-For embedding event objects, `StartDate`, `EndDate`, and `Title` are overridden by the embedded event's `StartDate`, `EndDate`, and `Title`, respectively, unless they are unknown. For subchart event objects, `StartDate`, `EndDate`, and `Title` are overridden by the subchart subject's `StartDate`, `EndDate`, and the stringified subchart subject's `Name`, respectively, unless they are unknown. For non-plain event objects, `Note` serves as a chart-local note for the corresponding event. Recognized attributes below:
+For embedding event objects, `StartDate`, `EndDate`, and `Title` are overridden by the embedded event's `StartDate`, `EndDate`, and `Title`, respectively, unless they are unknown in the embedded event. For subchart event objects, `StartDate`, `EndDate`, and `Title` are overridden by the subchart subject's `StartDate`, `EndDate`, and the stringified subchart subject's `Name`, respectively, unless they are unknown in the embedded subchart. `Note` is valid for all event object types. Recognized attributes below:
 
  - `ContinuedFrom:<id>`: This event is continued from another event with an ID `<id>`.
  - `AmbiguousPeriod`: This event has an ambiguous period overall.
+
+Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects.
 
 Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: An event may set `Approx` start/end dates if they are independently approximate, or set the `AmbiguousPeriod` attribute if the temporal information of the entire event (e.g., duration or approximate start/end dates with wide margins) is largely uncertain.
 
