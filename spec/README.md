@@ -78,19 +78,21 @@ The header object specifies the LTC format version with the `Version` field. (de
 The setting object specifies basic information about the LTC file. Fields below:
 
  - `CalendarSystem`: (string) The calendar system that the [time objects](#Time) will use. (default: `"Gregorian"`)
- - `NoteFormat`: (string) The format of `Note`s for [events](#Event). (default: `"Markdown"`)
- - `Categories`: (array of strings) All categories that appear at least once in chart-local events. This field is auto-corrected when loading or saving the LTC file if any category appears in chart-local events but not in the array. Categories without events are also preserved.
+ - `NoteFormat`: (string) The format of notes for [chart-local events](#Event). (default: `"Markdown"`)
+ - `Categories`: (array of strings) All categories that appear at least once in chart-local events. This field is auto-corrected when loading/saving the LTC file. Categories without events are also preserved.
 
-#### Entity
+#### Subject
 
- - TOML object: `Entity` table.
+ - TOML object: `Subject` table.
 
-The entity object specifies basic information about the LTC file's subject. The subject is primarily a person, but it can also be a non-person, such as a group of people (e.g., race, country, company, friend group, ...) or a time-sensitive event sequence (e.g., global conflict, curriculum, public gathering, ...). Fields below:
+The subject object specifies basic information about the LTC file's subject. The subject is primarily a person, but it can also be a non-person, such as a group of people (e.g., race, country, company, friend group, ...) or a time-sensitive event sequence (e.g., global conflict, curriculum, public gathering, ...). Fields below:
 
- - `Name`: (name object) The name of the entity. (default: name object default)
- - `StartDate`: (time object) The start date of this entity. If the entity is a person, the start date is simply their birthday. (default: earliest `StartDate` in chart-local events, or unknown time if no chart-local events exist)
- - `EndDate`: (time object) The end date of this entity. If the entity is a person, the end date is their day of death. (default: unknown time)
- - `Sex`: (string) The _congenital_ sex of this entity. Because the identified gender can change over time, it's better to specify it as a period in its own category. (default: empty)
+ - `Name`: (name object) The name of the subject. (default: name object default)
+ - `StartDate`: (time object) The start date of this subject. For a human subject, this is considered their birthday. (default: time object default)
+ - `EndDate`: (time object) The end date of this subject. For a human subject, this is considered their date of death. (default: time object default)
+ - `Sex`: (string) The _congenital_ sex of this subject. (default: empty)
+
+Note on the _identified_ sex: because it can change over time, it's better to specify it as a [period](#Event) in a separate category (e.g., "Identified Gender") rather than to be included in the subject object. 
 
 #### Event
 
