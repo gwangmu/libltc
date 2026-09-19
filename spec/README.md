@@ -92,7 +92,7 @@ The subject object specifies basic information about the LTC file's subject. The
  - `EndDate`: (time object) The end date of this subject. For a human subject, this is considered their date of death. (default: time object default)
  - `Sex`: (string) The _congenital_ sex of this subject. (default: empty)
 
-Note on the _identified_ sex: because it can change over time, it's better to specify it as a [period](#Event) in a separate category (e.g., "Identified Gender") rather than to be included in the subject object that lacks the capability of the passage of time.
+Note on the _identified_ sex: Because the identified gender can change over time, it's better to specify it as a [period](#Event) in a separate category (e.g., "Identified Gender") rather than to be included in the subject object that lacks the capability of the passage of time.
 
 #### Event
 
@@ -104,7 +104,7 @@ Event objects have two key dimensions: kind and type. On the _kind_ dimension, e
 
 On the _type_ dimension, event objects are classified into _plain_, _embedding_, and _subchart_. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event from another LTC file. Subchart event objects embed another LTC file in its entirety.
 
-There is an important distinction between subchart event objects and [import objects](#Import). An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects.
+Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects.
 
 #### Annex
 
