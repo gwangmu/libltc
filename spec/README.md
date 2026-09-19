@@ -10,7 +10,7 @@ The format follows the [calendar versioning scheme](https://calver.org/), "YY.MM
 
 ### Principle
 
-The LTC format is intended to record the _whole life_ of an individual, so becoming inaccessible in some way (e.g., if an editing tool is discontinued or a file-hosting service closes) potentially means losing the entire history of an individual, presumably unintentionally. To prevent this destructive scenario, the format is designed based on the following principles:
+The LTC format is intended to record the _whole life_ of a subject, so becoming inaccessible in some way (e.g., if an editing tool is discontinued or a file-hosting service closes) potentially means losing the entire history of the subject, presumably unintentionally. To prevent this destructive scenario, the format is designed based on the following principles:
 
  - The format should be _human-understandable_ via a text editor. A format specification will exist, but even without detailed knowledge of it, users should be able to deduce the meaning of the contents using a text editor and, if needed, reconstruct them manually in an emergency.
  - The format should be _as permissive as possible_ in that some deviations from the specification shouldn't invalidate the whole format.
