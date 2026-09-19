@@ -104,7 +104,7 @@ Event objects have two key dimensions: kind and type. On the _kind_ dimension, e
 
 On the _type_ dimension, event objects are classified into _plain_, _embedding_, and _subchart_. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event from another LTC file. Subchart event objects embed another LTC file in its entirety.
 
-There is an important distinction between subchart event objects and (import objects)[#Import]. An external LTC file embedded via a subchart event object is still a separate LTC file; the event object may link to the embedded chart, but the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file. As a result, the categories with the same name display both the chart-local and imported event objects.
+There is an important distinction between subchart event objects and [import objects](#Import). An external LTC file embedded via a subchart event object is still a separate LTC file; the event object may link to the embedded chart, but the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file. As a result, the categories with the same name display both the chart-local and imported event objects.
 
 #### Annex
 
