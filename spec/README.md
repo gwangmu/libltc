@@ -2,7 +2,7 @@
 
 ## Introduction
 
-The Lifetime Chart (LTC) format is a TOML-compatible text format intended for recording an individual's lifetime history in a timeline.
+The Lifetime Chart (LTC) format is a TOML-compatible text format intended for recording a subject's lifetime history in a timeline.
 
 ### Versioning
 
