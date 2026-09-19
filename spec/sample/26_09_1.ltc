@@ -1,7 +1,6 @@
 Version = "26.09.1"
 
 [Setting]
-DisplayLanguage = "English"
 CalendarSystem = "Gregorian"
 NoteFormat = "Markdown"
 Categories = [
