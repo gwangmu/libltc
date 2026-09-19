@@ -50,7 +50,7 @@ The same attribute key can appear multiple times in an attribute list. In this c
  - TOML object: inline table.
  - Default: `1` for `Day`, `0` for others.
 
-A time object consists of six optional integer-typed fields: `Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`. If no field is specified, the time is considered _unknown_. The timezone is always UTC.
+A time object consists of six optional integer-typed fields: `Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`. If no field is specified, the time is considered _unknown_. The timezone depends on the location of the subject associated with the enclosing object, but it's always set to UTC for internal representation.
 
 If an attribute `Incremental` is set, the time is added to the [chart subject](#Subject)'s `StartDate`. The `Incremental` attribute of the chart subject's `StartDate` is ignored. 
 
