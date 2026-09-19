@@ -21,7 +21,7 @@ The LTC format implements the above principles as follows:
 
  - The format is based on the [TOML](https://toml.io/en/) format.
  - The format is _open_ (conditioned MIT License), and the license includes an "always-downloadable" condition for files written in it.
- - The format attempts to _auto-correct_ the deviations from the specification in a _reasonable_ (not wrong) way, and reports them when it does.
+ - The format attempts to _auto-correct_ the deviations from the specification in a sensible way, and reports them when it does.
  - A recent version of the format is a _strict superset_ of any preceding versions.
 
 ## Specification
