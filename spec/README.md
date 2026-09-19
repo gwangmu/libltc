@@ -14,7 +14,7 @@ The LTC format is intended to record the _whole life_ of a subject, so becoming 
 
  - The format should be _human-understandable_ via a text editor. Even without detailed knowledge of the specification, users should be able to deduce the meaning of the contents using a text editor.
  - The format (and the file written in it) should be _always accessible_, otherwise some LTC files may end up being locked into some private business.
- - The format should be _permissive_ in that some deviations from the specification shouldn't invalidate the whole file.
+ - The format should be _lenient_ so that some deviations from the specification shouldn't invalidate the whole file.
  - The format should be _backward compatible_, otherwise an LTC file may not be accessible if a tool does not support an old format.
 
 The LTC format implements the above principles as follows:
