@@ -142,6 +142,8 @@ Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: 
 
 ### Chart Object
 
+ - TOML object: the entire TOML file.
+
 TODO: define "empty"
 
 ### ID Qualification
