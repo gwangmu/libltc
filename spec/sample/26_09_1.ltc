@@ -39,7 +39,7 @@ Note = """
 ID = "lab3"                     # *Date: embedded event's entity *Date
 Title = "qwerqewrweqr"          # default: embedded event's title 
 Category = "Relationship"
-Embed = { Chart = "https://link_to_chart", ID = "event's_id" }
+Embed = "https://link_to_chart#event's_id"
 Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
 Note = """
 """
