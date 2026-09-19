@@ -53,6 +53,7 @@ Data = """
 
 # Not now.
 [[Import]]
+ID = "imp123"
 Link = "https://link_to_chart"
 StartDate = { Year = 0 }        # Optional (default: earliest)
 EndDate = { Year = 9999 }       # Optional (default: latest)
