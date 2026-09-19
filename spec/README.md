@@ -144,4 +144,4 @@ Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: 
 
 ### Referencing
 
-By default, nested references are limited to 10 times, but the front-end LTC tool may adjust this. If the nested reference exceeds the limit, the front-end LTC tool should report this and treat the initial embedding event object as a plain type.
+By default, nested references are limited to 10 times, but the front-end LTC tool may adjust this. If the nested reference exceeds the limit, the front-end LTC tool should report this and treat the final referenced object as an empty object of the same type.
