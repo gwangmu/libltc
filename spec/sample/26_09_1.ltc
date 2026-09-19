@@ -18,11 +18,13 @@ EndDate = { Year = 9999 }
 Sex = "Male"
 
 [[Event]]
-ID = "lab1"                     # *Date: subchart's entity *Date
+ID = "lab1"                     # *Date: subchart's entity *Date (if exist)
 Title = "qwerqewrweqr"          # default: subchart's name
 Category = "Relationship"
 Subchart = "https://link_to_chart"
 Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
+Note = """
+"""
 
 [[Event]]
 ID = "lab2"
@@ -40,6 +42,8 @@ Title = "qwerqewrweqr"          # default: embedded event's title
 Category = "Relationship"
 Embed = { Chart = "https://link_to_chart", ID = "event's_id" }
 Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
+Note = """
+"""
 
 [[Annex]]
 ID = "idexample"
