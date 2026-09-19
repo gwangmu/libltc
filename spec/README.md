@@ -131,7 +131,7 @@ For embedding event objects, `StartDate`, `EndDate`, and `Title` are overridden 
 
 Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects. Recognized attributes below:
 
- - `ContinuedFrom:<id>`: This event is continued from another event with a fully-qualified ID `<id>`. See [ID Qualification](#ID-Qualification) for a valid fully-qualified ID.
+ - `ContinuedFrom:<id>`: This event is continued from another event with a qualified ID `<id>`. See [ID Qualification](#ID-Qualification) for a qualified ID.
  - `AmbiguousPeriod`: This event has an ambiguous period overall.
 
 Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: An event may set `Approx` start/end dates if they are independently approximate, or set the `AmbiguousPeriod` attribute if the temporal information of the entire event (e.g., duration or approximate start/end dates with wide margins) is largely uncertain.
