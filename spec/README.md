@@ -73,7 +73,7 @@ A name object consists of three optional string-typed fields: `First`, `Middle`,
  - TOML object: string.
  - Default: empty.
 
-An ID object is a string that represents the unique ID of the enclosing object within the LTC file. The LTC file shouldn't contain duplicate ID object values regardless of the enclosing object's type. Across the LTC file load/save boundary, a duplicate or empty ID object is assigned a new unique value, and its old value is added to the enclosing object's attribute list with a key `OldID` (if it was non-empty).
+An ID object is a string that represents the _chart-local_ ID of the enclosing object ("chart-local ID": see [ID Qualification](#ID-Qualification) for more). The LTC file shouldn't contain duplicate ID object values regardless of the enclosing object's type. Across the LTC file load/save boundary, a duplicate or empty ID object is assigned a new unique value, and its old value is added to the enclosing object's attribute list with a key `OldID` (if it was non-empty).
 
 ### Main Objects 
 
@@ -127,12 +127,12 @@ On the _type_ dimension, event objects are classified into _plain_, _embedding_,
 
 An event object is _embedding-typed_ with a non-empty `Embed` field, _subchart-typed_ with a non-empty `Subchart` field, or _plain-typed_ otherwise. The `Embed` and `Subchart` fields are mutually exclusive; if they both exist, the front-end LTC tool arbitrarily takes one of them and reports that the other was ignored. `Subchart`s can reference the current LTC file, and `Embed`s can reference an event in the current LTC file. By default, nested referencing is limited to 10 times, but the front-end LTC tool may adjust this.
 
-For embedding event objects, `StartDate`, `EndDate`, and `Title` are overridden by the embedded event's `StartDate`, `EndDate`, and `Title`, respectively, unless they are unknown in the embedded event. For subchart event objects, `StartDate`, `EndDate`, and `Title` are overridden by the subchart subject's `StartDate`, `EndDate`, and the stringified subchart subject's `Name`, respectively, unless they are unknown in the embedded subchart. `Note` is valid for all event object types. Recognized attributes below:
+For embedding event objects, `StartDate`, `EndDate`, and `Title` are overridden by the embedded event's `StartDate`, `EndDate`, and `Title`, respectively, unless they are unknown in the embedded event. For subchart event objects, `StartDate`, `EndDate`, and `Title` are overridden by the subchart subject's `StartDate`, `EndDate`, and the stringified subchart subject's `Name`, respectively, unless they are unknown in the embedded subchart. `Note` is valid for all event object types. 
 
- - `ContinuedFrom:<id>`: This event is continued from another event with an ID `<id>`.
+Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects. Recognized attributes below:
+
+ - `ContinuedFrom:<id>`: This event is continued from another event with a fully-qualified ID `<id>`. See [ID Qualification](#ID-Qualification) for a valid fully-qualified ID.
  - `AmbiguousPeriod`: This event has an ambiguous period overall.
-
-Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects.
 
 Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: An event may set `Approx` start/end dates if they are independently approximate, or set the `AmbiguousPeriod` attribute if the temporal information of the entire event (e.g., duration or approximate start/end dates with wide margins) is largely uncertain.
 
