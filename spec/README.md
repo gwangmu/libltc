@@ -73,7 +73,7 @@ A name object consists of three optional string-typed fields: `First`, `Middle`,
  - TOML object: string.
  - Default: empty.
 
-An ID object is a string that represents the _chart-local_ ID of the enclosing object ("chart-local ID": see [ID Qualification](#ID-Qualification) for more). The LTC file shouldn't contain duplicate ID object values regardless of the enclosing object's type. Across the LTC file load/save boundary, a duplicate or empty ID object is assigned a new unique value, and its old value is added to the enclosing object's attribute list with a key `OldID` (if it was non-empty).
+An ID object is a string that represents the _chart-local_ ID of the enclosing object ("chart-local ID": see [ID Qualification](#ID-Qualification) for more). The LTC file shouldn't contain duplicate ID object values regardless of the enclosing object's type. Across the LTC file load/save boundary, a duplicate or empty ID object is assigned a new unique chart-local ID, and its old value is added to the enclosing object's attribute list with a key `OldID` (if it was non-empty).
 
 ### Main Objects 
 
