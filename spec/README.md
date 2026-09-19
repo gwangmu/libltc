@@ -50,16 +50,16 @@ The same attribute key can appear multiple times in an attribute list. In this c
  - TOML object: inline table.
  - Default: `1` for `Day`, `0` for others.
 
-A time object consists of six optional integer-typed fields: `Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`. If no field is specified, the time is regarded as _unknown_.
+A time object consists of six optional integer-typed fields: `Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`. If no field is specified, the time is considered _unknown_.
 
-If an attribute `Incremental` is set, the time is added to the [chart entity](#Entity)'s `StartDate`. The `Incremental` attribute of the chart entity's `StartDate` is ignored.
+If an attribute `Incremental` is set, the time is added to the [chart subject](#Subject)'s `StartDate`. The `Incremental` attribute of the chart subject's `StartDate` is ignored.
 
 #### Name
 
  - TOML object: inline table.
- - Default: `Unknown` for `First`, empty for others.
+ - Default: empty for all fields.
 
-A name object consists of three optional string-typed fields: `First`, `Middle`, and `Last`.
+A name object consists of three optional string-typed fields: `First`, `Middle`, and `Last`. If no field is specified, the name is considered _unknown_.
 
 ### Main Objects 
 
