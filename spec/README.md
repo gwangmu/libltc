@@ -138,13 +138,24 @@ Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: 
 
 #### Annex
 
+ - TOML object: table in the `Annex` table array.
+
+An annex object represents data attached to the LTC file: photos, text snippets, links, etc. Fields below:
+
+ - `ID`: (ID object) The ID of the annex. (default: ID object default)
+ - `Extension`: (string) The data extension of the annex. (default: "txt")
+ - `Encoding`: (string) The data encoding of the annex. (default: "none")
+ - `Data`: (string) The encoded data of the annex. (default: "")
+
+The `none` encoding performs no encoding. Since the LTC format is text-based, any binary data should be encoded into a text representation before being included in an LTC file. If encoded `Data` is binary, the front-end LTC tool should decode `Data` with `Encoding` first (if it's non-`none`), re-encode it in a base64 format, and replace `Encoding` with `base64`.
+
 #### Import
 
 ### Chart Object
 
  - TOML object: the entire TOML file
 
-TODO: define "empty"
+A chart object represents the entire chart described in an LTC file. An _empty_ chart is defined as a chart with empty main objects.
 
 ### ID Qualification
 
