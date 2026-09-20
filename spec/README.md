@@ -138,7 +138,7 @@ Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: 
 
 #### Annex
 
- - TOML object: table in the `Annex` table array.
+ - TOML object: table in the `Annex` table array
 
 An annex object represents data attached to the LTC file: photos, text snippets, links, etc. Fields below:
 
@@ -152,6 +152,27 @@ The `none` encoding performs no encoding. Since the LTC format is text-based, an
 By default, `Extension` is dependent on the front-end LTC tool, except `txt` for text data and `png` for PNG picture data. The front-end LTC tool should assume unrecognized `Extension`s (including an empty `Extension`) as `txt` and report it to users.
 
 #### Import
+
+ - TOML object: table in the `Import` table array
+
+An import object declares an external LTC file to merge into the current LTC file. As a result, the event objects in the imported LTC file are added to the same-name category of the current LTC file as imported event objects. This may create new categories if the current LTC file has no same-name category. The import is recursive, meaning it should also merge nested import objects in the imported LTC file. See [referencing](#Referencing) for the nested import limit. Fields below:
+
+ - `ID`: (ID object) The ID of the import. (default: ID object default)
+ - `Link`: (string) The URI to an import-target LTC file. See [referencing](#Referencing) for a valid URI. (default: empty)
+ - `StartDate`: (time object) The start date of the import. (default: time object default)
+ - `EndDate`: (time object) The end date of the import. (default: time object default)
+ - `Categories`: (array of strings) Categories to import in the import-target LTC file. (default: all categories in the import-target LTC file)
+
+`StartDate` and `EndDate` act as a _period mask_ for imported events. Specifically,
+
+ - For the event objects that ended before `StartDate` or started after `EndDate`, they are not imported.
+ - For the event objects that started after `StartDate` and ended before `EndDate` (inclusive), they are imported as they are.
+ - For the event objects that started between `StartDate` and `EndDate` (inclusive) but ended after `EndDate`, their `EndDate` is corrected to the specified `EndDate` with an `Untracked` attribute.
+ - For the event objects that ended between `StartDate` and `EndDate` (inclusive) but started before `StartDate`, their `StartDate` is corrected to the specified `StartDate` with an `Untracked` attribute.
+
+Recognized attributes below:
+
+ - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`.
 
 ### Chart Object
 
