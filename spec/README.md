@@ -91,7 +91,7 @@ The setting object specifies basic information about the LTC file. Fields below:
 
  - `CalendarSystem`: (string) The calendar system that the [time objects](#Time) will use. (default: `"Gregorian"`)
  - `NoteFormat`: (string) The format of notes for [chart-local events](#Event). (default: `"Markdown"`)
- - `Categories`: (array of strings) All categories that appear at least once in chart-local events. This field is auto-corrected when loading/saving the LTC file. Categories without events are also preserved.
+ - `Categories`: (array of strings) All categories that appear at least once in any [non-subchart events](#Event). This field is auto-corrected when loading/saving the LTC file. Categories without events are also preserved.
 
 #### Subject
 
