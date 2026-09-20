@@ -38,7 +38,7 @@ Each LTC object type matches a specific TOML object type, but other equivalent T
 
 #### Attribute List
 
- - TOML object: array of strings.
+ - TOML object: array of strings
  - Default: empty
 
 An attribute list is an array of strings, each representing a colon-separated (`:`) key-value attribute pair. If multiple colons exist in a string, the leftmost colon separates the key-value pair. If no colon exists, the attribute is given an empty value (`""`).
@@ -49,8 +49,8 @@ By default, the `Attrs` field of any TOML-table-type object is considered an att
 
 #### Time
 
- - TOML object: inline table.
- - Default: `1` for `Day`, `0` for others.
+ - TOML object: inline table
+ - Default: `1` for `Day`, `0` for others
 
 A time object consists of six optional integer-typed fields: `Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`. If no field is specified, the time is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file.
 
@@ -63,15 +63,15 @@ The timezone may depend on the subject's physical location associated with the e
 
 #### Name
 
- - TOML object: inline table.
- - Default: empty for all fields.
+ - TOML object: inline table
+ - Default: empty for all fields
 
 A name object consists of three optional string-typed fields: `First`, `Middle`, and `Last`. If no field is specified, the name is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file.
 
 #### ID
 
- - TOML object: string.
- - Default: empty.
+ - TOML object: string
+ - Default: empty
 
 An ID object is a string that represents the _chart-local_ ID of the enclosing object ("chart-local ID": see [ID Qualification](#ID-Qualification) for more). The LTC file shouldn't contain duplicate ID object values regardless of the enclosing object's type. Across the LTC file load/save boundary, a duplicate or empty ID object is assigned a new unique chart-local ID, and its old value is added to the enclosing object's attribute list with a key `OldID` (if it was non-empty).
 
@@ -79,13 +79,13 @@ An ID object is a string that represents the _chart-local_ ID of the enclosing o
 
 #### Header
 
- - TOML object: top-level table.
+ - TOML object: top-level table
 
 The header object specifies the LTC format version with the `Version` field. (default: `26.09.1`; the lowest version).
 
 #### Setting
 
- - TOML object: `Setting` table.
+ - TOML object: `Setting` table
 
 The setting object specifies basic information about the LTC file. Fields below:
 
@@ -95,7 +95,7 @@ The setting object specifies basic information about the LTC file. Fields below:
 
 #### Subject
 
- - TOML object: `Subject` table.
+ - TOML object: `Subject` table
 
 The subject object specifies basic information about the LTC file's subject. The subject is primarily a person, but it can also be a non-person, such as a group of people (e.g., race, country, company, friend group, ...) or a time-sensitive event sequence (e.g., global conflict, curriculum, public gathering, ...). Fields below:
 
@@ -108,7 +108,7 @@ Note on the _identified_ sex: Because the identified gender can change over time
 
 #### Event
 
- - TOML object: table in the `Event` table array.
+ - TOML object: table in the `Event` table array
 
 An event object is a fundamental object of the LTC file. It describes a specific event or period during the subject's lifetime. Note that _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format does not distinguish them and uses the same event object,
 
@@ -142,7 +142,7 @@ Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: 
 
 ### Chart Object
 
- - TOML object: the entire TOML file.
+ - TOML object: the entire TOML file
 
 TODO: define "empty"
 
