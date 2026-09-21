@@ -77,6 +77,8 @@ An ID object is a string that represents the _chart-local_ ID of the enclosing o
 
 ### Main Objects 
 
+Main objects are divided into two _kinds_: chart-local and imported. Chart-local main objects are those contained in the current LTC file. Imported main objects are those imported from other LTC files via [import objects](#Import). 
+
 #### Header
 
  - TOML object: top-level table
@@ -112,9 +114,7 @@ Note on the _identified_ sex: Because the identified gender can change over time
 
 An event object is a fundamental object of the LTC file. It describes a specific event or period during the subject's lifetime. Note that _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format does not distinguish them and uses the same event object,
 
-Event objects have two key dimensions: kind and type. On the _kind_ dimension, event objects are classified into _chart-local_ and _imported_. Chart-local event objects are those contained in the current LTC file. Imported event objects are those imported from other LTC files via [import objects](#Import). 
-
-On the _type_ dimension, event objects are classified into _plain_, _embedding_, and _subchart_. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event of another LTC file. Subchart event objects embed an entire LTC file. Fields below:
+Event objects have three _types_: plain, embedding, and subchart. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event of another LTC file. Subchart event objects embed an entire LTC file. Fields below:
 
  - `ID`: (ID object) The ID of the event. (default: ID object default)
  - `Title`: (string) The descriptive summary ("title") of the event. (default: empty)
@@ -184,6 +184,14 @@ Recognized attributes below:
 A chart object represents the entire chart described in an LTC file. An _empty_ chart is defined as a chart with empty main objects.
 
 ### ID Qualification
+
+There are two types of IDs: _chart-local_ and _qualified_. The chart-local ID is the one directly specified in the object. The qualified ID is the one prefixed with the IDs of the import object that the corresponding object is imported through. In the qualified ID, the IDs in the prefix are separated with slashes (`/`), and the IDs of the import objects with less nesting levels are prefixed first. The qualified ID is the same as the chart-local ID if the object was not imported ("chart-local"). Some examples below:
+
+ - For an event object `e001` that wasn't imported at all, the qualified ID is also `e001`.
+ - For an event object `e002` that was imported through an import object `i001`, the qualified ID is `i001/e002`.
+ - For an event object `e003` that was imported through an import object `i002`, which in turn was imported through an import object `i001`, the qualified ID is `i001/i002/e003`.
+
+The example above describes the qualified IDs of event objects, but the same also applies to any objects with chart-local IDs (e.g., annex and import objects).
 
 ### Referencing
 
