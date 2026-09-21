@@ -185,7 +185,7 @@ A chart object represents the entire chart described in an LTC file. An _empty_ 
 
 ### ID Qualification
 
-There are two types of IDs: _chart-local_ and _qualified_. The chart-local ID is the one directly specified in the object. The qualified ID is the one prefixed with the IDs of the import object that the corresponding object is imported through. In the qualified ID, the IDs in the prefix are separated by slashes (`/`), and the IDs of import objects with fewer nesting levels come first. The qualified ID is the same as the chart-local ID if the object was not imported ("chart-local"). Some examples below:
+There are two types of IDs: _chart-local_ and _qualified_. The chart-local ID is the one directly specified in the object. The qualified ID is the chart-local ID prefixed with the IDs of the import object that the corresponding object is imported through. In the qualified ID, the IDs in the prefix are separated by slashes (`/`), and the IDs of import objects with fewer nesting levels come first. The qualified ID is the same as the chart-local ID if the object was not imported ("chart-local"). Some examples below:
 
  - For an event object `e001` that wasn't imported at all, the qualified ID is also `e001`.
  - For an event object `e002` that was imported through an import object `i001`, the qualified ID is `i001/e002`.
