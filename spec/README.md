@@ -170,8 +170,8 @@ An import object declares an external LTC file to merge into the current LTC fil
  - For the event objects with unknown `StartDate` and `EndDate`, they are imported unconditionally. 
  - For the event objects that ended before `StartDate` or started after `EndDate`, they are not imported.
  - For the event objects that started after `StartDate` and ended before `EndDate` (inclusive), they are imported as they are.
- - For the event objects that started between `StartDate` and `EndDate` (exclusive) but ended after `EndDate`, their `EndDate` is corrected to the specified `EndDate` with an `Untracked` attribute.
- - For the event objects that ended between `StartDate` and `EndDate` (exclusive) but started before `StartDate`, their `StartDate` is corrected to the specified `StartDate` with an `Untracked` attribute.
+ - For the event objects that started between `StartDate` and `EndDate` (exclusive) but ended after `EndDate`, their `EndDate` is corrected to the import object's `EndDate` with an `Untracked` attribute.
+ - For the event objects that ended between `StartDate` and `EndDate` (exclusive) but started before `StartDate`, their `StartDate` is corrected to the import object's `StartDate` with an `Untracked` attribute.
  
 Recognized attributes below:
 
