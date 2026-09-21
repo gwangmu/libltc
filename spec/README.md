@@ -127,7 +127,9 @@ On the _type_ dimension, event objects are classified into _plain_, _embedding_,
 
 An event object is _embedding-typed_ with a non-empty `Embed` field, _subchart-typed_ with a non-empty `Subchart` field, or _plain-typed_ otherwise. The `Embed` and `Subchart` fields are mutually exclusive; if they both exist, the front-end LTC tool arbitrarily takes one of them and reports that the other was ignored. `Subchart`s can reference the current LTC file, and `Embed`s can reference an event in the current LTC file. See [referencing](#Referencing) for nested references.
 
-For embedding event objects, `StartDate`, `EndDate`, and `Title` are overridden by the embedded event's `StartDate`, `EndDate`, and `Title`, respectively, unless they are unknown in the embedded event. For subchart event objects, `StartDate`, `EndDate`, and `Title` are overridden by the subchart subject's `StartDate`, `EndDate`, and the stringified subchart subject's `Name`, respectively, unless they are unknown in the embedded subchart. `Note` is valid for all event object types. 
+For embedding event objects, `StartDate`, `EndDate`, and `Title` are overridden by the embedded event's `StartDate`, `EndDate`, and `Title`, respectively, unless they are unknown in the embedded event. For subchart event objects, `StartDate`, `EndDate`, and `Title` are overridden by the subchart subject's `StartDate`, `EndDate`, and the stringified subchart subject's `Name`, respectively, unless they are unknown in the embedded subchart. `Note` is valid for all event object types.
+
+`StartDate` should be earlier than or equal to `EndDate`; if not, both dates should be marked as unknown, and their old `StartDate` and `EndDate` should be added to the attribute list with the keys `OldStartDate` and `OldEndDate` across the LTC file load/save boundary, respectively. If either `StartDate` or `EndDate` is unknown, the unknown date is auto-calculated to a month before or after the known one. If both `StartDate` and `EndDate` are unknown, the front-end LTC tool should display such events separately and may not display them on the timeline.
 
 Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects. Recognized attributes below:
 
@@ -163,14 +165,15 @@ An import object declares an external LTC file to merge into the current LTC fil
  - `EndDate`: (time object) The end date of the import. (default: time object default)
  - `Categories`: (array of strings) Categories to import in the import-target LTC file. (default: all categories in the import-target LTC file)
 
-`StartDate` and `EndDate` act as a _period mask_ for imported events. Specifically,
+`StartDate` and `EndDate` act as a _period mask_ for imported events. Specifically, after treating unknown `StartDate` and `EndDate` the same way as other [event objects](#Event),
 
+ - For the event objects with unknown `StartDate` and `EndDate`, they are imported unconditionally. 
  - For the event objects that ended before `StartDate` or started after `EndDate`, they are not imported.
  - For the event objects that started after `StartDate` and ended before `EndDate` (inclusive), they are imported as they are.
  - For the event objects that started between `StartDate` and `EndDate` (exclusive) but ended after `EndDate`, their `EndDate` is corrected to the specified `EndDate` with an `Untracked` attribute.
  - For the event objects that ended between `StartDate` and `EndDate` (exclusive) but started before `StartDate`, their `StartDate` is corrected to the specified `StartDate` with an `Untracked` attribute.
-
-If `StartDate` or `EndDate` is unknown, it's assumed to be the earliest `StartDate` or the latest `EndDate` among the events in the imported LTC file, respectively. Events with unknown `StartDate` and `EndDate` are imported unconditionally. Recognized attributes below:
+ 
+Recognized attributes below:
 
  - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`.
 
