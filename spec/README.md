@@ -185,14 +185,18 @@ A chart object represents the entire chart described in an LTC file. An _empty_ 
 
 ### ID Qualification
 
-There are two types of IDs: _chart-local_ and _qualified_. The chart-local ID is the one directly specified in the object. The qualified ID is the chart-local ID prefixed with the IDs of the import object that the corresponding object is imported through. In the qualified ID, the IDs in the prefix are separated by slashes (`/`), and the IDs of import objects with fewer nesting levels come first. The qualified ID is the same as the chart-local ID if the object was not imported ("chart-local"). Some examples below:
+There are two types of IDs: _chart-local_ and _qualified_. The chart-local ID is the one directly specified in the object. The qualified ID is the chart-local ID prefixed with the IDs of the objects through which the corresponding object is included (i.e., imported or embedded) in the current LTC file. In the qualified ID, the IDs in the prefix are separated by slashes (`/`), and the IDs of the objects with fewer nesting levels come first. The qualified ID is the same as the chart-local ID if the object was chart-local (i.e., neither imported nor embedded). Some examples below:
 
- - For an event object `e001` that wasn't imported at all, the qualified ID is also `e001`.
+ - For an event object `e001` that was chart-local, the qualified ID is also `e001`.
  - For an event object `e002` that was imported through an import object `i001`, the qualified ID is `i001/e002`.
  - For an event object `e003` that was imported through an import object `i002`, which in turn was imported through an import object `i001`, the qualified ID is `i001/i002/e003`.
+ - For an event object `e004` that was embedded through a subchart event object `e999`, the qualified ID is `e999/e004`.
 
-The example above describes only event objects, but the same applies to any objects with chart-local IDs (e.g., annex and import objects).
+The example above describes only the qualified IDs of event objects, but the same applies to any objects with chart-local IDs (e.g., annex and import objects).
 
 ### Referencing
+
+TODO: URI: a path/address to an LTC file and the qualified ID of the reference target object, separated by a slash? a sharp?.
+TODO: The path/address of the current object is `.`, but `.#` can be omitted in the markdown format.
 
 By default, nested references are limited to 10 times, but the front-end LTC tool may adjust this. If the nested reference exceeds the limit, the front-end LTC tool should report this and treat the final referenced object as an empty object of the same type.
