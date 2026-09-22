@@ -147,25 +147,32 @@ Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: 
 An annex object represents data attached to the LTC file: photos, text snippets, links, etc. Fields below:
 
  - `ID`: (ID object) The ID of the annex. (default: ID object default)
- - `Extension`: (string) The data extension of the annex. (default: "txt")
+ - `Title`: (string) The descriptive title of the annex. (default: empty)
+ - `Format`: (string) The data Format of the annex. (default: "txt")
  - `Encoding`: (string) The data encoding of the annex. (default: "none")
  - `Data`: (string) The encoded data of the annex. (default: "")
 
 The `none` encoding performs no encoding. Since the LTC format is text-based, any binary data should be encoded into a text representation before being included in an LTC file. If encoded `Data` is binary, the front-end LTC tool should decode `Data` with `Encoding` first (if it's non-`none`), re-encode it in a base64 format, and replace `Encoding` with `base64`. 
 
-By default, `Extension` is specific to the front-end LTC tool, except `txt` for text data and `png` for PNG picture data. The front-end LTC tool should assume unrecognized `Extension`s (including an empty `Extension`) as `txt` and report it to users.
+By default, `Format` is specific to the front-end LTC tool, except `txt` for text data and `png` for PNG image data. The front-end LTC tool should assume unrecognized `Format`s (including an empty `Format`) as `txt` and report it to users.
 
 #### Import
 
  - TOML object: table in the `Import` table array
 
-An import object declares an external LTC file to merge into the current LTC file. As a result, the event objects in the imported LTC file are added to the same-name category of the current LTC file as imported event objects. This may create new categories if the current LTC file has no same-name category. The import is recursive, meaning it should also merge nested import objects in the imported LTC file. See [referencing](#Referencing) for the nested import limit. Fields below:
+An import object declares an external resource to merge into the current LTC file. The behavior of import objects varies depending on the imported object:
+
+ - If the imported object is an LTC file, the import object adds the event objects in the imported LTC file to the same-name category of the current LTC file as imported event objects. This may create new categories if the current LTC file has no category with the same name. The import is recursive, meaning it should also merge nested import objects in the imported LTC file. See [referencing](#Referencing) for the nested import limit.
+ - If the imported object is an LTC event object, the ID of import objects is treated the same way as that of [embedding event objects](#Event).
+ - Otherwise, the ID of import objects is treated the same way as that of [annex object](#Annex) (`Data`: external resource, `Format`: deduced, `Encoding`: `"none"`).
+
+Fields below:
 
  - `ID`: (ID object) The ID of the import. (default: ID object default)
- - `Link`: (string) The URI to an import-target LTC file. See [referencing](#Referencing) for a valid URI. (default: empty)
+ - `Link`: (string) The URI to an import target. See [referencing](#Referencing) for a valid URI. (default: empty)
  - `StartDate`: (time object) The start date of the import. (default: time object default)
  - `EndDate`: (time object) The end date of the import. (default: time object default)
- - `Categories`: (array of strings) Categories to import in the import-target LTC file. (default: all categories in the import-target LTC file)
+ - `Categories`: (array of strings) Categories to import.
 
 `StartDate` and `EndDate` act as a _period mask_ for imported events. Specifically, after treating unknown `StartDate` and `EndDate` the same way as other [event objects](#Event),
 
@@ -175,9 +182,14 @@ An import object declares an external LTC file to merge into the current LTC fil
  - For the event objects that started between `StartDate` and `EndDate` (exclusive) but ended after `EndDate`, their `EndDate` is corrected to the import object's `EndDate` with an `Untracked` attribute.
  - For the event objects that ended between `StartDate` and `EndDate` (exclusive) but started before `StartDate`, their `StartDate` is corrected to the import object's `StartDate` with an `Untracked` attribute.
  
-Recognized attributes below:
+Unknown `StartDate`s or `EndDate`s in the import object are regarded as infinite past or future, respectively. `Categories` also acts as a _category mask_ for imported events. Specifically,
 
- - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`.
+ - If the imported object is an LTC file, only the event objects in specified categories are imported.
+ - If the imported object is an LTC event object, it's imported only if its category is in `Categories`.
+
+`StartDate`, `EndDate`, and `Categories` are irrelevant if the imported object is neither an LTC file nor an LTC event object. Recognized attributes below:
+
+ - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`. Irrelevant if the imported object is neither an LTC file nor an LTC event object.
 
 ### Chart Object
 
@@ -198,8 +210,8 @@ The example above describes only the qualified IDs of event objects, but the sam
 
 ### Referencing
 
-TODO: URI: a path/address to an LTC file and the qualified ID of the reference target object, separated by a slash? a sharp?.
-TODO: The path/address of the current object is `.`, but `.#` can be omitted in the markdown format.
+An LTC object with a chart-local ID has both _a chart-local URI_ and _a web URI_. The chart-local URI is the same as its qualified ID. The web URI is a web address to an LTC file, combined with an HTML query key `id` at the end. For example, if `https://myltc.com/jone` was a web address to an LTC file, the web URI of the event object `e001` in such a file is `https://myltc.com/jone?id=e001`.
+
+In Markdown format [event notes](#Event), both URIs can be used to create a reference to an object (as a [link](https://www.markdownlang.com/basic/links.html)) or to embed an image (through the [Markdown image-embedding syntax](https://www.markdownlang.com/cheatsheet/image.html)). Embedding images by directly specifying their local filesystem path (e.g., `![](/home/john/img.png)`) is **highly discouraged**, as this may result in broken and unrestorable image embedding due to a relatively subtle filesystem change.
 
 By default, nested references are limited to 10 times, but the front-end LTC tool may adjust this. If the nested reference exceeds the limit, the front-end LTC tool should report this and treat the final referenced object as an empty object of the same type.
-
