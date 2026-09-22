@@ -184,6 +184,8 @@ Unknown `StartDate`s or `EndDate`s in the import object are regarded as infinite
 
  - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`.
 
+If the `StartDate` of the chart is unknown, the front-end LTC tool must report this for each import object.
+
 Note: use [embedding event objects](#Event) to import individual event objects.
 
 ### Chart Object
