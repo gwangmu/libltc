@@ -203,4 +203,3 @@ TODO: The path/address of the current object is `.`, but `.#` can be omitted in 
 
 By default, nested references are limited to 10 times, but the front-end LTC tool may adjust this. If the nested reference exceeds the limit, the front-end LTC tool should report this and treat the final referenced object as an empty object of the same type.
 
-![](test)
