@@ -153,7 +153,7 @@ An annex object represents data attached to the LTC file: photos, text snippets,
  - `Data`: (string) The encoded data of the annex. (default: empty)
  - `Note`: (string) The note of the annex. (default: empty)
 
-The `none` encoding performs no encoding. Since the LTC format is text-based, any binary data should be encoded into a text representation before being included in an LTC file. If encoded `Data` is binary, the front-end LTC tool should decode `Data` with `Encoding` first (if it's non-`none`), re-encode it in a base64 format, and replace `Encoding` with `base64`. 
+The `none` encoding performs no encoding. Since the LTC format is text-based, any binary data should be encoded into a text representation before being included in an LTC file. If `Data` is binary before saving to an LTC file, it should be encoded in a base64 format, add old non-empty `Encoding` to the attribute list as the key `OrgEncoding`, and replace `Encoding` with `base64`. 
 
 By default, `Format` is specific to the front-end LTC tool, except `txt` for text data and `png` for PNG image data. The front-end LTC tool should assume unrecognized `Format`s (including an empty `Format`) as `txt` and report it to users.
 
