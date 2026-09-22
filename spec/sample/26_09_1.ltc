@@ -57,10 +57,7 @@ ID = "imp123"
 Link = "https://link_to_chart"
 StartDate = { Year = 0 }        # Optional (default: earliest)
 EndDate = { Year = 9999 }       # Optional (default: latest)
-IncludeCategories = [           # Optional (default: all)
+Categories = [                  # Optional (default: all)
     "asdfadsf"
 ]
-ExcludeCategories = [           # Optional (default: none)
-    "asdfadsf"
-]
-                                # *Categories: Optional (default: all)
+Attrs = [ "ExcludeCategory:dsfdf" ]
