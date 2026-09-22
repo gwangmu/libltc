@@ -39,14 +39,14 @@ Note = """
 ID = "lab3"                     # *Date: embedded event's entity *Date
 Title = "qwerqewrweqr"          # default: embedded event's title 
 Category = "Relationship"
-Embed = "https://link_to_chart#event's_id"
+Embed = "https://link_to_chart?id=qual_event_id"
 Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
 Note = """
 """
 
 [[Annex]]
 ID = "idexample"
-Format = "png"
+Extension = "png"
 Encoding = "base64"
 Data = """
 """
