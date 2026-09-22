@@ -161,16 +161,10 @@ By default, `Format` is specific to the front-end LTC tool, except `txt` for tex
 
  - TOML object: table in the `Import` table array
 
-An import object declares an external resource to merge into the current LTC file. The behavior of import objects varies depending on the external resource:
-
- - If the external resource is an LTC file, it adds the event objects inside to the same-name category or creates new categories if they don't already exist. See [referencing](#Referencing) for the nested import limit.
- - If the external resource is an LTC import object, it loads the nested external resource and continues from there. See [referencing](#Referencing) for the nested import limit.
- - Otherwise, the ID of the import object is treated the same way as that of [annex object](#Annex).
-
-Fields below:
+An import object declares an external LTC file to merge into the current LTC file, adding the event objects inside to the same-name category or creating new categories if they don't already exist. See [referencing](#Referencing) for the nested import limit. Fields below:
 
  - `ID`: (ID object) The ID of the import. (default: ID object default)
- - `Link`: (string) The URI to an import target. See [referencing](#Referencing) for a valid URI. (default: empty)
+ - `Link`: (string) The URI to an import-target LTC file. See [referencing](#Referencing) for a valid URI. (default: empty)
  - `StartDate`: (time object) The start date of the import. (default: time object default)
  - `EndDate`: (time object) The end date of the import. (default: time object default)
  - `Categories`: (array of strings) Categories to import. (default: all)
@@ -184,15 +178,17 @@ Fields below:
  - For the event objects that started between `StartDate` and `EndDate` (exclusive) but ended after `EndDate`, their `EndDate` is corrected to the import object's `EndDate` with an `Untracked` attribute.
  - For the event objects that ended between `StartDate` and `EndDate` (exclusive) but started before `StartDate`, their `StartDate` is corrected to the import object's `StartDate` with an `Untracked` attribute.
  
-Unknown `StartDate`s or `EndDate`s in the import object are regarded as infinite past or future, respectively. `Categories` also acts as a _category mask_ for imported events. Specifically, if the external resource is an LTC file, only the event objects in specified categories are imported. `StartDate`, `EndDate`, and `Categories` are irrelevant if the external resource is not resolved to an LTC file. Recognized attributes below:
+Unknown `StartDate`s or `EndDate`s in the import object are regarded as infinite past or future, respectively. `Categories` also acts as a _category mask_ for imported events, meaning only the event objects in specified categories are imported. Recognized attributes below:
 
- - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`. Irrelevant if the external resource is not resolved to an LTC file.
+ - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`.
+
+Note: use [embedding event objects](#Event) to import individual event objects.
 
 ### Chart Object
 
  - TOML object: the entire TOML file
 
-A chart object represents the entire chart described in an LTC file. An _empty_ chart is defined as a chart with empty main objects.
+A chart object represents the entire chart described in an LTC file, whose name ends with the extension `.ltc`. An _empty_ chart is defined as a chart with empty main objects.
 
 ### ID Qualification
 
@@ -207,10 +203,10 @@ The example above describes only the qualified IDs of event objects, but the sam
 
 ### Referencing
 
-An LTC object with a chart-local ID has both _a local URI_ and _a web URI_. The local URI is either a relative (to the current LTC file's directory) or an absolute filesystem path of the LTC file, plus `.obj/<id>`, where `<id>` is the object's qualified ID. For example, given an LTC file at `/home/jone/chart.ltc` that contains an event object `e001`, the local URIs of the chart and the event are `/home/jone/chart.ltc` and `/home/jone/chart.ltc.obj/e001`, respectively. Local URIs may omit the LTC file's filesystem path at the beginning and the trailing `.obj/` when the referenced objects belong to the same LTC file. 
+An LTC object with a chart-local ID has both _a local URI_ and _a web URI_. The local URI is either a relative (to the current LTC file's directory) or an absolute filesystem path of the LTC file, plus `.obj/<id>` at the end, where `<id>` is the object's qualified ID. For example, given an LTC file at `/home/john/chart.ltc` that contains an event object `e001`, the local URIs of the chart and the event are `/home/john/chart.ltc` and `/home/john/chart.ltc.obj/e001`, respectively. A Local URI may only specify the qualified ID of the reference object (i.e., may omit the LTC file's filesystem path and `.obj/` at the beginning) if it belongs to the same LTC file. For example, the qualified ID `i001/e002` is the same as the local URI `/home/john/chart.ltc.obj/i001/e002` inside the LTC file `/home/john/chart.ltc`.
 
-The web URI is a web address to an LTC file, combined with an HTML query key `id` at the end. For example, if `https://myltc.com/jone` is a web address to an LTC file, the web URI of the event object `e001` in such a file is `https://myltc.com/jone?id=e001`. 
+The web URI is a web address to an LTC file, combined with an HTML query key `id` at the end. For example, if `https://myltc.com/john` is a web address to an LTC file, the web URI of the event object `e001` in such a file is `https://myltc.com/john?id=e001`. 
 
-In [event notes](#Event), either of the URIs can be used as the _source path/address_ when creating a reference to an object (as a link) or embedding an image. Embedding images with direct filesystem paths is highly discouraged (e.g., `![](/home/jone/image.png)`); if any such cases are discovered, the front-end LTC tool should report them and provide an option to include such images as [annex objects](#Annex).
+In [event notes](#Event), either of the URIs can be used as the _source path/address_ when creating a reference to an object (as a link) or embedding an image. Embedding images directly via a path or a web address is highly discouraged (e.g., `![](/home/john/image.png)` or `![](https://example.com/image.png)`; if any such cases are discovered, the front-end LTC tool should report them and provide an option to include such images as [annex objects](#Annex) across the LTC file load/save boundary.
 
 By default, nested references are limited to 10 times, but the front-end LTC tool may adjust this. If the nested reference exceeds the limit, the front-end LTC tool should report this and treat the final referenced object as an empty object of the same type.
