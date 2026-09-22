@@ -46,7 +46,7 @@ Note = """
 
 [[Annex]]
 ID = "idexample"
-Extension = "png"
+Format = "png"
 Encoding = "base64"
 Data = """
 """
