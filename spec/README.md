@@ -164,6 +164,7 @@ An import object declares an external resource to merge into the current LTC fil
 
  - If the imported object is an LTC file, the import object adds the event objects in the imported LTC file to the same-name category of the current LTC file as imported event objects. This may create new categories if the current LTC file has no category with the same name. The import is recursive, meaning it should also merge nested import objects in the imported LTC file. See [referencing](#Referencing) for the nested import limit.
  - If the imported object is an LTC event object, the ID of import objects is treated the same way as that of [embedding event objects](#Event).
+ - If the imported object is another LTC import object, the import object loads and proceeds to the nested imported object. See [referencing](#Referencing) for the nested import limit.
  - Otherwise, the ID of import objects is treated the same way as that of [annex object](#Annex) (`Data`: external resource, `Format`: deduced, `Encoding`: `"none"`).
 
 Fields below:
@@ -187,9 +188,9 @@ Unknown `StartDate`s or `EndDate`s in the import object are regarded as infinite
  - If the imported object is an LTC file, only the event objects in specified categories are imported.
  - If the imported object is an LTC event object, it's imported only if its category is in `Categories`.
 
-`StartDate`, `EndDate`, and `Categories` are irrelevant if the imported object is neither an LTC file nor an LTC event object. Recognized attributes below:
+`StartDate`, `EndDate`, and `Categories` are irrelevant if the imported object is not resolved to either an LTC file or an LTC event object. Recognized attributes below:
 
- - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`. Irrelevant if the imported object is neither an LTC file nor an LTC event object.
+ - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`. Irrelevant if the imported object is not resolved to either an LTC file or an LTC event object.
 
 ### Chart Object
 
