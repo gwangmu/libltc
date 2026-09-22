@@ -46,6 +46,7 @@ Note = """
 
 [[Annex]]
 ID = "idexample"
+Title = "My pretty picture"
 Extension = "png"
 Encoding = "base64"
 Data = """
