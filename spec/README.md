@@ -77,6 +77,13 @@ An ID object is a string that represents the _chart-local_ ID of the enclosing o
 
 Across the LTC file load/save boundary, a duplicate, invalid, or empty ID object is assigned a new unique chart-local ID, and its old value is added to the enclosing object's attribute list with a key `OldID` (if it was non-empty).
 
+#### Note
+
+ - TOML object: multi-line string
+ - Default: empty
+
+A note object is a specialized string with time-demarcation capability. A time demarcator is a full line in the format `<!-- Date: <date> >`, where `<date>` is an [RFC3339](https://www.rfc-editor.org/info/rfc3339/) formatted date-time with offset, and the lines below, until the next demarcator or until the end of the note, are assumed to be made at `<date>`. Lines without a preceding time demarcator are assumed to be made at an unknown time. For lines with a known demarcation time, posthumously editing them long after the demarcation time is generally discouraged.
+
 ### Main Objects 
 
 Main objects are divided into two _kinds_: chart-local and imported. Chart-local main objects are those contained in the current LTC file. Imported main objects are those imported from other LTC files via [import objects](#Import). 
@@ -127,7 +134,7 @@ Event objects have three _types_: plain, embedding, and subchart. Plain event ob
  - `EndDate`: (time object) The end date of the event. (default: time object default)
  - `Subchart`: (string) The URI to an embed-target LTC file as a "subchart". See [referencing](#Referencing) for a valid URI. (default: empty)
  - `Embed`: (string) The URI to an embed-target event. See [referencing](#Referencing) for a valid URI. (default: empty)
- - `Note`: (string) The note of the event. (default: empty)
+ - `Note`: (note object) The note of the event. (default: note object default)
 
 An event object is _embedding-typed_ with a non-empty `Embed` field, _subchart-typed_ with a non-empty `Subchart` field, or _plain-typed_ otherwise. The `Embed` and `Subchart` fields are mutually exclusive; if they both exist, the front-end LTC tool arbitrarily takes one of them and reports that the other was ignored. `Subchart`s can reference the current LTC file, and `Embed`s can reference an event in the current LTC file. See [referencing](#Referencing) for nested references.
 
@@ -153,9 +160,9 @@ An annex object represents data attached to the LTC file: photos, text snippets,
  - `Format`: (string) The data Format of the annex. (default: "txt")
  - `Encoding`: (string) The data encoding of the annex. (default: "none")
  - `Data`: (string) The encoded data of the annex. (default: empty)
- - `Note`: (string) The note of the annex. (default: empty)
+ - `Note`: (note object) The note of the annex. (default: note object default)
 
-The `none` encoding performs no encoding. Since the LTC format is text-based, any binary data should be encoded into a text representation before being included in an LTC file. If `Data` is binary before saving to an LTC file, it should be encoded in a base64 format, add old non-empty `Encoding` to the attribute list as the key `OrgEncoding`, and replace `Encoding` with `base64`. 
+The `none` encoding performs no encoding. Since the LTC format is text-based, any binary data should be encoded into a text representation before being included in an LTC file. If `Data` is binary before saving to an LTC file, it should be encoded in a base64 format, add the old non-empty `Encoding` to the attribute list as the key `OrgEncoding`, and replace `Encoding` with `base64`. 
 
 By default, `Format` is specific to the front-end LTC tool, except `txt` for text data and `png` for PNG image data. The front-end LTC tool should assume unrecognized `Format`s (including an empty `Format`) as `txt` and report it to users.
 
@@ -170,7 +177,7 @@ An import object declares an external LTC file to merge into the current LTC fil
  - `StartDate`: (time object) The start date of the import. (default: time object default)
  - `EndDate`: (time object) The end date of the import. (default: time object default)
  - `Categories`: (array of strings) Categories to import. (default: all)
- - `Note`: (string) The note of the import. (default: empty)
+ - `Note`: (note object) The note of the import. (default: note object default)
 
 `StartDate` and `EndDate` act as a _period mask_ for imported events. Specifically, after treating unknown `StartDate` and `EndDate` the same way as other [event objects](#Event),
 
