@@ -33,6 +33,10 @@ StartDate = { Year = 1991, Month = 3, Day = 29, Attrs = [ "Approx", "Untracked",
 EndDate = { Yeat = 1991, Month = 4, Attrs = [ "Approx", "Untracked", "Emphasized" ] }
 Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
 Note = """
+<!-- Date: 2026-09-01T07:32:00Z -->
+asdfasdfdsaf
+asfasdfdsafsafdsaf
+asdfdasfasf
 """
 
 [[Event]]
@@ -47,7 +51,7 @@ Note = """
 [[Annex]]
 ID = "idexample"
 Title = "My pretty picture"
-Extension = "png"
+Format = "png"
 Encoding = "base64"
 Data = """
 """
