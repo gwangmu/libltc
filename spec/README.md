@@ -110,6 +110,8 @@ The subject object specifies basic information about the LTC file's subject. The
 
 Note on the _identified_ sex: Because the identified gender can change over time, it's better to specify it as a [period](#Event) in a separate category (e.g., "Identified Gender") rather than as a field in the subject object that lacks the representation capability of the passage of time.
 
+Note on _undefined_ (not _unknown_) `StartDate`: undefined `StartDate`s may be relevant when the timing information of the events should be specified relative to `StartDate`, but it cannot be pinpointed to a specific time (e.g., a tentative travel plan or an academic curriculum). In such a case, `StartDate` may only specify `Day` as `0`.
+
 #### Event
 
  - TOML object: table in the `Event` table array
