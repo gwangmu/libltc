@@ -82,7 +82,9 @@ Across the LTC file load/save boundary, a duplicate, invalid, or empty ID object
  - TOML object: multi-line string
  - Default: empty
 
-A note object is a specialized string with time-demarcation capability. A time demarcator is a full line in the format `<!-- Date: <date> >`, where `<date>` is an [RFC3339](https://www.rfc-editor.org/info/rfc3339/) formatted date-time with offset, and the lines below, until the next demarcator or until the end of the note, are assumed to be made at `<date>`. Lines without a preceding time demarcator are assumed to be made at an unknown time. For lines with a known demarcation time, posthumously editing them long after the demarcation time is generally discouraged.
+A note object is a specialized string with time-demarcation capability. A time demarcator is a full line in the format `<!-- Date: <date> >`, where `<date>` is an [RFC3339](https://www.rfc-editor.org/info/rfc3339/) formatted date-time with offset, and the lines below, until the next demarcator or until the end of the note, are assumed to be made at `<date>`. Lines without a preceding time demarcator are assumed to be made at an unknown time. The empty lines above time demarcators are ignored.
+
+For lines with a known demarcation time, posthumously editing them long after the demarcation time is generally discouraged.
 
 ### Main Objects 
 
