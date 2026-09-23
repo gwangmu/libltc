@@ -52,7 +52,7 @@ By default, the `Attrs` field of any TOML-table-type object is considered an att
  - TOML object: inline table
  - Default: `1` for `Day`, `0` for other integer-typed fields, `"UTC"` for `TimeZone`.
 
-A time object consists of six optional integer-typed fields (`Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`) and one optional string-typed field (`TimeZone`). If no integer-typed field is specified, the time is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file.
+A time object consists of six optional integer-typed fields (`Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`) and one optional string-typed field (`TimeZone`). If no field is specified, the time is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file. If `Year` or `Month` is unspecified but the time doesn't have an attribute `Incremental` (see below), the time is considered _ambiguous_.
 
 `TimeZone` is a TZ identifier or abbreviation defined in the IANA Time Zone database. Although `TimeZone` is `"UTC"` by default, if `TimeZone` is unspecified, chart readers may assume the time to be the local time of the subject in the context of the enclosing object. Recognized attributes below:
 
@@ -165,7 +165,11 @@ An event object is _embedding-typed_ with a non-empty `Embed` field, _subchart-t
 
 For embedding event objects, `StartDate`, `EndDate`, and `Title` are overridden by the embedded event's `StartDate`, `EndDate`, and `Title`, respectively, unless they are unknown in the embedded event. For subchart event objects, `StartDate`, `EndDate`, and `Title` are overridden by the subchart subject's `StartDate`, `EndDate`, and the stringified subchart subject's `Name`, respectively, unless they are unknown in the embedded subchart. `Note` is valid for all event object types.
 
-`StartDate` should be earlier than or equal to `EndDate`; if not, both dates should be marked as unknown, and their old `StartDate` and `EndDate` should be added to the attribute list with the keys `OldStartDate` and `OldEndDate` across the LTC file load/save boundary, respectively. If either `StartDate` or `EndDate` is unknown, the unknown date is auto-calculated to a month before or after the known one. If both `StartDate` and `EndDate` are unknown, the front-end LTC tool should display such events separately and may not display them on the timeline.
+`StartDate` should be earlier than or equal to `EndDate`; if not, both dates should be marked as unknown, and their old `StartDate` and `EndDate` should be added to the attribute list with the keys `OldStartDate` and `OldEndDate` across the LTC file load/save boundary, respectively. 
+
+If either `StartDate` or `EndDate` is unknown, the unknown date is auto-calculated to a month before or after the known one. If either `StartDate` or `EndDate` is ambiguous, the year or the month is auto-calculated to the closest year or month from the unambiguous counterpart.
+
+If both `StartDate` and `EndDate` are unknown or ambiguous, the front-end LTC tool should display such events separately and should not display them on the timeline. 
 
 Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects. Recognized attributes below:
 
