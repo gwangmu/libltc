@@ -100,6 +100,8 @@ Posthumously editing the lines after the tagged time is discouraged. For this pu
 
 Lines don't have to be sorted by time tags in the LTC file, but the front-end LTC tool may provide this functionality. If it does, it's recommended that lines with unknown time be in the same sorting unit as the lines with the closest preceding known time, and lines at the beginning with no time tag be fixed there.
 
+The note object is _sliced_ by time tag boundaries, meaning any syntactic elements across multiple time tags are not supported.
+
 ### Main Objects 
 
 Main objects are divided into two _kinds_: chart-local and imported. Chart-local objects are those contained in the current LTC file. Imported objects are those imported from other LTC files via [import objects](#Import). 
