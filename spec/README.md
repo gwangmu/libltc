@@ -108,13 +108,18 @@ Main objects are divided into two _kinds_: chart-local and imported. Chart-local
 
  - TOML object: top-level table
 
-The header object specifies the LTC format version with the `FormatVersion` field. (default: the lowest version).
+The header object specifies basic information about the LTC file. Fields below:
+
+ - `FormatVersion`: (string) The format version of this LTC file. (default: the lowest version)
+ - `Note`: (note object) The file edit history. (default: empty)
+
+`Note` should contain only _file-edit-related_ notes (e.g., category refurbishment or the change of subject's name); use the [`Note`s for event objects](#Event) for _event-related_ notes.
 
 #### Setting
 
  - TOML object: `Setting` table
 
-The setting object specifies basic information about the LTC file. Fields below:
+The setting object specifies basic LTC file settings. Fields below:
 
  - `CalendarSystem`: (string) The calendar system that the [time objects](#Time) will use. (default: `"Gregorian"`)
  - `NoteFormat`: (string) The format of notes for [chart-local events](#Event). (default: `"Markdown"`)
