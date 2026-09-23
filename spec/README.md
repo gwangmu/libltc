@@ -54,7 +54,7 @@ By default, the `Attrs` field of any TOML-table-type object is considered an att
 
 A time object consists of six optional integer-typed fields (`Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`) and one optional string-typed field (`TimeZone`). If no field is specified, the time is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file.
 
-`TimeZone` is a TZ identifier defined in the IANA Time Zone database. Although `TimeZone` is `"UTC"` by default, if `TimeZone` is unspecified, chart readers may assume the time to be the local time of the subject in the context of the enclosing object. Recognized attributes below:
+`TimeZone` is a TZ identifier or abbreviation defined in the IANA Time Zone database. Although `TimeZone` is `"UTC"` by default, if `TimeZone` is unspecified, chart readers may assume the time to be the local time of the subject in the context of the enclosing object. Recognized attributes below:
 
  - `Incremental`: If not the [chart subject](#Subject)'s `StartDate`, the time is added to the chart subject's `StartDate`.
  - `Approx`: The time is approximate.
