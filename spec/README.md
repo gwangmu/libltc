@@ -82,7 +82,7 @@ Across the LTC file load/save boundary, a duplicate, invalid, or empty ID object
  - TOML object: multi-line string
  - Default: empty
 
-A note object is a specialized string with time-demarcation capability. A time tag is a full line in the format `<!-- Edit: yyyy-mm-dd hh:MM:ss (tz) >`, where:
+A note object is a specialized string with time-demarcation capability. A time tag is a full line in the format `<!-- Edit: yyyy-mm-dd hh:MM:ss (tz) -->`, where:
 
  - `yyyy`: Year (4 digits, zero-padded)
  - `mm`: Month (2 digits, zero-padded)
@@ -92,7 +92,7 @@ A note object is a specialized string with time-demarcation capability. A time t
  - `ss`: Second (2 digits, zero-padded)
  - `tz`: Timezone (either "identifier" or "abbreviation" in the [IANA database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones))
 
-The lines are regarded as created/edited at the preceding time tag (or at _unknown_ time if there is no preceding time tag). In time tags, the time portion (`hh:MM:ss`) can omit seconds (`:00` assumed) or entirely be omitted (`00:00:00` assumed). `tz` (timezone) can also be omitted (`UTC` assumed). The front-end LTC tool should report unrecognized time tags, assume the time is _unknown_, and preserve the string across the LTC file load/save boundary. An empty line above each time tag is ignored.
+The lines are regarded as created/edited at the preceding time tag (or at _unknown_ time if there is no preceding time tag). In time tags, the time portion (`hh:MM:ss`) can omit seconds (`:00` assumed) or entirely be omitted (`00:00:00` assumed). `tz` (timezone) can also be omitted (`UTC` assumed). Unrecognized time tags are reported and are assumed to be _unknown_; the strings are preserved across the LTC file load/save boundary. In time tags, multiple whitespaces between fields are regarded as one whitespace, and the whitespaces before `Edit:` and `-->` are not mandatory. Multiple An empty line above each time tag is ignored.
 
 Posthumously editing the lines after the tagged time is discouraged. For this purpose, the front-end LTC tool should (at least) warn users if they attempt to edit any lines whose time tag is not unknown but also not the latest, or the lines with the latest time tag more than 30 days after. Lines don't have to be sorted in the LTC file by associated time tags, but the front-end LTC tool may provide this functionality.
 
