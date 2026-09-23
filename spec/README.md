@@ -102,7 +102,7 @@ Lines don't have to be sorted by time tags in the LTC file, but the front-end LT
 
 ### Main Objects 
 
-Main objects are divided into two _kinds_: chart-local and imported. Chart-local main objects are those contained in the current LTC file. Imported main objects are those imported from other LTC files via [import objects](#Import). 
+Main objects are divided into two _kinds_: chart-local and imported. Chart-local objects are those contained in the current LTC file. Imported objects are those imported from other LTC files via [import objects](#Import). 
 
 #### Header
 
