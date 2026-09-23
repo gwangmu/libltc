@@ -113,7 +113,7 @@ The header object specifies basic information about the LTC file. Fields below:
  - `FormatVersion`: (string) The format version of this LTC file. (default: the lowest version)
  - `Note`: (note object) The file edit history. (default: empty)
 
-`Note` should contain only _file-edit-related_ notes (e.g., category refurbishment or the change of subject's name); use the [`Note`s for event objects](#Event) for _event-related_ notes.
+`Note` should contain only _file-edit-related_ notes (e.g., category refurbishment or the change of subject's name); consider using [event objects `Note`s](#Event) for _event-related_ notes.
 
 #### Setting
 
