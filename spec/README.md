@@ -56,7 +56,7 @@ A time object consists of six optional integer-typed fields (`Year`, `Month`, `D
 
 `TimeZone` is a TZ identifier or abbreviation defined in the IANA Time Zone database. Although `TimeZone` is `"UTC"` by default, if `TimeZone` is unspecified, chart readers may assume the time to be the local time of the subject in the context of the enclosing object. Recognized attributes below:
 
- - `Incremental`: If not the [chart subject](#Subject)'s `StartDate`, the time is added to the chart subject's `StartDate`.
+ - `Incremental`: If not the [chart subject](#Subject)'s `StartDate`, the time is relative to the chart subject's `StartDate`. Note that the containing chart's subject `StartDate` is used even if the time is imported to another chart.
  - `Approx`: The time is approximate.
  - `Untracked`: At the boundary of a certain period, the time outside this period is untracked.
  - `Emphasized`: The time should be emphasized.
@@ -92,15 +92,15 @@ A note object is a specialized string with time-demarcation capability. A time t
  - `ss`: Second (2 digits, zero-padded)
  - `tz`: Timezone (either "identifier" or "abbreviation" in the [IANA database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones))
 
-The lines are regarded as created/edited at the preceding time tag (or at _unknown_ time if there is no preceding time tag). In time tags, the time portion (`hh:MM:ss`) can omit seconds (`:00` assumed) or entirely be omitted (`00:00:00` assumed). `tz` (timezone) can also be omitted (`UTC` assumed). Unrecognized time tags are reported and are assumed to be _unknown_; the strings are preserved across the LTC file load/save boundary. 
+The lines are regarded as created/edited at the preceding time tag (or at _unknown_ time if there is no preceding time tag). In time tags, the time portion (`hh:MM:ss`) can omit seconds (`:00` assumed) or entirely be omitted (`00:00:00` assumed). `tz` (timezone) can also be omitted (`UTC` assumed). Unrecognized time tags are assumed to be _unknown_ and are reported to users. Times in time tags are always considered Gregorian.
 
 In time tags, multiple whitespaces between fields are regarded as one, and there must be at least one whitespace between the day (`dd`) and the hour (`hh`), if any. An empty line above each time tag is ignored.
 
-Posthumously editing the lines after the tagged time is discouraged. For this purpose, the front-end LTC tool should (at least) warn users if they attempt to edit any lines whose time tag is not unknown but also not the latest, or lines with the latest time tag more than 30 days after. 
+Posthumously editing the lines after the tagged time is strongly discouraged. For this purpose, the front-end LTC tool should (at least) warn users if they attempt to edit any lines whose time tag is not the latest, or lines with the latest time tag more than 30 days after. Lines with unknown time tags are not subject to this.
 
-Lines don't have to be sorted by time tags in the LTC file, but the front-end LTC tool may provide this functionality. If it does, it's recommended that lines with unknown time be in the same sorting unit as the lines with the closest preceding known time, and lines at the beginning with no time tag be fixed there.
+Lines don't have to be sorted by time tags in the LTC file, but the front-end LTC tool may provide this functionality. If it does, it's recommended that lines with unknown time tags be in the same sorting unit as the closest preceding known time tag, and lines at the beginning with no time tag be fixed there.
 
-The note object is _sliced_ by time tag boundaries, meaning any syntactic elements across multiple time tags are not supported.
+The note object is _sliced_ along time tag boundaries, meaning any formatting elements across multiple time tags are unsupported.
 
 ### Main Objects 
 
@@ -115,7 +115,7 @@ The header object specifies basic information about the LTC file. Fields below:
  - `FormatVersion`: (string) The format version of this LTC file. (default: the lowest version)
  - `Note`: (note object) The file edit history. (default: empty)
 
-`Note` should contain only _file-edit-related_ notes (e.g., category refurbishment or the change of subject's name); consider using [event objects `Note`s](#Event) for _event-related_ notes.
+`Note` should contain only _file-edit-related_ records (e.g., category refurbishment or the change of the subject's name); consider using [event objects `Note`s](#Event) for _event-related_ records.
 
 #### Setting
 
@@ -142,7 +142,7 @@ The subject object specifies basic information about the LTC file's subject. The
 
 Note on the _identified_ sex: Because the identified gender can change over time, it's better to specify it as a [period](#Event) in a separate category (e.g., "Identified Gender") rather than as a field in the subject object that lacks the representation capability of the passage of time.
 
-Note on _undefined_ (not _unknown_) `StartDate`: undefined `StartDate`s may be relevant when the timing information of the events should be specified relative to `StartDate`, but it cannot be pinpointed to a specific time (e.g., a tentative travel plan or an academic curriculum). In such a case, `StartDate` may only specify `Day` as `0`.
+`StartDate` is considered _floating_ if only `Day` is set to `0`. Floating `StartDate`s may be useful when the subject `StartDate` cannot be pinpointed to a specific time, but all events should be specified relative to it (e.g., an academic curriculum). When `StartDate` is floating, every other time object should have `Incremental` attributes. If not, the `Incremental` attributes are auto-inserted across the LTC file load/save boundary.
 
 #### Event
 
@@ -150,7 +150,7 @@ Note on _undefined_ (not _unknown_) `StartDate`: undefined `StartDate`s may be r
 
 An event object is a fundamental object of the LTC file. It describes a specific event or period during the subject's lifetime. Note that _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format does not distinguish them and uses the same event object,
 
-Event objects have three _types_: plain, embedding, and subchart. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event of another LTC file. Subchart event objects embed an entire LTC file. Fields below:
+Event objects have three _types_: plain, embedding, and subchart. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event of an external LTC file. Subchart event objects embed an entire external LTC file. Fields below:
 
  - `ID`: (ID object) The ID of the event. (default: ID object default)
  - `Title`: (string) The descriptive summary ("title") of the event. (default: empty)
@@ -163,18 +163,18 @@ Event objects have three _types_: plain, embedding, and subchart. Plain event ob
 
 An event object is _embedding-typed_ with a non-empty `Embed` field, _subchart-typed_ with a non-empty `Subchart` field, or _plain-typed_ otherwise. The `Embed` and `Subchart` fields are mutually exclusive; if they both exist, the front-end LTC tool arbitrarily takes one of them and reports that the other was ignored. `Subchart`s can reference the current LTC file, and `Embed`s can reference an event in the current LTC file. See [referencing](#Referencing) for nested references.
 
-For embedding event objects, `StartDate`, `EndDate`, and `Title` are overridden by the embedded event's `StartDate`, `EndDate`, and `Title`, respectively, unless they are unknown in the embedded event. For subchart event objects, `StartDate`, `EndDate`, and `Title` are overridden by the subchart subject's `StartDate`, `EndDate`, and the stringified subchart subject's `Name`, respectively, unless they are unknown in the embedded subchart. `Note` is valid for all event object types.
+For embedding event objects, specifying `StartDate`, `EndDate`, and `Title` will override the embedded event's `StartDate`, `EndDate`, and `Title`, respectively. For subchart event objects, specifying `StartDate`, `EndDate`, and `Title` will override the subchart subject's `StartDate`, `EndDate`, and the subchart subject's `Name`, respectively. `Note` is valid for all event object types.
 
-`StartDate` should be earlier than or equal to `EndDate`; if not, both dates should be marked as unknown, and their old `StartDate` and `EndDate` should be added to the attribute list with the keys `OldStartDate` and `OldEndDate` across the LTC file load/save boundary, respectively. 
+`StartDate` should be earlier than or equal to `EndDate`; otherwise, the dates are swapped across the LTC file load/save boundary. 
 
 If either `StartDate` or `EndDate` is unknown, the unknown date is auto-calculated to a month before or after the known one. If either `StartDate` or `EndDate` is ambiguous, the year or the month is auto-calculated to the closest valid year or month from the unambiguous counterpart.
 
-If both `StartDate` and `EndDate` are unknown or ambiguous, the front-end LTC tool should display such events separately and should not display them on the timeline. 
-
-Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects. Recognized attributes below:
+If both `StartDate` and `EndDate` are unknown or ambiguous, the front-end LTC tool should display these events separately and not on the timeline. Recognized attributes below:
 
  - `ContinuedFrom:<id>`: This event is continued from another event with a qualified ID `<id>`. See [ID Qualification](#ID-Qualification) for a qualified ID.
  - `AmbiguousPeriod`: This event has an ambiguous period overall.
+
+Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects. 
 
 Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: An event may set `Approx` start/end dates if they are independently approximate, and/or set the `AmbiguousPeriod` attribute if the temporal information of the entire event (e.g., duration or approximate start/end dates with wide margins) is largely uncertain.
 
@@ -191,7 +191,7 @@ An annex object represents data attached to the LTC file: photos, text snippets,
  - `Data`: (string) The encoded data of the annex. (default: empty)
  - `Note`: (note object) The note of the annex. (default: note object default)
 
-The `none` encoding performs no encoding. Since the LTC format is text-based, any binary data should be encoded into a text representation before being included in an LTC file. If `Data` is binary before saving to an LTC file, it should be encoded in a base64 format, add the old non-empty `Encoding` to the attribute list as the key `OrgEncoding`, and replace `Encoding` with `base64`. 
+The `none` encoding performs no encoding. Since the LTC format is text-based, any binary data should be encoded into a text representation before being included in an LTC file. If `Data` is still binary before saving to an LTC file, it should be encoded in base64, add the old non-empty `Encoding` to the attribute list as the key `OrgEncoding`, and replace `Encoding` with `base64`. 
 
 By default, `Format` is specific to the front-end LTC tool, except `txt` for text data and `png` for PNG image data. The front-end LTC tool should assume unrecognized `Format`s (including an empty `Format`) as `txt` and report it to users.
 
@@ -205,22 +205,23 @@ An import object declares an external LTC file to merge into the current LTC fil
  - `Link`: (string) The URI to an import-target LTC file. See [referencing](#Referencing) for a valid URI. (default: empty)
  - `StartDate`: (time object) The start date of the import. (default: time object default)
  - `EndDate`: (time object) The end date of the import. (default: time object default)
+ - `OffsetDate`: (time object) The offset date applied to all imported event objects' dates. (default: time object default)
  - `Categories`: (array of strings) Categories to import. (default: all)
  - `Note`: (note object) The note of the import. (default: note object default)
 
-`StartDate` and `EndDate` act as a _period mask_ for imported events. Specifically, after treating unknown `StartDate` and `EndDate` the same way as other [event objects](#Event),
+`StartDate` and `EndDate` act as a _period mask_ for imported events. Specifically, after treating unknown or ambiguous `StartDate` and `EndDate` the same way as other [event objects](#Event),
 
- - For the event objects with unknown `StartDate` and `EndDate`, they are imported unconditionally. 
+ - For the event objects with unknown or ambiguous `StartDate` and `EndDate`, they are imported unconditionally. 
  - For the event objects that ended before `StartDate` or started after `EndDate`, they are not imported.
  - For the event objects that started after `StartDate` and ended before `EndDate` (inclusive), they are imported as they are.
  - For the event objects that started between `StartDate` and `EndDate` (exclusive) but ended after `EndDate`, their `EndDate` is corrected to the import object's `EndDate` with an `Untracked` attribute.
  - For the event objects that ended between `StartDate` and `EndDate` (exclusive) but started before `StartDate`, their `StartDate` is corrected to the import object's `StartDate` with an `Untracked` attribute.
  
-Unknown `StartDate`s or `EndDate`s in the import object are regarded as infinite past or future, respectively. `Categories` also acts as a _category mask_ for imported events, meaning only the event objects in specified categories are imported. Recognized attributes below:
+Unknown or ambiguous `StartDate`s or `EndDate`s, even after treatment, are regarded as infinite past or future, respectively. `Categories` also acts as a _category mask_ for imported events, meaning only the event objects in specified categories are imported. `OffsetDate` is applied after all masking. Recognized attributes below:
 
  - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`.
 
-If the `StartDate` of the chart is unknown, the front-end LTC tool must report this for each import object.
+By default, the `Incremental` times of imported event objects are calculated based on the imported chart's subject `StartDate`, not the current chart's. An LTC file with a floating `StartDate` cannot import another LTC file with a non-floating `StartDate`. An LTC file with a non-floating `StartDate` can only import another LTC file with a floating `StartDate` if `OffsetDate` is specified and unambiguous; `OffsetDate` will act like a new non-floating `StartDate` for imported event objects. Any violations of the above will be reported to users, and the imported chart is assumed empty.
 
 Note: use [embedding event objects](#Event) to import individual event objects.
 
