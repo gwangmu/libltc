@@ -98,7 +98,7 @@ In time tags, multiple whitespaces between fields are regarded as one, and there
 
 Posthumously editing the lines after the tagged time is discouraged. For this purpose, the front-end LTC tool should (at least) warn users if they attempt to edit any lines whose time tag is not unknown but also not the latest, or lines with the latest time tag more than 30 days after. 
 
-Lines don't have to be sorted in the LTC file by associated time tags, but the front-end LTC tool may provide this functionality. If it does, it's recommended to preserve the order of unknown time tags relative to others.
+Lines don't have to be sorted by time tags in the LTC file, but the front-end LTC tool may provide this functionality. If it does, it's recommended to preserve the order of unknown time tags relative to others.
 
 ### Main Objects 
 
