@@ -125,6 +125,8 @@ The setting object specifies basic LTC file settings. Fields below:
  - `NoteFormat`: (string) The format of notes for [chart-local events](#Event). (default: `"Markdown"`)
  - `Categories`: (array of strings) All categories that appear at least once in any [non-subchart events](#Event). This field is auto-corrected when loading/saving the LTC file. Categories without events are also preserved.
 
+The time tags in event notes are agnostic to `NoteFormat`.
+
 #### Subject
 
  - TOML object: `Subject` table
