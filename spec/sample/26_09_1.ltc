@@ -1,4 +1,4 @@
-Version = "26.09.1"
+FormatVersion = "26.09.1"
 
 [Setting]
 CalendarSystem = "Gregorian"
@@ -33,7 +33,7 @@ StartDate = { Year = 1991, Month = 3, Day = 29, Attrs = [ "Approx", "Untracked",
 EndDate = { Yeat = 1991, Month = 4, Attrs = [ "Approx", "Untracked", "Emphasized" ] }
 Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
 Note = """
-<!-- Date: 2026-09-01T07:32:00Z -->
+<!-- Edit: 2026-09-01 15:05:05 (UTC) -->
 asdfasdfdsaf
 asfasdfdsafsafdsaf
 asdfdasfasf
