@@ -167,7 +167,7 @@ For embedding event objects, `StartDate`, `EndDate`, and `Title` are overridden 
 
 `StartDate` should be earlier than or equal to `EndDate`; if not, both dates should be marked as unknown, and their old `StartDate` and `EndDate` should be added to the attribute list with the keys `OldStartDate` and `OldEndDate` across the LTC file load/save boundary, respectively. 
 
-If either `StartDate` or `EndDate` is unknown, the unknown date is auto-calculated to a month before or after the known one. If either `StartDate` or `EndDate` is ambiguous, the year or the month is auto-calculated to the closest year or month from the unambiguous counterpart.
+If either `StartDate` or `EndDate` is unknown, the unknown date is auto-calculated to a month before or after the known one. If either `StartDate` or `EndDate` is ambiguous, the year or the month is auto-calculated to the closest valid year or month from the unambiguous counterpart.
 
 If both `StartDate` and `EndDate` are unknown or ambiguous, the front-end LTC tool should display such events separately and should not display them on the timeline. 
 
