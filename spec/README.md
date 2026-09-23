@@ -108,7 +108,7 @@ Main objects are divided into two _kinds_: chart-local and imported. Chart-local
 
  - TOML object: top-level table
 
-The header object specifies the LTC format version with the `Version` field. (default: `26.09.1`; the lowest version).
+The header object specifies the LTC format version with the `FormatVersion` field. (default: the lowest version).
 
 #### Setting
 
