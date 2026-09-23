@@ -73,7 +73,7 @@ A name object consists of three optional string-typed fields: `First`, `Middle`,
  - TOML object: string
  - Default: empty
 
-An ID object is a string that represents the _chart-local_ ID of the enclosing object ("chart-local ID": see [ID Qualification](#ID-Qualification) for more). The LTC file shouldn't contain duplicate chart-local IDs regardless of the enclosing object's type. A chart-local ID should only consist of ASCII alphanumeric characters (a-z, A-Z, or 0-9), dashes (`-`), and underscores (`_`).
+An ID object is a string that represents the _chart-local_ ID of the enclosing object ("chart-local ID": see [ID Qualification](#ID-Qualification) for more). A chart-local ID should be distinguished from the chart-local IDs of other chart-local objects, and only consist of ASCII alphanumeric characters (a-z, A-Z, or 0-9), dashes (`-`), and underscores (`_`).
 
 Across the LTC file load/save boundary, a duplicate, invalid, or empty ID object is assigned a new unique chart-local ID, and its old value is added to the enclosing object's attribute list with a key `OldID` (if it was non-empty).
 
