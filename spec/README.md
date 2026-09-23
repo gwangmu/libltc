@@ -82,9 +82,19 @@ Across the LTC file load/save boundary, a duplicate, invalid, or empty ID object
  - TOML object: multi-line string
  - Default: empty
 
-A note object is a specialized string with time-demarcation capability. A time demarcator is a full line in the format `<!-- Date: <date> >`, where `<date>` is an [RFC3339](https://www.rfc-editor.org/info/rfc3339/) formatted date-time with offset, and the lines below, until the next demarcator or until the end of the note, are assumed to be made at `<date>`. Lines without a preceding time demarcator are assumed to be made at an unknown time. An empty line above each time demarcator is ignored.
+A note object is a specialized string with time-demarcation capability. A time tag is a full line in the format `<!-- Edit: yyyy-mm-dd hh:MM:ss (tz) >`, where:
 
-For lines with a known demarcation time, posthumously editing them long after the demarcation time is generally discouraged.
+ - `yyyy`: Year (4 digits, zero-padded)
+ - `mm`: Month (2 digits, zero-padded)
+ - `dd`: Day (2 digits, zero-padded)
+ - `hh`: Hour (2 digits, 24-hour system, zero-padded)
+ - `MM`: Minute (2 digits, zero-padded)
+ - `ss`: Second (2 digits, zero-padded)
+ - `tz`: Timezone (either "identifier" or "abbreviation" in the [IANA database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones))
+
+The note lines are assumed to be created/edited at the preceding time tag (or at _unknown_ time if there is no preceding time tag). In time tags, `hh:MM:ss` (time portion) and `(tz)` (timezone) are optional and can be omitted. Unrecognized time tags must be reported by the front-end LTC tool and be preserved across the LTC file load/save boundary. An empty line above each time demarcator is ignored.
+
+Posthumously editing the note lines long after the tagged time is generally discouraged. In this spirit, the front-end LTC tool should warn users if they attempt to edit notes 1 day after the (non-unknown) tagged time.
 
 ### Main Objects 
 
