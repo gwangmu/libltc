@@ -92,7 +92,7 @@ A note object is a specialized string with time-demarcation capability. A time t
  - `ss`: Second (2 digits, zero-padded)
  - `tz`: Timezone (either "identifier" or "abbreviation" in the [IANA database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones))
 
-The lines are regarded as created/edited at the preceding time tag (or at _unknown_ time if there is no preceding time tag). In time tags, `hh:MM:ss` (time portion) can omit `:ss` (`:00` assumed) or entirely be omitted (`00:00:00` assumed). `(tz)` (timezone) can also be omitted (`(UTC)` assumed). Unrecognized time tags must be reported by the front-end LTC tool and be preserved across the LTC file load/save boundary. An empty line above each time tag is ignored.
+The lines are regarded as created/edited at the preceding time tag (or at _unknown_ time if there is no preceding time tag). In time tags, `hh:MM:ss` (time portion) can omit `:ss` (`:00` assumed) or entirely be omitted (`00:00:00` assumed). `(tz)` (timezone) can also be omitted (`(UTC)` assumed). The front-end LTC tool should report unrecognized time tags, assume the time is _unknown_, and preserve the string across the LTC file load/save boundary. An empty line above each time tag is ignored.
 
 Posthumously editing the lines after the tagged time is discouraged. For this purpose, the front-end LTC tool should (at least) warn users if they attempt to edit any lines whose time tag is not unknown but also not the latest, or the lines with the latest time tag more than 30 days after.
 
