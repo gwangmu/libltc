@@ -6,7 +6,7 @@ The Lifetime Chart (LTC) format is a TOML-compatible text format intended for re
 
 ### Versioning
 
-The format follows the [calendar versioning scheme](https://calver.org/), "YY.MM.N", where "YY" and "MM" are the last two digits of the zero-padded release year and the month in the Gregorian calendar, and "N" is a sequential release number starting from "1" each month. The lowest version is `26.09.1`.
+The format follows the [calendar versioning scheme](https://calver.org/), "YY.MM.N", where "YY" and "MM" are the last two digits of the zero-padded release year and the month in the Gregorian calendar, and "N" is a sequential release number starting from "1" each month. Note that this is about the LTC _format_ version, **not the _file_ version**. The lowest version is `26.09.1`.
 
 ### Principle
 
