@@ -50,11 +50,11 @@ By default, the `Attrs` field of any TOML-table-type object is considered an att
 #### Time
 
  - TOML object: inline table
- - Default: `1` for `Day`, `0` for other integer-typed fields, `"UTC"` for `TimeZone`.
+ - Default: `1` for `Day`, `0` for other integer-typed fields, `"UTC"` for `Timezone`.
 
-A time object consists of six optional integer-typed fields (`Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`) and one optional string-typed field (`TimeZone`). If no field is specified, the time is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file. If `Year` or `Month` is unspecified even after considering the `Incremental` attribute (see below), the time is considered _ambiguous_.
+A time object consists of six optional integer-typed fields (`Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`) and one optional string-typed field (`Timezone`). If no field is specified, the time is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file. If `Year` or `Month` is unspecified even after considering the `Incremental` attribute (see below), the time is considered _ambiguous_.
 
-`TimeZone` is a TZ identifier or abbreviation defined in the IANA Time Zone database. Although `TimeZone` is `"UTC"` by default, if `TimeZone` is unspecified, chart readers may assume the time to be the local time of the subject in the context of the enclosing object. Recognized attributes below:
+`Timezone` is a TZ identifier or abbreviation defined in the IANA Time Zone database. Although `Timezone` is `"UTC"` by default, if `Timezone` is unspecified, chart readers may assume the time to be the local time of the subject in the context of the enclosing object. Recognized attributes below:
 
  - `Incremental`: If not the [chart subject](#Subject)'s `StartDate`, the time is incremental to the _containing_ chart's subject's `StartDate`.
  - `Relative`: Within [import objects](#Import), the time is relative to the _imported_ chart's subject's `StartDate`.
@@ -93,7 +93,7 @@ A note object is a specialized string with time-demarcation capability. A time t
  - `ss`: Second (2 digits, zero-padded)
  - `tz`: Timezone (either "identifier" or "abbreviation" in the [IANA database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones))
 
-The lines are regarded as created/edited at the preceding time tag (or at _unknown_ time if there is no preceding time tag). In time tags, the time portion (`hh:MM:ss`) can omit seconds (`:00` assumed) or entirely be omitted (`00:00:00` assumed). `tz` (timezone) can also be omitted (`UTC` assumed). Unrecognized time tags are assumed to be _unknown_ and are reported to users. Times in time tags are always considered Gregorian.
+The lines are regarded as created/edited at the preceding time tag (or at _unknown_ time if there is no preceding time tag). In time tags, the time portion (`hh:MM:ss`) can omit seconds (`:00` assumed) or entirely be omitted (`00:00:00` assumed). `tz` (Timezone) can also be omitted (`UTC` assumed). Unrecognized time tags are assumed to be _unknown_ and are reported to users. Times in time tags are always considered Gregorian.
 
 In time tags, multiple whitespaces between fields are regarded as one, and there must be at least one whitespace between the day (`dd`) and the hour (`hh`), if any. An empty line above each time tag is ignored.
 
