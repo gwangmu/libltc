@@ -164,7 +164,7 @@ Event objects have three _types_: plain, embedding, and subchart. Plain event ob
 
 An event object is _embedding-typed_ with a non-empty `Embed` field, _subchart-typed_ with a non-empty `Subchart` field, or _plain-typed_ otherwise. The `Embed` and `Subchart` fields are mutually exclusive; if they both exist, the front-end LTC tool arbitrarily takes one of them and reports that the other was ignored. `Subchart`s can reference the current LTC file, and `Embed`s can reference an event in the current LTC file. See [referencing](#Referencing) for nested references.
 
-For embedding event objects, specifying `StartDate`, `EndDate`, and `Title` will override the embedded event's `StartDate`, `EndDate`, and `Title`, respectively. For subchart event objects, specifying `StartDate`, `EndDate`, and `Title` will override the subchart subject's `StartDate`, `EndDate`, and the subchart subject's `Name`, respectively. `Note` is valid for all event object types.
+For embedding event objects, specifying `StartDate`, `EndDate`, and `Title` will override the embedded event's `StartDate`, `EndDate`, and `Title`, respectively. For subchart event objects, specifying `StartDate`, `EndDate`, and `Title` will override the subchart subject's `StartDate`, `EndDate`, and the subchart subject's stringified `Name`, respectively. `Note` is valid for all event object types.
 
 `StartDate` should be earlier than or equal to `EndDate`; otherwise, the dates are swapped across the LTC file load/save boundary. 
 
