@@ -18,7 +18,7 @@ type LTCFile struct {
 	Version string 			`toml:"FormatVersion"`
 	Note string 			`toml:"Note",omitempty"`
 	Setting LTCFSetting 	`toml:"Setting"`
-	Entity LTCFEntity		`toml:"Entity"`
+	Subject LTCFSubject 	`toml:"Subject"`
 	Event []LTCFEvent		`toml:"Event,omitempty"`
 	Annex []LTCFAnnex		`toml:"Annex,omitempty"`
 	Import []LTCFImport		`toml:"Import,omitempty"`
@@ -29,14 +29,14 @@ func (this LTCFile) Summary() (ret string) {
 	ret = "the LTC file"
 	if this.Filepath != "" {
 		ret += " at \'" + this.Filepath + "\'"
-	} else if !this.Entity.IsUnknown() {
-		ret += " for " + this.Entity.Summary()
+	} else if !this.Subject.IsUnknown() {
+		ret += " for " + this.Subject.Summary()
 	}
 	return
 }
 
 func (this LTCFile) IsUnknown() bool {
-	return this.Filepath == "" && this.Entity.IsUnknown()
+	return this.Filepath == "" && this.Subject.IsUnknown()
 }
 
 type LTCFSetting struct {
@@ -55,7 +55,7 @@ func (this LTCFSetting) IsUnknown() bool {
 	return false
 }
 
-type LTCFEntity struct {
+type LTCFSubject struct {
 	Name LTCFName			`toml:"Name"`
 	StartDate LTCFTime		`toml:"StartDate"`
 	EndDate *LTCFTime		`toml:"StartDate,omitempty"`
@@ -63,7 +63,7 @@ type LTCFEntity struct {
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
-func (this LTCFEntity) Summary() (ret string) {
+func (this LTCFSubject) Summary() (ret string) {
 	ret = this.Name.Summary()
 
 	extraStr := getWarningInfoString(
@@ -77,7 +77,7 @@ func (this LTCFEntity) Summary() (ret string) {
 	return
 }
 
-func (this LTCFEntity) IsUnknown() bool {
+func (this LTCFSubject) IsUnknown() bool {
 	return this.Name.IsUnknown() && this.StartDate.IsUnknown() && 
 		this.EndDate.IsUnknown() && this.Sex == ""
 }
@@ -124,7 +124,7 @@ func (this LTCFEvent) Summary() (ret string) {
 	return
 }
 
-func (this LTCFEntity) IsUnknown() bool {
+func (this LTCFSubject) IsUnknown() bool {
 	return this.ID == "" && this.Title == "" && 
 		this.Category == "" && this.Subchart == "" &&
 		(this.StartDate == nil || this.StartDate.IsUnknown()) &&
@@ -203,7 +203,6 @@ type LTCFName struct {
 	First string			`toml:"First"`
 	Middle string			`toml:"Middle,omitempty"`
 	Last string				`toml:"Last,omitempty"`
-	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
 func (this LTCFName) Summary() string {
@@ -237,7 +236,6 @@ type LTCFTime struct {
 	Minute *int				`toml:"Minute,omitempty"`
 	Second *int				`toml:"Second,omitempty"`
 	Timezone *string		`toml:"Timezone,omitempty"`
-	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
 func (this LTCFTime) Summary() (ret string) {
@@ -301,7 +299,7 @@ func getDefaultLTCFile() LTCFile {
 			Categories: [],
 			Attrs: [],
 		},
-		Entity: LTCFEntity{
+		Subject: LTCFSubject{
 			Name: LTCFName{
 				First: "Unknown",
 				Middle: "",
