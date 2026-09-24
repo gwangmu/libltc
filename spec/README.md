@@ -172,7 +172,7 @@ If either `StartDate` or `EndDate` is unknown, the unknown date is auto-calculat
 
 If both `StartDate` and `EndDate` are unknown or ambiguous, the front-end LTC tool should display these events separately and not on the timeline. Recognized attributes below:
 
- - `ContinuedFrom:<id>`: This event is continued from another event with a qualified ID `<id>`. See [ID Qualification](#ID-Qualification) for a qualified ID.
+ - `ContinuedFrom:<qual_id>`: This event is continued from another event with a qualified ID `<qual_id>`. See [ID Qualification](#ID-Qualification) for a qualified ID.
  - `AmbiguousPeriod`: This event has an ambiguous period overall.
 
 Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects. 
@@ -196,8 +196,8 @@ The `none` encoding performs no encoding. Since the LTC format is text-based, an
 
 By default, `Format` is specific to the front-end LTC tool, except `txt` for text data and `png` for PNG image data. The front-end LTC tool should assume unrecognized `Format`s (including an empty `Format`) as `txt` and report it to users. Recognized attributes below:
 
- - `AttachTo=<qual_id>`
- - `LocalNoteOf=<qual_id>`
+ - `AttachTo=<qual_id>`: attach this annex to the object with a qualified ID `<qual_id>`. Chained attachments (e.g., an event object `e001` referred to by an annex object `a002` with `AttachTo=e001`, which in turn is referred to by another annex object `a003` with `AttachTo=a003`) are flattened to the same-level attachments at the final referenced object. This attribute is ignored if `<qual_id>` is itself.
+ - `PrivateNoteOf=<qual_id>`: use `Note` of this annex object as a _private note_ of the object with a qualified ID `<qual_id>`. This is useful if the target object is imported, so there is no direct way to add notes on it. The front-end LTC tool must treat normal and private notes separately, and may concatenate multiple private notes into one, given the initial "no time tag" lines are properly tagged with unknown time.
 
 #### Import
 
@@ -250,11 +250,11 @@ The example above describes only the qualified IDs of event objects, but the sam
 
 ### Referencing
 
-An LTC object with a chart-local ID has both _a local URI_ and _a web URI_. The local URI is either a relative (to the current LTC file's directory) or an absolute filesystem path of the LTC file, plus `.obj/<id>` at the end, where `<id>` is the object's qualified ID. For example, given an LTC file at `/home/john/chart.ltc` that contains an event object `e001`, the local URIs of the chart and the event are `/home/john/chart.ltc` and `/home/john/chart.ltc.obj/e001`, respectively. A Local URI may only specify the qualified ID of the reference object (i.e., may omit the LTC file's filesystem path and `.obj/` at the beginning) if it belongs to the same LTC file. For example, the qualified ID `i001/e002` is the same as the local URI `/home/john/chart.ltc.obj/i001/e002` inside the LTC file `/home/john/chart.ltc`.
+An LTC object with a chart-local ID has both _a local URI_ and _a web URI_. The local URI is either a relative (to the current LTC file's directory) or an absolute filesystem path of the LTC file, plus `.obj/<qual_id>` at the end, where `<qual_id>` is the object's qualified ID. For example, given an LTC file at `/home/john/chart.ltc` that contains an event object `e001`, the local URIs of the chart and the event are `/home/john/chart.ltc` and `/home/john/chart.ltc.obj/e001`, respectively. A Local URI may only specify the qualified ID of the reference object (i.e., may omit the LTC file's filesystem path and `.obj/` at the beginning) if it belongs to the same LTC file. For example, the qualified ID `i001/e002` is the same as the local URI `/home/john/chart.ltc.obj/i001/e002` inside the LTC file `/home/john/chart.ltc`.
 
 The web URI may depend on the provider that hosts the LTC file. Some possibilities:
 
- - A web address to an LTC file, combined with `.obj/<id>` at the end (similar to local URIs). For example, if `https://myhome.com/chart.ltc` is a web address to an LTC file, the web URI of the event object `e001` inside is `https://myhome.com/chart.ltc.obj/e001`.
+ - A web address to an LTC file, combined with `.obj/<qual_id>` at the end (similar to local URIs). For example, if `https://myhome.com/chart.ltc` is a web address to an LTC file, the web URI of the event object `e001` inside is `https://myhome.com/chart.ltc.obj/e001`.
  - A web address to an LTC file, combined with an HTML query key `id` at the end. For example, if `https://myltc.com/john` is a web address to an LTC file, the web URI of the event object `e001` in such a file is `https://myltc.com/john?id=e001`. 
 
 In [event notes](#Event), either of the URIs can be used as the _source path/address_ when creating a reference to an object (as a link) or embedding an image. Embedding images directly via a path or a web address is highly discouraged (e.g., `![](/home/john/image.png)`) as they create fragile external dependencies on the LTC file. If any such cases are discovered, the front-end LTC tool should report them and provide an option to include such images as [annex objects](#Annex) across the LTC file load/save boundary.
