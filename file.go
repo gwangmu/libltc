@@ -15,11 +15,13 @@ type wii = struct {string; interface{}}
 
 type LTCFile struct {
 	Filepath string 		`toml:"-"`
-	Version string 			`toml:"Version"`
+	Version string 			`toml:"FormatVersion"`
+	Note string 			`toml:"Note",omitempty"`
 	Setting LTCFSetting 	`toml:"Setting"`
 	Entity LTCFEntity		`toml:"Entity"`
 	Event []LTCFEvent		`toml:"Event,omitempty"`
 	Annex []LTCFAnnex		`toml:"Annex,omitempty"`
+	Import []LTCFImport		`toml:"Import,omitempty"`
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
@@ -83,10 +85,11 @@ func (this LTCFEntity) IsUnknown() bool {
 type LTCFEvent struct {
 	ID string				`toml:"ID"`
 	Title string			`toml:"Title"`
-	Category string			`toml:"Category"`
-	Subchart string 		`toml:"Subchart"`
-	StartDate *LTCFTime		`toml:"StartDate"`
-	EndDate *LTCFTime		`toml:"EndDate"`
+	Category string			`toml:"Category,omitempty"`
+	Subchart string 		`toml:"Subchart,omitempty"`
+	Embed string 			`toml:"Embed,omitempty"`
+	StartDate *LTCFTime		`toml:"StartDate,omitempty"`
+	EndDate *LTCFTime		`toml:"EndDate,omitempty"`
 	Note string				`toml:"Note,omitempty"`
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
@@ -133,6 +136,7 @@ type LTCFAnnex struct {
 	Format string 			`toml:"Format,omitempty"`
 	Encoding string 		`toml:"Encoding,omitempty"`
 	Data string 			`toml:"Data"`
+	Note string				`toml:"Note,omitempty"`
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
@@ -154,6 +158,45 @@ func (this LTCFAnnex) Summary() (ret string) {
 
 func (this LTCFAnnex) IsUnknown() bool {
 	return this.ID == "" && this.Format == ""
+}
+
+type LTCFImport struct {
+	ID string				`toml:"ID"`
+	Title string 			`toml:"Title,omitempty"`
+	Link string 			`toml:"Link"`
+	StartDate *LTCFTime		`toml:"StartDate,omitempty"`
+	EndDate *LTCFTime		`toml:"EndDate,omitempty"`
+	OffsetDate *LTCFTime	`toml:"OffsetDate,omitempty"`
+	Categories []string		`toml:"Categories,omitempty"`
+	Note string				`toml:"Note,omitempty"`
+	Attrs []string			`toml:"Attrs,omitempty"`
+}
+
+func (this LTCFImport) Summary() (ret string) {
+	if this.Title != "" {
+		ret = "the import '" + this.Title + "'"
+	} else {
+		ret = "an import"
+	}
+
+	extraStr := getWarningInfoString(
+		wii{"ID", this.ID},
+		wii{"from", this.StartDate},
+		wii{"to", this.EndDate},
+		wii{"with offset", this.OffsetDate}
+	)
+	if (len(extraStr) > 0) {
+		ret += " (" + extraStr + ")"
+	} else if this.Title == "" {
+		ret = "an unknown import"
+	}
+
+	return
+}
+
+func (this LTCFImport) IsUnknown() bool {
+	return this.Title == "" && this.Link == "" && this.StartDate == nil &&
+			this.EndDate == nil && this.OffsetDate == nil
 }
 
 type LTCFName struct {
@@ -193,12 +236,12 @@ type LTCFTime struct {
 	Hour *int				`toml:"Hour,omitempty"`
 	Minute *int				`toml:"Minute,omitempty"`
 	Second *int				`toml:"Second,omitempty"`
+	Timezone *string		`toml:"Timezone,omitempty"`
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
 func (this LTCFTime) Summary() (ret string) {
-	if this.Year == nil && this.Month == nil && this.Day == nil &&
-		this.Hour == nil && this.Minute == nil && this.Second == nil {
+	if this.IsUnknown() {
 		return "an unknown time"
 	}
 
@@ -244,7 +287,8 @@ func (this LTCFTime) Summary() (ret string) {
 
 func (this LTCFTime) IsUnknown() bool {
 	return this.Year == nil && this.Month == nil && this.Day == nil &&
-		this.Hour == nil && this.Minute == nil && this.Second == nil 
+		this.Hour == nil && this.Minute == nil && this.Second == nil &&
+		this.Timezone == nil
 }
 
 func getDefaultLTCFile() LTCFile {

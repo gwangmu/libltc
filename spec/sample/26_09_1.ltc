@@ -1,4 +1,11 @@
-FormatVersion = "26.09.1"
+Version = "26.09.1"
+Note = """
+<!-- Edit: 2026-09-01 -->
+Chart created.
+
+<!-- Edit: 2026-10-01 -->
+Chart updated.
+"""
 
 [Setting]
 CalendarSystem = "Gregorian"

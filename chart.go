@@ -61,11 +61,14 @@ const (
 type LTCChart struct {
 	Filepath string
 	Version LTCVersion
+	Note LTCNote
 	Setting LTCSetting
 	Entity LTCEntity
-	Events []*LTCEvent	// Sorted by StartDate (unknown last)
+	Events []*LTCEvent	// Sorted by StartDate (unknown first), incl. imported events.
 	Annexs []*LTCAnnex
-	Attrs map[string]string
+	Imports []*LTCImport
+	
+	attrs map[string]string
 }
 
 func (this LTCChart) Summary() (ret string) {
@@ -86,9 +89,9 @@ type LTCSetting struct {
 	DisplayLanguage string 
 	CalendarSystem string
 	NoteFormat string
-	Attrs map[string]string
 
 	chart *LTCChart
+	attrs map[string]string
 }
 
 func (this LTCSetting) GetChart() *LTCChart {
@@ -112,36 +115,90 @@ type LTCEvent struct {
 	Title string
 	StartDate LTCTime
 	EndDate LTCTime
-	Note string
-	Attrs map[string]string
+	Subchart string
+	Embed string
+	Note LTCNote 
 
 	chart *LTCChart
 	eventID uint64 
+	attrs map[string]string
+	ref ltcRef
 }
 
 func (this LTCEvent) GetChart() *LTCChart {
 	return this.chart
 }
 
-func (this LTCEvent) GetID() string {
+func (this LTCEvent) GetLocalID() string {
 	return "e" + strconv.Itoa(this.eventID)
+}
+
+func (this LTCEvent) GetQualifiedID() (ret string) {
+	if this.ref.parent != nil {
+		ret = this.ref.parent.GetQualifiedID() + '/'
+	}
+
+	ret += this.GetLocalID()
+	return
 }
 
 type LTCAnnex struct {
 	Format string
-	Data []byte 
-	Attrs map[string]string
+	Data []byte 				// Decoded data (potentially binary)
+	Note LTCNote
 
 	chart *LTCChart
 	annexID uint64 
+	attrs map[string]string
+	ref ltcRef
 }
 
 func (this LTCAnnex) GetChart() *LTCChart {
 	return this.chart
 }
 
-func (this LTCAnnex) GetID() string {
+func (this LTCAnnex) GetLocalID() string {
 	return "a" + strconv.Itoa(this.annexID)
+}
+
+func (this LTCAnnex) GetQualifiedID() (ret string) {
+	if this.ref.parent != nil {
+		ret = this.ref.parent.GetQualifiedID() + '/'
+	}
+
+	ret += this.GetLocalID()
+	return
+}
+
+type LTCImport struct {
+	Link string
+	StartDate LTCTime
+	EndDate LTCTIme
+	OffsetDate LTCTime
+	Categories *[]string		// nil: any categories
+	Note LTCNote
+	
+	chart *LTCChart
+	importID uint64
+	attrs map[string]string
+	ref ltcRef
+}
+
+func (this LTCImport) GetChart() *LTCChart {
+	return this.chart
+}
+
+func (this LTCImport) GetLocalID() string {
+	return "i" + strconv.Itoa(this.importID)
+}
+
+func (this LTCImport) GetQualifiedID() (ret string) {
+	if this.ref.parent != nil {
+		ret = this.ref.parent.GetQualifiedID() + '/'
+	}
+
+	ret += this.GetLocalID()
+	return
 }
 
 type LTCName struct {
@@ -149,6 +206,21 @@ type LTCName struct {
 	Middle string
 	Last string
 	Attrs map[string]string
+}
+
+func (this LTCName) String() string {
+	names = []string{}
+	if this.First != "" {
+		names = append(names, this.First)
+	}
+	if this.Middle != "" {
+		names = append(names, this.Middle)
+	}
+	if this.Last != "" {
+		names = append(names, this.Last)
+	}
+
+	return string.Join(names, " ")
 }
 
 type LTCTime struct {
@@ -319,6 +391,15 @@ func (this LTCTime) UnsetSecond() {
 	this.second = nil
 }
 
+type ltcRef struct {
+	notes []*LTCNote
+	annexs []*LTCAnnex
+	parent LTCQualIDObject 
+}
+
+type LTCQualIDObject interface {
+	GetQualifiedID() string
+}
 
 func (this LTCChart) getNextEventID() (uint64, error) {
 	// Next event ID = Last event ID number + 1
