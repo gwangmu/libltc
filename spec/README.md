@@ -225,9 +225,9 @@ Unknown or ambiguous `StartDate`s or `EndDate`s, even after treatment, are regar
 
  - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`.
 
-By default, the `Incremental` times of imported event objects are calculated based on the imported chart's subject `StartDate`, not the current chart's. An LTC file with a floating `StartDate` cannot import another LTC file with a non-floating `StartDate`. An LTC file with a non-floating `StartDate` can only import another LTC file with a floating `StartDate` if `OffsetDate` is specified and unambiguous; `OffsetDate` will act like a new non-floating `StartDate` for imported event objects. Any violations of the above will be reported to users, and the imported chart is assumed empty.
+An LTC file with a floating `StartDate` can only import another LTC file with a floating `StartDate`. In such a case, unknown `OffsetDate`s will be considered `0`, and the `Incremental` times of imported event objects are calculated based on the imported chart's subject `StartDate`, not the current chart's. An LTC file with a non-floating `StartDate` can import another LTC file with a floating `StartDate` _only if_ `OffsetDate` is specified and unambiguous. In such a case, `OffsetDate` will act like a new `StartDate` for imported event objects. Any violations of the above will be reported to users, and the imported chart is assumed to be empty.
 
-Regardless of `StartDate`, `EndDate`, or `Categories`, all annex and import objects in the imported chart are imported.
+All annex and import objects in the imported chart are imported regardless of `StartDate`, `EndDate`, or `Categories`.
 
 Note: use [embedding event objects](#Event) to import individual event objects.
 
