@@ -67,7 +67,7 @@ A time object consists of six optional integer-typed fields (`Year`, `Month`, `D
  - TOML object: inline table
  - Default: empty for all fields
 
-A name object consists of three optional string-typed fields: `First`, `Middle`, and `Last`. If no field is specified, the name is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file.
+A name object consists of three optional string-typed fields: `First`, `Middle`, and `Last`. If no field is specified, the name is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file. The stringified version concatenates `First`, `Middle`, and `Last`, separated by a space (` `). 
 
 #### ID
 
