@@ -221,7 +221,7 @@ An import object declares an external LTC file to merge into the current LTC fil
  - For the event objects that started between `StartDate` and `EndDate` (exclusive) but ended after `EndDate`, their `EndDate` is corrected to the import object's `EndDate` with an `Untracked` attribute.
  - For the event objects that ended between `StartDate` and `EndDate` (exclusive) but started before `StartDate`, their `StartDate` is corrected to the import object's `StartDate` with an `Untracked` attribute.
  
-Unknown or ambiguous `StartDate`s or `EndDate`s, even after treatment, are regarded as infinite past or future, respectively. `Categories` also acts as a _category mask_ for imported events, meaning only the event objects in specified categories are imported. `OffsetDate` is applied after all masking. Recognized attributes below:
+The `StartDate`s or `EndDate`s that remain unknown or ambiguous after treatment are treated as infinite past or future, respectively. `Categories` also acts as a _category mask_ for imported events, meaning only the event objects in specified categories are imported. `OffsetDate` is applied after all masking. Recognized attributes below:
 
  - `ExcludeCategory:<name>`: don't import the events in the category `<name>`. This category will not be imported even if it is specified in `Categories`.
 
