@@ -30,7 +30,7 @@ The ["sample" directory](./sample) collects the sample LTC file for each version
 
 ### LTC Object Taxonomy
 
-The format consists of _LTC objects_ that specify a dedicated aspect of the chart. LTC objects are divided into three categories: common, main, and chart. Common objects represent chart-independent generic concepts and are embedded in other objects. Main objects represent information that makes up the chart. Chart objects represent a chart itself. The default value of objects can be overridden depending on how they are used in the enclosing object.
+The format consists of _LTC objects_ that specify a dedicated aspect of the chart. LTC objects are divided into four categories: common, preamble, main, and chart. Common objects represent chart-independent generic concepts embedded in other objects. Preamble objects represent introductory information about the chart. Main objects represent information that makes up the chart. Chart objects represent a chart itself. The default value of objects can be overridden depending on how they are used in the enclosing object.
 
 Each LTC object type matches a specific TOML object type, but other equivalent TOML object types are also valid. For example, an LTC object corresponding to an inline TOML table _may_ be represented as a fully expanded TOML table, too.
 
@@ -45,7 +45,7 @@ An attribute list is an array of strings, each representing a colon-separated (`
 
 The same attribute key can appear multiple times in an attribute list. In this case, the duplicated attribute key's values are chained together under the same key.
 
-By default, the `Attrs` field of the ID-ful main objects is considered an attribute list of the enclosing object.
+By default, the `Attrs` field of any main object is considered an attribute list of the enclosing object.
 
 #### Time
 
@@ -103,9 +103,7 @@ Lines don't have to be sorted by time tags in the LTC file, but the front-end LT
 
 The note object is _sliced_ along time tag boundaries, meaning any formatting elements across multiple time tags are unsupported.
 
-### Main Objects 
-
-Main objects are divided into two _kinds_: chart-local and imported. Chart-local objects are those contained in the current LTC file. Imported objects are those imported from other LTC files via [import objects](#Import). 
+### Preamble Object
 
 #### Header
 
@@ -144,6 +142,10 @@ The subject object specifies basic information about the LTC file's subject. The
 Note on the _identified_ sex: Because the identified gender can change over time, it's better to specify it as a [period](#Event) in a separate category (e.g., "Identified Gender") rather than as a field in the subject object that lacks the representation capability of the passage of time.
 
 `StartDate` is considered _floating_ if only `Day` is set to `0`. Floating `StartDate`s may be useful when the subject `StartDate` cannot be pinpointed to a specific time, but all events should be specified relative to it (e.g., an academic curriculum). When `StartDate` is floating, every other time object should have `Incremental` attributes. If not, the `Incremental` attributes are auto-inserted across the LTC file load/save boundary.
+
+### Main Objects 
+
+Main objects are divided into two _kinds_: chart-local and imported. Chart-local objects are those contained in the current LTC file. Imported objects are those imported from other LTC files via [import objects](#Import). 
 
 #### Event
 
