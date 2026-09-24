@@ -235,7 +235,7 @@ Note: use [embedding event objects](#Event) to import individual event objects.
 
  - TOML object: the entire TOML file
 
-A chart object represents the entire chart described in an LTC file, whose name ends with the extension `.ltc`. An _empty_ chart is defined as a chart with empty main objects.
+A chart object represents the entire chart described in an LTC file. A valid LTC file must have a file extension `ltc`. An _empty_ chart is defined as a chart with empty main objects.
 
 ### ID Qualification
 
