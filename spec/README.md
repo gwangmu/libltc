@@ -45,7 +45,7 @@ An attribute list is an array of strings, each representing a colon-separated (`
 
 The same attribute key can appear multiple times in an attribute list. In this case, the duplicated attribute key's values are chained together under the same key.
 
-The `Attrs` field of event, annex, and import objects is considered an attribute list of the enclosing object.
+By default, the `Attrs` field of the ID-ful main objects is considered an attribute list of the enclosing object.
 
 #### Time
 
