@@ -26,5 +26,5 @@ The online platform officially hosting LTC files on their remote storage SHOULD
 provide a way to export them to the user's device in a standard LTC format.
 ("officially hosting": advertising the LTC file hosting as part of the feature
 that the online platform offers.) The platform SHOULD provide an option to 
-export the chart recursively, so that the exported LTC file(s) can be opened 
-without any internet connection.
+export embedded or imported objects recursively, so that the exported LTC file(s)
+can be opened without any internet connection.
