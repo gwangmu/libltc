@@ -113,7 +113,7 @@ Main objects are divided into two _kinds_: chart-local and imported. Chart-local
 
 The header object specifies basic information about the LTC file. Fields below:
 
- - `FormatVersion`: (string) The format version of this LTC file. (default: the lowest version)
+ - `Version`: (string) The format version of this LTC file. (default: the lowest version)
  - `Note`: (note object) The file edit history. (default: empty)
 
 `Note` should contain only _file-edit-related_ records (e.g., category refurbishment or the change of the subject's name); consider using [event objects `Note`s](#Event) for _event-related_ records.
