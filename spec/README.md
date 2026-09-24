@@ -197,7 +197,7 @@ The `none` encoding performs no encoding. Since the LTC format is text-based, an
 By default, `Format` is specific to the front-end LTC tool, except `txt` for text data and `png` for PNG image data. The front-end LTC tool should assume unrecognized `Format`s (including an empty `Format`) as `txt` and report it to users. Recognized attributes below:
 
  - `AttachTo=<qual_id>`: attach this annex to the object with a qualified ID `<qual_id>`. Chained attachments (e.g., an event object `e001` attaching an annex object `a002` that attaches another annex object `a003`) are flattened to the same-level attachments at the final referenced object. This attribute is ignored if `<qual_id>` is itself.
- - `ExtraNoteOf=<qual_id>`: use `Note` of this annex object as an _extra note_ of the object with a qualified ID `<qual_id>`. This is useful if the target object is imported, so there is no direct way to add notes on it. With this attribute, `Title` is considered the title of this extra note. The front-end LTC tool must treat the normal note and each extra note separately.
+ - `ExtraNoteOf=<qual_id>`: use `Note` of this annex object as an _extra note_ of the object with a qualified ID `<qual_id>`. This is useful if the target object is imported, so there is no direct way to add notes on it. An object can have multiple extra notes, and the front-end LTC tool must treat each extra note (and the normal note) separately.
 
 #### Import
 
