@@ -50,11 +50,11 @@ By default, the `Attrs` field of any main object is considered an attribute list
 #### Time
 
  - TOML object: inline table
- - Default: `1` for `Day`, `0` for other integer-typed fields, `"UTC"` for `Timezone`.
+ - Default: `1` for `Day`, `0` for other integer-typed fields, `"UTC"` for `Timezone`, empty for `Attrs`.
 
 A time object consists of six optional integer-typed fields (`Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`) and one optional string-typed field (`Timezone`). If no field is specified, the time is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file. If `Year` or `Month` is unspecified even after considering the `Incremental` attribute (see below), the time is considered _ambiguous_.
 
-`Timezone` is a TZ identifier or abbreviation defined in the IANA Time Zone database. Although `Timezone` is `"UTC"` by default, if `Timezone` is unspecified, chart readers may assume the time to be the local time of the subject in the context of the enclosing object. Recognized attributes below:
+`Timezone` is a TZ identifier or abbreviation defined in the IANA Time Zone database. Although `Timezone` is `"UTC"` by default, if `Timezone` is unspecified, chart readers may assume the time to be the local time of the subject in the context of the enclosing object. `Attrs` is an attribute list. Recognized attributes below:
 
  - `Incremental`: If not the [chart subject](#Subject)'s `StartDate`, the time is incremental to the _containing_ chart's subject's `StartDate`.
  - `Relative`: Within [import objects](#Import), the time is relative to the _imported_ chart's subject's `StartDate`.
