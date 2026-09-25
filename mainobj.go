@@ -33,8 +33,11 @@ type LTCMainObj interface {
 	HasAttr(key string, value string) bool
 	AddAttr(key string, value string)
 	RemoveAttr(key string, value string)
+
+	getNumberID() LTCNumberID
 }
 
+//-- struct ltcMainObjCommon: interface LTCMainObj
 
 func (this *ltcMainObjCommon) GetChart() *LTCChart {
 	return this.chart
@@ -131,4 +134,8 @@ func (this *ltcMainObjCommon) RemoveAttr(key string, value string) {
 			}
 		}
 	}
+}
+
+func (this *ltcMainObjCommon) getNumberID() LTCNumberID {
+	return this.numID
 }

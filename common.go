@@ -5,6 +5,17 @@ import (
 	"time"
 )
 
+//-- Common interfaces
+
+type LTCStringifiable interface {
+	ToString() string
+}
+
+type ltcTOMLPrintable interface {
+	PrintTOML() string
+}
+
+//-- struct LTCName
 
 type LTCName struct {
 	First string
@@ -12,7 +23,9 @@ type LTCName struct {
 	Last string
 }
 
-func (this LTCName) String() string {
+//-- struct LTCName: interface LTCStringifiable
+
+func (this *LTCName) ToString() string {
 	names = []string{}
 	if this.First != "" {
 		names = append(names, this.First)
@@ -27,6 +40,23 @@ func (this LTCName) String() string {
 	return string.Join(names, " ")
 }
 
+//-- struct LTCName: interface LTCWarningObj
+
+func (this *LTCName) Summary() string {
+	// TODO
+}
+
+func (this *LTCName) IsUnknown() bool {
+	// TODO
+}
+
+//-- struct LTCName: interface ltcTOMLPrintable
+
+func (this *LTCName) PrintTOML() string {
+	// TODO
+}
+
+//-- struct LTCTime
 
 type LTCTime struct {
 	Timezone time.Location
@@ -38,6 +68,8 @@ type LTCTime struct {
 	minute *int
 	second *int
 }
+
+//-- struct LTCTime: methods (getters and setters)
 
 func (this LTCTime) GetTime() time.Time {
 	var nyear, nday, nhour, nminute, nsecond int
@@ -200,13 +232,106 @@ func (this LTCTime) UnsetSecond() {
 	this.second = nil
 }
 
+//-- struct LTCTime: interface LTCStringifiable
+
+func (this LTCTime) ToString() string {
+	// TODO
+}
+
+//-- struct LTCTime: interface LTCWarningObj
+
+func (this LTCTime) Summary() string {
+	// TODO
+}
+
+func (this LTCTime) IsUnknown() bool {
+	// TODO
+}
+
+//-- struct LTCTime: interface ltcTOMLPrintable
+
+func (this *LTCTime) PrintTOML() string {
+	// TODO
+}
+
+//-- struct LTCNoteSnippet
 
 type LTCNoteSnippet struct {
 	Time LTCTime
 	Text string
 }
 
+//-- struct LTCNoteSnippet: interface LTCStringifiable
+
+func (this *LTCNoteSnippet) ToString() string {
+	// TODO
+}
+
+//-- struct LTCNote
+
 type LTCNote struct {
-	Title string
-	Snippets []LTCNOteSnippet
+	title string	// `Title` of normal notes: ignored
+	snippets []*LTCNoteSnippet
+}
+
+//-- struct LTCNote: methods (getters and setters)
+
+func (this *LTCNote) GetTitle() string {
+	return this.title
+}
+
+func (this *LTCNote) SetTitle(t string) {
+	this.title = t
+}
+
+func (this *LTCNote) GetSnippets() []*LTCNoteSnippet {
+	if len(this.snippets) == 0 {
+		return []*LTCNoteSnippet{ &LTCNoteSnippet{} }
+	} else
+		return this.snippets
+	}
+}
+
+func (this *LTCNote) HasSnippet(s *LTCNoteSnippet) bool {
+	for i, elem := range this.snippets {
+		if elem == s {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *LTCNote) AddSnippet(s *LTCNoteSnippet) {
+	this.snippets = append(this.snippets, s)
+}
+
+func (this *LTCNote) RemoveSnippet(s *LTCNoteSnippet) {
+	for i, elem := range this.snippets {
+		if elem == s {
+			this.snippets = append(this.snippets[:i], this.snippets[i+1:]...)
+			return
+		}
+	}
+}
+
+//-- struct LTCNote: interface LTCStringifiable
+
+func (this *LTCNote) ToString() string {
+	// TODO: first snippet -- just Text, others -- ToString()
+}
+
+//-- struct LTCNote: interface LTCWarningObj
+
+func (this *LTCNote) Summary() string {
+	// TODO
+}
+
+func (this *LTCNote) IsUnknown() bool {
+	// TODO
+}
+
+//-- struct LTCNote: interface ltcTOMLPrintable
+
+func (this *LTCNote) PrintTOML() string {
+	// TODO
 }

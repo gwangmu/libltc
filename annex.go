@@ -2,15 +2,20 @@ package libltc
 
 import (
 	"errors"
+	"libltc/coder"
 )
 
 type LTCAnnex struct {
-	Format string
-	Data []byte 				// Decoded data (potentially binary)
 	Note LTCNote
+	Title string
+	Format string
+	Encoding string
+	Data []byte 				// Decoded data (potentially binary)
 
-	internal ltcMainObjCommon
+	common ltcMainObjCommon
 }
+
+//-- TODO: interface LTCMainObj
 
 func (this LTCAnnex) GetChart() *LTCChart {
 	return this.chart
@@ -29,3 +34,4 @@ func (this LTCAnnex) GetQualifiedID() (ret string) {
 	return
 }
 
+//-- TODO: method (creation)

@@ -317,7 +317,7 @@ func getDefaultLTCFile() LTCFile {
 	}
 }
 
-func LoadLTCFile(filepath string) (*LTCFile, []LTCWarning, error) {
+func loadLTCFile(filepath string) (*LTCFile, []LTCWarning, error) {
 	ltcFile := getDefaultLTCFile()
 	if _, err := toml.DecodeFile(filepath, &ltcFile); err != nil {
 		return nil, err
@@ -330,7 +330,7 @@ func LoadLTCFile(filepath string) (*LTCFile, []LTCWarning, error) {
 	return &ltcFile, nil
 }
 
-func (ltcFile *LTCFile) Save(filepath string) error {
+func (ltcFile *LTCFile) save(filepath string) error {
 	file, err := os.Create(filepath)
 	if err != nil {
 		return err

@@ -9,16 +9,17 @@ type LTCEvent struct {
 
 	common LTCMainObjCommon
 
+	localTitle *string
+	localStartDate *LTCTime
+	localEndDate *LTCTime
+
 	subchartLink *string
 	loadedSubchart *LTCChart
 	embedLink *string
 	loadedEmbed *LTCEvent
-
-	localTitle *string
-	localStartDate *LTCTime
-	localEndDate *LTCTime
 }
 
+//-- interface LTCMainObj
 
 func (this *LTCEvent) GetChart() *LTCChart {
 	return this.common.GetChart()
@@ -80,6 +81,27 @@ func (this *LTCEvent) RemoveAttr(key string, value string) {
 	this.common.RemoveAttr(key, value)
 }
 
+func (this *LTCEvent) getNumberID() LTCNumberID {
+	return this.common.getNumberID()
+}
+
+//-- interface LTCWarningObj
+
+func (this *LTCEvent) Summary() string {
+	// TODO
+}
+
+func (this *LTCEvent) IsUnknown() bool {
+	// TODO
+}
+
+//-- interface LTCTomlPrintable
+
+func (this *LTCChart) PrintTOML() string {
+	// TODO
+}
+
+//-- method (getters and setters)
 
 func (this *LTCEvent) GetTitle() string {
 	// TODO: use `localTitle` if it was defined.
@@ -140,5 +162,36 @@ func (this *LTCEvent) SetLocalEndDate(t LTCTime) {
 }
 
 func (this *LTCEvent) UnsetLocalEndDate() {
+	// TODO
+}
+
+//-- method (creation)
+
+func CreateEvent() *LTCEvent {
+	return &LTCEvent{
+		Note: LTCNote{},
+
+		common: ltcMainObjCommon{
+			chart: nil,
+			parent: nil,
+			numID: NID_Invalid,
+
+			extraNoteAnnexs: []*LTCAnnex{},
+			attachedAnnexs: []*LTCAnnex{},
+			attrs: map[string][]string{},
+		}
+
+		localTitle: "",
+		localStartDate: nil,
+		localEndDate: nil,
+
+		subchartLink: nil,
+		loadedSubchart: nil,
+		embedLink: nil,
+		loadedEmbed: nil,
+	}
+}
+
+func LoadEvent(uri string) (*LTCEvent, error) {
 	// TODO
 }

@@ -5,7 +5,6 @@ import (
 	"time"
 )
 
-
 type LTCChart struct {
 	Filepath string
 	Version LTCVersion
@@ -32,41 +31,12 @@ type LTCSubject struct {
 	Sex string
 }
 
-
-func (this *LTCChart) getNextEventID() (uint64, error) {
-	// Next event ID = Last event ID number + 1
-	// FIX: error out if 'maxEventID' == UINT_MAX. Unlikely, but still.
-	var maxEventID uint64 = 0
-	for _, events := range this.Events {
-		for _, event := range events {
-			maxEventID = max(maxEventID, event.eventID)
-		}
-	}
-	if (maxEventID == math.MaxUint64) {
-		return 0, errors.New("Cannot get the next event ID")
-	} else {
-		return maxEventID + 1, nil
-	}
-}
-
-func (this *LTCChart) getNextAnnexID() (uint64, error) {
-	// Next annex ID = Last annex ID number + 1
-	// FIX: error out if 'maxAnnexID' == UINT_MAX. Unlikely, but still.
-	var maxAnnexID uint64 = 0
-	for _, annex := range this.Annexs {
-		maxAnnexID = max(maxAnnexID, annex.annexID)
-	}
-	if (maxAnnexID == math.MaxUint64) {
-		return 0, errors.New("Cannot get the next annex ID")
-	} else {
-		return maxAnnexID + 1, nil
-	}
-}
+//-- interface LTCWarningObj
 
 func (this *LTCChart) Summary() (ret string) {
 	ret = "the LTC chart"
-	if !this.Entity.IsUnknown() {
-		ret += " for " + this.Entity.Summary()
+	if !this.Subject.IsUnknown() {
+		ret += " for " + this.Subject.Summary()
 	} else if this.Filepath != "" {
 		ret += " from the file at \'" + this.Filepath "\'"
 	}
@@ -74,39 +44,64 @@ func (this *LTCChart) Summary() (ret string) {
 }
 
 func (this *LTCChart) IsUnknown() bool {
-	return this.Entity.IsUnknown() && this.Filepath == ""
+	return this.Subject.IsUnknown() && this.Filepath == ""
 }
 
-func (this *LTCChart) CreateEvent() (*LTCEvent, error) {
-	newEventID, err := this.getNextEventID()
-	if err != nil {
-		return nil, err
+//-- interface ltcTOMLPrintable
+
+func (this *LTCChart) PrintTOML() string {
+	// TODO
+}
+
+//-- method (main object registration)
+
+func (this *LTCChart) AddEventObject(o *LTCEvent) error {
+	// TODO: grant new ID, update chart
+	// TODO: if embed, do embed
+}
+
+func (this *LTCChart) AddAnnexObject(o *LTCAnnex) error {
+	// TODO: grant new ID, update chart
+	// TODO: do extra note or attach
+}
+
+func (this *LTCChart) AddImportObject(o *LTCImport) error {
+	// TODO: grant new ID, update chart
+	// TODO: do import
+}
+
+func (this *LTCChart) RenewEventObject(o *LTCEvent) error {
+	// TODO: similar to add, but no ID/Chart update - just contents.
+}
+
+func (this *LTCChart) RenewAnnexObject(o *LTCAnnex) error {
+	// TODO: similar to add, but no ID/Chart update - just contents.
+}
+
+func (this *LTCChart) RenewImportObject(o *LTCImport) error {
+	// TODO: similar to add, but no ID/Chart update - just contents.
+}
+
+func (this *LTCChart) getNextNumberID(mainobjArr *[]ltcMainObjCommon) (LTCNumberID, error) {
+	// Next next ID = Max existing numID + 1
+	// FIX: error out if 'maxNumID' == UINT_MAX - 1. Unlikely, but still.
+	var maxNumID LTCNumberID = 0
+	for _, mainobj := range mainobjArr {
+		maxNumID = max(maxNumID, event.getNumberID())
 	}
-
-	return &LTCEvent{
-		Title: "",
-		StartDate: LTCTime{},
-		EndDate: LTCTime{},
-		Note: "",
-		Attrs: map[string]string{},
-
-		chart: &this,
-		eventID: newEventID,
+	if (maxNumID == NID_Max) {
+		return 0, errors.New("Cannot get the next number ID")
+	} else {
+		return maxNumID + 1, nil
 	}
 }
 
-func (this *LTCChart) CreateAnnex() (*LTCAnnex, error) {
-	newAnnexID, err := this.getNextAnnexID()
-	if err != nil {
-		return nil, err
-	}
+//-- method (creation)
 
-	return &LTCAnnex{
-		Format: "text",
-		Data: []byte{},
-		Attrs: map[string]string{},
+func CreateChart() *LTCChart {
+	// TODO
+}
 
-		chart: &this,
-		annexID: newAnnexID,
-	}
+func LoadChart(uri string) (*LTCChart, error) {
+	// TODO
 }

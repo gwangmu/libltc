@@ -2,6 +2,7 @@ package libltc
 
 import (
 	"errors"
+	"math"
 )
 
 type LTCVersion int 
@@ -56,3 +57,5 @@ const (
 )
 
 type LTCNumberID uint64
+const NID_Max = math.MaxUint64 - 1
+const NID_Invalid = math.MaxUint64
