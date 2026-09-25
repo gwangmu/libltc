@@ -26,7 +26,7 @@ The LTC format implements the above principles as follows:
 
 ## Specification
 
-The ["sample" directory](./sample) collects the sample LTC file for each version. The sample file is for demonstration purposes only; it is syntactically correct but may be semantically invalid (e.g., mutually incompatible attributes). The _default_ is applied when the corresponding field is unspecified or invalid, and all unrecognized fields and attributes are ignored but preserved across the LTC file load/save boundary. If not specified separately, the specification is based on the lowest version (`26.09.1`).
+The ["sample" directory](./sample) collects the sample LTC file for each version. The sample file is for demonstration purposes only; it is syntactically correct but may be semantically invalid (e.g., mutually incompatible attributes). The _default_ is applied when the corresponding field is unspecified or invalid. Unrecognized fields are ignored, reported, and discarded on the next LTC file save. Unrecognized attributes are also ignored and reported, but preserved on the next LTC file save. If not specified separately, the specification is based on the lowest version (`26.09.1`).
 
 ### LTC Object Taxonomy
 
