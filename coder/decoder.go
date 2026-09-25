@@ -1,8 +1,8 @@
 package coder
 
 import (
-	"encoding/base64"
 	"error"
+	"encoding/base64"
 )
 
 type LTCDecoder func (string) ([]byte, error)

@@ -5,9 +5,8 @@ import (
 )
 
 type LTCEvent struct {
+	Common LTCMainObjCommon
 	Note LTCNote 
-
-	common LTCMainObjCommon
 
 	localTitle *string
 	localStartDate *LTCTime
@@ -17,72 +16,6 @@ type LTCEvent struct {
 	loadedSubchart *LTCChart
 	embedLink *string
 	loadedEmbed *LTCEvent
-}
-
-//-- interface LTCMainObj
-
-func (this *LTCEvent) GetChart() *LTCChart {
-	return this.common.GetChart()
-}
-
-func (this *LTCEvent) GetLocalID() string {
-	return this.common.GetLocalID("e")
-}
-
-func (this *LTCEvent) GetQualifiedID() string {
-	return this.common.GetQualifiedID("e")
-}
-
-func (this *LTCEvent) GetExtraNotes() []*LTCNote {
-	return this.common.GetExtraNotes()
-}
-
-func (this *LTCEvent) AddExtraNoteAnnex(aobj *LTCAnnex) {
-	if !aobj.HasAttr("ExtraNoteOf", this.GetQualifiedID()) {
-		aobj.AddAttr("ExtraNoteOf", this.GetQualifiedID())
-	}
-	this.common.AddExtraNoteAnnex(aobj)
-}
-
-func (this *LTCEvent) RemoveExtraNoteAnnex(aobj *LTCAnnex) {
-	this.common.RemoveExtraNoteAnnex(aobj)
-	aobj.RemoveAttr("ExtraNoteOf", this.GetQualifiedID())
-}
-
-func (this *LTCEvent) GetAttachedAnnexs() []*LTCAnnex {
-	return this.common.GetAttachedAnnexs()
-}
-
-func (this *LTCEvent) AddAttachedAnnex(aobj *LTCAnnex) {
-	if !aobj.HasAttr("AttachTo", this.GetQualifiedID()) {
-		aobj.AddAttr("AttachTo", this.GetQualifiedID())
-	}
-	this.common.AddAttachedAnnex(aobj)
-}
-
-func (this *LTCEvent) RemoveAttachedAnnex(aobj *LTCAnnex) {
-	this.common.RemoveAttachedAnnex(aobj)
-	aobj.RemoveAttr("AttachTo", this.GetQualifiedID())
-}
-
-func (this *LTCEvent) GetAttrs(key string) []string {
-	return this.common.GetAttrs(key)
-}
-
-func (this *LTCEvent) HasAttr(key string, value string) bool {
-	return this.common.HasAttr(key, value)
-}
-
-func (this *LTCEvent) AddAttr(key string, value string) {
-	this.common.AddAttr(key, value)
-}
-
-func (this *LTCEvent) RemoveAttr(key string, value string) {
-	this.common.RemoveAttr(key, value)
-}
-
-func (this *LTCEvent) getNumberID() LTCNumberID {
-	return this.common.getNumberID()
 }
 
 //-- interface LTCWarningObj
@@ -97,7 +30,7 @@ func (this *LTCEvent) IsUnknown() bool {
 
 //-- interface LTCTomlPrintable
 
-func (this *LTCChart) PrintTOML() string {
+func (this *LTCEvent) PrintTOML() string {
 	// TODO
 }
 
@@ -127,6 +60,7 @@ func (this *LTCEvent) SetEmbedLink() {
 func (this *LTCEvent) GetSubchart() *LTCChart {
 	// TODO: return a subchart (nil if `Embed` is valid or `Subchart` is invalid).
 	// TODO: lazy-load `loadedSubchart` if it's nil.
+	// TODO: on lazy-load, update `parent`s of the objects inside.
 }
 
 func (this *LTCEvent) GetSubchartLink() string {
@@ -167,11 +101,11 @@ func (this *LTCEvent) UnsetLocalEndDate() {
 
 //-- method (creation)
 
-func CreateEvent() *LTCEvent {
+func CreateEmptyEvent() *LTCEvent {
 	return &LTCEvent{
-		Note: LTCNote{},
+		Common: LTCMainObjCommon{
+			kind: MOK_Event,
 
-		common: ltcMainObjCommon{
 			chart: nil,
 			parent: nil,
 			numID: NID_Invalid,
@@ -180,6 +114,8 @@ func CreateEvent() *LTCEvent {
 			attachedAnnexs: []*LTCAnnex{},
 			attrs: map[string][]string{},
 		}
+
+		Note: LTCNote{},
 
 		localTitle: "",
 		localStartDate: nil,
@@ -190,8 +126,4 @@ func CreateEvent() *LTCEvent {
 		embedLink: nil,
 		loadedEmbed: nil,
 	}
-}
-
-func LoadEvent(uri string) (*LTCEvent, error) {
-	// TODO
 }

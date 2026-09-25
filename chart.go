@@ -53,19 +53,19 @@ func (this *LTCChart) PrintTOML() string {
 	// TODO
 }
 
-//-- method (main object registration)
+//-- method (main object association)
 
-func (this *LTCChart) AddEventObject(o *LTCEvent) error {
+func (this *LTCChart) LinkEventObject(o *LTCEvent) error {
 	// TODO: grant new ID, update chart
 	// TODO: if embed, do embed
 }
 
-func (this *LTCChart) AddAnnexObject(o *LTCAnnex) error {
+func (this *LTCChart) LinkAnnexObject(o *LTCAnnex) error {
 	// TODO: grant new ID, update chart
 	// TODO: do extra note or attach
 }
 
-func (this *LTCChart) AddImportObject(o *LTCImport) error {
+func (this *LTCChart) LinkImportObject(o *LTCImport) error {
 	// TODO: grant new ID, update chart
 	// TODO: do import
 }
@@ -80,6 +80,18 @@ func (this *LTCChart) RenewAnnexObject(o *LTCAnnex) error {
 
 func (this *LTCChart) RenewImportObject(o *LTCImport) error {
 	// TODO: similar to add, but no ID/Chart update - just contents.
+}
+
+func (this *LTCChart) UnlinkEventObject(o *LTCEvent) error {
+	// TODO: don't remove obj
+}
+
+func (this *LTCChart) UnlinkAnnexObject(o *LTCAnnex) error {
+	// TODO: don't remove obj
+}
+
+func (this *LTCChart) UnlinkImportObject(o *LTCImport) error {
+	// TODO: don't remove obj
 }
 
 func (this *LTCChart) getNextNumberID(mainobjArr *[]ltcMainObjCommon) (LTCNumberID, error) {

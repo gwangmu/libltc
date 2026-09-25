@@ -2,6 +2,7 @@ package coder
 
 import (
 	"error"
+	"unicode/utf8"
 )
 
 type LTCEncoder func ([]byte) (string, error)
@@ -11,7 +12,11 @@ var map[string]LTCEncoder LTCEncoders = {
 }
 
 func Encode_none(data []byte) (string, error) {
-	return string(data), nil 
+	if !utf8.Valid(data) {
+		return "", errors.New("Invalid UTF-8-encoded runes")
+	} else {
+		return string(data), nil 
+	}
 }
 
 func Encode_base64(data []byte) (string, error) {

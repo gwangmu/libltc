@@ -5,46 +5,41 @@ import (
 	"math"
 )
 
+//-- type LTCVersion
+
 type LTCVersion int 
 const (
-	Ver_26_09_1 LTCVersion = iota
+	VER_26_09_1 LTCVersion = iota
 )
-var ltcVersionToStr = map[LTCVersion]string{
-	Ver_26_09_1: "26.09.1",
-}
+const VER_Unknown LTCVersion = -1
 
-const Ver_Unknown LTCVersion = -1
-const ltcVersionUnknownStr := "?"
-
-func (ver LTCVersion) String() (string, error) {
-	if verstr, ok := ltcVersionToStr[ver]; ok {
-		return verstr
-	}
-	return ltcVersionUnknownStr, errors.New("Unknown LTCVersion")
-}
+//-- type LTCVersion: interface LTCWarningObj
 
 func (ver LTCVersion) Summary() string {
-	if verstr, ok := ltcVersionToStr[ver]; ok {
-		return verstr
+	switch ver {
+	case VER_26_09_1:
+		return "26.09.1"
+	default:
+		return "?"
 	}
-	return ltcVersionUnknownStr
 }
 
 func (ver LTCVersion) IsUnknown() bool {
-	_, exists := ltcVersionToStr[ver]
-	return !exists
+	return ver.Summary() == "?"
 }
 
-func GetLTCVersion(reqverstr string) (outver LTCVersion, e error) {
-	for ver, verstr := range ltcVersionToStr {
-		if verstr == reqverstr {
-			outver = ver
-			e = nil
-			return
-		}
+//-- type LTCVersion: method (creation)
+
+func GetLTCVersion(reqverstr string) LTCVersion {
+	switch reqverstr {
+	case "26.09.1":
+		return VER_26_09_1
+	default:
+		return VER_Unknown
 	}
-	return Ver_Unknown, errors.New("Unknown version")
 }
+
+//-- type LTCTimeKind
 
 type LTCTimeKind int
 const (
@@ -56,6 +51,32 @@ const (
 	TK_Second LTCTimeKind
 )
 
+//-- type LTCNumberID
+
 type LTCNumberID uint64
 const NID_Max = math.MaxUint64 - 1
 const NID_Invalid = math.MaxUint64
+
+//-- type LTCMainObjKind
+
+type LTCMainObjKind int
+const (
+	MOK_Event LTCMainObjKind = iota
+	MOK_Annex LTCMainObjKind
+	MOK_Import LTCMainObjKind
+)
+
+//-- type LTCMainObjKind: method (stringify)
+
+func (mok LTCMainObjKind) Prefix() (string, error) {
+	switch mok {
+	case MOK_Event:
+		return "e", nil
+	case MOK_Annex:
+		return "a", nil
+	case MOK_Import:
+		return "i", nil
+	default:
+		return "?", errors.New("Bogus main object kind")
+	}
+}

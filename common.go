@@ -11,7 +11,7 @@ type LTCStringifiable interface {
 	ToString() string
 }
 
-type ltcTOMLPrintable interface {
+type LTCTOMLPrintable interface {
 	PrintTOML() string
 }
 
@@ -50,7 +50,7 @@ func (this *LTCName) IsUnknown() bool {
 	// TODO
 }
 
-//-- struct LTCName: interface ltcTOMLPrintable
+//-- struct LTCName: interface LTCTOMLPrintable
 
 func (this *LTCName) PrintTOML() string {
 	// TODO
@@ -248,7 +248,7 @@ func (this LTCTime) IsUnknown() bool {
 	// TODO
 }
 
-//-- struct LTCTime: interface ltcTOMLPrintable
+//-- struct LTCTime: interface LTCTOMLPrintable
 
 func (this *LTCTime) PrintTOML() string {
 	// TODO
@@ -330,7 +330,7 @@ func (this *LTCNote) IsUnknown() bool {
 	// TODO
 }
 
-//-- struct LTCNote: interface ltcTOMLPrintable
+//-- struct LTCNote: interface LTCTOMLPrintable
 
 func (this *LTCNote) PrintTOML() string {
 	// TODO
