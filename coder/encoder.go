@@ -5,8 +5,8 @@ import (
 	"unicode/utf8"
 )
 
-type LTCEncoder func ([]byte) (string, error)
-var map[string]LTCEncoder LTCEncoders = {
+type Encoder func ([]byte) (string, error)
+var map[string]Encoder Encoders = {
 	"none": Encode_none,
 	"base64": Encode_base64,
 }
@@ -25,6 +25,6 @@ func Encode_base64(data []byte) (string, error) {
 
 //-- method (decoder registration)
 
-func RegisterEncoder(encoding string, encoder LTCEncoder) {
-	LTCEncoders[encoding] = encoder
+func RegisterEncoder(encoding string, encoder Encoder) {
+	Encoders[encoding] = encoder
 }

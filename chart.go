@@ -5,35 +5,35 @@ import (
 	"time"
 )
 
-type LTCChart struct {
+type Chart struct {
 	Filepath string
-	Version LTCVersion
-	Note LTCNote
+	Version Version
+	Note Note
 
-	Setting LTCSetting
-	Subject LTCSubject
+	Setting Setting
+	Subject Subject
 
-	events []*LTCEvent		// Sorted by StartDate (unknown first), incl. imported events.
-	annexs []*LTCAnnex
-	imports []*LTCImport
+	events []*Event		// Sorted by StartDate (unknown first), incl. imported events.
+	annexs []*Annex
+	imports []*Import
 }
 
-type LTCSetting struct {
+type Setting struct {
 	DisplayLanguage string 
 	CalendarSystem string
 	NoteFormat string
 }
 
-type LTCSubject struct {
-	Name LTCName
-	StartDate LTCTime
-	EndDate LTCTime
+type Subject struct {
+	Name Name
+	StartDate Time
+	EndDate Time
 	Sex string
 }
 
-//-- interface LTCWarningObj
+//-- interface WarningObj
 
-func (this *LTCChart) Summary() (ret string) {
+func (this *Chart) Summary() (ret string) {
 	ret = "the LTC chart"
 	if !this.Subject.IsUnknown() {
 		ret += " for " + this.Subject.Summary()
@@ -43,20 +43,20 @@ func (this *LTCChart) Summary() (ret string) {
 	return
 }
 
-func (this *LTCChart) IsUnknown() bool {
+func (this *Chart) IsUnknown() bool {
 	return this.Subject.IsUnknown() && this.Filepath == ""
 }
 
 //-- interface ltcTOMLPrintable
 
-func (this *LTCChart) PrintTOML() string {
+func (this *Chart) PrintTOML() string {
 	// TODO
 }
 
 //-- method (main object association)
 
-func (this *LTCChart) getNextNumberID(kind LTCMainObjKind) (LTCNumberID, error) {
-	mainobjArr := []LTCMainObj{}
+func (this *Chart) getNextNumberID(kind MainObjKind) (NumberID, error) {
+	mainobjArr := []MainObj{}
 
 	switch kind {
 	case MOK_Event:
@@ -77,7 +77,7 @@ func (this *LTCChart) getNextNumberID(kind LTCMainObjKind) (LTCNumberID, error) 
 
 	// Next next ID = Max existing numID + 1
 	// FIX: error out if 'maxNumID' == UINT_MAX - 1. Unlikely, but still.
-	var maxNumID LTCNumberID = 0
+	var maxNumID NumberID = 0
 	for _, mainobj := range mainobjArr {
 		maxNumID = max(maxNumID, event.getNumberID())
 	}
@@ -90,37 +90,37 @@ func (this *LTCChart) getNextNumberID(kind LTCMainObjKind) (LTCNumberID, error) 
 
 //-- method (main object manipulation)
 
-func (this *LTCChart) CreateEvent() *LTCEvent {
+func (this *Chart) CreateEvent() *Event {
 	// TODO
 }
 
-func (this *LTCChart) CreateAnnex() *LTCAnnex {
+func (this *Chart) CreateAnnex() *Annex {
 	// TODO
 }
 
-func (this *LTCChart) CreateImport() *LTCImport {
+func (this *Chart) CreateImport() *Import {
 	// TODO
 }
 
-func (this *LTCChart) RemoveEvent(eobj *LTCEvent) {
+func (this *Chart) RemoveEvent(eobj *Event) {
 	// TODO: dispose of any possible links to other objs.
 	// TODO: remove itself from the chart.
 }
 
-func (this *LTCChart) RemoveAnnex(eobj *LTCAnnex) {
+func (this *Chart) RemoveAnnex(eobj *Annex) {
 	// TODO: dispose of any possible links to other objs.
 	// TODO: remove itself from the chart.
 }
 
-func (this *LTCChart) RemoveImport(eobj *LTCImport) {
+func (this *Chart) RemoveImport(eobj *Import) {
 	// TODO: dispose of any possible links to other objs.
 	// TODO: remove itself from the chart.
 }
 
-func (this *LTCChart) 
+func (this *Chart) 
 
 //-- method (creation)
 
-func CreateEmptyChart() *LTCChart {
+func CreateEmptyChart() *Chart {
 	// TODO
 }

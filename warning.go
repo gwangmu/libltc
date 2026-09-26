@@ -8,15 +8,15 @@ import (
 	"strings"
 )
 
-// LTCWarningObj is an interface that any LTC structs should implement in order
-// to be referred by LTCWarning.
+// WarningObj is an interface that any LTC structs should implement in order
+// to be referred by Warning.
 
-type LTCWarningObj interface {
+type WarningObj interface {
 	Summary() string
 	IsUnknown() bool 
 }
 
-//-- LTCWarningObj helper methods
+//-- WarningObj helper methods
 
 func toSentenceCase(s string) string {
 	if (len(s) < 1) {
@@ -47,7 +47,7 @@ func getWarningInfoString(args ...struct {string; interface{}}) string {
 			if carg != nil {
 				fields := append(fields, realprefix + strconv.Itoa(*carg))
 			}
-		case LTCWarningObj:
+		case WarningObj:
 			if carg != nil && !carg.IsUnknown() {
 				fields := append(fields, realprefix + carg.Summary())
 			}
@@ -56,22 +56,22 @@ func getWarningInfoString(args ...struct {string; interface{}}) string {
 	return strings.Join(fields, ", ")
 }
 
-// LTCWarning is a struct that represents a warning that occured between the
+// Warning is a struct that represents a warning that occured between the
 // raw LTC file and the internal representation. It could be used for other
 // warnings as well (let's see).
 
-type LTCWarning struct {
+type Warning struct {
 	desc string 		// '@<idx>@' to refer to the idx'th object.
-	objs []LTCWarningObj
+	objs []WarningObj
 }
 
-//-- struct LTCWarning: method (getters and setters)
+//-- struct Warning: method (getters and setters)
 
-func (ltcw *LTCWarning) GetDesc() string {
+func (ltcw *Warning) GetDesc() string {
 	return ltcw.getSubstitutedString(ltcw.desc)
 }
 
-func (ltcw *LTCWarning) getSubstitutedString(orgstr string) string {
+func (ltcw *Warning) getSubstitutedString(orgstr string) string {
 	re := regexp.MustCompile(`@([0-9]+)@`)
 
 	newstr := re.ReplaceAllStringFunc(orgstr, func (match string) string {
@@ -91,22 +91,22 @@ func (ltcw *LTCWarning) getSubstitutedString(orgstr string) string {
 	return strings.TrimSpace(newstr)
 }
 
-//-- struct LTCWarning: method (creation)
+//-- struct Warning: method (creation)
 
-func CreateWarning(fmtstr string, args ...interface{}) LTCWarning {
+func CreateWarning(fmtstr string, args ...interface{}) Warning {
 	fmtargs := []interface{}{}
-	objs := []LTCWarningObj{}
+	objs := []WarningObj{}
 
 	for _, arg := range args {
 		switch carg := arg.interface{}.(type) {
-		case LTCWarningObj:
+		case WarningObj:
 			objs = append(objs, carg)
 		default:
 			fmtargs = append(fmtargs, carg)
 		}
 	}
 
-	return LTCWarning{
+	return Warning{
 		desc: fmt.Sprintf(fmtstr, fmtargs...),
 		objs: objs,
 	}

@@ -5,8 +5,8 @@ import (
 	"encoding/base64"
 )
 
-type LTCDecoder func (string) ([]byte, error)
-var map[string]LTCDecoder LTCDecoders = {
+type Decoder func (string) ([]byte, error)
+var map[string]Decoder Decoders = {
 	"none": Decode_none,
 	"base64": Decode_base64,
 }
@@ -22,6 +22,6 @@ func Decode_base64(data string) ([]byte, error) {
 
 //-- method (decoder registration)
 
-func RegisterDecoder(encoding string, decoder LTCDecoder) {
-	LTCDecoders[encoding] = decoder
+func RegisterDecoder(encoding string, decoder Decoder) {
+	Decoders[encoding] = decoder
 }

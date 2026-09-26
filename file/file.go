@@ -11,32 +11,32 @@ import (
 
 type wii = struct {string; interface{}}
 
-type LTCTOMLPrintable interface {
+type TOMLPrintable interface {
 	PrintTOML() string
 }
 
-//-- struct LTCFile
+//-- struct File
 
-type LTCFile struct {
+type File struct {
 	Filepath string 		`toml:"-"`
 	Version string 			`toml:"FormatVersion"`
 	Note string 			`toml:"Note,omitempty"`
-	Setting LTCSetting 		`toml:"Setting"`
-	Subject LTCSubject 		`toml:"Subject"`
-	Event []LTCEvent		`toml:"Event,omitempty"`
-	Annex []LTCAnnex		`toml:"Annex,omitempty"`
-	Import []LTCImport		`toml:"Import,omitempty"`
+	Setting Setting 		`toml:"Setting"`
+	Subject Subject 		`toml:"Subject"`
+	Event []Event		`toml:"Event,omitempty"`
+	Annex []Annex		`toml:"Annex,omitempty"`
+	Import []Import		`toml:"Import,omitempty"`
 }
 
-//-- struct LTCFile: interface LTCTOMLPrintable
+//-- struct File: interface TOMLPrintable
 
-func (this *LTCFile) PrintTOML() string {
+func (this *File) PrintTOML() string {
 	// TODO
 }
 
-//-- struct LTCFile: interface LTCWarningObj
+//-- struct File: interface WarningObj
 
-func (this *LTCFile) Summary() (ret string) {
+func (this *File) Summary() (ret string) {
 	ret = "the LTC file"
 	if this.Filepath != "" {
 		ret += " at \'" + this.Filepath + "\'"
@@ -46,52 +46,52 @@ func (this *LTCFile) Summary() (ret string) {
 	return
 }
 
-func (this *LTCFile) IsUnknown() bool {
+func (this *File) IsUnknown() bool {
 	return this.Filepath == "" && this.Subject.IsUnknown()
 }
 
-//-- struct LTCSetting
+//-- struct Setting
 
-type LTCSetting struct {
+type Setting struct {
 	CalendarSystem string	`toml:"CalendarSystem"`
 	NoteFormat string		`toml:"NoteFormat"`
 	Categories []string		`toml:"Categories,omitempty"`
 }
 
-//-- struct LTCSetting: interface LTCTOMLPrintable
+//-- struct Setting: interface TOMLPrintable
 
-func (this *LTCSetting) PrintTOML() string {
+func (this *Setting) PrintTOML() string {
 	// TODO
 }
 
-//-- struct LTCSetting: interface LTCWarningObj
+//-- struct Setting: interface WarningObj
 
-func (this *LTCSetting) Summary() string {
+func (this *Setting) Summary() string {
 	return "the LTC setting"
 }
 
-func (this *LTCSetting) IsUnknown() bool {
+func (this *Setting) IsUnknown() bool {
 	return false
 }
 
-//-- struct LTCSubject
+//-- struct Subject
 
-type LTCSubject struct {
-	Name LTCName			`toml:"Name"`
-	StartDate LTCTime		`toml:"StartDate"`
-	EndDate *LTCTime		`toml:"StartDate,omitempty"`
+type Subject struct {
+	Name Name			`toml:"Name"`
+	StartDate Time		`toml:"StartDate"`
+	EndDate *Time		`toml:"StartDate,omitempty"`
 	Sex string				`toml:"Sex,omitempty"`
 }
 
-//-- struct LTCSubject: interface LTCTOMLPrintable
+//-- struct Subject: interface TOMLPrintable
 
-func (this *LTCSubject) PrintTOML() string {
+func (this *Subject) PrintTOML() string {
 	// TODO
 }
 
-//-- struct LTCSubject: interface LTCWarningObj
+//-- struct Subject: interface WarningObj
 
-func (this *LTCSubject) Summary() (ret string) {
+func (this *Subject) Summary() (ret string) {
 	ret = this.Name.Summary()
 
 	extraStr := getWarningInfoString(
@@ -105,34 +105,34 @@ func (this *LTCSubject) Summary() (ret string) {
 	return
 }
 
-func (this *LTCSubject) IsUnknown() bool {
+func (this *Subject) IsUnknown() bool {
 	return this.Name.IsUnknown() && this.StartDate.IsUnknown() && 
 		this.EndDate.IsUnknown() && this.Sex == ""
 }
 
-//-- struct LTCEvent
+//-- struct Event
 
-type LTCEvent struct {
+type Event struct {
 	ID string				`toml:"ID"`
 	Title string			`toml:"Title"`
 	Category string			`toml:"Category,omitempty"`
 	Subchart *string 		`toml:"Subchart,omitempty"`
 	Embed *string 			`toml:"Embed,omitempty"`
-	StartDate *LTCTime		`toml:"StartDate,omitempty"`
-	EndDate *LTCTime		`toml:"EndDate,omitempty"`
+	StartDate *Time		`toml:"StartDate,omitempty"`
+	EndDate *Time		`toml:"EndDate,omitempty"`
 	Note *string			`toml:"Note,omitempty"`
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
-//-- struct LTCEvent: interface LTCTOMLPrintable
+//-- struct Event: interface TOMLPrintable
 
-func (this *LTCEvent) PrintTOML() string {
+func (this *Event) PrintTOML() string {
 	// TODO
 }
 
-//-- struct LTCEvent: interface LTCWarningObj
+//-- struct Event: interface WarningObj
 
-func (this *LTCEvent) Summary() (ret string) {
+func (this *Event) Summary() (ret string) {
 	if this.Title != "" {
 		ret = "the event \'" + this.Title + "\'"
 	} else {
@@ -162,16 +162,16 @@ func (this *LTCEvent) Summary() (ret string) {
 	return
 }
 
-func (this *LTCSubject) IsUnknown() bool {
+func (this *Subject) IsUnknown() bool {
 	return this.ID == "" && this.Title == "" && 
 		this.Category == "" && this.Subchart == "" &&
 		(this.StartDate == nil || this.StartDate.IsUnknown()) &&
 		(this.EndDate == nil ||| this.EndDate.IsUnknown())
 }
 
-//-- struct LTCAnnex
+//-- struct Annex
 
-type LTCAnnex struct {
+type Annex struct {
 	ID string 				`toml:"ID"`
 	Format string 			`toml:"Format,omitempty"`
 	Encoding string 		`toml:"Encoding,omitempty"`
@@ -180,15 +180,15 @@ type LTCAnnex struct {
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
-//-- struct LTCAnnex: interface LTCTOMLPrintable
+//-- struct Annex: interface TOMLPrintable
 
-func (this *LTCAnnex) PrintTOML() string {
+func (this *Annex) PrintTOML() string {
 	// TODO
 }
 
-//-- struct LTCAnnex: interface LTCWarningObj
+//-- struct Annex: interface WarningObj
 
-func (this *LTCAnnex) Summary() (ret string) {
+func (this *Annex) Summary() (ret string) {
 	ret = "an annex"
 
 	extraStr := getWarningInfoString(
@@ -204,33 +204,33 @@ func (this *LTCAnnex) Summary() (ret string) {
 	return
 }
 
-func (this *LTCAnnex) IsUnknown() bool {
+func (this *Annex) IsUnknown() bool {
 	return this.ID == "" && this.Format == ""
 }
 
-//-- struct LTCImport
+//-- struct Import
 
-type LTCImport struct {
+type Import struct {
 	ID string				`toml:"ID"`
 	Title string 			`toml:"Title,omitempty"`
 	Link string 			`toml:"Link"`
-	StartDate *LTCTime		`toml:"StartDate,omitempty"`
-	EndDate *LTCTime		`toml:"EndDate,omitempty"`
-	OffsetDate *LTCTime		`toml:"OffsetDate,omitempty"`
+	StartDate *Time		`toml:"StartDate,omitempty"`
+	EndDate *Time		`toml:"EndDate,omitempty"`
+	OffsetDate *Time		`toml:"OffsetDate,omitempty"`
 	Categories []string		`toml:"Categories,omitempty"`
 	Note string				`toml:"Note,omitempty"`
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
-//-- struct LTCImport: interface LTCTOMLPrintable
+//-- struct Import: interface TOMLPrintable
 
-func (this *LTCImport) PrintTOML() string {
+func (this *Import) PrintTOML() string {
 	// TODO
 }
 
-//-- struct LTCImport: interface LTCWarningObj
+//-- struct Import: interface WarningObj
 
-func (this *LTCImport) Summary() (ret string) {
+func (this *Import) Summary() (ret string) {
 	if this.Title != "" {
 		ret = "the import '" + this.Title + "'"
 	} else {
@@ -252,28 +252,28 @@ func (this *LTCImport) Summary() (ret string) {
 	return
 }
 
-func (this *LTCImport) IsUnknown() bool {
+func (this *Import) IsUnknown() bool {
 	return this.Title == "" && this.Link == "" && this.StartDate == nil &&
 			this.EndDate == nil && this.OffsetDate == nil
 }
 
-//-- struct LTCName
+//-- struct Name
 
-type LTCName struct {
+type Name struct {
 	First string			`toml:"First"`
 	Middle string			`toml:"Middle,omitempty"`
 	Last string				`toml:"Last,omitempty"`
 }
 
-//-- struct LTCName: interface LTCTOMLPrintable
+//-- struct Name: interface TOMLPrintable
 
-func (this *LTCName) PrintTOML() string {
+func (this *Name) PrintTOML() string {
 	// TODO
 }
 
-//-- struct LTCName: interface LTCWarningObj
+//-- struct Name: interface WarningObj
 
-func (this *LTCName) Summary() string {
+func (this *Name) Summary() string {
 	names = []string{}
 	if this.First != "" {
 		names = append(names, this.First)
@@ -292,13 +292,13 @@ func (this *LTCName) Summary() string {
 	}
 }
 
-func (this *LTCName) IsUnknown() bool {
+func (this *Name) IsUnknown() bool {
 	return this.First == "" && this.Middle == "" && this.Last == ""
 }
 
-//-- struct LTCTime
+//-- struct Time
 
-type LTCTime struct {
+type Time struct {
 	Year *int				`toml:"Year,omitempty"`
 	Month *int				`toml:"Month,omitempty"`
 	Day *int  				`toml:"Day,omitempty"`
@@ -309,15 +309,15 @@ type LTCTime struct {
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
-//-- struct LTCTime: interface LTCTOMLPrintable
+//-- struct Time: interface TOMLPrintable
 
-func (this *LTCTime) PrintTOML() string {
+func (this *Time) PrintTOML() string {
 	// TODO
 }
 
-//-- struct LTCTime: interface LTCWarningObj
+//-- struct Time: interface WarningObj
 
-func (this *LTCTime) Summary() (ret string) {
+func (this *Time) Summary() (ret string) {
 	if this.IsUnknown() {
 		return "an unknown time"
 	}
@@ -362,7 +362,7 @@ func (this *LTCTime) Summary() (ret string) {
 	return syear + "/" + smonth + "/" + sday + " " + strings.Join(stime, ":")
 }
 
-func (this *LTCTime) IsUnknown() bool {
+func (this *Time) IsUnknown() bool {
 	return this.Year == nil && this.Month == nil && this.Day == nil &&
 		this.Hour == nil && this.Minute == nil && this.Second == nil &&
 		this.Timezone == nil
@@ -370,15 +370,15 @@ func (this *LTCTime) IsUnknown() bool {
 
 //-- Package methods
 
-func LoadLTCFile(filepath string) (*LTCFile, []LTCWarning, error) {
-	ltcFile := getDefaultLTCFile()
+func LoadFile(filepath string) (*File, []Warning, error) {
+	ltcFile := getDefaultFile()
 	if _, err := toml.DecodeFile(filepath, &ltcFile); err != nil {
 		return nil, err
 	}
 
 	ltcFile.Filepath = filepath
 
-	// TODO: Auto-fix some issues and report via LTCWarning.
+	// TODO: Auto-fix some issues and report via Warning.
 
 	return &ltcFile, nil
 }

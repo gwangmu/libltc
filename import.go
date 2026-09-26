@@ -4,26 +4,26 @@ import (
 	"errors"
 )
 
-type LTCImport struct {
+type Import struct {
 	Link string
-	StartDate LTCTime
-	EndDate LTCTIme
-	OffsetDate LTCTime
+	StartDate Time
+	EndDate TIme
+	OffsetDate Time
 	Categories *[]string		// nil: any categories
-	Note LTCNote
+	Note Note
 	
 	internal ltcMainObjCommon
 }
 
-func (this LTCImport) GetChart() *LTCChart {
+func (this Import) GetChart() *Chart {
 	return this.chart
 }
 
-func (this LTCImport) GetLocalID() string {
+func (this Import) GetLocalID() string {
 	return "i" + strconv.Itoa(this.importID)
 }
 
-func (this LTCImport) GetQualifiedID() (ret string) {
+func (this Import) GetQualifiedID() (ret string) {
 	if this.ref.parent != nil {
 		ret = this.ref.parent.GetQualifiedID() + '/'
 	}

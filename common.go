@@ -7,21 +7,21 @@ import (
 
 //-- Common interfaces
 
-type LTCStringifiable interface {
+type Stringifiable interface {
 	ToString() string
 }
 
-//-- struct LTCName
+//-- struct Name
 
-type LTCName struct {
+type Name struct {
 	First string
 	Middle string
 	Last string
 }
 
-//-- struct LTCName: interface LTCStringifiable
+//-- struct Name: interface Stringifiable
 
-func (this *LTCName) ToString() string {
+func (this *Name) ToString() string {
 	names = []string{}
 	if this.First != "" {
 		names = append(names, this.First)
@@ -36,25 +36,25 @@ func (this *LTCName) ToString() string {
 	return string.Join(names, " ")
 }
 
-//-- struct LTCName: interface LTCWarningObj
+//-- struct Name: interface WarningObj
 
-func (this *LTCName) Summary() string {
+func (this *Name) Summary() string {
 	// TODO
 }
 
-func (this *LTCName) IsUnknown() bool {
+func (this *Name) IsUnknown() bool {
 	// TODO
 }
 
-//-- struct LTCName: interface LTCTOMLPrintable
+//-- struct Name: interface TOMLPrintable
 
-func (this *LTCName) PrintTOML() string {
+func (this *Name) PrintTOML() string {
 	// TODO
 }
 
-//-- struct LTCTime
+//-- struct Time
 
-type LTCTime struct {
+type Time struct {
 	Timezone time.Location
 	Attrs map[string][]string
 
@@ -66,9 +66,9 @@ type LTCTime struct {
 	second *int
 }
 
-//-- struct LTCTime: methods (getters and setters)
+//-- struct Time: methods (getters and setters)
 
-func (this LTCTime) GetTime() time.Time {
+func (this Time) GetTime() time.Time {
 	var nyear, nday, nhour, nminute, nsecond int
 	var nmonth time.Month
 
@@ -111,7 +111,7 @@ func (this LTCTime) GetTime() time.Time {
 	return time.Date(nyear, nmonth, nday, nhour, nminute, nsecond, this.Timezone)
 }
 
-func (this LTCTime) GetYear() (int, error) {
+func (this Time) GetYear() (int, error) {
 	if this.year == nil {
 		return 0, errors.New("Year not specified")
 	} else {
@@ -119,7 +119,7 @@ func (this LTCTime) GetYear() (int, error) {
 	}
 }
 
-func (this LTCTime) GetMonth() (int, error) {
+func (this Time) GetMonth() (int, error) {
 	if this.month == nil {
 		return 0, errors.New("Month not specified")
 	} else {
@@ -127,7 +127,7 @@ func (this LTCTime) GetMonth() (int, error) {
 	}
 }
 
-func (this LTCTime) GetDay() (int, error) {
+func (this Time) GetDay() (int, error) {
 	if this.day == nil {
 		return 0, errors.New("Day not specified")
 	} else {
@@ -135,7 +135,7 @@ func (this LTCTime) GetDay() (int, error) {
 	}
 }
 
-func (this LTCTime) GetHour() (int, error) {
+func (this Time) GetHour() (int, error) {
 	if this.hour == nil {
 		return 0, errors.New("Hour not specified")
 	} else {
@@ -143,7 +143,7 @@ func (this LTCTime) GetHour() (int, error) {
 	}
 }
 
-func (this LTCTime) GetMinute() (int, error) {
+func (this Time) GetMinute() (int, error) {
 	if this.minute == nil {
 		return 0, errors.New("Minute not specified")
 	} else {
@@ -151,7 +151,7 @@ func (this LTCTime) GetMinute() (int, error) {
 	}
 }
 
-func (this LTCTime) GetSecond() (int, error) {
+func (this Time) GetSecond() (int, error) {
 	if this.second == nil {
 		return 0, errors.New("Second not specified")
 	} else {
@@ -159,7 +159,7 @@ func (this LTCTime) GetSecond() (int, error) {
 	}
 }
 
-func (this LTCTime) SetTime(date time.Time, tz bool) {
+func (this Time) SetTime(date time.Time, tz bool) {
 	this.year = &data.Year()
 	this.month = &int(data.Month())
 	this.day = &data.Day()
@@ -172,7 +172,7 @@ func (this LTCTime) SetTime(date time.Time, tz bool) {
 	}
 }
 
-func (this LTCTime) UnsetTime() {
+func (this Time) UnsetTime() {
 	this.year = nil
 	this.month= nil
 	this.day = nil
@@ -181,115 +181,115 @@ func (this LTCTime) UnsetTime() {
 	this.second = nil
 }
 
-func (this LTCTime) SetYear(v int) {
+func (this Time) SetYear(v int) {
 	this.year = &v
 }
 
-func (this LTCTime) UnsetYear() {
+func (this Time) UnsetYear() {
 	this.year = nil
 }
 
-func (this LTCTime) SetMonth(v int) {
+func (this Time) SetMonth(v int) {
 	this.month = &v
 }
 
-func (this LTCTime) UnsetMonth() {
+func (this Time) UnsetMonth() {
 	this.month = nil
 }
 
-func (this LTCTime) SetDay(v int) {
+func (this Time) SetDay(v int) {
 	this.day = &v
 }
 
-func (this LTCTime) UnsetDay() {
+func (this Time) UnsetDay() {
 	this.day = nil
 }
 
-func (this LTCTime) SetHour(v int) {
+func (this Time) SetHour(v int) {
 	this.hour = &v
 }
 
-func (this LTCTime) UnsetHour() {
+func (this Time) UnsetHour() {
 	this.hour = nil
 }
 
-func (this LTCTime) SetMinute(v int) {
+func (this Time) SetMinute(v int) {
 	this.minute = &v
 }
 
-func (this LTCTime) UnsetMinute() {
+func (this Time) UnsetMinute() {
 	this.minute = nil
 }
 
-func (this LTCTime) SetSecond(v int) {
+func (this Time) SetSecond(v int) {
 	this.second = &v
 }
 
-func (this LTCTime) UnsetSecond() {
+func (this Time) UnsetSecond() {
 	this.second = nil
 }
 
-//-- struct LTCTime: interface LTCStringifiable
+//-- struct Time: interface Stringifiable
 
-func (this LTCTime) ToString() string {
+func (this Time) ToString() string {
 	// TODO
 }
 
-//-- struct LTCTime: interface LTCWarningObj
+//-- struct Time: interface WarningObj
 
-func (this LTCTime) Summary() string {
+func (this Time) Summary() string {
 	// TODO
 }
 
-func (this LTCTime) IsUnknown() bool {
+func (this Time) IsUnknown() bool {
 	// TODO
 }
 
-//-- struct LTCTime: interface LTCTOMLPrintable
+//-- struct Time: interface TOMLPrintable
 
-func (this *LTCTime) PrintTOML() string {
+func (this *Time) PrintTOML() string {
 	// TODO
 }
 
-//-- struct LTCNoteSnippet
+//-- struct NoteSnippet
 
-type LTCNoteSnippet struct {
-	Time LTCTime
+type NoteSnippet struct {
+	Time Time
 	Text string
 }
 
-//-- struct LTCNoteSnippet: interface LTCStringifiable
+//-- struct NoteSnippet: interface Stringifiable
 
-func (this *LTCNoteSnippet) ToString() string {
+func (this *NoteSnippet) ToString() string {
 	// TODO
 }
 
-//-- struct LTCNote
+//-- struct Note
 
-type LTCNote struct {
+type Note struct {
 	title string	// `Title` of normal notes: ignored
-	snippets []*LTCNoteSnippet
+	snippets []*NoteSnippet
 }
 
-//-- struct LTCNote: methods (getters and setters)
+//-- struct Note: methods (getters and setters)
 
-func (this *LTCNote) GetTitle() string {
+func (this *Note) GetTitle() string {
 	return this.title
 }
 
-func (this *LTCNote) SetTitle(t string) {
+func (this *Note) SetTitle(t string) {
 	this.title = t
 }
 
-func (this *LTCNote) GetSnippets() []*LTCNoteSnippet {
+func (this *Note) GetSnippets() []*NoteSnippet {
 	if len(this.snippets) == 0 {
-		return []*LTCNoteSnippet{ &LTCNoteSnippet{} }
+		return []*NoteSnippet{ &NoteSnippet{} }
 	} else
 		return this.snippets
 	}
 }
 
-func (this *LTCNote) HasSnippet(s *LTCNoteSnippet) bool {
+func (this *Note) HasSnippet(s *NoteSnippet) bool {
 	for i, elem := range this.snippets {
 		if elem == s {
 			return true
@@ -298,11 +298,11 @@ func (this *LTCNote) HasSnippet(s *LTCNoteSnippet) bool {
 	return false
 }
 
-func (this *LTCNote) AddSnippet(s *LTCNoteSnippet) {
+func (this *Note) AddSnippet(s *NoteSnippet) {
 	this.snippets = append(this.snippets, s)
 }
 
-func (this *LTCNote) RemoveSnippet(s *LTCNoteSnippet) {
+func (this *Note) RemoveSnippet(s *NoteSnippet) {
 	for i, elem := range this.snippets {
 		if elem == s {
 			this.snippets = append(this.snippets[:i], this.snippets[i+1:]...)
@@ -311,24 +311,24 @@ func (this *LTCNote) RemoveSnippet(s *LTCNoteSnippet) {
 	}
 }
 
-//-- struct LTCNote: interface LTCStringifiable
+//-- struct Note: interface Stringifiable
 
-func (this *LTCNote) ToString() string {
+func (this *Note) ToString() string {
 	// TODO: first snippet -- just Text, others -- ToString()
 }
 
-//-- struct LTCNote: interface LTCWarningObj
+//-- struct Note: interface WarningObj
 
-func (this *LTCNote) Summary() string {
+func (this *Note) Summary() string {
 	// TODO
 }
 
-func (this *LTCNote) IsUnknown() bool {
+func (this *Note) IsUnknown() bool {
 	// TODO
 }
 
-//-- struct LTCNote: interface LTCTOMLPrintable
+//-- struct Note: interface TOMLPrintable
 
-func (this *LTCNote) PrintTOML() string {
+func (this *Note) PrintTOML() string {
 	// TODO
 }

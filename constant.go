@@ -5,17 +5,17 @@ import (
 	"math"
 )
 
-//-- type LTCVersion
+//-- type Version
 
-type LTCVersion int 
+type Version int 
 const (
-	VER_26_09_1 LTCVersion = iota
+	VER_26_09_1 Version = iota
 )
-const VER_Unknown LTCVersion = -1
+const VER_Unknown Version = -1
 
-//-- type LTCVersion: interface LTCWarningObj
+//-- type Version: interface WarningObj
 
-func (ver LTCVersion) Summary() string {
+func (ver Version) Summary() string {
 	switch ver {
 	case VER_26_09_1:
 		return "26.09.1"
@@ -24,13 +24,13 @@ func (ver LTCVersion) Summary() string {
 	}
 }
 
-func (ver LTCVersion) IsUnknown() bool {
+func (ver Version) IsUnknown() bool {
 	return ver.Summary() == "?"
 }
 
-//-- type LTCVersion: method (creation)
+//-- type Version: method (creation)
 
-func GetLTCVersion(reqverstr string) LTCVersion {
+func GetVersion(reqverstr string) Version {
 	switch reqverstr {
 	case "26.09.1":
 		return VER_26_09_1
@@ -39,37 +39,37 @@ func GetLTCVersion(reqverstr string) LTCVersion {
 	}
 }
 
-//-- type LTCTimeKind
+//-- type TimeKind
 
-type LTCTimeKind int
+type TimeKind int
 const (
-	TK_Year LTCTimeKind = iota
-	TK_Month LTCTimeKind
-	TK_Day LTCTimeKind
-	TK_Hour LTCTimeKind
-	TK_Minute LTCTimeKind
-	TK_Second LTCTimeKind
+	TK_Year TimeKind = iota
+	TK_Month TimeKind
+	TK_Day TimeKind
+	TK_Hour TimeKind
+	TK_Minute TimeKind
+	TK_Second TimeKind
 )
 
-//-- type LTCNumberID
+//-- type NumberID
 
-type LTCNumberID uint64
+type NumberID uint64
 const NID_Max = math.MaxUint64 - 1
 const NID_Invalid = math.MaxUint64
 
-//-- type LTCMainObjKind
+//-- type MainObjKind
 
-type LTCMainObjKind int
+type MainObjKind int
 const (
-	MOK_Event LTCMainObjKind = iota
-	MOK_Annex LTCMainObjKind
-	MOK_Import LTCMainObjKind
-	MOK_Unknown LTCMainObjKind
+	MOK_Event MainObjKind = iota
+	MOK_Annex MainObjKind
+	MOK_Import MainObjKind
+	MOK_Unknown MainObjKind
 )
 
-//-- type LTCMainObjKind: method (stringify)
+//-- type MainObjKind: method (stringify)
 
-func (mok LTCMainObjKind) Prefix() (string, error) {
+func (mok MainObjKind) Prefix() (string, error) {
 	switch mok {
 	case MOK_Event:
 		return "e", nil

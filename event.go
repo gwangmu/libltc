@@ -5,160 +5,166 @@ import (
 	"libltc/file"
 )
 
-type LTCEvent struct {
-	Note LTCNote 
+type Event struct {
+	Note Note 
 
-	common LTCMainObjCommon
+	common MainObjCommon
 
 	localTitle *string
-	localStartDate *LTCTime
-	localEndDate *LTCTime
+	localStartDate *Time
+	localEndDate *Time
 
 	subchartLink *string
-	loadedSubchart *LTCChart
+	loadedSubchart *Chart
 	embedLink *string
-	loadedEmbed *LTCEvent
+	loadedEmbed *Event
 
-	contFromEvents []*LTCEvent
-	contToEvents []*LTCEvent
+	contFromEvents []*Event
+	contToEvents []*Event
 }
 
-//-- interface LTCMainObj
+//-- interface MainObj
 
-func (this *LTCEvent) Common() *LTCMainObjCommon {
+func (this *Event) Common() *MainObjCommon {
 	return &this.common
 }
 
-func (this *LTCEvent) IsUnresolved() bool {
+func (this *Event) IsUnresolved() bool {
 	return this.common.IsUnresolved()
 }
 
-//-- interface LTCWarningObj
+//-- interface WarningObj
 
-func (this *LTCEvent) Summary() string {
+func (this *Event) Summary() string {
 	// TODO
 }
 
-func (this *LTCEvent) IsUnknown() bool {
+func (this *Event) IsUnknown() bool {
 	// TODO
 }
 
 //-- method (getters and setters)
 
-func (this *LTCEvent) GetTitle() string {
+func (this *Event) GetTitle() string {
 	// TODO: use `localTitle` if it was defined.
 	// TODO: otherwise, use the title of `loadedEmbed`.
 	// TODO: otherwise, use the stringified name of `loadedSubchart`.
 }
 
-func (this *LTCEvent) GetEmbeddedEvent() *LTCEvent {
+func (this *Event) GetEmbeddedEvent() *Event {
 	// TODO: return a embedded event (nil if `Embed` is invalid)
 	// TODO: eagerly load `loadedEmbed` upon the file load because it may
 	//       determine `{Start,End}Date`.
 }
 
-func (this *LTCEvent) GetEmbedLink() string {
+func (this *Event) GetEmbedLink() string {
 	// TODO
 }
 
-func (this *LTCEvent) SetEmbedLink() {
+func (this *Event) SetEmbedLink() {
 	// TODO: invalidate non-nill embed event.
 	// TODO: eagerly load 'loadedEmbed'
 }
 
-func (this *LTCEvent) GetSubchart() *LTCChart {
+func (this *Event) GetSubchart() *Chart {
 	// TODO: return a subchart (nil if `Embed` is valid or `Subchart` is invalid).
 	// TODO: lazy-load `loadedSubchart` if it's nil.
 	// TODO: on lazy-load, update `parent`s of the objects inside.
 }
 
-func (this *LTCEvent) GetSubchartLink() string {
+func (this *Event) GetSubchartLink() string {
 	// TODO
 }
 
-func (this *LTCEvent) SetSubchartLink() {
+func (this *Event) SetSubchartLink() {
 	// TODO: invalidate non-nill subchart.
 }
 
-func (this *LTCEvent) GetStartDate() LTCTime {
+func (this *Event) GetStartDate() Time {
 	// TODO: use 'localStartDate` if it was defined.
 	// TODO: otherwise, use the `StartDate` of the embedded event.
 	// TODO: otherwise, return unknown.
 }
 
-func (this *LTCEvent) GetContinuedFromEvents() []*LTCEvent {
+func (this *Event) GetContinuedFromEvents() []*Event {
 	// TODO
 }
 
-func (this *LTCEvent) GetContinuedToEvents() []*LTCEvent {
+func (this *Event) GetContinuedToEvents() []*Event {
 	// TODO
 }
 
-func (this *LTCEvent) SetLocalStartDate(t LTCTime) {
+func (this *Event) SetLocalStartDate(t Time) {
 	// TODO
 }
 
-func (this *LTCEvent) UnsetLocalStartDate() {
+func (this *Event) UnsetLocalStartDate() {
 	// TODO
 }
 
-func (this *LTCEvent) GetEndDate() LTCTime {
+func (this *Event) GetEndDate() Time {
 	// TODO: use 'localEndDate` if it was defined.
 	// TODO: otherwise, use the `EndDate` of the embedded event.
 	// TODO: otherwise, return unknown.
 }
 
-func (this *LTCEvent) SetLocalEndDate(t LTCTime) {
+func (this *Event) SetLocalEndDate(t Time) {
 	// TODO
 }
 
-func (this *LTCEvent) UnsetLocalEndDate() {
+func (this *Event) UnsetLocalEndDate() {
 	// TODO
 }
 
-func (this *LTCEvent) HasContinuedFromEvent() bool {
+func (this *Event) HasContinuedFromEvent() bool {
 	// TODO
 }
 
-func (this *LTCEvent) AddContinuedFromEvent(eobj *LTCEvent) {
+func (this *Event) AddContinuedFromEvent(eobj *Event) {
 	// TODO
 }
 
-func (this *LTCEvent) SwapContinuedFromEvent(oldobj *LTCEvent, newobj *LTCEvent) {
+func (this *Event) SwapContinuedFromEvent(oldobj *Event, newobj *Event) {
 	// TODO
 }
 
-func (this *LTCEvent) RemoveContinuedFromEvent(eobj *LTCEvent) {
+func (this *Event) RemoveContinuedFromEvent(eobj *Event) {
 	// TODO
 }
 
-func (this *LTCEvent) HasContinuedToEvent() bool {
+func (this *Event) HasContinuedToEvent() bool {
 	// TODO
 }
 
-func (this *LTCEvent) AddContinuedToEvent(eobj *LTCEvent) {
+func (this *Event) AddContinuedToEvent(eobj *Event) {
 	// TODO
 }
 
-func (this *LTCEvent) RemoveContinuedToEvent(eobj *LTCEvent) {
+func (this *Event) RemoveContinuedToEvent(eobj *Event) {
 	// TODO
 }
 
 //-- method (import and export)
 
-func (this *LTCEvent) Import(feobj *file.LTCEvent) error {
+func (this *Event) Import(feobj *file.Event, chart *Chart) error {
 	// TODO
 }
 
 func (this *LTCEvent) Export() (*file.LTCEvent, error) {
 	// TODO
 }
+	// TODO
+}
+
+func (this *Event) Export() (*file.Event, error) {
+	// TODO
+}
 
 //-- method (creation and disposal)
 
-func CreateEmptyEvent() *LTCEvent {
-	return &LTCEvent{
-		Common: LTCMainObjCommon{
+func CreateEmptyEvent() *Event {
+	return &Event{
+		Common: MainObjCommon{
 			kind: MOK_Event,
 
 			chart: nil,
@@ -166,12 +172,12 @@ func CreateEmptyEvent() *LTCEvent {
 			numID: NID_Invalid,
 			fullID: "", 
 
-			extraNoteAnnexs: []*LTCAnnex{},
-			attachedAnnexs: []*LTCAnnex{},
+			extraNoteAnnexs: []*Annex{},
+			attachedAnnexs: []*Annex{},
 			attrs: map[string][]string{},
 		}
 
-		Note: LTCNote{},
+		Note: Note{},
 
 		localTitle: "",
 		localStartDate: nil,
@@ -182,7 +188,7 @@ func CreateEmptyEvent() *LTCEvent {
 		embedLink: nil,
 		loadedEmbed: nil,
 
-		contFromEvents: []*LTCEvent{},
-		contToEvents: []*LTCEvent{},
+		contFromEvents: []*Event{},
+		contToEvents: []*Event{},
 	} 
 }
