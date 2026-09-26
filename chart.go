@@ -108,30 +108,6 @@ func (this *Chart) GetObject(qualId string) MainObj {
 	// TODO: return obj by qualified id.
 }
 
-func (this *Chart) HasObject(obj MainObj, onlyLocal bool) bool {
-	// TODO
-}
-
-func (this *Chart) CreateObject(kind MainObjKind) MainObj {
-	// TODO: return empty obj with chart and id.
-}
-
-func (this *Chart) AddObject(obj MainObj) {
-	// TODO: add already-created obj. update chart and id.
-}
-
-func (this *Chart) RenewObject(obj MainObj) {
-	// TODO: fix relational fields between objs.
-	// TODO: lib user should call this if `obj` was directly changed, NOT via chart.
-	// TODO: for import objects, this will trigger re-import.
-}
-
-func (this *Chart) RemoveObject(obj MainObj) {
-	// TODO: dispose of any possible links to other objs.
-	// TODO: remove itself from the chart.
-}
-
-
 func (this *Chart) GetEventsBetween(start Time, end Time, inclusive bool) []*Event {
 	// TODO: inclusive = false: start < estart && eend < end
 	// TODO: inclusive = true: start <= eend || estart <= end
@@ -143,6 +119,26 @@ func (this *Chart) GetEventsPerCategory() map[string][]*Event {
 
 func (this *Chart) GetEventCategories() []string {
 	// TODO
+}
+
+func (this *Chart) HasObject(obj MainObj, onlyLocal bool) bool {
+	// TODO
+}
+
+func (this *Chart) AddObject(obj MainObj) {
+	// TODO: add already-created obj. update chart and id.
+	// TODO: renewobject implied.
+}
+
+func (this *Chart) RenewObject(obj MainObj) {
+	// TODO: fix relational fields between objs.
+	// TODO: lib user should call this if `obj` was directly changed, NOT via chart.
+	// TODO: for import objects, this will trigger re-import.
+}
+
+func (this *Chart) RemoveObject(obj MainObj) {
+	// TODO: dispose of any possible links to other objs.
+	// TODO: remove itself from the chart.
 }
 
 //-- method (creation)
