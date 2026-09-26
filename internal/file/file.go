@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/BurntSushi/toml"
+	"github.com/gwangmu/libltc"
 )
 
 type wii = struct {string; interface{}}
@@ -370,7 +371,7 @@ func (this *Time) IsUnknown() bool {
 
 //-- Package methods
 
-func LoadFile(filepath string) (*File, []Warning, error) {
+func LoadFile(filepath string) (*File, []libltc.Warning, error) {
 	ltcFile := getDefaultFile()
 	if _, err := toml.DecodeFile(filepath, &ltcFile); err != nil {
 		return nil, err

@@ -7,13 +7,14 @@ import (
 type IMainObj interface {
 	Common() *MainObjCommon
 	IsUnresolved() bool
+	Clone(preserveChart bool, preserveID bool) IMainObj
 }
 
 type MainObjCommon struct {
 	kind MainObjKind			// Main object kind
 
-	chart *Chart				// Linked chart
-	parent *IMainObj				// Included by... (nil: chart-local)
+	chart IChart				// Linked chart
+	parent *IMainObj			// Included by... (nil: chart-local)
 	numID NumberID 				// Numeric part of ID
 	fullID string 				// Full ID (ONLY FOR MOK_Unknown!)
 
@@ -29,7 +30,7 @@ func (this *MainObjCommon) GetKind() MainObjKind {
 }
 
 func (this *MainObjCommon) GetChart() *Chart {
-	return this.chart
+	return this.chart.asChart()
 }
 
 func (this *MainObjCommon) GetLocalID(prefix string) string {
@@ -173,6 +174,8 @@ func (this *MainObjCommon) IsUnresolved() bool {
 	return fullID != ""
 }
 
+// `id` should be the "qualified" ID, meaning if an object was included,
+// the `id` here should prepend the qualified ID of the subchart event object.
 func CreateUnresolvedMainObj(kind MainObjectKind, id string) *MainObjCommon {
 	return &MainObjCommon{
 		kind: kind,

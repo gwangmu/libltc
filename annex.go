@@ -8,13 +8,11 @@ import (
 	"github.com/gwangmu/libltc/internal/file"
 )
 
-// `Swap` kind of methods: only for the objects that can be "unresolved."
-
 type Annex struct {
+	common MainObjCommon
+
 	Note Note
 	Title string
-
-	common MainObjCommon
 
 	format string
 	encoding string
@@ -33,6 +31,18 @@ func (this *Annex) Common() *MainObjCommon {
 
 func (this *Annex) IsUnresolved() bool {
 	return this.common.IsUnresolved()
+}
+
+func (this *Annex) Clone(preserveChart bool, preserveID bool) IMainObj {
+	newobj := *this
+	if !preserveChart {
+		newobj.common.chart = nil
+	}
+	if !preserveID {
+		newobj.common.numID = NID_Invalid
+		newobj.common.fullID = ""
+	}
+	return &newobj
 }
 
 //-- interface WarningObj
@@ -123,6 +133,8 @@ func (this *Annex) addAttachedToObject(obj IMainObj) {
 	}
 }
 
+// `Swap` kind of methods: only for the objects that can be "unresolved."
+
 func (this *Annex) swapAttachedToObject(oldobj IMainObj, newobj IMainObj) {
 	for i, elem := range this.attachedToObjs {
 		if elem == oldobj {
@@ -199,19 +211,19 @@ func (this *Annex) UnsetAttachTo(obj IMainObj) {
 
 //-- method (import and export)
 
-func (this *Annex) Import(feobj *file.Annex) error {
+func (this *Annex) Import(feobj *file.Annex) ([]Warning, error) {
 	// TODO
 }
 
-func (this *Annex) Export() (*file.Annex, error) {
+func (this *Annex) Export() (*file.Annex, []Warning, error) {
 	// TODO
 }
 
-//-- method (creation and disposal)
+//-- method (creation)
 
 func CreateEmptyAnnex() *Annex {
 	return &Annex{
-		Common: MainObjCommon{
+		common: MainObjCommon{
 			kind: MOK_Annex,
 
 			chart: nil,

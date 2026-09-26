@@ -8,6 +8,7 @@ import (
 type IChart interface {
 	asChart() *Chart
 	resolveReferenceTo(IMainObj)
+	unresolveReferenceTo(IMainObj)
 }
 
 type Chart struct {
@@ -36,7 +37,23 @@ type Subject struct {
 	Sex string
 }
 
-//-- interface WarningObj
+//-- interface IChart
+
+func (this *Chart) asChart() *Chart {
+	return this
+}
+
+func (this *Chart) resolveReferenceTo(obj IMainObj) {
+	// TODO: resolve dangling references to `obj` in existing objs.
+	// TODO: assume GetQualifiedID() of `obj` is valid.
+}
+
+func (this *Chart) unresolveReferenceTo(obj IMainObj) {
+	// TODO: change references to `obj` dangling ref.
+	// TODO: assume GetQualifiedID() of `obj` is valid.
+}
+
+//-- interface IWarningObj
 
 func (this *Chart) Summary() (ret string) {
 	ret = "the LTC chart"
@@ -50,12 +67,6 @@ func (this *Chart) Summary() (ret string) {
 
 func (this *Chart) IsUnknown() bool {
 	return this.Subject.IsUnknown() && this.Filepath == ""
-}
-
-//-- interface ltcTOMLPrintable
-
-func (this *Chart) PrintTOML() string {
-	// TODO
 }
 
 //-- method (main object association)
@@ -132,17 +143,14 @@ func (this *Chart) HasObject(obj IMainObj, onlyLocal bool) bool {
 
 func (this *Chart) AddObject(obj IMainObj) {
 	// TODO: add already-created obj. update chart and id.
-	// TODO: renewobject implied.
-}
-
-func (this *Chart) RenewObject(obj IMainObj) {
-	// TODO: fix relational fields between objs.
-	// TODO: lib user should call this if `obj` was directly changed, NOT via chart.
-	// TODO: for import objects, this will trigger re-import.
+	// TODO: for import objects, add `imported*` to the chart, too.
+	// TODO: for import objects, resorveReferenceTo all imported objs.
 }
 
 func (this *Chart) RemoveObject(obj IMainObj) {
 	// TODO: dispose of any possible links to other objs.
+	// TODO: for import objects, unresorveReferenceTo all imported objs.
+	// TODO: for import objects, remove `imported*` from the chart, too.
 	// TODO: remove itself from the chart.
 }
 

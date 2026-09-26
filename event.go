@@ -7,16 +7,16 @@ import (
 )
 
 type Event struct {
-	Note Note 
-
 	common MainObjCommon
+
+	Note Note 
 
 	localTitle *string
 	localStartDate *Time
 	localEndDate *Time
 
 	subchartLink *string
-	loadedSubchart *Chart
+	loadedSubchart IChart
 	embedLink *string
 	loadedEmbed *Event
 
@@ -32,6 +32,18 @@ func (this *Event) Common() *MainObjCommon {
 
 func (this *Event) IsUnresolved() bool {
 	return this.common.IsUnresolved()
+}
+
+func (this *Event) Clone(preserveChart bool, preserveID bool) IMainObj {
+	newobj := *this
+	if !preserveChart {
+		newobj.common.chart = nil
+	}
+	if !preserveID {
+		newobj.common.numID = NID_Invalid
+		newobj.common.fullID = ""
+	}
+	return &newobj
 }
 
 //-- interface WarningObj
@@ -66,19 +78,20 @@ func (this *Event) GetSubchart() *Chart {
 	// TODO: return a subchart (nil if `Embed` is valid or `Subchart` is invalid).
 	// TODO: lazy-load `loadedSubchart` if it's nil.
 	// TODO: on lazy-load, update `parent`s of the objects inside.
+	// TODO: on lazy-load, invoke `resolveReferenceTo` for all subchart objs.
 }
 
 func (this *Event) GetSubchartLink() string {
 	// TODO
 }
 
-func (this *Event) GetStartDate() Time {
+func (this *Event) GetStartDate() *Time {
 	// TODO: use 'localStartDate` if it was defined.
 	// TODO: otherwise, use the `StartDate` of the embedded event.
 	// TODO: otherwise, return unknown.
 }
 
-func (this *Event) GetEndDate() Time {
+func (this *Event) GetEndDate() *Time {
 	// TODO: use 'localEndDate` if it was defined.
 	// TODO: otherwise, use the `EndDate` of the embedded event.
 	// TODO: otherwise, return unknown.
@@ -151,19 +164,19 @@ func (this *Event) UnsetContinuedFrom(eobj *Event) {
 
 //-- method (import and export)
 
-func (this *Event) Import(feobj *file.Event) error {
+func (this *Event) Import(feobj *file.Event) ([]Warning, error) {
 	// TODO
 }
 
-func (this *Event) Export() (*file.Event, error) {
+func (this *Event) Export() (*file.Event, []Warning, error) {
 	// TODO
 }
 
-//-- method (creation and disposal)
+//-- method (creation)
 
 func CreateEmptyEvent() *Event {
 	return &Event{
-		Common: MainObjCommon{
+		common: MainObjCommon{
 			kind: MOK_Event,
 
 			chart: nil,
