@@ -8,15 +8,15 @@ import (
 	"strings"
 )
 
-// WarningObj is an interface that any LTC structs should implement in order
+// IWarningObj is an interface that any LTC structs should implement in order
 // to be referred by Warning.
 
-type WarningObj interface {
+type IWarningObj interface {
 	Summary() string
 	IsUnknown() bool 
 }
 
-//-- WarningObj helper methods
+//-- IWarningObj helper methods
 
 func toSentenceCase(s string) string {
 	if (len(s) < 1) {
@@ -47,7 +47,7 @@ func getWarningInfoString(args ...struct {string; interface{}}) string {
 			if carg != nil {
 				fields := append(fields, realprefix + strconv.Itoa(*carg))
 			}
-		case WarningObj:
+		case IWarningObj:
 			if carg != nil && !carg.IsUnknown() {
 				fields := append(fields, realprefix + carg.Summary())
 			}
@@ -62,7 +62,7 @@ func getWarningInfoString(args ...struct {string; interface{}}) string {
 
 type Warning struct {
 	desc string 		// '@<idx>@' to refer to the idx'th object.
-	objs []WarningObj
+	objs []IWarningObj
 }
 
 //-- struct Warning: method (getters and setters)
@@ -95,11 +95,11 @@ func (ltcw *Warning) getSubstitutedString(orgstr string) string {
 
 func CreateWarning(fmtstr string, args ...interface{}) Warning {
 	fmtargs := []interface{}{}
-	objs := []WarningObj{}
+	objs := []IWarningObj{}
 
 	for _, arg := range args {
 		switch carg := arg.interface{}.(type) {
-		case WarningObj:
+		case IWarningObj:
 			objs = append(objs, carg)
 		default:
 			fmtargs = append(fmtargs, carg)

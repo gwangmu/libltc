@@ -2,7 +2,8 @@ package libltc
 
 import (
 	"errors"
-	"libltc/file"
+
+	"github.com/gwangmu/libltc/internal/file"
 )
 
 type Event struct {
@@ -43,7 +44,7 @@ func (this *Event) IsUnknown() bool {
 	// TODO
 }
 
-//-- method (getters and setters)
+//-- method (getters)
 
 func (this *Event) GetTitle() string {
 	// TODO: use `localTitle` if it was defined.
@@ -61,11 +62,6 @@ func (this *Event) GetEmbedLink() string {
 	// TODO
 }
 
-func (this *Event) SetEmbedLink() {
-	// TODO: invalidate non-nill embed event.
-	// TODO: eagerly load 'loadedEmbed'
-}
-
 func (this *Event) GetSubchart() *Chart {
 	// TODO: return a subchart (nil if `Embed` is valid or `Subchart` is invalid).
 	// TODO: lazy-load `loadedSubchart` if it's nil.
@@ -76,13 +72,15 @@ func (this *Event) GetSubchartLink() string {
 	// TODO
 }
 
-func (this *Event) SetSubchartLink() {
-	// TODO: invalidate non-nill subchart.
-}
-
 func (this *Event) GetStartDate() Time {
 	// TODO: use 'localStartDate` if it was defined.
 	// TODO: otherwise, use the `StartDate` of the embedded event.
+	// TODO: otherwise, return unknown.
+}
+
+func (this *Event) GetEndDate() Time {
+	// TODO: use 'localEndDate` if it was defined.
+	// TODO: otherwise, use the `EndDate` of the embedded event.
 	// TODO: otherwise, return unknown.
 }
 
@@ -94,41 +92,7 @@ func (this *Event) GetContinuedToEvents() []*Event {
 	// TODO
 }
 
-func (this *Event) SetLocalStartDate(t Time) {
-	// TODO
-}
-
-func (this *Event) UnsetLocalStartDate() {
-	// TODO
-}
-
-func (this *Event) GetEndDate() Time {
-	// TODO: use 'localEndDate` if it was defined.
-	// TODO: otherwise, use the `EndDate` of the embedded event.
-	// TODO: otherwise, return unknown.
-}
-
-func (this *Event) SetLocalEndDate(t Time) {
-	// TODO
-}
-
-func (this *Event) UnsetLocalEndDate() {
-	// TODO
-}
-
 func (this *Event) HasContinuedFromEvent() bool {
-	// TODO
-}
-
-func (this *Event) AddContinuedFromEvent(eobj *Event) {
-	// TODO
-}
-
-func (this *Event) SwapContinuedFromEvent(oldobj *Event, newobj *Event) {
-	// TODO
-}
-
-func (this *Event) RemoveContinuedFromEvent(eobj *Event) {
 	// TODO
 }
 
@@ -136,21 +100,52 @@ func (this *Event) HasContinuedToEvent() bool {
 	// TODO
 }
 
-func (this *Event) AddContinuedToEvent(eobj *Event) {
+//-- method (setters)
+
+func (this *Event) SetEmbedLink(uri string) {
+	// TODO: invalidate non-nill embed event.
+	// TODO: eagerly load 'loadedEmbed'
+}
+
+func (this *Event) SetSubchartLink(uri string) {
+	// TODO: invalidate non-nill subchart.
+}
+
+func (this *Event) SetLocalStartDate(t *Time) {
 	// TODO
 }
 
-func (this *Event) RemoveContinuedToEvent(eobj *Event) {
+func (this *Event) SetLocalEndDate(t *Time) {
 	// TODO
 }
 
-//-- method (relational)
-
-func (this *Event) MakeContinuedFrom(eobj *Event) {
+func (this *Event) addContinuedFromEvent(eobj *Event) {
 	// TODO
 }
 
-func (this *Event) UnmakeContinuedFrom(eobj *Event) {
+func (this *Event) swapContinuedFromEvent(oldobj *Event, newobj *Event) {
+	// TODO
+}
+
+func (this *Event) removeContinuedFromEvent(eobj *Event) {
+	// TODO
+}
+
+func (this *Event) addContinuedToEvent(eobj *Event) {
+	// TODO
+}
+
+func (this *Event) removeContinuedToEvent(eobj *Event) {
+	// TODO
+}
+
+//-- method (high-level operation)
+
+func (this *Event) SetContinuedFrom(eobj *Event) {
+	// TODO
+}
+
+func (this *Event) UnsetContinuedFrom(eobj *Event) {
 	// TODO
 }
 

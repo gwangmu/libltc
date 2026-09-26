@@ -11,7 +11,7 @@ import (
 
 type wii = struct {string; interface{}}
 
-type TOMLPrintable interface {
+type ITOMLPrinter interface {
 	PrintTOML() string
 }
 
@@ -28,13 +28,13 @@ type File struct {
 	Import []Import		`toml:"Import,omitempty"`
 }
 
-//-- struct File: interface TOMLPrintable
+//-- struct File: interface ITOMLPrinter
 
 func (this *File) PrintTOML() string {
 	// TODO
 }
 
-//-- struct File: interface WarningObj
+//-- struct File: interface IWarningObj
 
 func (this *File) Summary() (ret string) {
 	ret = "the LTC file"
@@ -58,13 +58,13 @@ type Setting struct {
 	Categories []string		`toml:"Categories,omitempty"`
 }
 
-//-- struct Setting: interface TOMLPrintable
+//-- struct Setting: interface ITOMLPrinter
 
 func (this *Setting) PrintTOML() string {
 	// TODO
 }
 
-//-- struct Setting: interface WarningObj
+//-- struct Setting: interface IWarningObj
 
 func (this *Setting) Summary() string {
 	return "the LTC setting"
@@ -83,13 +83,13 @@ type Subject struct {
 	Sex string				`toml:"Sex,omitempty"`
 }
 
-//-- struct Subject: interface TOMLPrintable
+//-- struct Subject: interface ITOMLPrinter
 
 func (this *Subject) PrintTOML() string {
 	// TODO
 }
 
-//-- struct Subject: interface WarningObj
+//-- struct Subject: interface IWarningObj
 
 func (this *Subject) Summary() (ret string) {
 	ret = this.Name.Summary()
@@ -124,13 +124,13 @@ type Event struct {
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Event: interface TOMLPrintable
+//-- struct Event: interface ITOMLPrinter
 
 func (this *Event) PrintTOML() string {
 	// TODO
 }
 
-//-- struct Event: interface WarningObj
+//-- struct Event: interface IWarningObj
 
 func (this *Event) Summary() (ret string) {
 	if this.Title != "" {
@@ -180,13 +180,13 @@ type Annex struct {
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Annex: interface TOMLPrintable
+//-- struct Annex: interface ITOMLPrinter
 
 func (this *Annex) PrintTOML() string {
 	// TODO
 }
 
-//-- struct Annex: interface WarningObj
+//-- struct Annex: interface IWarningObj
 
 func (this *Annex) Summary() (ret string) {
 	ret = "an annex"
@@ -222,13 +222,13 @@ type Import struct {
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Import: interface TOMLPrintable
+//-- struct Import: interface ITOMLPrinter
 
 func (this *Import) PrintTOML() string {
 	// TODO
 }
 
-//-- struct Import: interface WarningObj
+//-- struct Import: interface IWarningObj
 
 func (this *Import) Summary() (ret string) {
 	if this.Title != "" {
@@ -265,13 +265,13 @@ type Name struct {
 	Last string				`toml:"Last,omitempty"`
 }
 
-//-- struct Name: interface TOMLPrintable
+//-- struct Name: interface ITOMLPrinter
 
 func (this *Name) PrintTOML() string {
 	// TODO
 }
 
-//-- struct Name: interface WarningObj
+//-- struct Name: interface IWarningObj
 
 func (this *Name) Summary() string {
 	names = []string{}
@@ -309,13 +309,13 @@ type Time struct {
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Time: interface TOMLPrintable
+//-- struct Time: interface ITOMLPrinter
 
 func (this *Time) PrintTOML() string {
 	// TODO
 }
 
-//-- struct Time: interface WarningObj
+//-- struct Time: interface IWarningObj
 
 func (this *Time) Summary() (ret string) {
 	if this.IsUnknown() {

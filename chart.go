@@ -5,6 +5,11 @@ import (
 	"time"
 )
 
+type IChart interface {
+	asChart() *Chart
+	resolveReferenceTo(IMainObj)
+}
+
 type Chart struct {
 	Filepath string
 	Version Version
@@ -56,7 +61,7 @@ func (this *Chart) PrintTOML() string {
 //-- method (main object association)
 
 func (this *Chart) getNextNumberID(kind MainObjKind) (NumberID, error) {
-	mainobjArr := []MainObj{}
+	mainobjArr := []IMainObj{}
 
 	switch kind {
 	case MOK_Event:
@@ -104,7 +109,7 @@ func (this *Chart) GetImports() []*Import {
 
 //-- method (main object manipulation)
 
-func (this *Chart) GetObject(qualId string) MainObj {
+func (this *Chart) GetObject(qualId string) IMainObj {
 	// TODO: return obj by qualified id.
 }
 
@@ -121,22 +126,22 @@ func (this *Chart) GetEventCategories() []string {
 	// TODO
 }
 
-func (this *Chart) HasObject(obj MainObj, onlyLocal bool) bool {
+func (this *Chart) HasObject(obj IMainObj, onlyLocal bool) bool {
 	// TODO
 }
 
-func (this *Chart) AddObject(obj MainObj) {
+func (this *Chart) AddObject(obj IMainObj) {
 	// TODO: add already-created obj. update chart and id.
 	// TODO: renewobject implied.
 }
 
-func (this *Chart) RenewObject(obj MainObj) {
+func (this *Chart) RenewObject(obj IMainObj) {
 	// TODO: fix relational fields between objs.
 	// TODO: lib user should call this if `obj` was directly changed, NOT via chart.
 	// TODO: for import objects, this will trigger re-import.
 }
 
-func (this *Chart) RemoveObject(obj MainObj) {
+func (this *Chart) RemoveObject(obj IMainObj) {
 	// TODO: dispose of any possible links to other objs.
 	// TODO: remove itself from the chart.
 }

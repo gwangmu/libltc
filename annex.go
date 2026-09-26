@@ -4,8 +4,8 @@ import (
 	"errors"
 	"fmt"
 
-	"libltc/coder"
-	"libltc/file"
+	"github.com/gwangmu/libltc/internal/coder"
+	"github.com/gwangmu/libltc/internal/file"
 )
 
 // `Swap` kind of methods: only for the objects that can be "unresolved."
@@ -21,8 +21,8 @@ type Annex struct {
 	rawData []byte
 	encodedData string
 
-	attachedToObjs []MainObj
-	extraNoteOfObjs []MainObj
+	attachedToObjs []IMainObj
+	extraNoteOfObjs []IMainObj
 }
 
 //-- interface MainObj
@@ -45,7 +45,7 @@ func (this *Annex) IsUnknown() bool {
 	// TODO
 }
 
-//-- method (getters and setters)
+//-- method (getters)
 
 func (this *Annex) GetFormat() string {
 	return this.format
@@ -63,50 +63,15 @@ func (this *Annex) GetEncodedData() string {
 	return this.encodedData
 }
 
-func (this *Annex) GetAttachedToObjects() []MainObj {
+func (this *Annex) GetAttachedToObjects() []IMainObj {
 	return this.attachedToObjs
 }
 
-func (this *Annex) GetExtraNoteOfObjects() []MainObj {
+func (this *Annex) GetExtraNoteOfObjects() []IMainObj {
 	return this.extraNoteOfObjs
 }
 
-func (this *Annex) SetRawData(format string, encoding string, data []byte) error {
-	// Early-encode and fail fast.
-	if encoder, ok := Encoders[encoding]; ok {
-		if encoded, err := encoder(data); err == nil {
-			this.format = format
-			this.encoding = encoding
-			this.rawData = data
-			this.encodedData = encoded
-			return nil
-		} else {
-			return errors.New("Encoding failed")
-		}
-	} else {
-		return errors.New(fmt.Sprintf("Unrecognized encoding '%s'", encoding))
-	}
-}
-
-func (this *Annex) SetFormat(format string) {
-	this.format = format
-}
-
-func (this *Annex) SetEncoding(encoding string) error {
-	if encoder, ok := Encoders[encoding]; ok {
-		if encoded, err := encoder(this.rawData); err == nil {
-			this.encoding = encoding
-			this.encodedData = encoded
-			return nil
-		} else {
-			return errors.New("Encoding failed")
-		}
-	} else {
-		return errors.New(fmt.Sprintf("Unrecognized encoding '%s'", encoding))
-	}
-}
-
-func (this *Annex) HasAttachedToObject(obj MainObj) bool {
+func (this *Annex) HasAttachedToObject(obj IMainObj) bool {
 	for _, elem := range this.attachedToObjs {
 		if elem == obj {
 			return true
@@ -115,13 +80,50 @@ func (this *Annex) HasAttachedToObject(obj MainObj) bool {
 	return false
 }
 
-func (this *Annex) AddAttachedToObject(obj MainObj) {
+func (this *Annex) HasExtraNoteOfObject(obj IMainObj) bool {
+	for _, elem := range this.extraNoteOfObjs {
+		if elem == obj {
+			return true
+		}
+	}
+	return false
+}
+
+//-- method (setters)
+
+func (this *Annex) SetFormat(format string) {
+	this.format = format
+}
+
+func (this *Annex) SetEncoding(encoding string) error {
+	encoded, err := tryEncode(encoding, this.rawData)
+	if err == nil {
+		this.encoding = encoding
+		this.encodedData = encoded
+		return nil
+	} else {
+		return err
+	}
+}
+
+func (this *Annex) SetRawData(data []byte) error {
+	encoded, err := tryEncode(this.encoding, data)
+	if err == nil {
+		this.rawData = data
+		this.encodedData = encoded
+		return nil
+	} else {
+		return err
+	}
+}
+
+func (this *Annex) addAttachedToObject(obj IMainObj) {
 	if !this.HasAttachedToObject(obj) {
 		this.attachedToObjs = append(this.attachedToObjs, obj)
 	}
 }
 
-func (this *Annex) SwapAttachedToObject(oldobj MainObj, newobj MainObj) {
+func (this *Annex) swapAttachedToObject(oldobj IMainObj, newobj IMainObj) {
 	for i, elem := range this.attachedToObjs {
 		if elem == oldobj {
 			this.attachedToObjs[i] = newobj
@@ -130,7 +132,7 @@ func (this *Annex) SwapAttachedToObject(oldobj MainObj, newobj MainObj) {
 	}
 }
 
-func (this *Annex) RemoveAttachedToObject(obj MainObj) {
+func (this *Annex) removeAttachedToObject(obj IMainObj) {
 	for _, elem := range this.attachedToObjs {
 		if elem == obj {
 			this.attachedToObjs = append(this.attachedToObjs[:i], this.attachedToObjs[i+1:]...) 
@@ -139,22 +141,13 @@ func (this *Annex) RemoveAttachedToObject(obj MainObj) {
 	}
 }
 
-func (this *Annex) HasExtraNoteOfObject(obj MainObj) bool {
-	for _, elem := range this.extraNoteOfObjs {
-		if elem == obj {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *Annex) AddExtraNoteOfObject(obj MainObj) {
+func (this *Annex) addExtraNoteOfObject(obj IMainObj) {
 	if !this.HasExtraNoteOfObject(obj) {
 		this.extraNoteOfObjs = append(this.extraNoteOfObjs, obj)
 	}
 }
 
-func (this *Annex) SwapExtraNoteOfObject(oldobj MainObj, newobj MainObj) {
+func (this *Annex) swapExtraNoteOfObject(oldobj IMainObj, newobj IMainObj) {
 	for i, elem := range this.extraNoteOfObjs {
 		if elem == oldobj {
 			this.extraNoteOfObjs[i] = newobj
@@ -163,7 +156,7 @@ func (this *Annex) SwapExtraNoteOfObject(oldobj MainObj, newobj MainObj) {
 	}
 }
 
-func (this *Annex) RemoveExtraNoteOfObject(obj MainObj) {
+func (this *Annex) removeExtraNoteOfObject(obj IMainObj) {
 	for _, elem := range this.extraNoteOfObjs {
 		if elem == obj {
 			this.extraNoteOfObjs = append(this.extraNoteOfObjs[:i], this.extraNoteOfObjs[i+1:]...) 
@@ -172,21 +165,35 @@ func (this *Annex) RemoveExtraNoteOfObject(obj MainObj) {
 	}
 }
 
-//-- method (relational)
+//-- method (high-level operation)
 
-func (this *Annex) MakeExtraNoteOf(obj MainObj) {
+func (this *Annex) SetRawData(format string, encoding string, data []byte) error {
+	// Early-encode and fail fast.
+	encoded, err := tryEncode(encoding, data)
+	if err == nil {
+		this.format = format
+		this.encoding = encoding
+		this.rawData = data
+		this.encodedData = encoded
+		return nil
+	} else {
+		return err
+	}
+}
+
+func (this *Annex) SetExtraNoteOf(obj IMainObj) {
 	// TODO
 }
 
-func (this *Annex) UnmakeExtraNoteOf(obj MainObj) {
+func (this *Annex) UnsetExtraNoteOf(obj IMainObj) {
 	// TODO
 }
 
-func (this *Annex) MakeAttachTo(obj MainObj) {
+func (this *Annex) SetAttachTo(obj IMainObj) {
 	// TODO
 }
 
-func (this *Annex) UnmakeAttachTo(obj MainObj) {
+func (this *Annex) UnsetAttachTo(obj IMainObj) {
 	// TODO
 }
 
@@ -204,7 +211,7 @@ func (this *Annex) Export() (*file.Annex, error) {
 
 func CreateEmptyAnnex() *Annex {
 	return &Annex{
-		Common: MainObj{
+		Common: MainObjCommon{
 			kind: MOK_Annex,
 
 			chart: nil,
@@ -225,7 +232,21 @@ func CreateEmptyAnnex() *Annex {
 		rawData: []byte{},
 		encodedData: "",
 
-		attachedToObjs: []*MainObj{},
-		extraNoteOfObjs: []*MainObj{},
+		attachedToObjs: []IMainObj{},
+		extraNoteOfObjs: []IMainObj{},
+	}
+}
+
+//-- method (private)
+
+func tryEncode(encoding string, data []byte) (string, error) {
+	if encoder, ok := Encoders[encoding]; ok {
+		if encoded, err := encoder(data); err == nil {
+			return encoded, nil
+		} else {
+			return "", errors.New("Encoding failed")
+		}
+	} else {
+		return "", errors.New(fmt.Sprintf("Unrecognized encoding '%s'", encoding))
 	}
 }
