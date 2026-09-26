@@ -155,7 +155,7 @@ An event object is a fundamental object of the LTC file. It describes a specific
 
 Event objects have three _types_: plain, embedding, and subchart. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event of an external LTC file. Subchart event objects embed an entire external LTC file. Fields below:
 
- - `ID`: (ID object) The ID of the event. (default: ID object default)
+ - `ID`: (ID object) The ID of the event. Must be "e[0-9]+". (default: ID object default)
  - `Title`: (string) The descriptive summary ("title") of the event. (default: empty)
  - `Category`: (string) The category of the event. (default: empty)
  - `StartDate`: (time object) The start date of the event. (default: time object default)
@@ -187,7 +187,7 @@ Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: 
 
 An annex object represents data attached to the LTC file: photos, text snippets, links, etc. Fields below:
 
- - `ID`: (ID object) The ID of the annex. (default: ID object default)
+ - `ID`: (ID object) The ID of the annex. Must be "a[0-9]+". (default: ID object default)
  - `Title`: (string) The descriptive title of the annex. (default: empty)
  - `Format`: (string) The data Format of the annex. (default: "txt")
  - `Encoding`: (string) The data encoding of the annex. (default: "none")
@@ -207,7 +207,7 @@ By default, `Format` is specific to the front-end LTC tool, except `txt` for tex
 
 An import object declares an external LTC file to merge into the current LTC file, adding the event objects inside to the same-name category or creating new categories if they don't already exist. See [referencing](#Referencing) for the nested import limit. Fields below:
 
- - `ID`: (ID object) The ID of the import. (default: ID object default)
+ - `ID`: (ID object) The ID of the import. Must be "i[0-9]+". (default: ID object default)
  - `Link`: (string) The URI to an import-target LTC file. See [referencing](#Referencing) for a valid URI. (default: empty)
  - `StartDate`: (time object) The start date of the import. (default: time object default)
  - `EndDate`: (time object) The end date of the import. (default: time object default)
