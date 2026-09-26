@@ -10,16 +10,16 @@ type MainObj interface {
 }
 
 type MainObjCommon struct {
-	kind MainObjKind				// Main object kind
+	kind MainObjKind			// Main object kind
 
-	chart *Chart					// Linked chart
+	chart *Chart				// Linked chart
 	parent *MainObj				// Included by... (nil: chart-local)
 	numID NumberID 				// Numeric part of ID
-	fullID string 					// Full ID (ONLY FOR MOK_Unknown!)
+	fullID string 				// Full ID (ONLY FOR MOK_Unknown!)
 
-	extraNoteAnnexs []*Annex		// Annexs as extra notes
+	extraNoteAnnexs []*Annex	// Annexs as extra notes
 	attachedAnnexs []*Annex		// Annexs as attachments
-	attrs map[string][]string		// Attributes
+	attrs map[string][]string	// Attributes
 }
 
 //-- struct MainObj: method

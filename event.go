@@ -144,15 +144,19 @@ func (this *Event) RemoveContinuedToEvent(eobj *Event) {
 	// TODO
 }
 
+//-- method (relational)
+
+func (this *Event) MakeContinuedFrom(eobj *Event) {
+	// TODO
+}
+
+func (this *Event) UnmakeContinuedFrom(eobj *Event) {
+	// TODO
+}
+
 //-- method (import and export)
 
-func (this *Event) Import(feobj *file.Event, chart *Chart) error {
-	// TODO
-}
-
-func (this *LTCEvent) Export() (*file.LTCEvent, error) {
-	// TODO
-}
+func (this *Event) Import(feobj *file.Event) error {
 	// TODO
 }
 

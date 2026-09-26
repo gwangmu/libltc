@@ -88,36 +88,62 @@ func (this *Chart) getNextNumberID(kind MainObjKind) (NumberID, error) {
 	}
 }
 
+//-- method (getters)
+
+func (this *Chart) GetEvents() []*Event {
+	// TODO
+}
+
+func (this *Chart) GetAnnexs() []*Annex {
+	// TODO
+}
+
+func (this *Chart) GetImports() []*Import {
+	// TODO
+}
+
 //-- method (main object manipulation)
 
-func (this *Chart) CreateEvent() *Event {
+func (this *Chart) GetObject(qualId string) MainObj {
+	// TODO: return obj by qualified id.
+}
+
+func (this *Chart) HasObject(obj MainObj, onlyLocal bool) bool {
 	// TODO
 }
 
-func (this *Chart) CreateAnnex() *Annex {
-	// TODO
+func (this *Chart) CreateObject(kind MainObjKind) MainObj {
+	// TODO: return empty obj with chart and id.
 }
 
-func (this *Chart) CreateImport() *Import {
-	// TODO
+func (this *Chart) AddObject(obj MainObj) {
+	// TODO: add already-created obj. update chart and id.
 }
 
-func (this *Chart) RemoveEvent(eobj *Event) {
+func (this *Chart) RenewObject(obj MainObj) {
+	// TODO: fix relational fields between objs.
+	// TODO: lib user should call this if `obj` was directly changed, NOT via chart.
+	// TODO: for import objects, this will trigger re-import.
+}
+
+func (this *Chart) RemoveObject(obj MainObj) {
 	// TODO: dispose of any possible links to other objs.
 	// TODO: remove itself from the chart.
 }
 
-func (this *Chart) RemoveAnnex(eobj *Annex) {
-	// TODO: dispose of any possible links to other objs.
-	// TODO: remove itself from the chart.
+
+func (this *Chart) GetEventsBetween(start Time, end Time, inclusive bool) []*Event {
+	// TODO: inclusive = false: start < estart && eend < end
+	// TODO: inclusive = true: start <= eend || estart <= end
 }
 
-func (this *Chart) RemoveImport(eobj *Import) {
-	// TODO: dispose of any possible links to other objs.
-	// TODO: remove itself from the chart.
+func (this *Chart) GetEventsPerCategory() map[string][]*Event {
+	// TODO
 }
 
-func (this *Chart) 
+func (this *Chart) GetEventCategories() []string {
+	// TODO
+}
 
 //-- method (creation)
 

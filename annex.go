@@ -172,9 +172,27 @@ func (this *Annex) RemoveExtraNoteOfObject(obj MainObj) {
 	}
 }
 
+//-- method (relational)
+
+func (this *Annex) MakeExtraNoteOf(obj MainObj) {
+	// TODO
+}
+
+func (this *Annex) UnmakeExtraNoteOf(obj MainObj) {
+	// TODO
+}
+
+func (this *Annex) MakeAttachTo(obj MainObj) {
+	// TODO
+}
+
+func (this *Annex) UnmakeAttachTo(obj MainObj) {
+	// TODO
+}
+
 //-- method (import and export)
 
-func (this *Annex) Import(feobj *file.Annex, chart *Chart) error {
+func (this *Annex) Import(feobj *file.Annex) error {
 	// TODO
 }
 
