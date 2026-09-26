@@ -2,11 +2,13 @@ package libltc
 
 import (
 	"errors"
+	"libltc/file"
 )
 
 type LTCEvent struct {
-	Common LTCMainObjCommon
 	Note LTCNote 
+
+	common LTCMainObjCommon
 
 	localTitle *string
 	localStartDate *LTCTime
@@ -16,6 +18,19 @@ type LTCEvent struct {
 	loadedSubchart *LTCChart
 	embedLink *string
 	loadedEmbed *LTCEvent
+
+	contFromEvents []*LTCEvent
+	contToEvents []*LTCEvent
+}
+
+//-- interface LTCMainObj
+
+func (this *LTCEvent) Common() *LTCMainObjCommon {
+	return &this.common
+}
+
+func (this *LTCEvent) IsUnresolved() bool {
+	return this.common.IsUnresolved()
 }
 
 //-- interface LTCWarningObj
@@ -25,12 +40,6 @@ func (this *LTCEvent) Summary() string {
 }
 
 func (this *LTCEvent) IsUnknown() bool {
-	// TODO
-}
-
-//-- interface LTCTomlPrintable
-
-func (this *LTCEvent) PrintTOML() string {
 	// TODO
 }
 
@@ -77,6 +86,14 @@ func (this *LTCEvent) GetStartDate() LTCTime {
 	// TODO: otherwise, return unknown.
 }
 
+func (this *LTCEvent) GetContinuedFromEvents() []*LTCEvent {
+	// TODO
+}
+
+func (this *LTCEvent) GetContinuedToEvents() []*LTCEvent {
+	// TODO
+}
+
 func (this *LTCEvent) SetLocalStartDate(t LTCTime) {
 	// TODO
 }
@@ -99,7 +116,45 @@ func (this *LTCEvent) UnsetLocalEndDate() {
 	// TODO
 }
 
-//-- method (creation)
+func (this *LTCEvent) HasContinuedFromEvent() bool {
+	// TODO
+}
+
+func (this *LTCEvent) AddContinuedFromEvent(eobj *LTCEvent) {
+	// TODO
+}
+
+func (this *LTCEvent) SwapContinuedFromEvent(oldobj *LTCEvent, newobj *LTCEvent) {
+	// TODO
+}
+
+func (this *LTCEvent) RemoveContinuedFromEvent(eobj *LTCEvent) {
+	// TODO
+}
+
+func (this *LTCEvent) HasContinuedToEvent() bool {
+	// TODO
+}
+
+func (this *LTCEvent) AddContinuedToEvent(eobj *LTCEvent) {
+	// TODO
+}
+
+func (this *LTCEvent) RemoveContinuedToEvent(eobj *LTCEvent) {
+	// TODO
+}
+
+//-- method (import and export)
+
+func (this *LTCEvent) Import(feobj *file.LTCEvent) error {
+	// TODO
+}
+
+func (this *LTCEvent) Export() (*file.LTCEvent, error) {
+	// TODO
+}
+
+//-- method (creation and disposal)
 
 func CreateEmptyEvent() *LTCEvent {
 	return &LTCEvent{
@@ -109,6 +164,7 @@ func CreateEmptyEvent() *LTCEvent {
 			chart: nil,
 			parent: nil,
 			numID: NID_Invalid,
+			fullID: "", 
 
 			extraNoteAnnexs: []*LTCAnnex{},
 			attachedAnnexs: []*LTCAnnex{},
@@ -125,5 +181,8 @@ func CreateEmptyEvent() *LTCEvent {
 		loadedSubchart: nil,
 		embedLink: nil,
 		loadedEmbed: nil,
-	}
+
+		contFromEvents: []*LTCEvent{},
+		contToEvents: []*LTCEvent{},
+	} 
 }

@@ -4,120 +4,122 @@ import (
 	"errors"
 )
 
+type LTCMainObj interface {
+	Common() *LTCMainObjCommon
+	IsUnresolved() bool
+}
+
 type LTCMainObjCommon struct {
 	kind LTCMainObjKind				// Main object kind
 
 	chart *LTCChart					// Linked chart
-	parent LTCMainObj				// Included by... (nil: chart-local)
+	parent *LTCMainObj				// Included by... (nil: chart-local)
 	numID LTCNumberID 				// Numeric part of ID
+	fullID string 					// Full ID (ONLY FOR MOK_Unknown!)
 
 	extraNoteAnnexs []*LTCAnnex		// Annexs as extra notes
 	attachedAnnexs []*LTCAnnex		// Annexs as attachments
 	attrs map[string][]string		// Attributes
 }
 
-type LTCMainObj interface {
-	GetChart() *LTCChart
-	GetLocalID() string
-	GetQualifiedID() string
-	HasParent() bool
+//-- struct LTCMainObj: method
 
-	GetExtraNotes() []*LTCNote
-	AddExtraNoteAnnex(*LTCAnnex)
-	RemoveExtraNoteAnnex(*LTCAnnex)
-
-	GetAttachedAnnexs() []*LTCAnnex
-	AddAttachedAnnex(*LTCAnnex)
-	RemoveAttachedAnnex(*LTCAnnex)
-
-	// `{Add,Remove}Attr` are passive methods; they don't update other
-	// objects that may be referenced by the added/removed attribute.
-	GetAttrs(key string) []string 
-	HasAttr(key string, value string) bool
-	AddAttr(key string, value string)
-	RemoveAttr(key string, value string)
-
-	getNumberID() LTCNumberID
+func (this *LTCMainObj) GetKind() LTCMainObjKind {
+	return this.kind
 }
 
-//-- struct LTCMainObjCommon: interface LTCMainObj
-
-func (this *LTCMainObjCommon) GetChart() *LTCChart {
+func (this *LTCMainObj) GetChart() *LTCChart {
 	return this.chart
 }
 
-func (this *LTCMainObjCommon) GetLocalID(prefix string) string {
-	if prefix, err := this.kind.Prefix(); err != nil {
-		return prefix + strconv.Itoa(this.numID)
+func (this *LTCMainObj) GetLocalID(prefix string) string {
+	if this.kind == MOK_Unknown {
+		return this.fullID
 	} else {
-		panic(err.Error())
-	}
-}
-
-func (this *LTCMainObjCommon) GetQualifiedID() (ret string) {
-	if prefix, err := this.kind.Prefix(); err != nil {
-		if this.parent != nil {
-			ret = this.parent.GetQualifiedID() + '/'
+		if prefix, err := this.kind.Prefix(); err != nil {
+			return prefix + strconv.Itoa(this.numID)
+		} else {
+			panic(err.Error())
 		}
-
-		ret += this.GetLocalID(prefix)
-		return
-	} else {
-		panic(err.Error())
 	}
 }
 
-func (this *LTCMainObjCommon) HasParent() bool {
-	// If this is true, the object shoule be considered read-only.
-	return this.parent != nil
+func (this *LTCMainObj) GetQualifiedID() (ret string) {
+	if this.kind == MOK_Unknown {
+		return this.fullID
+	} else {
+		if prefix, err := this.kind.Prefix(); err != nil {
+			if this.parent != nil {
+				ret = this.parent.GetQualifiedID() + '/'
+			}
+
+			ret += this.GetLocalID(prefix)
+			return
+		} else {
+			panic(err.Error())
+		}
+	}
 }
 
-func (this *LTCMainObjCommon) GetExtraNotes() (ret []*LTCNote) {
+func (this *LTCMainObj) GetParent() *LTCMainObj {
+	return this.parent
+}
+
+func (this *LTCMainObj) SetParent(p *LTCMainObj) {
+	this.parent = p
+}
+
+func (this *LTCMainObj) GetExtraNotes() (ret []*LTCNote) {
 	for _, aobj := range this.extraNoteAnnexs {
 		append(ret, &aobj.Note)
 	}
 	return
 }
 
-func (this *LTCMainObjCommon) AddExtraNoteAnnex(aobj *LTCAnnex) {
-	if !aobj.HasAttr("ExtraNoteOf", this.GetQualifiedID()) {
-		aobj.AddAttr("ExtraNoteOf", this.GetQualifiedID())
+func (this *LTCMainObj) HasExtraNoteAnnex(aobj *LTCAnnex) bool {
+	for _, elem := range this.extraNoteAnnexs {
+		if elem == aobj {
+			return true
+		}
 	}
-	append(this.extraNoteAnnexs, aobj)
+	return false
 }
 
-func (this *LTCMainObjCommon) RemoveExtraNoteAnnex(aobj *LTCAnnex) {
-	for i, elem := range this.extraNoteAnnexs {
+func (this *LTCMainObj) AddExtraNoteAnnex(aobj *LTCAnnex) {
+	if !this.HasExtraNoteAnnex(aobj) {
+		append(this.extraNoteAnnexs, aobj)
+	}
+}
+
+func (this *LTCMainObj) RemoveExtraNoteAnnex(aobj *LTCAnnex) {
+	for _, elem := range this.extraNoteAnnexs {
 		if elem == aobj {
 			this.extraNoteAnnexs = append(this.extraNoteAnnexs[:i], this.extraNoteAnnexs[i+1:]...) 
 			break
 		}
 	}
-	aobj.RemoveAttr("ExtraNoteOf", this.GetQualifiedID())
 }
 
-func (this *LTCMainObjCommon) GetAttachedAnnexs() []*LTCAnnex {
+func (this *LTCMainObj) GetAttachedAnnexs() []*LTCAnnex {
 	return this.attachedAnnexs
 }
 
-func (this *LTCMainObjCommon) AddAttachedAnnex(aobj *LTCAnnex) {
-	if !aobj.HasAttr("AttachTo", this.GetQualifiedID()) {
-		aobj.AddAttr("AttachTo", this.GetQualifiedID())
+func (this *LTCMainObj) AddAttachedAnnex(aobj *LTCAnnex) {
+	if !this.HasAttachedAnnex(aobj) {
+		append(this.attachedAnnexs, aobj)
 	}
-	append(this.attachedAnnexs, aobj)
 }
 
-func (this *LTCMainObjCommon) RemoveAttachedAnnex(aobj *LTCAnnex) {
-	for i, elem := range this.attachedAnnexs {
+func (this *LTCMainObj) RemoveAttachedAnnex(aobj *LTCAnnex) {
+	for _, elem := range this.attachedAnnexs {
 		if elem == aobj {
 			this.attachedAnnexs = append(this.attachedAnnexs[:i], this.attachedAnnexs[i+1:]...) 
 			break
 		}
 	}
-	aobj.RemoveAttr("AttachTo", this.GetQualifiedID())
 }
 
-func (this *LTCMainObjCommon) GetAttrs(key string) []string {
+func (this *LTCMainObj) GetAttrs(key string) []string {
 	if attrlist, ok := this.attrs[key]; ok {
 		// `attrlist` CANNOT be an empty list. (at least [""])
 		return attrlist
@@ -126,7 +128,7 @@ func (this *LTCMainObjCommon) GetAttrs(key string) []string {
 	}
 }
 
-func (this *LTCMainObjCommon) HasAttr(key string, value string) bool {
+func (this *LTCMainObj) HasAttr(key string, value string) bool {
 	if attrlist, ok := this.attrs[key]; ok {
 		for _, elem := range attrlist {
 			if elem == value {
@@ -136,15 +138,18 @@ func (this *LTCMainObjCommon) HasAttr(key string, value string) bool {
 	}
 	return false
 }
+	
+// `{Add,Remove}Attr` are passive methods; they don't update other
+// objects that may be referenced by the added/removed attribute.
 
-func (this *LTCMainObjCommon) AddAttr(key string, value string) {
+func (this *LTCMainObj) AddAttr(key string, value string) {
 	if _, ok := this.attrs[key]; !ok {
 		this.attrs[key] = []string{}
 	}
 	append(this.attrs[key], value)
 }
 
-func (this *LTCMainObjCommon) RemoveAttr(key string, value string) {
+func (this *LTCMainObj) RemoveAttr(key string, value string) {
 	if attrlist, ok := this.attrs[key]; ok {
 		for i, elem := range attrlist {
 			if elem == value {
@@ -160,6 +165,25 @@ func (this *LTCMainObjCommon) RemoveAttr(key string, value string) {
 	}
 }
 
-func (this *LTCMainObjCommon) getNumberID() LTCNumberID {
+func (this *LTCMainObj) getNumberID() LTCNumberID {
 	return this.numID
+}
+
+func (this *LTCMainObj) IsUnresolved() bool {
+	return fullID != ""
+}
+
+func CreateUnresolvedMainObj(kind LTCMainObjectKind, id string) *LTCMainObj {
+	return &LTCMainObj{
+		kind: kind,
+
+		chart: nil,
+		parent: nil,
+		numID: NID_Invalid,
+		fullID: id,
+
+		extraNoteAnnexs: []*LTCAnnex{},
+		attachedAnnexs: []*LTCAnnex{},
+		attrs: map[string][]string{},
+	}
 }

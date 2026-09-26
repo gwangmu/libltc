@@ -64,6 +64,7 @@ const (
 	MOK_Event LTCMainObjKind = iota
 	MOK_Annex LTCMainObjKind
 	MOK_Import LTCMainObjKind
+	MOK_Unknown LTCMainObjKind
 )
 
 //-- type LTCMainObjKind: method (stringify)

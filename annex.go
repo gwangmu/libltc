@@ -3,19 +3,36 @@ package libltc
 import (
 	"errors"
 	"fmt"
+
 	"libltc/coder"
+	"libltc/file"
 )
 
-type LTCAnnex struct {
-	Common ltcMainObjCommon
+// `Swap` kind of methods: only for the objects that can be "unresolved."
 
+type LTCAnnex struct {
 	Note LTCNote
 	Title string
+
+	common LTCMainObjCommon
 
 	format string
 	encoding string
 	rawData []byte
 	encodedData string
+
+	attachedToObjs []LTCMainObj
+	extraNoteOfObjs []LTCMainObj
+}
+
+//-- interface LTCMainObj
+
+func (this *LTCAnnex) Common() *LTCMainObjCommon {
+	return &this.common
+}
+
+func (this *LTCAnnex) IsUnresolved() bool {
+	return this.common.IsUnresolved()
 }
 
 //-- interface LTCWarningObj
@@ -25,12 +42,6 @@ func (this *LTCAnnex) Summary() string {
 }
 
 func (this *LTCAnnex) IsUnknown() bool {
-	// TODO
-}
-
-//-- interface LTCTomlPrintable
-
-func (this *LTCAnnex) PrintTOML() string {
 	// TODO
 }
 
@@ -50,6 +61,14 @@ func (this *LTCAnnex) GetRawData() []byte {
 
 func (this *LTCAnnex) GetEncodedData() string {
 	return this.encodedData
+}
+
+func (this *LTCAnnex) GetAttachedToObjects() []LTCMainObj {
+	return this.attachedToObjs
+}
+
+func (this *LTCAnnex) GetExtraNoteOfObjects() []LTCMainObj {
+	return this.extraNoteOfObjs
 }
 
 func (this *LTCAnnex) SetRawData(format string, encoding string, data []byte) error {
@@ -87,16 +106,93 @@ func (this *LTCAnnex) SetEncoding(encoding string) error {
 	}
 }
 
-//-- method (creation)
+func (this *LTCAnnex) HasAttachedToObject(obj LTCMainObj) bool {
+	for _, elem := range this.attachedToObjs {
+		if elem == obj {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *LTCAnnex) AddAttachedToObject(obj LTCMainObj) {
+	if !this.HasAttachedToObject(obj) {
+		this.attachedToObjs = append(this.attachedToObjs, obj)
+	}
+}
+
+func (this *LTCAnnex) SwapAttachedToObject(oldobj LTCMainObj, newobj LTCMainObj) {
+	for i, elem := range this.attachedToObjs {
+		if elem == oldobj {
+			this.attachedToObjs[i] = newobj
+			return
+		}
+	}
+}
+
+func (this *LTCAnnex) RemoveAttachedToObject(obj LTCMainObj) {
+	for _, elem := range this.attachedToObjs {
+		if elem == obj {
+			this.attachedToObjs = append(this.attachedToObjs[:i], this.attachedToObjs[i+1:]...) 
+			break
+		}
+	}
+}
+
+func (this *LTCAnnex) HasExtraNoteOfObject(obj LTCMainObj) bool {
+	for _, elem := range this.extraNoteOfObjs {
+		if elem == obj {
+			return true
+		}
+	}
+	return false
+}
+
+func (this *LTCAnnex) AddExtraNoteOfObject(obj LTCMainObj) {
+	if !this.HasExtraNoteOfObject(obj) {
+		this.extraNoteOfObjs = append(this.extraNoteOfObjs, obj)
+	}
+}
+
+func (this *LTCAnnex) SwapExtraNoteOfObject(oldobj LTCMainObj, newobj LTCMainObj) {
+	for i, elem := range this.extraNoteOfObjs {
+		if elem == oldobj {
+			this.extraNoteOfObjs[i] = newobj
+			return
+		}
+	}
+}
+
+func (this *LTCAnnex) RemoveExtraNoteOfObject(obj LTCMainObj) {
+	for _, elem := range this.extraNoteOfObjs {
+		if elem == obj {
+			this.extraNoteOfObjs = append(this.extraNoteOfObjs[:i], this.extraNoteOfObjs[i+1:]...) 
+			break
+		}
+	}
+}
+
+//-- method (import and export)
+
+func (this *LTCAnnex) Import(feobj *file.LTCAnnex, chart *LTCChart) error {
+	// TODO
+}
+
+func (this *LTCAnnex) Export() (*file.LTCAnnex, error) {
+	// TODO
+}
+
+//-- method (creation and disposal)
 
 func CreateEmptyAnnex() *LTCAnnex {
 	return &LTCAnnex{
-		Common: LTCMainObjCommon{
+		Common: LTCMainObj{
 			kind: MOK_Annex,
 
 			chart: nil,
 			parent: nil,
-			numID: NID_Invalid,
+			numID: NID_Invalid, 
+			fullID: "",
 
 			extraNoteAnnexs: []*LTCAnnex{},
 			attachedAnnexs: []*LTCAnnex{},
@@ -110,14 +206,8 @@ func CreateEmptyAnnex() *LTCAnnex {
 		encoding: "",
 		rawData: []byte{},
 		encodedData: "",
-	}
-}
 
-func CreateAnnexFromData(format string, encoding string, data []byte) (*LTCAnnex, error) {
-	aobj := CreateEmptyAnnex()
-	if err := aobj.SetData(format, encoding, data); err != nil {
-		return nil, err
-	} else {
-		return aobj, nil
+		attachedToObjs: []*LTCMainObj{},
+		extraNoteOfObjs: []*LTCMainObj{},
 	}
 }

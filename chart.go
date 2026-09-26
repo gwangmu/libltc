@@ -13,7 +13,7 @@ type LTCChart struct {
 	Setting LTCSetting
 	Subject LTCSubject
 
-	events []*LTCEvent	// Sorted by StartDate (unknown first), incl. imported events.
+	events []*LTCEvent		// Sorted by StartDate (unknown first), incl. imported events.
 	annexs []*LTCAnnex
 	imports []*LTCImport
 }
@@ -55,46 +55,26 @@ func (this *LTCChart) PrintTOML() string {
 
 //-- method (main object association)
 
-func (this *LTCChart) LinkEventObject(o *LTCEvent) error {
-	// TODO: grant new ID, update chart
-	// TODO: if embed, do embed
-}
+func (this *LTCChart) getNextNumberID(kind LTCMainObjKind) (LTCNumberID, error) {
+	mainobjArr := []LTCMainObj{}
 
-func (this *LTCChart) LinkAnnexObject(o *LTCAnnex) error {
-	// TODO: grant new ID, update chart
-	// TODO: do extra note or attach
-}
+	switch kind {
+	case MOK_Event:
+		for _, o := range this.events {
+			mainobjArr = append(mainobjArr, o.Common)
+		}
+	case MOK_Annex:
+		for _, o := range this.annexs {
+			mainobjArr = append(mainobjArr, o.Common)
+		}
+	case MOK_Import:
+		for _, o := range this.imports {
+			mainobjArr = append(mainobjArr, o.Common)
+		}
+	default:
+		return NID_Invalid, errors.New("Unrecognized main object kind")
+	}
 
-func (this *LTCChart) LinkImportObject(o *LTCImport) error {
-	// TODO: grant new ID, update chart
-	// TODO: do import
-}
-
-func (this *LTCChart) RenewEventObject(o *LTCEvent) error {
-	// TODO: similar to add, but no ID/Chart update - just contents.
-}
-
-func (this *LTCChart) RenewAnnexObject(o *LTCAnnex) error {
-	// TODO: similar to add, but no ID/Chart update - just contents.
-}
-
-func (this *LTCChart) RenewImportObject(o *LTCImport) error {
-	// TODO: similar to add, but no ID/Chart update - just contents.
-}
-
-func (this *LTCChart) UnlinkEventObject(o *LTCEvent) error {
-	// TODO: don't remove obj
-}
-
-func (this *LTCChart) UnlinkAnnexObject(o *LTCAnnex) error {
-	// TODO: don't remove obj
-}
-
-func (this *LTCChart) UnlinkImportObject(o *LTCImport) error {
-	// TODO: don't remove obj
-}
-
-func (this *LTCChart) getNextNumberID(mainobjArr *[]ltcMainObjCommon) (LTCNumberID, error) {
 	// Next next ID = Max existing numID + 1
 	// FIX: error out if 'maxNumID' == UINT_MAX - 1. Unlikely, but still.
 	var maxNumID LTCNumberID = 0
@@ -108,12 +88,39 @@ func (this *LTCChart) getNextNumberID(mainobjArr *[]ltcMainObjCommon) (LTCNumber
 	}
 }
 
-//-- method (creation)
+//-- method (main object manipulation)
 
-func CreateChart() *LTCChart {
+func (this *LTCChart) CreateEvent() *LTCEvent {
 	// TODO
 }
 
-func LoadChart(uri string) (*LTCChart, error) {
+func (this *LTCChart) CreateAnnex() *LTCAnnex {
+	// TODO
+}
+
+func (this *LTCChart) CreateImport() *LTCImport {
+	// TODO
+}
+
+func (this *LTCChart) RemoveEvent(eobj *LTCEvent) {
+	// TODO: dispose of any possible links to other objs.
+	// TODO: remove itself from the chart.
+}
+
+func (this *LTCChart) RemoveAnnex(eobj *LTCAnnex) {
+	// TODO: dispose of any possible links to other objs.
+	// TODO: remove itself from the chart.
+}
+
+func (this *LTCChart) RemoveImport(eobj *LTCImport) {
+	// TODO: dispose of any possible links to other objs.
+	// TODO: remove itself from the chart.
+}
+
+func (this *LTCChart) 
+
+//-- method (creation)
+
+func CreateEmptyChart() *LTCChart {
 	// TODO
 }

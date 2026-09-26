@@ -11,10 +11,6 @@ type LTCStringifiable interface {
 	ToString() string
 }
 
-type LTCTOMLPrintable interface {
-	PrintTOML() string
-}
-
 //-- struct LTCName
 
 type LTCName struct {
@@ -60,6 +56,7 @@ func (this *LTCName) PrintTOML() string {
 
 type LTCTime struct {
 	Timezone time.Location
+	Attrs map[string][]string
 
 	year *int
 	month *int
