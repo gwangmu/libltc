@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 
+	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/coder"
 	"github.com/gwangmu/libltc/internal/file"
 )
@@ -147,7 +148,7 @@ func (this *Annex) swapAttachedToObject(oldobj IMainObj, newobj IMainObj) {
 }
 
 func (this *Annex) removeAttachedToObject(obj IMainObj) {
-	for _, elem := range this.attachedToObjs {
+	for i, elem := range this.attachedToObjs {
 		if elem == obj {
 			this.attachedToObjs = append(this.attachedToObjs[:i], this.attachedToObjs[i+1:]...) 
 			break
@@ -171,7 +172,7 @@ func (this *Annex) swapExtraNoteOfObject(oldobj IMainObj, newobj IMainObj) {
 }
 
 func (this *Annex) removeExtraNoteOfObject(obj IMainObj) {
-	for _, elem := range this.extraNoteOfObjs {
+	for i, elem := range this.extraNoteOfObjs {
 		if elem == obj {
 			this.extraNoteOfObjs = append(this.extraNoteOfObjs[:i], this.extraNoteOfObjs[i+1:]...) 
 			break
@@ -181,7 +182,7 @@ func (this *Annex) removeExtraNoteOfObject(obj IMainObj) {
 
 //-- method (high-level operation)
 
-func (this *Annex) SetRawData(format string, encoding string, data []byte) error {
+func (this *Annex) SetAnnex(format string, encoding string, data []byte) error {
 	// Early-encode and fail fast.
 	encoded, err := tryEncode(encoding, data)
 	if err == nil {
@@ -217,12 +218,12 @@ func (this *Annex) UnsetAttachTo(obj IMainObj) {
 
 //-- method (import and export)
 
-func (this *Annex) Import(feobj *file.Annex) ([]Warning, error) {
+func (this *Annex) Import(feobj *file.Annex) ([]warning.Warning, error) {
 	// TODO
 	panic("Unimplemented")
 }
 
-func (this *Annex) Export() (*file.Annex, []Warning, error) {
+func (this *Annex) Export() (*file.Annex, []warning.Warning, error) {
 	// TODO
 	panic("Unimplemented")
 }
@@ -242,7 +243,7 @@ func CreateEmptyAnnex() *Annex {
 			extraNoteAnnexs: []*Annex{},
 			attachedAnnexs: []*Annex{},
 			attrs: map[string][]string{},
-		}
+		},
 
 		Note: Note{},
 		Title: "",
@@ -260,7 +261,7 @@ func CreateEmptyAnnex() *Annex {
 //-- method (private)
 
 func tryEncode(encoding string, data []byte) (string, error) {
-	if encoder, ok := Encoders[encoding]; ok {
+	if encoder, ok := coder.Encoders[encoding]; ok {
 		if encoded, err := encoder(data); err == nil {
 			return encoded, nil
 		} else {

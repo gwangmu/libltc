@@ -56,6 +56,7 @@ type Setting struct {
 	CalendarSystem string	`toml:"CalendarSystem"`
 	NoteFormat string		`toml:"NoteFormat"`
 	Categories []string		`toml:"Categories,omitempty"`
+	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
 //-- struct Setting: interface ITOMLPrinter

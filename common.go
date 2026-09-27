@@ -2,6 +2,7 @@ package libltc
 
 import (
 	"errors"
+	"strings"
 	"time"
 )
 
@@ -22,7 +23,7 @@ type Name struct {
 //-- struct Name: interface Stringifiable
 
 func (this *Name) ToString() string {
-	names = []string{}
+	names := []string{}
 	if this.First != "" {
 		names = append(names, this.First)
 	}
@@ -33,23 +34,26 @@ func (this *Name) ToString() string {
 		names = append(names, this.Last)
 	}
 
-	return string.Join(names, " ")
+	return strings.Join(names, " ")
 }
 
 //-- struct Name: interface WarningObj
 
 func (this *Name) Summary() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Name) IsUnknown() bool {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Name: interface TOMLPrintable
 
 func (this *Name) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Time
@@ -81,7 +85,7 @@ func (this Time) GetTime() time.Time {
 	if this.month == nil {
 		nmonth = time.January
 	} else {
-		nmonth = *this.month
+		nmonth = time.Month(*this.month)
 	}
 
 	if this.day == nil {
@@ -108,14 +112,14 @@ func (this Time) GetTime() time.Time {
 		nsecond = *this.second
 	}
 
-	return time.Date(nyear, nmonth, nday, nhour, nminute, nsecond, this.Timezone)
+	return time.Date(nyear, nmonth, nday, nhour, nminute, nsecond, 0, &this.Timezone)
 }
 
 func (this Time) GetYear() (int, error) {
 	if this.year == nil {
 		return 0, errors.New("Year not specified")
 	} else {
-		return this.year, nil
+		return *this.year, nil
 	}
 }
 
@@ -123,7 +127,7 @@ func (this Time) GetMonth() (int, error) {
 	if this.month == nil {
 		return 0, errors.New("Month not specified")
 	} else {
-		return this.month, nil
+		return *this.month, nil
 	}
 }
 
@@ -131,7 +135,7 @@ func (this Time) GetDay() (int, error) {
 	if this.day == nil {
 		return 0, errors.New("Day not specified")
 	} else {
-		return this.day, nil
+		return *this.day, nil
 	}
 }
 
@@ -139,7 +143,7 @@ func (this Time) GetHour() (int, error) {
 	if this.hour == nil {
 		return 0, errors.New("Hour not specified")
 	} else {
-		return this.hour, nil
+		return *this.hour, nil
 	}
 }
 
@@ -147,7 +151,7 @@ func (this Time) GetMinute() (int, error) {
 	if this.minute == nil {
 		return 0, errors.New("Minute not specified")
 	} else {
-		return this.minute, nil
+		return *this.minute, nil
 	}
 }
 
@@ -155,20 +159,27 @@ func (this Time) GetSecond() (int, error) {
 	if this.second == nil {
 		return 0, errors.New("Second not specified")
 	} else {
-		return this.second, nil
+		return *this.second, nil
 	}
 }
 
 func (this Time) SetTime(date time.Time, tz bool) {
-	this.year = &data.Year()
-	this.month = &int(data.Month())
-	this.day = &data.Day()
-	this.hour = &data.Hour()
-	this.minute = &data.Minute()
-	this.second = &data.Second()
+	nyear := date.Year()
+	nmonth := int(date.Month())
+	nday := date.Day()
+	nhour := date.Hour()
+	nminute := date.Minute()
+	nsecond := date.Second()
+
+	this.year = &nyear
+	this.month = &nmonth
+	this.day = &nday
+	this.hour = &nhour
+	this.minute = &nminute
+	this.second = &nsecond
 
 	if tz {
-		this.Timezone = *tz.Location()
+		this.Timezone = *date.Location()
 	}
 }
 
@@ -233,22 +244,26 @@ func (this Time) UnsetSecond() {
 
 func (this Time) ToString() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Time: interface WarningObj
 
 func (this Time) Summary() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this Time) IsUnknown() bool {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Time: interface TOMLPrintable
 
 func (this *Time) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct NoteSnippet
@@ -262,6 +277,7 @@ type NoteSnippet struct {
 
 func (this *NoteSnippet) ToString() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Note
@@ -284,13 +300,13 @@ func (this *Note) SetTitle(t string) {
 func (this *Note) GetSnippets() []*NoteSnippet {
 	if len(this.snippets) == 0 {
 		return []*NoteSnippet{ &NoteSnippet{} }
-	} else
+	} else {
 		return this.snippets
 	}
 }
 
 func (this *Note) HasSnippet(s *NoteSnippet) bool {
-	for i, elem := range this.snippets {
+	for _, elem := range this.snippets {
 		if elem == s {
 			return true
 		}
@@ -311,24 +327,28 @@ func (this *Note) RemoveSnippet(s *NoteSnippet) {
 	}
 }
 
-//-- struct Note: interface Stringifiable
+//-- struct Note: interface IStringifiable
 
 func (this *Note) ToString() string {
 	// TODO: first snippet -- just Text, others -- ToString()
+	panic("Unimplemented")
 }
 
-//-- struct Note: interface WarningObj
+//-- struct Note: interface IWarningObj
 
 func (this *Note) Summary() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Note) IsUnknown() bool {
 	// TODO
+	panic("Unimplemented")
 }
 
-//-- struct Note: interface TOMLPrintable
+//-- struct Note: interface ITOMLPrinter
 
 func (this *Note) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }

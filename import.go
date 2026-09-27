@@ -1,10 +1,10 @@
 package libltc
 
-import (
-	"errors"
-
-	"github.com/gwangmu/libltc/internal/file"
-)
+//import (
+//	"errors"
+//
+//	"github.com/gwangmu/libltc/internal/file"
+//)
 
 type Import struct {
 	common MainObjCommon

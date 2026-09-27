@@ -1,7 +1,7 @@
 package libltc
 
 import (
-	"errors"
+	"strconv"
 )
 
 type IMainObj interface {
@@ -14,7 +14,7 @@ type MainObjCommon struct {
 	kind MainObjKind			// Main object kind
 
 	chart IChart				// Linked chart
-	parent *IMainObj			// Included by... (nil: chart-local)
+	parent IMainObj				// Included by... (nil: chart-local)
 	numID NumberID 				// Numeric part of ID
 	fullID string 				// Full ID (ONLY FOR UNRESOLVED!)
 
@@ -38,7 +38,7 @@ func (this *MainObjCommon) GetLocalID(prefix string) string {
 		return this.fullID
 	} else {
 		if prefix, err := this.kind.Prefix(); err != nil {
-			return prefix + strconv.Itoa(this.numID)
+			return prefix + strconv.FormatUint(uint64(this.numID), 10)
 		} else {
 			panic(err.Error())
 		}
@@ -51,7 +51,7 @@ func (this *MainObjCommon) GetQualifiedID() (ret string) {
 	} else {
 		if prefix, err := this.kind.Prefix(); err != nil {
 			if this.parent != nil {
-				ret = this.parent.GetQualifiedID() + '/'
+				ret = this.parent.Common().GetQualifiedID() + "/"
 			}
 
 			ret += this.GetLocalID(prefix)
@@ -72,7 +72,7 @@ func (this *MainObjCommon) SetParent(p IMainObj) {
 
 func (this *MainObjCommon) GetExtraNotes() (ret []*Note) {
 	for _, aobj := range this.extraNoteAnnexs {
-		append(ret, &aobj.Note)
+		ret = append(ret, &aobj.Note)
 	}
 	return
 }
@@ -86,14 +86,23 @@ func (this *MainObjCommon) HasExtraNoteAnnex(aobj *Annex) bool {
 	return false
 }
 
+func (this *MainObjCommon) HasAttachedAnnex(aobj *Annex) bool {
+	for _, elem := range this.attachedAnnexs {
+		if elem == aobj {
+			return true
+		}
+	}
+	return false
+}
+
 func (this *MainObjCommon) AddExtraNoteAnnex(aobj *Annex) {
 	if !this.HasExtraNoteAnnex(aobj) {
-		append(this.extraNoteAnnexs, aobj)
+		this.extraNoteAnnexs = append(this.extraNoteAnnexs, aobj)
 	}
 }
 
 func (this *MainObjCommon) RemoveExtraNoteAnnex(aobj *Annex) {
-	for _, elem := range this.extraNoteAnnexs {
+	for i, elem := range this.extraNoteAnnexs {
 		if elem == aobj {
 			this.extraNoteAnnexs = append(this.extraNoteAnnexs[:i], this.extraNoteAnnexs[i+1:]...) 
 			break
@@ -107,12 +116,12 @@ func (this *MainObjCommon) GetAttachedAnnexs() []*Annex {
 
 func (this *MainObjCommon) AddAttachedAnnex(aobj *Annex) {
 	if !this.HasAttachedAnnex(aobj) {
-		append(this.attachedAnnexs, aobj)
+		this.attachedAnnexs = append(this.attachedAnnexs, aobj)
 	}
 }
 
 func (this *MainObjCommon) RemoveAttachedAnnex(aobj *Annex) {
-	for _, elem := range this.attachedAnnexs {
+	for i, elem := range this.attachedAnnexs {
 		if elem == aobj {
 			this.attachedAnnexs = append(this.attachedAnnexs[:i], this.attachedAnnexs[i+1:]...) 
 			break
@@ -147,7 +156,7 @@ func (this *MainObjCommon) AddAttr(key string, value string) {
 	if _, ok := this.attrs[key]; !ok {
 		this.attrs[key] = []string{}
 	}
-	append(this.attrs[key], value)
+	this.attrs[key] = append(this.attrs[key], value)
 }
 
 func (this *MainObjCommon) RemoveAttr(key string, value string) {
@@ -171,12 +180,12 @@ func (this *MainObjCommon) getNumberID() NumberID {
 }
 
 func (this *MainObjCommon) IsUnresolved() bool {
-	return fullID != ""
+	return this.fullID != ""
 }
 
 // `id` should be the "qualified" ID, meaning if an object was included,
 // the `id` here should prepend the qualified ID of the subchart event object.
-func CreateUnresolvedMainObj(kind MainObjectKind, id string) *MainObjCommon {
+func CreateUnresolvedMainObj(kind MainObjKind, id string) *MainObjCommon {
 	return &MainObjCommon{
 		kind: kind,
 

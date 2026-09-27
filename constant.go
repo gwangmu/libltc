@@ -44,11 +44,11 @@ func GetVersion(reqverstr string) Version {
 type TimeKind int
 const (
 	TK_Year TimeKind = iota
-	TK_Month TimeKind
-	TK_Day TimeKind
-	TK_Hour TimeKind
-	TK_Minute TimeKind
-	TK_Second TimeKind
+	TK_Month
+	TK_Day
+	TK_Hour
+	TK_Minute
+	TK_Second
 )
 
 //-- type NumberID
@@ -62,9 +62,9 @@ const NID_Invalid = math.MaxUint64
 type MainObjKind int
 const (
 	MOK_Event MainObjKind = iota
-	MOK_Annex MainObjKind
-	MOK_Import MainObjKind
-	MOK_Unknown MainObjKind
+	MOK_Annex
+	MOK_Import
+	MOK_Unknown
 )
 
 //-- type MainObjKind: method (stringify)

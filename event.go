@@ -1,8 +1,7 @@
 package libltc
 
 import (
-	"errors"
-
+	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/file"
 )
 
@@ -188,12 +187,12 @@ func (this *Event) UnsetContinuedFrom(eobj *Event) {
 
 //-- method (import and export)
 
-func (this *Event) Import(feobj *file.Event) ([]Warning, error) {
+func (this *Event) Import(feobj *file.Event) ([]warning.Warning, error) {
 	// TODO
 	panic("Unimplemented")
 }
 
-func (this *Event) Export() (*file.Event, []Warning, error) {
+func (this *Event) Export() (*file.Event, []warning.Warning, error) {
 	// TODO
 	panic("Unimplemented")
 }
@@ -213,11 +212,11 @@ func CreateEmptyEvent() *Event {
 			extraNoteAnnexs: []*Annex{},
 			attachedAnnexs: []*Annex{},
 			attrs: map[string][]string{},
-		}
+		},
 
 		Note: Note{},
 
-		localTitle: "",
+		localTitle: nil, 
 		localStartDate: nil,
 		localEndDate: nil,
 
