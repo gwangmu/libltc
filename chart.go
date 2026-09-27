@@ -157,8 +157,22 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 
 //-- method (creation)
 
-func createChartFromParsedFile(o *file.File) (*Chart, []warning.Warning, error) {
-	// TODO: Load preamble objects.
+func createChartFromParsed(o *file.File) (*Chart, []warning.Warning, error) {
+	chart := &Chart{}
+	warns := []warning.Warning{}
+
+	// Load preamble objects.
+	chart.Filepath = o.Filepath
+	chart.Version = GetVersion(o.Version)
+
+	note, moreWarns := CreateNoteFromString(o.Note)
+	chart.Note = note
+	warns = append(warns, moreWarns...)
+
+	// TODO
+	//setting = createSettingFromParsed(o.Setting)
+	//chart.Subject = createSubjectFromParsed(o.Subject)
+	
 	// TODO: Load main objects.
 	panic("Unimplemented")
 }
@@ -171,7 +185,7 @@ func CreateChart(tomlstr string) (*Chart, []warning.Warning, error) {
 	}
 
 	// Recursively convert (TOML-format) file to (in-memory) chart.
-	chart, warnsMore, err := createChartFromParsedFile(ltcf)
+	chart, warnsMore, err := createChartFromParsed(ltcf)
 	warns = append(warns, warnsMore...)
 	if err != nil {
 		return nil, warns, err
@@ -218,9 +232,9 @@ func (this *Setting) IsUnknown() bool {
 	return false
 }
 
-//-- struct Setting: interface IInspectable
+//-- struct Setting: interface IDiagnoseable
 
-func (this *Setting) Inspect() (warn []warning.Warning) {
+func (this *Setting) Diagnose() (warn []warning.Warning) {
 	// For now, any `CalendarSystem` or `NoteFormat` is valid,
 	// assuming that the front-end tool will generate warnings if they
 	// don't support it. Since any `CalendarSystem` is fine in libLTC,
@@ -230,7 +244,7 @@ func (this *Setting) Inspect() (warn []warning.Warning) {
 	if len(this.Attrs) != 0 {
 		for akey, _ := range this.Attrs {
 			warn = append(warn,
-				warning.Create("unrecognized attribute '%s' in @1@.", akey, this),
+				warning.Create("unrecognized attribute '%s' in @0@.", akey, this),
 			)
 		}
 	}
@@ -239,7 +253,7 @@ func (this *Setting) Inspect() (warn []warning.Warning) {
 
 //-- struct Setting: method (creation)
 
-func createSettingFromParsedFile(o *file.Setting) (*Setting, []warning.Warning, error) {
+func createSettingFromParsed(o file.Setting) (Setting, []warning.Warning, error) {
 	setting := Setting{
 		CalendarSystem: "Gregorian",
 		NoteFormat: "Markdown",
@@ -250,9 +264,9 @@ func createSettingFromParsedFile(o *file.Setting) (*Setting, []warning.Warning, 
 	setting.NoteFormat = o.NoteFormat
 	setting.Attrs = convAttrsFileToChart(o.Attrs)
 
-	warns := setting.Inspect()
+	warns := setting.Diagnose()
 
-	return &setting, warns, nil
+	return setting, warns, nil
 }
 
 //-- struct Subject
@@ -285,9 +299,9 @@ func (this *Subject) IsUnknown() bool {
 			this.EndDate.IsUnknown() && this.Sex == ""
 }
 
-//-- struct Subject: interface IInspectable
+//-- struct Subject: interface IDiagnoseable
 
-func (this *Subject) Inspect() (warn []warning.Warning) {
+func (this *Subject) Diagnose() (warn []warning.Warning) {
 	if this.Name.IsUnknown() {
 		warn = append(warn,
 			warning.Create("unknown subject."),
@@ -298,7 +312,7 @@ func (this *Subject) Inspect() (warn []warning.Warning) {
 
 //-- struct Subject: method (creation) 
 
-func createSubjectFromParsedFile(o *file.Subject) (*Subject, []warning.Warning, error) {
+func createSubjectFromParsed(o file.Subject) (Subject, []warning.Warning, error) {
 	// TODO
 	panic("Unimplemented")
 }

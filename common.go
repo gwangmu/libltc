@@ -2,6 +2,8 @@ package libltc
 
 import (
 	"errors"
+	"regexp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -12,10 +14,6 @@ import (
 
 type IStringifiable interface {
 	ToString() string
-}
-
-type IInspectable interface {
-	Inspect() []warning.Warning
 }
 
 //-- struct Name
@@ -65,7 +63,7 @@ func (this *Name) PrintTOML() string {
 //-- struct Time
 
 type Time struct {
-	Timezone time.Location
+	Timezone *time.Location
 	Attrs map[string][]string
 
 	year *int
@@ -118,7 +116,7 @@ func (this Time) GetTime() time.Time {
 		nsecond = *this.second
 	}
 
-	return time.Date(nyear, nmonth, nday, nhour, nminute, nsecond, 0, &this.Timezone)
+	return time.Date(nyear, nmonth, nday, nhour, nminute, nsecond, 0, this.Timezone)
 }
 
 func (this Time) GetYear() (int, error) {
@@ -185,7 +183,7 @@ func (this Time) SetTime(date time.Time, tz bool) {
 	this.second = &nsecond
 
 	if tz {
-		this.Timezone = *date.Location()
+		this.Timezone = date.Location()
 	}
 }
 
@@ -265,6 +263,57 @@ func (this Time) IsUnknown() bool {
 	panic("Unimplemented")
 }
 
+//-- struct Time: method (creation)
+
+func CreateTimeFromTag(tagstr string) (ret Time) {
+	re := regexp.MustCompile(`^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?(?:\s*\((.*)\))?$`)
+	matches := re.FindStringSubmatch(tagstr)
+
+	if len(matches) < 8 {
+		panic("Time tag matching unexpectedly too short")
+	}
+
+	nyear, yerr := strconv.Atoi(matches[1])
+	nmonth, merr := strconv.Atoi(matches[2])
+	nday, derr := strconv.Atoi(matches[3])
+
+	if yerr == nil && merr == nil && derr == nil {
+		ret.SetYear(nyear)
+		ret.SetMonth(nmonth)
+		ret.SetDay(nday)
+
+		nhour, herr := strconv.Atoi(matches[4])
+		nminute, mmerr := strconv.Atoi(matches[5])
+		nsecond, serr := strconv.Atoi(matches[6])
+
+		if herr == nil && mmerr == nil {
+			ret.SetHour(nhour)
+			ret.SetMinute(nminute)
+
+			if serr == nil {
+				ret.SetSecond(nsecond)
+			} else {
+				ret.SetSecond(0)
+			}
+		}
+
+		loc, tzerr := time.LoadLocation(matches[7])
+
+		if tzerr == nil {
+			ret.Timezone = loc
+		} else {
+			utcloc, tzerr := time.LoadLocation("UTC")
+			if tzerr == nil {
+				ret.Timezone = utcloc
+			} else {
+				panic("UTC not loaded")
+			}
+		}
+	}
+
+	return
+}
+
 //-- struct Time: interface TOMLPrintable
 
 func (this *Time) PrintTOML() string {
@@ -289,54 +338,14 @@ func (this *NoteSnippet) ToString() string {
 //-- struct Note
 
 type Note struct {
-	title string	// `Title` of normal notes: ignored
-	snippets []*NoteSnippet
-}
-
-//-- struct Note: methods (getters and setters)
-
-func (this *Note) GetTitle() string {
-	return this.title
-}
-
-func (this *Note) SetTitle(t string) {
-	this.title = t
-}
-
-func (this *Note) GetSnippets() []*NoteSnippet {
-	if len(this.snippets) == 0 {
-		return []*NoteSnippet{ &NoteSnippet{} }
-	} else {
-		return this.snippets
-	}
-}
-
-func (this *Note) HasSnippet(s *NoteSnippet) bool {
-	for _, elem := range this.snippets {
-		if elem == s {
-			return true
-		}
-	}
-	return false
-}
-
-func (this *Note) AddSnippet(s *NoteSnippet) {
-	this.snippets = append(this.snippets, s)
-}
-
-func (this *Note) RemoveSnippet(s *NoteSnippet) {
-	for i, elem := range this.snippets {
-		if elem == s {
-			this.snippets = append(this.snippets[:i], this.snippets[i+1:]...)
-			return
-		}
-	}
+	Title string	// `Title` of normal notes: ignored
+	Snippets []NoteSnippet
 }
 
 //-- struct Note: interface IStringifiable
 
 func (this *Note) ToString() string {
-	// TODO: first snippet -- just Text, others -- ToString()
+	// TODO: title (if non-empty), first snippet -- just Text, others -- ToString()
 	panic("Unimplemented")
 }
 
@@ -352,11 +361,46 @@ func (this *Note) IsUnknown() bool {
 	panic("Unimplemented")
 }
 
-//-- struct Note: interface ITOMLPrinter
+//-- struct Note: interface ITOMLPrintable
 
 func (this *Note) PrintTOML() string {
 	// TODO
 	panic("Unimplemented")
+}
+
+//-- struct Note: method (creation)
+
+func CreateNoteFromString(notestr string) (Note, []warning.Warning) {
+	note := Note{}
+	snippet := NoteSnippet{}
+	warns := []warning.Warning{}
+
+	notelines := strings.Split(notestr, "\n")
+	for i, line := range notelines {
+		if i == 0 {
+			re := regexp.MustCompile(`^\s*<!--\s*Title:(.*)-->\s*$`)
+			if matches := re.FindStringSubmatch(line); matches != nil {
+				note.Title = strings.TrimSpace(matches[1])
+			}
+		}
+
+		re := regexp.MustCompile(`^\s*<!--\s*Edit:(.*)-->\s*$`)
+		if matches := re.FindStringSubmatch(line); matches != nil {
+			snippet.Text = strings.TrimRight(snippet.Text, "\r\n")
+			note.Snippets = append(note.Snippets, snippet)
+
+			snippet = NoteSnippet{}
+			snippet.Time = CreateTimeFromTag(strings.TrimSpace(matches[1]))
+
+			if snippet.Time.IsUnknown() {
+				warns = append(warns, warning.Create(
+					"Unknown time tag in @0@.", &note))
+			}
+		}
+	}
+	note.Snippets = append(note.Snippets, snippet)
+
+	return note, warns
 }
 
 //-- method (utils)

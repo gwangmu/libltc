@@ -7,61 +7,6 @@ import (
 	"strings"
 )
 
-// IWarningObj is an interface that any LTC structs should implement in order
-// to be referred by Warning.
-
-type IWarningObj interface {
-	Summary() string
-	IsUnknown() bool 
-}
-
-//-- IWarningObj helper methods
-
-func toSentenceCase(s string) string {
-	re := regexp.MustCompile(`(?:^\s*|[\.\?\!]\s*)([a-z])`)
-	if mas := re.FindAllStringSubmatchIndex(s, -1); mas != nil {
-		for _, ma := range mas {
-			s = s[:ma[2]] + string(strings.ToUpper(s[ma[2]:ma[2]+1])) + s[ma[2]+1:]
-		}
-	}
-	return s
-}
-
-type SummaryElement struct {
-	Prefix string
-	Object any
-}
-
-func BuildSummaryString(args ...SummaryElement) string {
-	fields := []string{}
-	for _, arg := range args {
-		realprefix := arg.Prefix + " "
-		if arg.Prefix == "" {
-			realprefix = ""
-		}
-
-		switch carg := arg.Object.(type) {
-		case string:
-			if carg != "" {
-				fields = append(fields, realprefix + carg)
-			}
-		case *string:
-			if carg != nil {
-				fields = append(fields, realprefix + *carg)
-			}
-		case *int:
-			if carg != nil {
-				fields = append(fields, realprefix + strconv.Itoa(*carg))
-			}
-		case IWarningObj:
-			if carg != nil && !carg.IsUnknown() {
-				fields = append(fields, realprefix + carg.Summary())
-			}
-		}
-	}
-	return strings.Join(fields, ", ")
-}
-
 // Warning is a struct that represents a warning that occured between the
 // raw LTC file and the internal representation. It could be used for other
 // warnings as well (let's see).
@@ -116,4 +61,63 @@ func Create(fmtstr string, args ...any) Warning {
 		desc: fmt.Sprintf(fmtstr, fmtargs...),
 		objs: objs,
 	}
+}
+
+// IWarningObj is an interface that any LTC structs should implement in order
+// to be referred by Warning.
+
+type IWarningObj interface {
+	Summary() string
+	IsUnknown() bool 
+}
+
+type IDiagnosable interface {
+	Diagnose() []Warning
+}
+
+type SummaryElement struct {
+	Prefix string
+	Object any
+}
+
+//-- IWarningObj helper methods
+
+func toSentenceCase(s string) string {
+	re := regexp.MustCompile(`(?:^\s*|[\.\?\!]\s*)([a-z])`)
+	if mas := re.FindAllStringSubmatchIndex(s, -1); mas != nil {
+		for _, ma := range mas {
+			s = s[:ma[2]] + string(strings.ToUpper(s[ma[2]:ma[2]+1])) + s[ma[2]+1:]
+		}
+	}
+	return s
+}
+
+func BuildSummaryString(args ...SummaryElement) string {
+	fields := []string{}
+	for _, arg := range args {
+		realprefix := arg.Prefix + " "
+		if arg.Prefix == "" {
+			realprefix = ""
+		}
+
+		switch carg := arg.Object.(type) {
+		case string:
+			if carg != "" {
+				fields = append(fields, realprefix + carg)
+			}
+		case *string:
+			if carg != nil {
+				fields = append(fields, realprefix + *carg)
+			}
+		case *int:
+			if carg != nil {
+				fields = append(fields, realprefix + strconv.Itoa(*carg))
+			}
+		case IWarningObj:
+			if carg != nil && !carg.IsUnknown() {
+				fields = append(fields, realprefix + carg.Summary())
+			}
+		}
+	}
+	return strings.Join(fields, ", ")
 }

@@ -10,7 +10,7 @@ import (
 
 type WSE = warning.SummaryElement
 
-type ITOMLPrinter interface {
+type ITOMLPrintable interface {
 	PrintTOML() string
 }
 
@@ -27,7 +27,7 @@ type File struct {
 	Import []Import		`toml:"Import,omitempty"`
 }
 
-//-- struct File: interface ITOMLPrinter
+//-- struct File: interface ITOMLPrintable
 
 func (this *File) PrintTOML() string {
 	// TODO
@@ -59,7 +59,7 @@ type Setting struct {
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Setting: interface ITOMLPrinter
+//-- struct Setting: interface ITOMLPrintable
 
 func (this *Setting) PrintTOML() string {
 	// TODO
@@ -85,7 +85,7 @@ type Subject struct {
 	Sex string			`toml:"Sex,omitempty"`
 }
 
-//-- struct Subject: interface ITOMLPrinter
+//-- struct Subject: interface ITOMLPrintable
 
 func (this *Subject) PrintTOML() string {
 	// TODO
@@ -127,7 +127,7 @@ type Event struct {
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Event: interface ITOMLPrinter
+//-- struct Event: interface ITOMLPrintable
 
 func (this *Event) PrintTOML() string {
 	// TODO
@@ -184,7 +184,7 @@ type Annex struct {
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Annex: interface ITOMLPrinter
+//-- struct Annex: interface ITOMLPrintable
 
 func (this *Annex) PrintTOML() string {
 	// TODO
@@ -227,7 +227,7 @@ type Import struct {
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Import: interface ITOMLPrinter
+//-- struct Import: interface ITOMLPrintable
 
 func (this *Import) PrintTOML() string {
 	// TODO
@@ -271,7 +271,7 @@ type Name struct {
 	Last string				`toml:"Last,omitempty"`
 }
 
-//-- struct Name: interface ITOMLPrinter
+//-- struct Name: interface ITOMLPrintable
 
 func (this *Name) PrintTOML() string {
 	// TODO
@@ -316,7 +316,7 @@ type Time struct {
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Time: interface ITOMLPrinter
+//-- struct Time: interface ITOMLPrintable
 
 func (this *Time) PrintTOML() string {
 	// TODO
