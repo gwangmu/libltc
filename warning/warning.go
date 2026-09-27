@@ -18,11 +18,13 @@ type IWarningObj interface {
 //-- IWarningObj helper methods
 
 func toSentenceCase(s string) string {
-	if (len(s) < 1) {
-		return ""
-	} else {
-		return strings.ToUpper(s[:1]) + s[1:]
+	re := regexp.MustCompile(`(?:^\s*|[\.\?\!]\s*)([a-z])`)
+	if mas := re.FindAllStringSubmatchIndex(s, -1); mas != nil {
+		for _, ma := range mas {
+			s = s[:ma[2]] + string(strings.ToUpper(s[ma[2]:ma[2]+1])) + s[ma[2]+1:]
+		}
 	}
+	return s
 }
 
 type SummaryElement struct {
