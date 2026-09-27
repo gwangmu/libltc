@@ -4,12 +4,18 @@ import (
 	"errors"
 	"strings"
 	"time"
+
+	"github.com/gwangmu/libltc/warning"
 )
 
 //-- Common interfaces
 
-type Stringifiable interface {
+type IStringifiable interface {
 	ToString() string
+}
+
+type IInspectable interface {
+	Inspect() []warning.Warning
 }
 
 //-- struct Name
@@ -351,4 +357,30 @@ func (this *Note) IsUnknown() bool {
 func (this *Note) PrintTOML() string {
 	// TODO
 	panic("Unimplemented")
+}
+
+//-- method (utils)
+
+func convAttrsFileToChart(attrs []string) (cattrs map[string][]string) {
+	for _, attr := range attrs {
+		key, value, _ := strings.Cut(attr, ":")
+		if _, ok := cattrs[key]; !ok {
+			cattrs[key] = []string{}
+		}
+		cattrs[key] = append(cattrs[key], value)
+	}
+	return
+}
+
+func convAttrsChartToFile(attrs map[string][]string) (fattrs []string) {
+	for akey, avals := range attrs {
+		for _, aval := range avals {
+			if aval != "" {
+				fattrs = append(fattrs, akey + ":" + aval)
+			} else {
+				fattrs = append(fattrs, akey)
+			}
+		}
+	}
+	return
 }

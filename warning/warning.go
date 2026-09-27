@@ -99,7 +99,7 @@ func (ltcw *Warning) getSubstitutedString(orgstr string) string {
 
 //-- struct Warning: method (creation)
 
-func CreateWarning(fmtstr string, args ...any) Warning {
+func Create(fmtstr string, args ...any) Warning {
 	fmtargs := []interface{}{}
 	objs := []IWarningObj{}
 

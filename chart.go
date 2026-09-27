@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/gwangmu/libltc/warning"
+	"github.com/gwangmu/libltc/internal/file"
 )
 
 type IChart interface {
@@ -156,9 +157,42 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 
 //-- method (creation)
 
-func CreateEmptyChart() *Chart {
-	// TODO
+func createChartFromParsedFile(o *file.File) (*Chart, []warning.Warning, error) {
+	// TODO: Load preamble objects.
+	// TODO: Load main objects.
 	panic("Unimplemented")
+}
+
+func CreateChart(tomlstr string) (*Chart, []warning.Warning, error) {
+	// Parse LTC file in TOML format.
+	ltcf, warns, err := file.Load(tomlstr)
+	if err != nil {
+		return nil, warns, err
+	}
+
+	// Recursively convert (TOML-format) file to (in-memory) chart.
+	chart, warnsMore, err := createChartFromParsedFile(ltcf)
+	warns = append(warns, warnsMore...)
+	if err != nil {
+		return nil, warns, err
+	}
+
+	return chart, warns, nil
+}
+
+func CreateEmptyChart() *Chart {
+	return &Chart{
+		Filepath: "",
+		Version: VER_26_09_1,
+		Note: Note{},
+
+		Setting: Setting{},
+		Subject: Subject{},
+
+		events: []*Event{},
+		annexs: []*Annex{},
+		imports: []*Import{},
+	}
 }
 
 //-- struct Setting 
@@ -182,6 +216,43 @@ func (this *Setting) Summary() string {
 
 func (this *Setting) IsUnknown() bool {
 	return false
+}
+
+//-- struct Setting: interface IInspectable
+
+func (this *Setting) Inspect() (warn []warning.Warning) {
+	// For now, any `CalendarSystem` or `NoteFormat` is valid,
+	// assuming that the front-end tool will generate warnings if they
+	// don't support it. Since any `CalendarSystem` is fine in libLTC,
+	// the time object should implement local logic to compare times,
+	// not relying on the GO's time package.
+	
+	if len(this.Attrs) != 0 {
+		for akey, _ := range this.Attrs {
+			warn = append(warn,
+				warning.Create("unrecognized attribute '%s' in @1@.", akey, this),
+			)
+		}
+	}
+	return
+}
+
+//-- struct Setting: method (creation)
+
+func createSettingFromParsedFile(o *file.Setting) (*Setting, []warning.Warning, error) {
+	setting := Setting{
+		CalendarSystem: "Gregorian",
+		NoteFormat: "Markdown",
+		Attrs: map[string][]string{},
+	}
+
+	setting.CalendarSystem = o.CalendarSystem
+	setting.NoteFormat = o.NoteFormat
+	setting.Attrs = convAttrsFileToChart(o.Attrs)
+
+	warns := setting.Inspect()
+
+	return &setting, warns, nil
 }
 
 //-- struct Subject
@@ -212,4 +283,22 @@ func (this *Subject) Summary() (ret string) {
 func (this *Subject) IsUnknown() bool {
 	return this.Name.IsUnknown() && this.StartDate.IsUnknown() &&
 			this.EndDate.IsUnknown() && this.Sex == ""
+}
+
+//-- struct Subject: interface IInspectable
+
+func (this *Subject) Inspect() (warn []warning.Warning) {
+	if this.Name.IsUnknown() {
+		warn = append(warn,
+			warning.Create("unknown subject."),
+		)
+	}
+	return
+}
+
+//-- struct Subject: method (creation) 
+
+func createSubjectFromParsedFile(o *file.Subject) (*Subject, []warning.Warning, error) {
+	// TODO
+	panic("Unimplemented")
 }

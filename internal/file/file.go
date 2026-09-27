@@ -17,11 +17,11 @@ type ITOMLPrinter interface {
 //-- struct File
 
 type File struct {
-	Filepath string 		`toml:"-"`
-	Version string 			`toml:"FormatVersion"`
-	Note string 			`toml:"Note,omitempty"`
-	Setting Setting 		`toml:"Setting"`
-	Subject Subject 		`toml:"Subject"`
+	Filepath string 	`toml:"-"`
+	Version string 		`toml:"FormatVersion"`
+	Note string 		`toml:"Note,omitempty"`
+	Setting Setting 	`toml:"Setting"`
+	Subject Subject 	`toml:"Subject"`
 	Event []Event		`toml:"Event,omitempty"`
 	Annex []Annex		`toml:"Annex,omitempty"`
 	Import []Import		`toml:"Import,omitempty"`
@@ -82,7 +82,7 @@ type Subject struct {
 	Name Name			`toml:"Name"`
 	StartDate Time		`toml:"StartDate"`
 	EndDate *Time		`toml:"StartDate,omitempty"`
-	Sex string				`toml:"Sex,omitempty"`
+	Sex string			`toml:"Sex,omitempty"`
 }
 
 //-- struct Subject: interface ITOMLPrinter
@@ -378,6 +378,18 @@ func (this *Time) IsUnknown() bool {
 
 //-- Package methods
 
+func Load(tomlstr string) (*File, []warning.Warning, error) {
+	ltcFile := File{}
+	if _, err := toml.DecodeFile(tomlstr, &ltcFile); err != nil {
+		return nil, []warning.Warning{}, err
+	}
+
+	//warns := inspectFile(&ltcFile, meta) 
+	// TODO: Auto-fix some issues and report via Warning.
+
+	return &ltcFile, []warning.Warning{}, nil
+}
+
 func LoadFile(filepath string) (*File, []warning.Warning, error) {
 	ltcFile := File{}
 	if _, err := toml.DecodeFile(filepath, &ltcFile); err != nil {
@@ -386,6 +398,7 @@ func LoadFile(filepath string) (*File, []warning.Warning, error) {
 
 	ltcFile.Filepath = filepath
 
+	//warns := inspectFile(&ltcFile, meta) 
 	// TODO: Auto-fix some issues and report via Warning.
 
 	return &ltcFile, []warning.Warning{}, nil
