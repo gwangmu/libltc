@@ -99,6 +99,8 @@ In time tags, multiple whitespaces between fields are regarded as one, and there
 
 Posthumously editing the lines after the tagged time is strongly discouraged. For this purpose, the front-end LTC tool should (at least) warn users if they attempt to edit any lines whose time tag is not the latest, or lines with the latest time tag more than 30 days after. Lines with unknown time tags are not subject to this.
 
+A note can have a title with `<!-- Title: <title> -->` as the first line of the note body, where `<title>` is a note's title. `<title>` is stripped of the surrounding whitespace.
+
 Lines don't have to be sorted by time tags in the LTC file, but the front-end LTC tool may provide this functionality. If it does, it's recommended that lines with unknown time tags be in the same sorting unit as the closest preceding known time tag, and lines at the beginning with no time tag be fixed there.
 
 The note object is _sliced_ along time tag boundaries, meaning any formatting elements across multiple time tags are unsupported.
