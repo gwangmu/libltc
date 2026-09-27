@@ -1,16 +1,14 @@
 package file
 
 import (
-	"errors"
-	"os"
 	"strconv"
 	"strings"
 
 	"github.com/BurntSushi/toml"
-	"github.com/gwangmu/libltc"
+	"github.com/gwangmu/libltc/warning"
 )
 
-type wii = struct {string; interface{}}
+type WSE = warning.SummaryElement
 
 type ITOMLPrinter interface {
 	PrintTOML() string
@@ -33,6 +31,7 @@ type File struct {
 
 func (this *File) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct File: interface IWarningObj
@@ -40,7 +39,7 @@ func (this *File) PrintTOML() string {
 func (this *File) Summary() (ret string) {
 	ret = "the LTC file"
 	if this.Filepath != "" {
-		ret += " at \'" + this.Filepath + "\'"
+		ret += " at '" + this.Filepath + "'"
 	} else if !this.Subject.IsUnknown() {
 		ret += " for " + this.Subject.Summary()
 	}
@@ -63,6 +62,7 @@ type Setting struct {
 
 func (this *Setting) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Setting: interface IWarningObj
@@ -88,6 +88,7 @@ type Subject struct {
 
 func (this *Subject) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Subject: interface IWarningObj
@@ -95,10 +96,10 @@ func (this *Subject) PrintTOML() string {
 func (this *Subject) Summary() (ret string) {
 	ret = this.Name.Summary()
 
-	extraStr := getWarningInfoString(
-		wii{"", this.Sex}, 
-		wii{"started", this.StartDate},
-		wii{"ended", this.EndDate},
+	extraStr := warning.BuildSummaryString(
+		WSE{"", this.Sex}, 
+		WSE{"started", this.StartDate},
+		WSE{"ended", this.EndDate},
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
@@ -129,31 +130,32 @@ type Event struct {
 
 func (this *Event) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Event: interface IWarningObj
 
 func (this *Event) Summary() (ret string) {
 	if this.Title != "" {
-		ret = "the event \'" + this.Title + "\'"
+		ret = "the event '" + this.Title + "'"
 	} else {
 		ret = "the untitled event"
 	}
 
 	extraStr := ""
 	if this.Title == "" {
-		extraStr = getWarningInfoString(
-			wii{"ID", this.ID},
-			wii{"category", this.Category}, 
-			wii{"embedding chart", this.Subchart},
-			wii{"started", this.StartDate}, 
-			wii{"ended", this.EndDate},
+		extraStr = warning.BuildSummaryString(
+			WSE{"ID", this.ID},
+			WSE{"category", this.Category}, 
+			WSE{"embedding chart", this.Subchart},
+			WSE{"started", this.StartDate}, 
+			WSE{"ended", this.EndDate},
 		)
 	} else {
-		extraStr = getWarningInfoString(
-			wii{"ID", this.ID},
-			wii{"category", this.Category},
-			wii{"embedding chart", this.Subchart},
+		extraStr = warning.BuildSummaryString(
+			WSE{"ID", this.ID},
+			WSE{"category", this.Category},
+			WSE{"embedding chart", this.Subchart},
 		)
 	}
 	if (len(extraStr) > 0) {
@@ -163,11 +165,11 @@ func (this *Event) Summary() (ret string) {
 	return
 }
 
-func (this *Subject) IsUnknown() bool {
+func (this *Event) IsUnknown() bool {
 	return this.ID == "" && this.Title == "" && 
-		this.Category == "" && this.Subchart == "" &&
+		this.Category == "" && this.Subchart == nil &&
 		(this.StartDate == nil || this.StartDate.IsUnknown()) &&
-		(this.EndDate == nil ||| this.EndDate.IsUnknown())
+		(this.EndDate == nil || this.EndDate.IsUnknown())
 }
 
 //-- struct Annex
@@ -185,6 +187,7 @@ type Annex struct {
 
 func (this *Annex) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Annex: interface IWarningObj
@@ -192,9 +195,9 @@ func (this *Annex) PrintTOML() string {
 func (this *Annex) Summary() (ret string) {
 	ret = "an annex"
 
-	extraStr := getWarningInfoString(
-		wii{"ID", this.ID},
-		wii{"format", this.Format}, 
+	extraStr := warning.BuildSummaryString(
+		WSE{"ID", this.ID},
+		WSE{"format", this.Format}, 
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
@@ -227,6 +230,7 @@ type Import struct {
 
 func (this *Import) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Import: interface IWarningObj
@@ -238,11 +242,11 @@ func (this *Import) Summary() (ret string) {
 		ret = "an import"
 	}
 
-	extraStr := getWarningInfoString(
-		wii{"ID", this.ID},
-		wii{"from", this.StartDate},
-		wii{"to", this.EndDate},
-		wii{"with offset", this.OffsetDate}
+	extraStr := warning.BuildSummaryString(
+		WSE{"ID", this.ID},
+		WSE{"from", this.StartDate},
+		WSE{"to", this.EndDate},
+		WSE{"with offset", this.OffsetDate},
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
@@ -270,12 +274,13 @@ type Name struct {
 
 func (this *Name) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Name: interface IWarningObj
 
 func (this *Name) Summary() string {
-	names = []string{}
+	names := []string{}
 	if this.First != "" {
 		names = append(names, this.First)
 	}
@@ -287,7 +292,7 @@ func (this *Name) Summary() string {
 	}
 
 	if (len(names) > 0) {
-		return string.Join(names, " ")
+		return strings.Join(names, " ")
 	} else {
 		return "an unknown name"
 	}
@@ -314,6 +319,7 @@ type Time struct {
 
 func (this *Time) PrintTOML() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Time: interface IWarningObj
@@ -327,17 +333,17 @@ func (this *Time) Summary() (ret string) {
 	var stime []string
 
 	if this.Year != nil {
-		syear = strconv.Itoa(this.Year)
+		syear = strconv.Itoa(*this.Year)
 	} else {
 		syear = "????"
 	}
 	if this.Month != nil {
-		smonth = strconv.Itoa(this.Month)
+		smonth = strconv.Itoa(*this.Month)
 	} else {
 		smonth = "??"
 	}
 	if this.Day != nil {
-		sday = strconv.Itoa(this.Day)
+		sday = strconv.Itoa(*this.Day)
 	} else {
 		sday = "??"
 	}
@@ -347,17 +353,17 @@ func (this *Time) Summary() (ret string) {
 	}
 
 	if this.Hour != nil {
-		stime = append(stime, strconv.Itoa(this.Hour))
+		stime = append(stime, strconv.Itoa(*this.Hour))
 	} else if this.Minute != nil || this.Second != nil {
-		shour = append(stime, "??")
+		stime = append(stime, "??")
 	} 
 	if this.Minute != nil {
-		stime = append(stime, strconv.Itoa(this.Minute))
+		stime = append(stime, strconv.Itoa(*this.Minute))
 	} else if this.Second != nil {
 		stime = append(stime, "??")
 	}
 	if this.Second != nil {
-		stime = append(stime, strconv.Itoa(this.Second))
+		stime = append(stime, strconv.Itoa(*this.Second))
 	}
 
 	return syear + "/" + smonth + "/" + sday + " " + strings.Join(stime, ":")
@@ -371,15 +377,15 @@ func (this *Time) IsUnknown() bool {
 
 //-- Package methods
 
-func LoadFile(filepath string) (*File, []libltc.Warning, error) {
-	ltcFile := getDefaultFile()
+func LoadFile(filepath string) (*File, []warning.Warning, error) {
+	ltcFile := File{}
 	if _, err := toml.DecodeFile(filepath, &ltcFile); err != nil {
-		return nil, err
+		return nil, []warning.Warning{}, err
 	}
 
 	ltcFile.Filepath = filepath
 
 	// TODO: Auto-fix some issues and report via Warning.
 
-	return &ltcFile, nil
+	return &ltcFile, []warning.Warning{}, nil
 }

@@ -24,7 +24,7 @@ type Event struct {
 	contToEvents []*Event
 }
 
-//-- interface MainObj
+//-- interface IMainObj
 
 func (this *Event) Common() *MainObjCommon {
 	return &this.common
@@ -46,14 +46,16 @@ func (this *Event) Clone(preserveChart bool, preserveID bool) IMainObj {
 	return &newobj
 }
 
-//-- interface WarningObj
+//-- interface IWarningObj
 
 func (this *Event) Summary() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) IsUnknown() bool {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- method (getters)
@@ -62,16 +64,19 @@ func (this *Event) GetTitle() string {
 	// TODO: use `localTitle` if it was defined.
 	// TODO: otherwise, use the title of `loadedEmbed`.
 	// TODO: otherwise, use the stringified name of `loadedSubchart`.
+	panic("Unimplemented")
 }
 
 func (this *Event) GetEmbeddedEvent() *Event {
 	// TODO: return a embedded event (nil if `Embed` is invalid)
 	// TODO: eagerly load `loadedEmbed` upon the file load because it may
 	//       determine `{Start,End}Date`.
+	panic("Unimplemented")
 }
 
 func (this *Event) GetEmbedLink() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) GetSubchart() *Chart {
@@ -79,38 +84,46 @@ func (this *Event) GetSubchart() *Chart {
 	// TODO: lazy-load `loadedSubchart` if it's nil.
 	// TODO: on lazy-load, update `parent`s of the objects inside.
 	// TODO: on lazy-load, invoke `resolveReferenceTo` for all subchart objs.
+	panic("Unimplemented")
 }
 
 func (this *Event) GetSubchartLink() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) GetStartDate() *Time {
 	// TODO: use 'localStartDate` if it was defined.
 	// TODO: otherwise, use the `StartDate` of the embedded event.
 	// TODO: otherwise, return unknown.
+	panic("Unimplemented")
 }
 
 func (this *Event) GetEndDate() *Time {
 	// TODO: use 'localEndDate` if it was defined.
 	// TODO: otherwise, use the `EndDate` of the embedded event.
 	// TODO: otherwise, return unknown.
+	panic("Unimplemented")
 }
 
 func (this *Event) GetContinuedFromEvents() []*Event {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) GetContinuedToEvents() []*Event {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) HasContinuedFromEvent() bool {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) HasContinuedToEvent() bool {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- method (setters)
@@ -118,58 +131,71 @@ func (this *Event) HasContinuedToEvent() bool {
 func (this *Event) SetEmbedLink(uri string) {
 	// TODO: invalidate non-nill embed event.
 	// TODO: eagerly load 'loadedEmbed'
+	panic("Unimplemented")
 }
 
 func (this *Event) SetSubchartLink(uri string) {
 	// TODO: invalidate non-nill subchart.
+	panic("Unimplemented")
 }
 
 func (this *Event) SetLocalStartDate(t *Time) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) SetLocalEndDate(t *Time) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) addContinuedFromEvent(eobj *Event) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) swapContinuedFromEvent(oldobj *Event, newobj *Event) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) removeContinuedFromEvent(eobj *Event) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) addContinuedToEvent(eobj *Event) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) removeContinuedToEvent(eobj *Event) {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- method (high-level operation)
 
 func (this *Event) SetContinuedFrom(eobj *Event) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- method (import and export)
 
 func (this *Event) Import(feobj *file.Event) ([]Warning, error) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Event) Export() (*file.Event, []Warning, error) {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- method (creation)

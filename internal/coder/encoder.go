@@ -1,12 +1,13 @@
 package coder
 
 import (
-	"error"
+	"errors"
+	"encoding/base64"
 	"unicode/utf8"
 )
 
 type Encoder func ([]byte) (string, error)
-var map[string]Encoder Encoders = {
+var Encoders map[string]Encoder = map[string]Encoder{
 	"none": Encode_none,
 	"base64": Encode_base64,
 }

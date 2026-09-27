@@ -1,7 +1,6 @@
-package libltc 
+package warning 
 
 import (
-	"errors"
 	"fmt"
 	"regexp"
 	"strconv"
@@ -26,30 +25,35 @@ func toSentenceCase(s string) string {
 	}
 }
 
-func getWarningInfoString(args ...struct {string; interface{}}) string {
+type SummaryElement struct {
+	Prefix string
+	Object any
+}
+
+func BuildSummaryString(args ...SummaryElement) string {
 	fields := []string{}
 	for _, arg := range args {
-		realprefix = arg.string + " "
-		if arg.prefix == "" {
+		realprefix := arg.Prefix + " "
+		if arg.Prefix == "" {
 			realprefix = ""
 		}
 
-		switch carg := arg.interface{}.(type) {
+		switch carg := arg.Object.(type) {
 		case string:
 			if carg != "" {
-				fields := append(fields, realprefix + carg)
+				fields = append(fields, realprefix + carg)
 			}
 		case *string:
 			if carg != nil {
-				fields := append(fields, realprefix + *carg)
+				fields = append(fields, realprefix + *carg)
 			}
 		case *int:
 			if carg != nil {
-				fields := append(fields, realprefix + strconv.Itoa(*carg))
+				fields = append(fields, realprefix + strconv.Itoa(*carg))
 			}
 		case IWarningObj:
 			if carg != nil && !carg.IsUnknown() {
-				fields := append(fields, realprefix + carg.Summary())
+				fields = append(fields, realprefix + carg.Summary())
 			}
 		}
 	}
@@ -93,12 +97,12 @@ func (ltcw *Warning) getSubstitutedString(orgstr string) string {
 
 //-- struct Warning: method (creation)
 
-func CreateWarning(fmtstr string, args ...interface{}) Warning {
+func CreateWarning(fmtstr string, args ...any) Warning {
 	fmtargs := []interface{}{}
 	objs := []IWarningObj{}
 
 	for _, arg := range args {
-		switch carg := arg.interface{}.(type) {
+		switch carg := arg.(type) {
 		case IWarningObj:
 			objs = append(objs, carg)
 		default:

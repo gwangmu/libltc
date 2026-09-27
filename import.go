@@ -25,7 +25,7 @@ type Import struct {
 	preOffsetEvents []*Event
 }
 
-//-- interface MainObj
+//-- interface IMainObj
 
 func (this *Import) Common() *MainObjCommon {
 	return &this.common
@@ -47,52 +47,63 @@ func (this *Import) Clone(preserveChart bool, preserveID bool) IMainObj {
 	return &newobj
 }
 
-//-- interface WarningObj
+//-- interface IWarningObj
 
 func (this *Import) Summary() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Import) IsUnknown() bool {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- method (getters)
 
 func (this *Import) GetLink() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Import) GetStartDate() *Time {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Import) GetEndDate() *Time {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Import) GetOffsetDate() *Time {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Import) GetCategories() *[]string {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Import) GetImportedChart() *Chart {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Import) GetImportedEvents() []*Event {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Import) GetImportedAnnexs() []*Event {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Import) GetImportedImports() []*Import {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- method (setters)
@@ -107,6 +118,7 @@ func (this *Import) SetLink(v string) {
 	// TODO: save it to `cachedEvents`
 	// TODO: clone `cachedEvents`, mask categories, apply offsetDate
 	// TODO: resolveReferenceTo all imported objects.
+	panic("Unimplemented")
 }
 
 func (this *Import) SetStartDate(v *Time) {
@@ -117,6 +129,7 @@ func (this *Import) SetStartDate(v *Time) {
 	// TODO: save it to `cachedEvents`
 	// TODO: clone `cachedEvents`, mask categories, apply offsetDate
 	// TODO: resolveReferenceTo all imported objects.
+	panic("Unimplemented")
 }
 
 func (this *Import) SetEndDate(v *Time) {
@@ -127,14 +140,17 @@ func (this *Import) SetEndDate(v *Time) {
 	// TODO: save it to `cachedEvents`
 	// TODO: clone `cachedEvents`, mask categories, apply offsetDate
 	// TODO: resolveReferenceTo all imported objects.
+	panic("Unimplemented")
 }
 
 func (this *Import) SetOffsetDate(v *Time) {
 	// TODO: clone `cachedEvents`, mask categories, apply offsetDate
+	panic("Unimplemented")
 }
 
 func (this *Import) SetCategories(v *[]string) {
 	// TODO: unresolveReferenceTo all imported objects.
 	// TODO: clone `cachedEvents`, mask categories, apply offsetDate
 	// TODO: resolveReferenceTo all imported objects.
+	panic("Unimplemented")
 }

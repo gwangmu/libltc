@@ -23,7 +23,7 @@ type Annex struct {
 	extraNoteOfObjs []IMainObj
 }
 
-//-- interface MainObj
+//-- interface IMainObj
 
 func (this *Annex) Common() *MainObjCommon {
 	return &this.common
@@ -45,14 +45,16 @@ func (this *Annex) Clone(preserveChart bool, preserveID bool) IMainObj {
 	return &newobj
 }
 
-//-- interface WarningObj
+//-- interface IWarningObj
 
 func (this *Annex) Summary() string {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Annex) IsUnknown() bool {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- method (getters)
@@ -195,28 +197,34 @@ func (this *Annex) SetRawData(format string, encoding string, data []byte) error
 
 func (this *Annex) SetExtraNoteOf(obj IMainObj) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Annex) UnsetExtraNoteOf(obj IMainObj) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Annex) SetAttachTo(obj IMainObj) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Annex) UnsetAttachTo(obj IMainObj) {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- method (import and export)
 
 func (this *Annex) Import(feobj *file.Annex) ([]Warning, error) {
 	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Annex) Export() (*file.Annex, []Warning, error) {
 	// TODO
+	panic("Unimplemented")
 }
 
 //-- method (creation)

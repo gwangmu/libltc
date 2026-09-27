@@ -16,7 +16,7 @@ type MainObjCommon struct {
 	chart IChart				// Linked chart
 	parent *IMainObj			// Included by... (nil: chart-local)
 	numID NumberID 				// Numeric part of ID
-	fullID string 				// Full ID (ONLY FOR MOK_Unknown!)
+	fullID string 				// Full ID (ONLY FOR UNRESOLVED!)
 
 	extraNoteAnnexs []*Annex	// Annexs as extra notes
 	attachedAnnexs []*Annex		// Annexs as attachments
