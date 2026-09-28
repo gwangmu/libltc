@@ -15,9 +15,9 @@ type Event struct {
 	localEndDate *Time
 
 	subchartEmbedLink *string
-	loadedSubchart IChart
+	embeddedSubchart IChart
 	eventEmbedLink *string
-	loadedEvent *Event
+	embeddedEvent *Event
 
 	contFromEvents []*Event
 	contToEvents []*Event
@@ -61,14 +61,14 @@ func (this *Event) IsUnknown() bool {
 
 func (this *Event) GetTitle() string {
 	// TODO: use `localTitle` if it was defined.
-	// TODO: otherwise, use the title of `loadedEvent`.
-	// TODO: otherwise, use the stringified name of `loadedSubchart`.
+	// TODO: otherwise, use the title of `embeddedEvent`.
+	// TODO: otherwise, use the stringified name of `embeddedSubchart`.
 	panic("Unimplemented")
 }
 
 func (this *Event) GetEmbeddedEvent() *Event {
 	// TODO: return a embedded event (nil if `Embed` is invalid)
-	// TODO: eagerly load `loadedEvent` upon the file load because it may
+	// TODO: eagerly load `embeddedEvent` upon the file load because it may
 	//       determine `{Start,End}Date`.
 	panic("Unimplemented")
 }
@@ -80,7 +80,7 @@ func (this *Event) GetEmbedLink() string {
 
 func (this *Event) GetSubchart() *Chart {
 	// TODO: return a subchart (nil if `Embed` is valid or `Subchart` is invalid).
-	// TODO: lazy-load `loadedSubchart` if it's nil.
+	// TODO: lazy-load `embeddedSubchart` if it's nil.
 	// TODO: on lazy-load, update `parent`s of the objects inside.
 	// TODO: on lazy-load, invoke `resolveReferenceTo` for all subchart objs.
 	panic("Unimplemented")
@@ -129,7 +129,7 @@ func (this *Event) HasContinuedToEvent() bool {
 
 func (this *Event) SetEmbedLink(uri string) {
 	// TODO: invalidate non-nill embed event.
-	// TODO: eagerly load 'loadedEvent'
+	// TODO: eagerly load 'embeddedEvent'
 	panic("Unimplemented")
 }
 
@@ -221,9 +221,9 @@ func CreateEmptyEvent() *Event {
 		localEndDate: nil,
 
 		subchartEmbedLink: nil,
-		loadedSubchart: nil,
+		embeddedSubchart: nil,
 		eventEmbedLink: nil,
-		loadedEvent: nil,
+		embeddedEvent: nil,
 
 		contFromEvents: []*Event{},
 		contToEvents: []*Event{},

@@ -15,7 +15,7 @@ type IChart interface {
 	GetEvents() []*Event
 	GetAnnexs() []*Annex
 	GetImports() []*Import
-	GetEmbeddingSubchartEvent() *Event
+	GetEmbeddingEvent() *Event
 
 	GetObject(qualId string) IMainObj
 	GetEventsBetween(start Time, end Time, inclusive bool) []*Event
@@ -39,7 +39,7 @@ type Chart struct {
 	annexs []*Annex
 	imports []*Import
 
-	subchartEvent *Event	// Only if this chart is via a subchart event. 
+	embeddingEvent *Event	// Only if this chart embedded as a subchart. 
 }
 
 //-- interface IChart (package internal)
@@ -128,8 +128,8 @@ func (this *Chart) GetImports() []*Import {
 	panic("Unimplemented")
 }
 
-func (this *Chart) GetEmbeddingSubchartEvent() *Event {
-	return this.subchartEvent
+func (this *Chart) GetEmbeddingEvent() *Event {
+	return this.embeddingEvent
 }
 
 //-- method (setters)
