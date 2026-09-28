@@ -11,6 +11,7 @@ type IChart interface {
 	asChart() *Chart
 	resolveReferenceTo(IMainObj)
 	unresolveReferenceTo(IMainObj)
+	GetParentSubchartEvent() *Event
 }
 
 type Chart struct {
@@ -21,9 +22,12 @@ type Chart struct {
 	Setting Setting
 	Subject Subject
 
-	events []*Event		// Sorted by StartDate (unknown first), incl. imported events.
+	// `events`, `annexs`, and `imports` will contain imported objects, too.
+	events []*Event			// Sorted by StartDate
 	annexs []*Annex
 	imports []*Import
+
+	subchartEvent *Event	// Only if this chart is via a subchart event. 
 }
 
 //-- interface IChart

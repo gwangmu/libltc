@@ -2,6 +2,7 @@ package libltc
 
 import (
 	"strconv"
+	"strings"
 )
 
 type IMainObj interface {
@@ -33,9 +34,18 @@ func (this *MainObjCommon) GetChart() *Chart {
 	return this.chart.asChart()
 }
 
-func (this *MainObjCommon) GetLocalID(prefix string) string {
+func (this *MainObjCommon) GetLocalID() string {
 	if this.kind == MOK_Unknown {
-		return this.fullID
+		fullid := this.fullID
+		lastidx := strings.LastIndex(fullid, "/")
+
+		if lastidx == -1 {
+			return fullid
+		} else if len(fullid) < lastidx + 1 {
+			return ""
+		} else {
+			return fullid[lastidx+1:]
+		}
 	} else {
 		if prefix, err := this.kind.Prefix(); err != nil {
 			return prefix + strconv.FormatUint(uint64(this.numID), 10)
@@ -45,21 +55,23 @@ func (this *MainObjCommon) GetLocalID(prefix string) string {
 	}
 }
 
-func (this *MainObjCommon) GetQualifiedID() (ret string) {
+func (this *MainObjCommon) GetQualifiedIDFrom(stopAt IMainObj) (ret string) {
 	if this.kind == MOK_Unknown {
-		return this.fullID
+		fullid := this.fullID
+		baseid := stopAt.Common().GetQualifiedID()
+		return strings.TrimLeft(strings.TrimPrefix(fullid, baseid), "/")
 	} else {
-		if prefix, err := this.kind.Prefix(); err != nil {
-			if this.parent != nil {
-				ret = this.parent.Common().GetQualifiedID() + "/"
-			}
-
-			ret += this.GetLocalID(prefix)
-			return
-		} else {
-			panic(err.Error())
+		if this.parent != nil && this.parent != stopAt {
+			ret = this.parent.Common().GetQualifiedIDFrom(stopAt) + "/"
 		}
+
+		ret += this.GetLocalID()
+		return
 	}
+}
+
+func (this *MainObjCommon) GetQualifiedID() string {
+	return this.GetQualifiedIDFrom(nil)
 }
 
 func (this *MainObjCommon) GetParent() IMainObj {
