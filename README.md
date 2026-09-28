@@ -158,20 +158,20 @@ Main objects are divided into two _kinds_: chart-local and imported. Chart-local
 
 An event object is a fundamental object of the LTC file. It describes a specific event or period during the subject's lifetime. Note that _period_ is not a syntactic concept in the LTC format because the boundary between an event and a period is unclear. Instead, the format does not distinguish them and uses the same event object,
 
-Event objects have three _types_: plain, embedding, and subchart. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event of an external LTC file. Subchart event objects embed an entire external LTC file. Fields below:
+Event objects have three _types_: plain and embedding. Plain event objects have no external reference (except in their notes). Embedding event objects embed an event of an external LTC file or an entire external LTC file. Fields below:
 
  - `ID`: (ID object) The ID of the event. Must be "e[0-9]+". (default: ID object default)
  - `Title`: (string) The descriptive summary ("title") of the event. (default: empty)
  - `Category`: (string) The category of the event. (default: empty)
  - `StartDate`: (time object) The start date of the event. (default: time object default)
  - `EndDate`: (time object) The end date of the event. (default: time object default)
- - `Subchart`: (string) The URI to an embed-target LTC file as a "subchart". See [referencing](#Referencing) for a valid URI. (default: empty)
- - `Embed`: (string) The URI to an embed-target event. See [referencing](#Referencing) for a valid URI. (default: empty)
+ - `EmbedChart`: (string) The URI to an embed-target LTC file as a "subchart". See [referencing](#Referencing) for a valid URI. (default: empty)
+ - `EmbedEvent`: (string) The URI to an embed-target event. See [referencing](#Referencing) for a valid URI. (default: empty)
  - `Note`: (note object) The note of the event. (default: note object default)
 
-An event object is _embedding-typed_ with a non-empty `Embed` field, _subchart-typed_ with a non-empty `Subchart` field, or _plain-typed_ otherwise. The `Embed` and `Subchart` fields are mutually exclusive; if they both exist, the front-end LTC tool arbitrarily takes one of them and reports that the other was ignored. `Subchart`s can reference the current LTC file, and `Embed`s can reference an event in the current LTC file. See [referencing](#Referencing) for nested references.
+An event object is _embedding-typed_ with a non-empty `Embed*` field or _plain-typed_ otherwise. The `EmbedChart` and `EmbedEvent` fields are mutually exclusive; if they both exist, the front-end LTC tool arbitrarily takes one of them and reports that the other was ignored. `EmbedChart`s can reference the current LTC file, and `EmbedEvent`s can reference an event in the current LTC file. See [referencing](#Referencing) for nested references.
 
-For embedding event objects, specifying `StartDate`, `EndDate`, and `Title` will override the embedded event's `StartDate`, `EndDate`, and `Title`, respectively. For subchart event objects, specifying `Title` will override the subchart subject's stringified `Name`. `Note` is valid for all event object types.
+For event-embedding event objects, specifying `StartDate`, `EndDate`, and `Title` will override the embedded event's `StartDate`, `EndDate`, and `Title`, respectively. For chart-embedding event objects, specifying `Title` will override the subchart subject's stringified `Name`. `Note` is valid for all event object types.
 
 `StartDate` should be earlier than or equal to `EndDate`; otherwise, the dates are swapped across the LTC file load/save boundary. 
 
@@ -182,7 +182,7 @@ If both `StartDate` and `EndDate` are unknown or ambiguous, the front-end LTC to
  - `ContinuedFrom:<qual_id>`: This event is continued from another event with a qualified ID `<qual_id>`. See [ID Qualification](#ID-Qualification) for a qualified ID.
  - `AmbiguousPeriod`: This event has an ambiguous period overall.
 
-Note on the distinction between subchart event objects and [import objects](#Import): An external LTC file embedded via a subchart event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects. 
+Note on the distinction between chart-embedding event objects and [import objects](#Import): An external LTC file embedded via a chart-embedding event object is still a separate LTC file, so the categories in each chart remain separate. In contrast, an external LTC file imported via an import object is _merged_ into the current LTC file, so the imported event objects are included in the same-name category along with chart-local event objects. 
 
 Note on the distinction between `AmbiguousPeriod` and `Approx` start/end dates: An event may set `Approx` start/end dates if they are independently approximate, and/or set the `AmbiguousPeriod` attribute if the temporal information of the entire event (e.g., duration or approximate start/end dates with wide margins) is largely uncertain.
 
@@ -251,7 +251,7 @@ There are two types of IDs: _chart-local_ and _qualified_. The chart-local ID is
  - For an event object `e001` that was chart-local, the qualified ID is `e001`.
  - For an event object `e002` that was imported through an import object `i001`, the qualified ID is `i001/e002`.
  - For an event object `e003` that was imported through an import object `i002`, which in turn was imported through an import object `i001`, the qualified ID is `i001/i002/e003`.
- - For an event object `e004` that was embedded through a subchart event object `e999`, the qualified ID is `e999/e004`.
+ - For an event object `e004` that was embedded through a chart-embedding event object `e999`, the qualified ID is `e999/e004`.
 
 The example above describes only the qualified IDs of event objects, but the same applies to any objects with chart-local IDs (e.g., annex and import objects).
 

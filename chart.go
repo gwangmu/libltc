@@ -11,7 +11,19 @@ type IChart interface {
 	asChart() *Chart
 	resolveReferenceTo(IMainObj)
 	unresolveReferenceTo(IMainObj)
-	GetParentSubchartEvent() *Event
+
+	GetEvents() []*Event
+	GetAnnexs() []*Annex
+	GetImports() []*Import
+	GetEmbeddingSubchartEvent() *Event
+
+	GetObject(qualId string) IMainObj
+	GetEventsBetween(start Time, end Time, inclusive bool) []*Event
+	GetEventsPerCategory() map[string][]*Event
+	GetEventCategories() []string
+	HasObject(obj IMainObj, onlyLocal bool) bool
+	AddObject(obj IMainObj)
+	RemoveObject(obj IMainObj)
 }
 
 type Chart struct {
@@ -30,7 +42,7 @@ type Chart struct {
 	subchartEvent *Event	// Only if this chart is via a subchart event. 
 }
 
-//-- interface IChart
+//-- interface IChart (package internal)
 
 func (this *Chart) asChart() *Chart {
 	return this
@@ -46,10 +58,6 @@ func (this *Chart) unresolveReferenceTo(obj IMainObj) {
 	// TODO: change references to `obj` dangling ref.
 	// TODO: assume GetQualifiedID() of `obj` is valid.
 	panic("Unimplemented")
-}
-
-func (this *Chart) GetParentSubchartEvent() *Event {
-	return this.subchartEvent
 }
 
 //-- interface IWarningObj
@@ -118,6 +126,10 @@ func (this *Chart) GetAnnexs() []*Annex {
 func (this *Chart) GetImports() []*Import {
 	// TODO
 	panic("Unimplemented")
+}
+
+func (this *Chart) GetEmbeddingSubchartEvent() *Event {
+	return this.subchartEvent
 }
 
 //-- method (setters)
@@ -198,8 +210,18 @@ func createChartFromParsed(o *file.File) (*Chart, warning.Warnings, error) {
 	} else {
 		chart.Subject = subject
 	}
+
+	// TODO: Load event objects.
+	// TODO: use `AddObject` to create obj links.
 	
-	// TODO: Load main objects.
+	// TODO: Load annex objects.
+	// TODO: use `AddObject` to create obj links.
+
+	// TODO: Load import objects.
+	// TODO: use `AddObject` to create obj links.
+	// TODO: do it recursively
+
+	// TODO: Diagnose main objects.
 
 	return chart, warns, nil
 }

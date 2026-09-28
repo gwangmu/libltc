@@ -27,7 +27,7 @@ Sex = "Male"
 ID = "lab1"                     # *Date: subchart's entity *Date (if exist)
 Title = "qwerqewrweqr"          # default: subchart's name
 Category = "Relationship"
-Subchart = "https://link_to_chart"
+EmbedChart = "https://link_to_chart"
 Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
 Note = """
 """
@@ -50,7 +50,7 @@ asdfdasfasf
 ID = "lab3"                     # *Date: embedded event's entity *Date
 Title = "qwerqewrweqr"          # default: embedded event's title 
 Category = "Relationship"
-Embed = "https://link_to_chart?id=qual_event_id"
+EmbedEvent = "https://link_to_chart?id=qual_event_id"
 Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
 Note = """
 """

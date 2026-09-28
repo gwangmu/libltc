@@ -30,6 +30,11 @@ func (this *MainObjCommon) GetKind() MainObjKind {
 	return this.kind
 }
 
+// Relationship Taxonomy:
+//  - Chart and main objects: "association"
+//  - Main object and main object: "parental"
+//  - Subchart and subchart event object: "embedding"
+
 func (this *MainObjCommon) GetChart() *Chart {
 	return this.chart.asChart()
 }

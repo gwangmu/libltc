@@ -14,10 +14,10 @@ type Event struct {
 	localStartDate *Time
 	localEndDate *Time
 
-	subchartLink *string
+	subchartEmbedLink *string
 	loadedSubchart IChart
-	embedLink *string
-	loadedEmbed *Event
+	eventEmbedLink *string
+	loadedEvent *Event
 
 	contFromEvents []*Event
 	contToEvents []*Event
@@ -61,14 +61,14 @@ func (this *Event) IsUnknown() bool {
 
 func (this *Event) GetTitle() string {
 	// TODO: use `localTitle` if it was defined.
-	// TODO: otherwise, use the title of `loadedEmbed`.
+	// TODO: otherwise, use the title of `loadedEvent`.
 	// TODO: otherwise, use the stringified name of `loadedSubchart`.
 	panic("Unimplemented")
 }
 
 func (this *Event) GetEmbeddedEvent() *Event {
 	// TODO: return a embedded event (nil if `Embed` is invalid)
-	// TODO: eagerly load `loadedEmbed` upon the file load because it may
+	// TODO: eagerly load `loadedEvent` upon the file load because it may
 	//       determine `{Start,End}Date`.
 	panic("Unimplemented")
 }
@@ -129,7 +129,7 @@ func (this *Event) HasContinuedToEvent() bool {
 
 func (this *Event) SetEmbedLink(uri string) {
 	// TODO: invalidate non-nill embed event.
-	// TODO: eagerly load 'loadedEmbed'
+	// TODO: eagerly load 'loadedEvent'
 	panic("Unimplemented")
 }
 
@@ -220,10 +220,10 @@ func CreateEmptyEvent() *Event {
 		localStartDate: nil,
 		localEndDate: nil,
 
-		subchartLink: nil,
+		subchartEmbedLink: nil,
 		loadedSubchart: nil,
-		embedLink: nil,
-		loadedEmbed: nil,
+		eventEmbedLink: nil,
+		loadedEvent: nil,
 
 		contFromEvents: []*Event{},
 		contToEvents: []*Event{},
