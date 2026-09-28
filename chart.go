@@ -11,19 +11,7 @@ type IChart interface {
 	asChart() *Chart
 	resolveReferenceTo(IMainObj)
 	unresolveReferenceTo(IMainObj)
-
-	GetEvents() []*Event
-	GetAnnexs() []*Annex
-	GetImports() []*Import
 	GetEmbeddingEvent() *Event
-
-	GetObject(qualId string) IMainObj
-	GetEventsBetween(start Time, end Time, inclusive bool) []*Event
-	GetEventsPerCategory() map[string][]*Event
-	GetEventCategories() []string
-	HasObject(obj IMainObj, onlyLocal bool) bool
-	AddObject(obj IMainObj)
-	RemoveObject(obj IMainObj)
 }
 
 type Chart struct {
@@ -58,6 +46,10 @@ func (this *Chart) unresolveReferenceTo(obj IMainObj) {
 	// TODO: change references to `obj` dangling ref.
 	// TODO: assume GetQualifiedID() of `obj` is valid.
 	panic("Unimplemented")
+}
+
+func (this *Chart) GetEmbeddingEvent() *Event {
+	return this.embeddingEvent
 }
 
 //-- interface IWarningObj
@@ -128,14 +120,10 @@ func (this *Chart) GetImports() []*Import {
 	panic("Unimplemented")
 }
 
-func (this *Chart) GetEmbeddingEvent() *Event {
-	return this.embeddingEvent
-}
-
 //-- method (setters)
 
-func (this *Chart) setSubchartEventObject(o *Event) {
-	this.subchartEvent = o
+func (this *Chart) setEmbeddingEvent(o *Event) {
+	this.embeddingEvent = o
 }
 
 //-- method (main object manipulation)
@@ -192,7 +180,7 @@ func createChartFromParsed(o *file.File) (*Chart, warning.Warnings, error) {
 	chart.Version = GetVersion(o.Version)
 
 	note, moreWarns := CreateNoteFromString(o.Note)
-	warns = append(warns, moreWarns...)
+	warns.Concat(moreWarns)
 	chart.Note = note
 
 	setting, moreWarns, err := createSettingFromParsed(o.Setting)
@@ -256,7 +244,7 @@ func CreateEmptyChart() *Chart {
 		annexs: []*Annex{},
 		imports: []*Import{},
 
-		subchartEvent: nil,
+		embeddingEvent: nil,
 	}
 }
 
