@@ -157,27 +157,40 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 
 //-- method (creation)
 
-func createChartFromParsed(o *file.File) (*Chart, []warning.Warning, error) {
+func createChartFromParsed(o *file.File) (*Chart, warning.Warnings, error) {
 	chart := &Chart{}
-	warns := []warning.Warning{}
+	warns := warning.Warnings{}
 
 	// Load preamble objects.
 	chart.Filepath = o.Filepath
 	chart.Version = GetVersion(o.Version)
 
 	note, moreWarns := CreateNoteFromString(o.Note)
-	chart.Note = note
 	warns = append(warns, moreWarns...)
+	chart.Note = note
 
-	// TODO
-	//setting = createSettingFromParsed(o.Setting)
-	//chart.Subject = createSubjectFromParsed(o.Subject)
+	setting, moreWarns, err := createSettingFromParsed(o.Setting)
+	warns.Concat(moreWarns)
+	if err != nil {
+		return nil, warns, err
+	} else {
+		chart.Setting = setting
+	}
+
+	subject, moreWarns, err := createSubjectFromParsed(o.Subject)
+	warns.Concat(moreWarns)
+	if err != nil {
+		return nil, warns, err
+	} else {
+		chart.Subject = subject
+	}
 	
 	// TODO: Load main objects.
-	panic("Unimplemented")
+
+	return chart, warns, nil
 }
 
-func CreateChart(tomlstr string) (*Chart, []warning.Warning, error) {
+func CreateChart(tomlstr string) (*Chart, warning.Warnings, error) {
 	// Parse LTC file in TOML format.
 	ltcf, warns, err := file.Load(tomlstr)
 	if err != nil {
@@ -234,18 +247,26 @@ func (this *Setting) IsUnknown() bool {
 
 //-- struct Setting: interface IDiagnoseable
 
-func (this *Setting) Diagnose() (warn []warning.Warning) {
+func (this *Setting) Diagnose() (warns warning.Warnings) {
 	// For now, any `CalendarSystem` or `NoteFormat` is valid,
 	// assuming that the front-end tool will generate warnings if they
 	// don't support it. Since any `CalendarSystem` is fine in libLTC,
 	// the time object should implement local logic to compare times,
 	// not relying on the GO's time package.
+
+	if this.CalendarSystem == "" {
+		this.CalendarSystem = "Gregorian"
+		warns.Add("unspecified calendar system in @0@. setting to 'Gregorian'...", this)
+	}
+
+	if this.NoteFormat == "" {
+		this.NoteFormat = "Markdown"
+		warns.Add("unspecified note format in @0@. setting to 'Markdown'...", this)
+	}
 	
 	if len(this.Attrs) != 0 {
 		for akey, _ := range this.Attrs {
-			warn = append(warn,
-				warning.Create("unrecognized attribute '%s' in @0@.", akey, this),
-			)
+			warns.Add("unrecognized attribute '%s' in @0@.", akey, this)
 		}
 	}
 	return
@@ -253,10 +274,10 @@ func (this *Setting) Diagnose() (warn []warning.Warning) {
 
 //-- struct Setting: method (creation)
 
-func createSettingFromParsed(o file.Setting) (Setting, []warning.Warning, error) {
+func createSettingFromParsed(o file.Setting) (Setting, warning.Warnings, error) {
 	setting := Setting{
-		CalendarSystem: "Gregorian",
-		NoteFormat: "Markdown",
+		CalendarSystem: "",
+		NoteFormat: "",
 		Attrs: map[string][]string{},
 	}
 
@@ -301,18 +322,29 @@ func (this *Subject) IsUnknown() bool {
 
 //-- struct Subject: interface IDiagnoseable
 
-func (this *Subject) Diagnose() (warn []warning.Warning) {
+func (this *Subject) Diagnose() (warns warning.Warnings) {
 	if this.Name.IsUnknown() {
-		warn = append(warn,
-			warning.Create("unknown subject."),
-		)
+		warns.Add("unknown subject.")
 	}
 	return
 }
 
 //-- struct Subject: method (creation) 
 
-func createSubjectFromParsed(o file.Subject) (Subject, []warning.Warning, error) {
-	// TODO
-	panic("Unimplemented")
+func createSubjectFromParsed(o file.Subject) (Subject, warning.Warnings, error) {
+	subject := Subject{
+		Name: Name{},
+		StartDate: Time{},
+		EndDate: Time{},
+		Sex: "",
+	}
+
+	subject.Name = createNameFromParsed(o.Name)
+	subject.StartDate = createTimeFromParsed(o.StartDate)
+	subject.EndDate = createTimeFromParsed(o.EndDate)
+	subject.Sex = o.Sex
+
+	warns := subject.Diagnose()
+
+	return subject, warns, nil
 }

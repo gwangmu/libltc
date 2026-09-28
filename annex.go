@@ -218,12 +218,12 @@ func (this *Annex) UnsetAttachTo(obj IMainObj) {
 
 //-- method (import and export)
 
-func (this *Annex) Import(feobj *file.Annex) ([]warning.Warning, error) {
+func (this *Annex) Import(feobj *file.Annex) (warning.Warnings, error) {
 	// TODO
 	panic("Unimplemented")
 }
 
-func (this *Annex) Export() (*file.Annex, []warning.Warning, error) {
+func (this *Annex) Export() (*file.Annex, warning.Warnings, error) {
 	// TODO
 	panic("Unimplemented")
 }

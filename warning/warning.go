@@ -16,6 +16,8 @@ type Warning struct {
 	objs []IWarningObj
 }
 
+type Warnings []*Warning
+
 //-- struct Warning: method (getters and setters)
 
 func (ltcw *Warning) GetDesc() string {
@@ -42,9 +44,21 @@ func (ltcw *Warning) getSubstitutedString(orgstr string) string {
 	return strings.TrimSpace(newstr)
 }
 
+func (ws *Warnings) Concat(ws2 Warnings) {
+	*ws = append(*ws, ws2...)
+}
+
+func (ws *Warnings) AddDirect(wobj *Warning) {
+	*ws = append(*ws, wobj)
+}
+
+func (ws *Warnings) Add(fmtstr string, args ...any) {
+	*ws = append(*ws, Create(fmtstr, args...))
+}
+
 //-- struct Warning: method (creation)
 
-func Create(fmtstr string, args ...any) Warning {
+func Create(fmtstr string, args ...any) *Warning {
 	fmtargs := []interface{}{}
 	objs := []IWarningObj{}
 
@@ -57,7 +71,7 @@ func Create(fmtstr string, args ...any) Warning {
 		}
 	}
 
-	return Warning{
+	return &Warning{
 		desc: fmt.Sprintf(fmtstr, fmtargs...),
 		objs: objs,
 	}

@@ -187,12 +187,12 @@ func (this *Event) UnsetContinuedFrom(eobj *Event) {
 
 //-- method (import and export)
 
-func (this *Event) Import(feobj *file.Event) ([]warning.Warning, error) {
+func (this *Event) Import(feobj *file.Event) (warning.Warnings, error) {
 	// TODO
 	panic("Unimplemented")
 }
 
-func (this *Event) Export() (*file.Event, []warning.Warning, error) {
+func (this *Event) Export() (*file.Event, warning.Warnings, error) {
 	// TODO
 	panic("Unimplemented")
 }

@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"github.com/gwangmu/libltc/warning"
+	"github.com/gwangmu/libltc/internal/file"
 )
 
 //-- Common interfaces
@@ -58,6 +59,16 @@ func (this *Name) IsUnknown() bool {
 func (this *Name) PrintTOML() string {
 	// TODO
 	panic("Unimplemented")
+}
+
+//-- struct Name : method (creation)
+
+func createNameFromParsed(o file.Name) Name {
+	return Name{
+		First: o.First,
+		Middle: o.Middle,
+		Last: o.Last,
+	}
 }
 
 //-- struct Time
@@ -265,6 +276,63 @@ func (this Time) IsUnknown() bool {
 
 //-- struct Time: method (creation)
 
+func createTimeFromParsed(optr *file.Time) (ret Time) {
+	if optr == nil {
+		return
+	} 
+	
+	o := *optr
+
+	if o.Year != nil {
+		nyear := *o.Year
+		ret.year = &nyear
+	}
+
+	if o.Month != nil {
+		nmonth := *o.Month
+		ret.month = &nmonth
+	}
+	
+	if o.Day != nil {
+		nday := *o.Day
+		ret.day = &nday
+	}
+	
+	if o.Hour != nil {
+		nhour := *o.Hour
+		ret.hour = &nhour
+	}
+	
+	if o.Minute != nil {
+		nminute := *o.Minute
+		ret.minute = &nminute
+	}
+	
+	if o.Second != nil {
+		nsecond := *o.Second
+		ret.second = &nsecond
+	}
+
+	if o.Timezone != nil {
+		loc, tzerr := time.LoadLocation(*o.Timezone)
+
+		if tzerr == nil {
+			ret.Timezone = loc
+		} else {
+			utcloc, tzerr := time.LoadLocation("UTC")
+			if tzerr == nil {
+				ret.Timezone = utcloc
+			} else {
+				panic("UTC not loaded")
+			}
+		}
+	}
+
+	ret.Attrs = convAttrsFileToChart(o.Attrs)
+
+	return
+}
+
 func CreateTimeFromTag(tagstr string) (ret Time) {
 	re := regexp.MustCompile(`^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?(?:\s*\((.*)\))?$`)
 	matches := re.FindStringSubmatch(tagstr)
@@ -370,10 +438,10 @@ func (this *Note) PrintTOML() string {
 
 //-- struct Note: method (creation)
 
-func CreateNoteFromString(notestr string) (Note, []warning.Warning) {
+func CreateNoteFromString(notestr string) (Note, warning.Warnings) {
 	note := Note{}
 	snippet := NoteSnippet{}
-	warns := []warning.Warning{}
+	warns := warning.Warnings{}
 
 	notelines := strings.Split(notestr, "\n")
 	for i, line := range notelines {
@@ -393,8 +461,7 @@ func CreateNoteFromString(notestr string) (Note, []warning.Warning) {
 			snippet.Time = CreateTimeFromTag(strings.TrimSpace(matches[1]))
 
 			if snippet.Time.IsUnknown() {
-				warns = append(warns, warning.Create(
-					"Unknown time tag in @0@.", &note))
+				warns.Add("Unknown time tag in @0@.", &note)
 			}
 		}
 	}

@@ -146,6 +146,8 @@ Note on the _identified_ sex: Because the identified gender can change over time
 
 `StartDate` is considered _floating_ if only `Day` is set to `0`. Floating `StartDate`s may be useful when the subject `StartDate` cannot be pinpointed to a specific time, but all events should be specified relative to it (e.g., an academic curriculum). When `StartDate` is floating, every other time object should have `Incremental` attributes. If not, the `Incremental` attributes are auto-inserted across the LTC file load/save boundary.
 
+An unknown `EndDate` is considered _ongoing_.
+
 ### Main Objects 
 
 Main objects are divided into two _kinds_: chart-local and imported. Chart-local objects are those contained in the current LTC file. Imported objects are those imported from other LTC files via [import objects](#Import). 
@@ -173,7 +175,7 @@ For embedding event objects, specifying `StartDate`, `EndDate`, and `Title` will
 
 `StartDate` should be earlier than or equal to `EndDate`; otherwise, the dates are swapped across the LTC file load/save boundary. 
 
-If either `StartDate` or `EndDate` is unknown, the unknown date is auto-calculated to a month before or after the known one. If either `StartDate` or `EndDate` is ambiguous, the year or the month is auto-calculated to the closest valid year or month from the unambiguous counterpart.
+If either `StartDate` or `EndDate` is unknown, it is assumed to be infinitely past or future; this means the event is ongoing if `EndDate`s are unknown both for the event and for the subject. If either `StartDate` or `EndDate` is ambiguous, the year or the month is auto-calculated to the closest valid year or month from the unambiguous counterpart.
 
 If both `StartDate` and `EndDate` are unknown or ambiguous, the front-end LTC tool should display these events separately and not on the timeline. Recognized attributes below:
 
