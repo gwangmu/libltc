@@ -2,6 +2,7 @@ package libltc
 
 import (
 	"github.com/gwangmu/libltc/warning"
+	"github.com/gwangmu/libltc/internal/file"
 )
 
 type Import struct {
@@ -167,5 +168,29 @@ func (this *Import) SetCategories(v *[]string) {
 	// TODO: unresolveReferenceTo all imported objects.
 	// TODO: clone `cachedEvents`, mask categories, apply offsetDate
 	// TODO: resolveReferenceTo all imported objects.
+	panic("Unimplemented")
+}
+
+//-- method (import and export)
+
+func (this *Import) Import(feobj *file.Import) (warning.Warnings, error) {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Import) Export() (*file.Import, warning.Warnings, error) {
+	// TODO
+	panic("Unimplemented")
+}
+
+//-- method (creation)
+
+func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
+	// TODO
+	panic("Unimplemented")
+}
+
+func CreateEmptyImport() *Import {
+	// TODO
 	panic("Unimplemented")
 }

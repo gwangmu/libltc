@@ -247,6 +247,11 @@ func (this *Annex) Export() (*file.Annex, warning.Warnings, error) {
 
 //-- method (creation)
 
+func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
+	// TODO
+	panic("Unimplemented")
+}
+
 func CreateEmptyAnnex() *Annex {
 	return &Annex{
 		common: MainObjCommon{

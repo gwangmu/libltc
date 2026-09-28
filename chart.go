@@ -243,9 +243,9 @@ func createChartFromParsed(o *file.File) (*Chart, warning.Warnings) {
 
 func CreateChart(tomlstr string) (*Chart, warning.Warnings) {
 	// Parse LTC file in TOML format.
-	ltcf, warns := file.Load(tomlstr)
-	if ltcf == nil {
-		return nil, warns
+	ltcf, warns, err := file.Load(tomlstr)
+	if err != nil {
+		return CreateEmptyChart(), warns
 	}
 
 	// Recursively convert (TOML-format) file to (in-memory) chart.

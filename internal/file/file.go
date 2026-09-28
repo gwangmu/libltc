@@ -378,32 +378,32 @@ func (this *Time) IsUnknown() bool {
 
 //-- Package methods
 
-func Load(tomlstr string) (*File, warning.Warnings) {
+func Load(tomlstr string) (*File, warning.Warnings, error) {
 	warns := warning.Warnings{}
 
 	ltcFile := File{}
 	if _, err := toml.Decode(tomlstr, &ltcFile); err != nil {
 		warns.Add("cannot read TOML.")
-		return nil, warns 
+		return nil, warns, err
 	}
 
 	//warns := inspectFile(&ltcFile, meta) 
 	// TODO: Auto-fix some issues and report via Warning.
 
-	return &ltcFile, warns
+	return &ltcFile, warns, nil
 }
 
-func LoadFile(filepath string) (*File, warning.Warnings) {
+func LoadFile(filepath string) (*File, warning.Warnings, error) {
 	warns := warning.Warnings{}
 
 	ltcFile := File{}
 	if _, err := toml.DecodeFile(filepath, &ltcFile); err != nil {
 		warns.Add("cannot read TOML.")
-		return nil, warns
+		return nil, warns, err
 	}
 
 	//warns := inspectFile(&ltcFile, meta) 
 	// TODO: Auto-fix some issues and report via Warning.
 
-	return &ltcFile, warns
+	return &ltcFile, warns, nil
 }
