@@ -48,6 +48,10 @@ func (this *Chart) unresolveReferenceTo(obj IMainObj) {
 	panic("Unimplemented")
 }
 
+func (this *Chart) GetParentSubchartEvent() *Event {
+	return this.subchartEvent
+}
+
 //-- interface IWarningObj
 
 func (this *Chart) Summary() (ret string) {
@@ -114,6 +118,12 @@ func (this *Chart) GetAnnexs() []*Annex {
 func (this *Chart) GetImports() []*Import {
 	// TODO
 	panic("Unimplemented")
+}
+
+//-- method (setters)
+
+func (this *Chart) setSubchartEventObject(o *Event) {
+	this.subchartEvent = o
 }
 
 //-- method (main object manipulation)
@@ -223,6 +233,8 @@ func CreateEmptyChart() *Chart {
 		events: []*Event{},
 		annexs: []*Annex{},
 		imports: []*Import{},
+
+		subchartEvent: nil,
 	}
 }
 
