@@ -57,6 +57,23 @@ func (this *Event) IsUnknown() bool {
 	panic("Unimplemented")
 }
 
+//-- interface IDiagnosable
+
+func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
+	if this.Common().GetChart() == nil {
+		warns.Add("@0@ is not associated to any chart.", this)
+		return
+	}
+
+	// TODO
+	panic("Unimplemented")
+}
+
 //-- method (getters)
 
 func (this *Event) GetTitle() string {
@@ -198,6 +215,11 @@ func (this *Event) Export() (*file.Event, warning.Warnings, error) {
 }
 
 //-- method (creation)
+
+func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
+	// TODO
+	panic("Unimplemented")
+}
 
 func CreateEmptyEvent() *Event {
 	return &Event{

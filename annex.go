@@ -58,6 +58,23 @@ func (this *Annex) IsUnknown() bool {
 	panic("Unimplemented")
 }
 
+//-- interface IDiagnosable
+
+func (this *Annex) DiagnoseLocal() (warns warning.Warnings) {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
+	if this.Common().GetChart() == nil {
+		warns.Add("@0@ is not associated to any chart.", this)
+		return
+	}
+
+	// TODO
+	panic("Unimplemented")
+}
+
 //-- method (getters)
 
 func (this *Annex) GetFormat() string {

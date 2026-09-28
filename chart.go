@@ -27,6 +27,7 @@ type Chart struct {
 	annexs []*Annex
 	imports []*Import
 
+	eventsPerCategory map[string][]*Event 	// Same event objects but per category.
 	embeddingEvent *Event	// Only if this chart embedded as a subchart. 
 }
 
@@ -169,13 +170,19 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 	panic("Unimplemented")
 }
 
+func (this *Chart) ReserveEventCategory(category string) {
+	if _, ok := this.eventsPerCategory[category]; !ok {
+		this.eventsPerCategory[category] = []*Event{}
+	}
+}
+
 //-- method (creation)
 
-func createChartFromParsed(o *file.File) (*Chart, warning.Warnings, error) {
+func createChartFromParsed(o *file.File) (*Chart, warning.Warnings) {
 	chart := &Chart{}
 	warns := warning.Warnings{}
 
-	// Load preamble objects.
+	// Load small preamble objects.
 	chart.Filepath = o.Filepath
 	chart.Version = GetVersion(o.Version)
 
@@ -183,52 +190,69 @@ func createChartFromParsed(o *file.File) (*Chart, warning.Warnings, error) {
 	warns.Concat(moreWarns)
 	chart.Note = note
 
-	setting, moreWarns, err := createSettingFromParsed(o.Setting)
+	// Load setting object.
+	setting, moreWarns := createSettingFromParsed(o.Setting)
 	warns.Concat(moreWarns)
-	if err != nil {
-		return nil, warns, err
-	} else {
-		chart.Setting = setting
+	chart.Setting = setting
+
+	// Pre-register categories.
+	// We need this to save (potentially) empty categories, too.
+	for _, category := range o.Setting.Categories {
+		chart.ReserveEventCategory(category)
 	}
 
-	subject, moreWarns, err := createSubjectFromParsed(o.Subject)
+	// Load subject object.
+	subject, moreWarns := createSubjectFromParsed(o.Subject)
 	warns.Concat(moreWarns)
-	if err != nil {
-		return nil, warns, err
-	} else {
-		chart.Subject = subject
-	}
+	chart.Subject = subject
 
-	// TODO: Load event objects.
-	// TODO: use `AddObject` to create obj links.
+	// Load event objects.
+	for _, fevent := range o.Event {
+		cevent, moreWarns := createEventFromParsed(fevent)
+		warns.Concat(moreWarns)
+		chart.AddObject(cevent)
+	}
 	
-	// TODO: Load annex objects.
-	// TODO: use `AddObject` to create obj links.
+	// Load annex objects.
+	for _, fannex := range o.Annex {
+		cannex, moreWarns := createAnnexFromParsed(fannex)
+		warns.Concat(moreWarns)
+		chart.AddObject(cannex)
+	}
 
-	// TODO: Load import objects.
-	// TODO: use `AddObject` to create obj links.
-	// TODO: do it recursively
+	// Load import objects.
+	for _, fimport := range o.Import {
+		cimport, moreWarns := createImportFromParsed(fimport)
+		warns.Concat(moreWarns)
+		chart.AddObject(cimport)
+	}
 
-	// TODO: Diagnose main objects.
+	// Diagnose main objects. (non-local: comfirmed after adding to chart)
+	for _, cevent := range chart.events {
+		warns.Concat(cevent.DiagnoseNonLocal())
+	}
+	for _, cannex := range chart.annexs {
+		warns.Concat(cannex.DiagnoseNonLocal())
+	}
+	for _, cimport := range chart.imports {
+		warns.Concat(cimport.DiagnoseNonLocal())
+	}
 
-	return chart, warns, nil
+	return chart, warns
 }
 
-func CreateChart(tomlstr string) (*Chart, warning.Warnings, error) {
+func CreateChart(tomlstr string) (*Chart, warning.Warnings) {
 	// Parse LTC file in TOML format.
-	ltcf, warns, err := file.Load(tomlstr)
-	if err != nil {
-		return nil, warns, err
+	ltcf, warns := file.Load(tomlstr)
+	if ltcf == nil {
+		return nil, warns
 	}
 
 	// Recursively convert (TOML-format) file to (in-memory) chart.
-	chart, warnsMore, err := createChartFromParsed(ltcf)
+	chart, warnsMore := createChartFromParsed(ltcf)
 	warns = append(warns, warnsMore...)
-	if err != nil {
-		return nil, warns, err
-	}
 
-	return chart, warns, nil
+	return chart, warns 
 }
 
 func CreateEmptyChart() *Chart {
@@ -271,9 +295,9 @@ func (this *Setting) IsUnknown() bool {
 	return false
 }
 
-//-- struct Setting: interface IDiagnoseable
+//-- struct Setting: interface IDiagnosable
 
-func (this *Setting) Diagnose() (warns warning.Warnings) {
+func (this *Setting) DiagnoseLocal() (warns warning.Warnings) {
 	// For now, any `CalendarSystem` or `NoteFormat` is valid,
 	// assuming that the front-end tool will generate warnings if they
 	// don't support it. Since any `CalendarSystem` is fine in libLTC,
@@ -298,9 +322,13 @@ func (this *Setting) Diagnose() (warns warning.Warnings) {
 	return
 }
 
+func (this *Setting) DiagnoseNonLocal() warning.Warnings {
+	return warning.Warnings{}
+}
+
 //-- struct Setting: method (creation)
 
-func createSettingFromParsed(o file.Setting) (Setting, warning.Warnings, error) {
+func createSettingFromParsed(o file.Setting) (Setting, warning.Warnings ) {
 	setting := Setting{
 		CalendarSystem: "",
 		NoteFormat: "",
@@ -311,9 +339,9 @@ func createSettingFromParsed(o file.Setting) (Setting, warning.Warnings, error) 
 	setting.NoteFormat = o.NoteFormat
 	setting.Attrs = convAttrsFileToChart(o.Attrs)
 
-	warns := setting.Diagnose()
+	warns := setting.DiagnoseLocal()
 
-	return setting, warns, nil
+	return setting, warns
 }
 
 //-- struct Subject
@@ -346,18 +374,22 @@ func (this *Subject) IsUnknown() bool {
 			this.EndDate.IsUnknown() && this.Sex == ""
 }
 
-//-- struct Subject: interface IDiagnoseable
+//-- struct Subject: interface IDiagnosable
 
-func (this *Subject) Diagnose() (warns warning.Warnings) {
+func (this *Subject) DiagnoseLocal() (warns warning.Warnings) {
 	if this.Name.IsUnknown() {
 		warns.Add("unknown subject.")
 	}
 	return
 }
 
+func (this *Subject) DiagnoseNonLocal() warning.Warnings {
+	return warning.Warnings{}
+}
+
 //-- struct Subject: method (creation) 
 
-func createSubjectFromParsed(o file.Subject) (Subject, warning.Warnings, error) {
+func createSubjectFromParsed(o file.Subject) (Subject, warning.Warnings) {
 	subject := Subject{
 		Name: Name{},
 		StartDate: Time{},
@@ -370,7 +402,7 @@ func createSubjectFromParsed(o file.Subject) (Subject, warning.Warnings, error) 
 	subject.EndDate = createTimeFromParsed(o.EndDate)
 	subject.Sex = o.Sex
 
-	warns := subject.Diagnose()
+	warns := subject.DiagnoseLocal()
 
-	return subject, warns, nil
+	return subject, warns
 }

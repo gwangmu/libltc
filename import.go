@@ -1,10 +1,8 @@
 package libltc
 
-//import (
-//	"errors"
-//
-//	"github.com/gwangmu/libltc/internal/file"
-//)
+import (
+	"github.com/gwangmu/libltc/warning"
+)
 
 type Import struct {
 	common MainObjCommon
@@ -55,6 +53,23 @@ func (this *Import) Summary() string {
 }
 
 func (this *Import) IsUnknown() bool {
+	// TODO
+	panic("Unimplemented")
+}
+
+//-- interface IDiagnosable
+
+func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Import) DiagnoseNonLocal() (warns warning.Warnings) {
+	if this.Common().GetChart() == nil {
+		warns.Add("@0@ is not associated to any chart.", this)
+		return
+	}
+
 	// TODO
 	panic("Unimplemented")
 }
