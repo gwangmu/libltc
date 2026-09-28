@@ -223,18 +223,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 
 func CreateEmptyEvent() *Event {
 	return &Event{
-		common: MainObjCommon{
-			kind: MOK_Event,
-
-			chart: nil,
-			parent: nil,
-			numID: NID_Invalid,
-			fullID: "", 
-
-			extraNoteAnnexs: []*Annex{},
-			attachedAnnexs: []*Annex{},
-			attrs: map[string][]string{},
-		},
+		common: CreateEmptyMainObjCommon(MOK_Event),
 
 		Note: Note{},
 

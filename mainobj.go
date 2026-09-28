@@ -200,19 +200,28 @@ func (this *MainObjCommon) IsUnresolved() bool {
 	return this.fullID != ""
 }
 
-// `id` should be the "qualified" ID, meaning if an object was included,
-// the `id` here should prepend the qualified ID of the subchart event object.
-func CreateUnresolvedMainObj(kind MainObjKind, id string) *MainObjCommon {
+// Unresolved = non-empty `fullid`
+// `fullid` should be a "qualified" ID, meaning if an object was included,
+// the `fullid` here should prepend the qualified ID of the chart-embedding event object.
+func createMainObjCommon(kind MainObjKind, fullid string) MainObjCommon {
 	return &MainObjCommon{
 		kind: kind,
 
 		chart: nil,
 		parent: nil,
 		numID: NID_Invalid,
-		fullID: id,
+		fullID: fullid,
 
 		extraNoteAnnexs: []*Annex{},
 		attachedAnnexs: []*Annex{},
 		attrs: map[string][]string{},
 	}
+}
+
+func CreateEmptyMainObjCommon(kind MainObjKind) MainObjCommon {
+	return createMainObjCommon(kind, "")
+}
+
+func CreateUnresolvedMainObjCommon(kind MainObjKind, fullid string) MainObjCommon {
+	return createMainObjCommon(kind, fullid)
 }

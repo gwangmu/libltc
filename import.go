@@ -191,6 +191,22 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 }
 
 func CreateEmptyImport() *Import {
-	// TODO
-	panic("Unimplemented")
+	return &Import{
+		common: CreateEmptyMainObjCommon(MOK_Import),
+
+		Note: Note{},
+
+		link: "",
+		startDate: nil,
+		endDate: nil,
+		offsetDate: nil,
+		categories: nil,
+
+		loadedChart: nil,
+		importedEvents: []*Event{},
+		importedAnnexs: []*Annex{},
+		importedImports: []*Import{},
+
+		preOffsetEvents: []*Event{},
+	}
 }

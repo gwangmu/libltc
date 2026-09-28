@@ -254,18 +254,7 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 
 func CreateEmptyAnnex() *Annex {
 	return &Annex{
-		common: MainObjCommon{
-			kind: MOK_Annex,
-
-			chart: nil,
-			parent: nil,
-			numID: NID_Invalid, 
-			fullID: "",
-
-			extraNoteAnnexs: []*Annex{},
-			attachedAnnexs: []*Annex{},
-			attrs: map[string][]string{},
-		},
+		common: CreateEmptyMainObjCommon(MOK_Annex),
 
 		Note: Note{},
 		Title: "",
