@@ -177,6 +177,7 @@ func (this *Event) IsUnknown() bool {
 
 type Annex struct {
 	ID string 				`toml:"ID"`
+	Title string 			`toml:"Title,omitempty"`
 	Format string 			`toml:"Format,omitempty"`
 	Encoding string 		`toml:"Encoding,omitempty"`
 	Data string 			`toml:"Data"`

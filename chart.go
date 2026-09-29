@@ -233,6 +233,8 @@ func createChartFromParsed(o *file.File) (*Chart, warning.Warnings) {
 		chart.AddObject(cimport)
 	}
 
+	// TODO: build `eventsPerCategory`.
+
 	// Diagnose main objects. (non-local: comfirmed after adding to chart)
 	for _, cevent := range chart.events {
 		warns.Concat(cevent.DiagnoseNonLocal())

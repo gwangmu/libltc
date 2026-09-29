@@ -249,6 +249,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	warns := warning.Warnings{}
 
 	event.common.kind, event.common.numID = convIDStringToInternal(o.ID)
+	event.common.attrs = convAttrsFileToChart(o.Attrs)
 
 	note, moreWarns := CreateNoteFromString(o.Note)
 	warns.Concat(moreWarns)

@@ -61,8 +61,15 @@ func (this *Annex) IsUnknown() bool {
 //-- interface IDiagnosable
 
 func (this *Annex) DiagnoseLocal() (warns warning.Warnings) {
-	// TODO
-	panic("Unimplemented")
+	if _, ok := coder.Decoders[this.encoding]; !ok {
+		warns.Add("@0@ specifies unsupported encoding '%s'", this, this.encoding)
+	}
+
+	if len(this.encodedData) != 0 && len(this.rawData) == 0 {
+		warns.Add("@0@ contains undecoded data.", this)
+	}
+
+	return
 }
 
 func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
@@ -252,12 +259,23 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	warns := warning.Warnings{}
 
 	annex.common.kind, annex.common.numID = convIDStringToInternal(o.ID)
+	annex.common.attrs = convAttrsFileToChart(o.Attrs)
 
 	note, moreWarns := CreateNoteFromString(o.Note)
 	warns.Concat(moreWarns)
 	annex.Note = note
 
-	// TODO: fill `annex`. 
+	annex.Title = o.Title
+	annex.format = o.Format
+	annex.encoding = o.Encoding
+
+	annex.encodedData = o.Data
+
+	if decoder, ok := coder.Decoders[o.Encoding]; ok {
+		if rawData, err := decoder(o.Data); err == nil {
+			annex.rawData = rawData
+		}
+	}
 	
 	moreWarns = annex.DiagnoseLocal()
 	warns.Concat(moreWarns)

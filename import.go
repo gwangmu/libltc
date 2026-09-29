@@ -187,11 +187,18 @@ func (this *Import) Export() (*file.Import, warning.Warnings, error) {
 
 func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	cimport := CreateEmptyImport()
+	warns := warning.Warnings{}
+	var moreWarns warning.Warnings
+
+	cimport.common.kind, cimport.common.numID = convIDStringToInternal(o.ID)
+	cimport.common.attrs = convAttrsFileToChart(o.Attrs)
 
 	// TODO: fill `cimport`.
-	cimport.common.kind, cimport.common.numID = convIDStringToInternal(o.ID)
 
-	return cimport, cimport.DiagnoseLocal()
+	moreWarns = cimport.DiagnoseLocal()
+	warns.Concat(moreWarns)
+
+	return cimport, warns
 }
 
 func CreateEmptyImport() *Import {
