@@ -86,8 +86,8 @@ type IWarningObj interface {
 }
 
 type IDiagnosable interface {
-	DiagnoseLocal() []Warning
-	DiagnoseNonLocal() []Warning
+	DiagnoseLocal() Warnings
+	DiagnoseNonLocal() Warnings
 }
 
 type SummaryElement struct {

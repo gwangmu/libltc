@@ -49,6 +49,13 @@ func (this *File) IsUnknown() bool {
 	return this.Filepath == "" && this.Subject.IsUnknown()
 }
 
+//-- struct File: interface IDiagnosable
+
+func (this *File) Diagnose() warning.Warnings {
+	// TODO: Auto-fix some issues and report via Warning.
+	panic("Unimplemented")
+}
+
 //-- struct Setting
 
 type Setting struct {
@@ -73,6 +80,13 @@ func (this *Setting) Summary() string {
 
 func (this *Setting) IsUnknown() bool {
 	return false
+}
+
+//-- struct Setting: interface IDiagnosable
+
+func (this *Setting) Diagnose() warning.Warnings {
+	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Subject
@@ -110,6 +124,13 @@ func (this *Subject) Summary() (ret string) {
 func (this *Subject) IsUnknown() bool {
 	return this.Name.IsUnknown() && this.StartDate.IsUnknown() && 
 		this.EndDate.IsUnknown() && this.Sex == ""
+}
+
+//-- struct Subject: interface IDiagnosable
+
+func (this *Subject) Diagnose() warning.Warnings {
+	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Event
@@ -172,6 +193,13 @@ func (this *Event) IsUnknown() bool {
 		(this.EndDate == nil || this.EndDate.IsUnknown())
 }
 
+//-- struct Event: interface IDiagnosable
+
+func (this *Event) Diagnose() warning.Warnings {
+	// TODO
+	panic("Unimplemented")
+}
+
 //-- struct Annex
 
 type Annex struct {
@@ -211,6 +239,13 @@ func (this *Annex) Summary() (ret string) {
 
 func (this *Annex) IsUnknown() bool {
 	return this.ID == "" && this.Format == ""
+}
+
+//-- struct Annex: interface IDiagnosable
+
+func (this *Annex) Diagnose() warning.Warnings {
+	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Import
@@ -256,6 +291,13 @@ func (this *Import) IsUnknown() bool {
 			this.EndDate == nil && this.OffsetDate == nil
 }
 
+//-- struct Import: interface IDiagnosable
+
+func (this *Import) Diagnose() warning.Warnings {
+	// TODO
+	panic("Unimplemented")
+}
+
 //-- struct Name
 
 type Name struct {
@@ -295,6 +337,13 @@ func (this *Name) Summary() string {
 
 func (this *Name) IsUnknown() bool {
 	return this.First == "" && this.Middle == "" && this.Last == ""
+}
+
+//-- struct Name: interface IDiagnosable
+
+func (this *Name) Diagnose() warning.Warnings {
+	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Time
@@ -368,4 +417,11 @@ func (this *Time) IsUnknown() bool {
 	return this.Year == nil && this.Month == nil && this.Day == nil &&
 		this.Hour == nil && this.Minute == nil && this.Second == nil &&
 		this.Timezone == nil
+}
+
+//-- struct Time: interface IDiagnosable
+
+func (this *Time) Diagnose() warning.Warnings {
+	// TODO
+	panic("Unimplemented")
 }

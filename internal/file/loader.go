@@ -7,26 +7,39 @@ import (
 	"github.com/gwangmu/libltc/warning"
 )
 
-type LTCFileObject interface {
+type IFileObject interface {
 	File | Setting | Subject | Event | Annex | Import | Name | Time
 }
 
-func LoadFromString[T LTCFileObject](tomlstr string) (*T, warning.Warnings, error) {
-	warns := warning.Warnings{}
-
-	var out T
-	if _, err := toml.Decode(tomlstr, &out); err != nil {
-		warns.Add("cannot read TOML.")
-		return nil, warns, err
-	}
-
-	//warns := inspectFile(&ltcFile, meta) 
-	// TODO: Auto-fix some issues and report via Warning.
-
-	return &out, warns, nil
+type IDiagnosable interface {
+	Diagnose() warning.Warnings
 }
 
-func LoadFromURI[T LTCFileObject](uri string) (*T, warning.Warnings, error) {
+type IDiagnosablePtr[T any] interface {
+	*T
+	IDiagnosable
+}
+
+func LoadFromString[T IFileObject, U IDiagnosablePtr[T]](tomlstr string) (U, warning.Warnings, error) {
+	var out U = new(T)
+	warns := warning.Warnings{}
+
+	if meta, err := toml.Decode(tomlstr, out); err != nil {
+		warns.Add("cannot read TOML.")
+		return nil, warns, err
+	} else {
+		for _, ukey := range meta.Undecoded() {
+			warns.Add("cannot decode a field '%s'.", ukey)
+		}
+	}
+
+	moreWarns := out.Diagnose() 
+	warns.Concat(moreWarns)
+
+	return out, warns, nil
+}
+
+func LoadFromURI[T IFileObject, U IDiagnosablePtr[T]](uri string) (U, warning.Warnings, error) {
 	var tomlstr string
 
 	protRe := regexp.MustCompile(`^[a-z]+://`)
@@ -41,5 +54,5 @@ func LoadFromURI[T LTCFileObject](uri string) (*T, warning.Warnings, error) {
 		panic("Unimplemented")
 	}
 
-	return LoadFromString[T](tomlstr)
+	return LoadFromString[T, U](tomlstr)
 }
