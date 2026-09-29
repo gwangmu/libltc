@@ -269,6 +269,7 @@ type Name struct {
 	First string			`toml:"First"`
 	Middle string			`toml:"Middle,omitempty"`
 	Last string				`toml:"Last,omitempty"`
+	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
 //-- struct Name: interface ITOMLPrintable

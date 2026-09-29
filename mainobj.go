@@ -204,7 +204,7 @@ func (this *MainObjCommon) IsUnresolved() bool {
 // `fullid` should be a "qualified" ID, meaning if an object was included,
 // the `fullid` here should prepend the qualified ID of the chart-embedding event object.
 func createMainObjCommon(kind MainObjKind, fullid string) MainObjCommon {
-	return &MainObjCommon{
+	return MainObjCommon{
 		kind: kind,
 
 		chart: nil,

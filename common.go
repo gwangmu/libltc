@@ -23,6 +23,7 @@ type Name struct {
 	First string
 	Middle string
 	Last string
+	Attrs map[string][]string
 }
 
 //-- struct Name: interface Stringifiable
@@ -68,6 +69,7 @@ func createNameFromParsed(o file.Name) Name {
 		First: o.First,
 		Middle: o.Middle,
 		Last: o.Last,
+		Attrs: convAttrsFileToChart(o.Attrs),
 	}
 }
 
