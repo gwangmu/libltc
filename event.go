@@ -27,20 +27,6 @@ type Event struct {
 	contToEvents []*Event
 }
 
-//-- interface IMainObj
-
-func (this *Event) Clone(preserveChart bool, preserveID bool) IMainObj {
-	newobj := *this
-	if !preserveChart {
-		newobj.chart = nil
-	}
-	if !preserveID {
-		newobj.numID = NID_Invalid
-		newobj.fullID = ""
-	}
-	return &newobj
-}
-
 //-- interface IWarningObj
 
 func (this *Event) Summary() string {

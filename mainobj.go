@@ -5,14 +5,39 @@ import (
 )
 
 type IMainObj interface {
+	GetKind() MainObjKind
+
+	GetChart() *Chart
+	setChart(c *Chart)
+
+	getNumberID() NumberID 
+	setNumberID(nid NumberID)
+
+	getFullID() string
+	setFullID(fullid string)
 	IsUnresolved() bool
-	Clone(preserveChart bool, preserveID bool) IMainObj
 
 	GetLocalID() string 
 	GetQualifiedIDFrom(stopAt IMainObj) string
 	GetQualifiedID() string
 
-	getNumberID() NumberID 
+	GetParent() IMainObj
+	SetParent(p IMainObj)
+
+	GetExtraNotes() (ret []*Note)
+	HasExtraNoteAnnex(aobj *Annex) bool
+	AddExtraNoteAnnex(aobj *Annex)
+	RemoveExtraNoteAnnex(aobj *Annex)
+
+	GetAttachedAnnexs() []*Annex
+	HasAttachedAnnex(aobj *Annex) bool
+	AddAttachedAnnex(aobj *Annex)
+	RemoveAttachedAnnex(aobj *Annex)
+
+	GetAttrs(key string) []string
+	HasAttr(key string, value string) bool
+	AddAttr(key string, value string)
+	RemoveAttr(key string, value string)
 }
 
 type MainObjCommon struct {
@@ -41,6 +66,30 @@ func (this *MainObjCommon) GetKind() MainObjKind {
 
 func (this *MainObjCommon) GetChart() *Chart {
 	return this.chart.asChart()
+}
+
+func (this *MainObjCommon) setChart(c *Chart) {
+	this.chart = c
+}
+
+func (this *MainObjCommon) getNumberID() NumberID {
+	return this.numID
+}
+
+func (this *MainObjCommon) setNumberID(nid NumberID) {
+	this.numID = nid
+}
+
+func (this *MainObjCommon) getFullID() string {
+	return this.fullID
+}
+
+func (this *MainObjCommon) setFullID(fullid string) {
+	this.fullID = fullid
+}
+
+func (this *MainObjCommon) IsUnresolved() bool {
+	return this.fullID != ""
 }
 
 func (this *MainObjCommon) GetLocalID() string {
@@ -103,15 +152,6 @@ func (this *MainObjCommon) HasExtraNoteAnnex(aobj *Annex) bool {
 	return false
 }
 
-func (this *MainObjCommon) HasAttachedAnnex(aobj *Annex) bool {
-	for _, elem := range this.attachedAnnexs {
-		if elem == aobj {
-			return true
-		}
-	}
-	return false
-}
-
 func (this *MainObjCommon) AddExtraNoteAnnex(aobj *Annex) {
 	if !this.HasExtraNoteAnnex(aobj) {
 		this.extraNoteAnnexs = append(this.extraNoteAnnexs, aobj)
@@ -129,6 +169,15 @@ func (this *MainObjCommon) RemoveExtraNoteAnnex(aobj *Annex) {
 
 func (this *MainObjCommon) GetAttachedAnnexs() []*Annex {
 	return this.attachedAnnexs
+}
+
+func (this *MainObjCommon) HasAttachedAnnex(aobj *Annex) bool {
+	for _, elem := range this.attachedAnnexs {
+		if elem == aobj {
+			return true
+		}
+	}
+	return false
 }
 
 func (this *MainObjCommon) AddAttachedAnnex(aobj *Annex) {
@@ -190,14 +239,6 @@ func (this *MainObjCommon) RemoveAttr(key string, value string) {
 			}
 		}
 	}
-}
-
-func (this *MainObjCommon) getNumberID() NumberID {
-	return this.numID
-}
-
-func (this *MainObjCommon) IsUnresolved() bool {
-	return this.fullID != ""
 }
 
 // Unresolved = non-empty `fullid`

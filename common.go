@@ -526,3 +526,15 @@ func convIDInternalToString(kind MainObjKind, nid NumberID) string {
 		return "?"
 	}
 }
+
+func CloneMainObject[T IMainObj](obj *T, preserveChart bool, preserveID bool) *T {
+	newobj := *obj
+	if !preserveChart {
+		newobj.setChart(nil)
+	}
+	if !preserveID {
+		newobj.setNumberID(NID_Invalid)
+		newobj.setFullID("")
+	}
+	return &newobj
+}

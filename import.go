@@ -24,20 +24,6 @@ type Import struct {
 	preOffsetEvents []*Event
 }
 
-//-- interface IMainObj
-
-func (this *Import) Clone(preserveChart bool, preserveID bool) IMainObj {
-	newobj := *this
-	if !preserveChart {
-		newobj.chart = nil
-	}
-	if !preserveID {
-		newobj.numID = NID_Invalid
-		newobj.fullID = ""
-	}
-	return &newobj
-}
-
 //-- interface IWarningObj
 
 func (this *Import) Summary() string {

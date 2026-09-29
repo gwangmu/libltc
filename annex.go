@@ -24,20 +24,6 @@ type Annex struct {
 	extraNoteOfObjs []IMainObj
 }
 
-//-- interface IMainObj
-
-func (this *Annex) Clone(preserveChart bool, preserveID bool) IMainObj {
-	newobj := *this
-	if !preserveChart {
-		newobj.chart = nil
-	}
-	if !preserveID {
-		newobj.numID = NID_Invalid
-		newobj.fullID = ""
-	}
-	return &newobj
-}
-
 //-- interface IWarningObj
 
 func (this *Annex) Summary() string {
