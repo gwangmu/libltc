@@ -4,7 +4,6 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/BurntSushi/toml"
 	"github.com/gwangmu/libltc/warning"
 )
 
@@ -218,12 +217,11 @@ func (this *Annex) IsUnknown() bool {
 
 type Import struct {
 	ID string				`toml:"ID"`
-	Title string 			`toml:"Title,omitempty"`
 	Link string 			`toml:"Link"`
-	StartDate *Time		`toml:"StartDate,omitempty"`
-	EndDate *Time		`toml:"EndDate,omitempty"`
+	StartDate *Time			`toml:"StartDate,omitempty"`
+	EndDate *Time			`toml:"EndDate,omitempty"`
 	OffsetDate *Time		`toml:"OffsetDate,omitempty"`
-	Categories []string		`toml:"Categories,omitempty"`
+	Categories *[]string	`toml:"Categories,omitempty"`
 	Note string				`toml:"Note,omitempty"`
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
@@ -238,11 +236,7 @@ func (this *Import) PrintTOML() string {
 //-- struct Import: interface IWarningObj
 
 func (this *Import) Summary() (ret string) {
-	if this.Title != "" {
-		ret = "the import '" + this.Title + "'"
-	} else {
-		ret = "an import"
-	}
+	ret = "an import"
 
 	extraStr := warning.BuildSummaryString(
 		WSE{"ID", this.ID},
@@ -252,15 +246,13 @@ func (this *Import) Summary() (ret string) {
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
-	} else if this.Title == "" {
-		ret = "an unknown import"
 	}
 
 	return
 }
 
 func (this *Import) IsUnknown() bool {
-	return this.Title == "" && this.Link == "" && this.StartDate == nil &&
+	return this.Link == "" && this.StartDate == nil &&
 			this.EndDate == nil && this.OffsetDate == nil
 }
 
@@ -376,36 +368,4 @@ func (this *Time) IsUnknown() bool {
 	return this.Year == nil && this.Month == nil && this.Day == nil &&
 		this.Hour == nil && this.Minute == nil && this.Second == nil &&
 		this.Timezone == nil
-}
-
-//-- Package methods
-
-func Load(tomlstr string) (*File, warning.Warnings, error) {
-	warns := warning.Warnings{}
-
-	ltcFile := File{}
-	if _, err := toml.Decode(tomlstr, &ltcFile); err != nil {
-		warns.Add("cannot read TOML.")
-		return nil, warns, err
-	}
-
-	//warns := inspectFile(&ltcFile, meta) 
-	// TODO: Auto-fix some issues and report via Warning.
-
-	return &ltcFile, warns, nil
-}
-
-func LoadFile(filepath string) (*File, warning.Warnings, error) {
-	warns := warning.Warnings{}
-
-	ltcFile := File{}
-	if _, err := toml.DecodeFile(filepath, &ltcFile); err != nil {
-		warns.Add("cannot read TOML.")
-		return nil, warns, err
-	}
-
-	//warns := inspectFile(&ltcFile, meta) 
-	// TODO: Auto-fix some issues and report via Warning.
-
-	return &ltcFile, warns, nil
 }

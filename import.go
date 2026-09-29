@@ -188,12 +188,36 @@ func (this *Import) Export() (*file.Import, warning.Warnings, error) {
 func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	cimport := CreateEmptyImport()
 	warns := warning.Warnings{}
-	var moreWarns warning.Warnings
 
 	cimport.common.kind, cimport.common.numID = convIDStringToInternal(o.ID)
 	cimport.common.attrs = convAttrsFileToChart(o.Attrs)
 
-	// TODO: fill `cimport`.
+	note, moreWarns := CreateNoteFromString(o.Note)
+	warns.Concat(moreWarns)
+	cimport.Note = note
+
+	cimport.link = o.Link
+	// TODO: eagerly load imported objects. warn if it failed.
+
+	if o.StartDate != nil {
+		startDate := createTimeFromParsed(o.StartDate)
+		cimport.startDate = &startDate
+	}
+
+	if o.EndDate != nil {
+		endDate := createTimeFromParsed(o.EndDate)
+		cimport.endDate = &endDate
+	}
+
+	if o.OffsetDate != nil {
+		endDate := createTimeFromParsed(o.OffsetDate)
+		cimport.offsetDate = &endDate
+	}
+
+	if o.Categories != nil {
+		categories := *o.Categories
+		cimport.categories = &categories
+	}
 
 	moreWarns = cimport.DiagnoseLocal()
 	warns.Concat(moreWarns)

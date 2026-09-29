@@ -249,9 +249,9 @@ func createChartFromParsed(o *file.File) (*Chart, warning.Warnings) {
 	return chart, warns
 }
 
-func CreateChart(tomlstr string) (*Chart, warning.Warnings) {
+func CreateChart(uri string) (*Chart, warning.Warnings) {
 	// Parse LTC file in TOML format.
-	ltcf, warns, err := file.Load(tomlstr)
+	ltcf, warns, err := file.LoadFromURI[file.File](uri)
 	if err != nil {
 		return CreateEmptyChart(), warns
 	}
