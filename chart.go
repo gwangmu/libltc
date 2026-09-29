@@ -176,6 +176,12 @@ func (this *Chart) ReserveEventCategory(category string) {
 	}
 }
 
+func (this *Chart) MoveEventCategory(eobj *Event, category string) {
+	// TODO: move the `eobj`s category to `category`.
+	// TODO: this should move the chart's cache AND the `category` in event.
+	panic("Unimplemented")
+}
+
 //-- method (creation)
 
 func createChartFromParsed(o *file.File) (*Chart, warning.Warnings) {

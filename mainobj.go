@@ -1,7 +1,6 @@
 package libltc
 
 import (
-	"strconv"
 	"strings"
 )
 
@@ -52,11 +51,7 @@ func (this *MainObjCommon) GetLocalID() string {
 			return fullid[lastidx+1:]
 		}
 	} else {
-		if prefix, err := this.kind.Prefix(); err != nil {
-			return prefix + strconv.FormatUint(uint64(this.numID), 10)
-		} else {
-			panic(err.Error())
-		}
+		return convIDInternalToString(this.kind, this.numID)
 	}
 }
 

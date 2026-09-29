@@ -81,3 +81,18 @@ func (mok MainObjKind) Prefix() (string, error) {
 		return "?", errors.New("Bogus main object kind")
 	}
 }
+
+//-- type MainObjKind: method (creation)
+
+func GetMainObjKind(prefix string) (MainObjKind, error) {
+	switch prefix {
+	case "e":
+		return MOK_Event, nil
+	case "a":
+		return MOK_Annex, nil
+	case "i":
+		return MOK_Import, nil
+	default:
+		return MOK_Unknown, errors.New("Bogus main object prefix")
+	}
+}

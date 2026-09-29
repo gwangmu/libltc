@@ -1,6 +1,8 @@
 package libltc
 
 import (
+	"errors"
+
 	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/file"
 )
@@ -14,8 +16,10 @@ type Event struct {
 	localStartDate *Time
 	localEndDate *Time
 
-	subchartEmbedLink *string
-	embeddedSubchart IChart
+	category string
+
+	chartEmbedLink *string
+	embeddedChart IChart
 	eventEmbedLink *string
 	embeddedEvent *Event
 
@@ -60,8 +64,15 @@ func (this *Event) IsUnknown() bool {
 //-- interface IDiagnosable
 
 func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
-	// TODO
-	panic("Unimplemented")
+	if this.common.kind != MOK_Event || this.common.numID == NID_Invalid {
+		warns.Add("@0@ has an invalid ID.", this)
+	}
+
+	if this.eventEmbedLink != nil && this.embeddedEvent == nil {
+		warns.Add("Cannot load the embedded event of @0@.", this)
+	}
+
+	return
 }
 
 func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
@@ -79,7 +90,7 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 func (this *Event) GetTitle() string {
 	// TODO: use `localTitle` if it was defined.
 	// TODO: otherwise, use the title of `embeddedEvent`.
-	// TODO: otherwise, use the stringified name of `embeddedSubchart`.
+	// TODO: otherwise, use the stringified name of `embeddedChart`.
 	panic("Unimplemented")
 }
 
@@ -97,7 +108,7 @@ func (this *Event) GetEmbedLink() string {
 
 func (this *Event) GetSubchart() *Chart {
 	// TODO: return a subchart (nil if `Embed` is valid or `Subchart` is invalid).
-	// TODO: lazy-load `embeddedSubchart` if it's nil.
+	// TODO: lazy-load `embeddedChart` if it's nil.
 	// TODO: on lazy-load, update `parent`s of the objects inside.
 	// TODO: on lazy-load, invoke `resolveReferenceTo` for all subchart objs.
 	panic("Unimplemented")
@@ -120,6 +131,10 @@ func (this *Event) GetEndDate() *Time {
 	// TODO: otherwise, use the `EndDate` of the embedded event.
 	// TODO: otherwise, return unknown.
 	panic("Unimplemented")
+}
+
+func (this *Event) GetCategory() string{
+	return this.category
 }
 
 func (this *Event) GetContinuedFromEvents() []*Event {
@@ -163,6 +178,19 @@ func (this *Event) SetLocalStartDate(t *Time) {
 func (this *Event) SetLocalEndDate(t *Time) {
 	// TODO
 	panic("Unimplemented")
+}
+
+func (this *Event) SetCategory(c string) error {
+	// WARNING: directly calling this won't guarantee any consistency in
+	// the associated chart, as in the chart may say 'the category is A'
+	// but the event says 'no, the category is B'. Use the interface
+	// provided by the associated chart.
+	if this.common.chart != nil {
+		return errors.New("Already associated to a chart.")
+	} else {
+		this.category = c
+		return nil
+	}
 }
 
 func (this *Event) addContinuedFromEvent(eobj *Event) {
@@ -216,9 +244,43 @@ func (this *Event) Export() (*file.Event, warning.Warnings, error) {
 
 //-- method (creation)
 
+// TODO: working
 func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
-	// TODO
-	panic("Unimplemented")
+	event := CreateEmptyEvent()
+
+	event.common.kind, event.common.numID = convIDStringToInternal(o.ID)
+
+	if o.Title != nil {
+		localTitle := *o.Title
+		event.localTitle = &localTitle
+	}
+
+	if o.StartDate != nil {
+		startDate := createTimeFromParsed(o.StartDate)
+		event.localStartDate = &startDate
+	}
+
+	if o.EndDate != nil {
+		endDate := createTimeFromParsed(o.EndDate)
+		event.localEndDate = &endDate
+	}
+
+	event.category = o.Category
+
+	if o.EmbedChart != nil {
+		embedChart := *o.EmbedChart
+		event.chartEmbedLink = &embedChart
+	}
+
+	if o.EmbedEvent != nil {
+		embedEvent := *o.EmbedEvent
+		event.eventEmbedLink = &embedEvent
+		// TODO: eagerly load embedded event. warn if it failed.
+	}
+
+	warns := event.DiagnoseLocal() 
+
+	return event, warns
 }
 
 func CreateEmptyEvent() *Event {
@@ -231,8 +293,8 @@ func CreateEmptyEvent() *Event {
 		localStartDate: nil,
 		localEndDate: nil,
 
-		subchartEmbedLink: nil,
-		embeddedSubchart: nil,
+		chartEmbedLink: nil,
+		embeddedChart: nil,
 		eventEmbedLink: nil,
 		embeddedEvent: nil,
 

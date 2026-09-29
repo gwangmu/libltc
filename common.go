@@ -497,3 +497,32 @@ func convAttrsChartToFile(attrs map[string][]string) (fattrs []string) {
 	}
 	return
 }
+
+func convIDStringToInternal(id string) (MainObjKind, NumberID) {
+	// According to the specification, the first letter should specify the kind.
+	if len(id) < 1 {
+		return MOK_Unknown, NID_Invalid
+	}
+
+	kind, err := GetMainObjKind(id[0:1])
+	if err != nil {
+		return MOK_Unknown, NID_Invalid
+	} else if len(id) < 2 {
+		return kind, NID_Invalid
+	}
+
+	nid, err := strconv.ParseUint(id[1:], 10, 64)
+	if err != nil {
+		return kind, NID_Invalid
+	}
+
+	return kind, NumberID(nid)
+}
+
+func convIDInternalToString(kind MainObjKind, nid NumberID) string {
+	if prefix, err := kind.Prefix(); err != nil {
+		return prefix + strconv.FormatUint(uint64(nid), 10)
+	} else {
+		return "?"
+	}
+}

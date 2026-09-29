@@ -116,15 +116,15 @@ func (this *Subject) IsUnknown() bool {
 //-- struct Event
 
 type Event struct {
-	ID string				`toml:"ID"`
-	Title string			`toml:"Title"`
-	Category string			`toml:"Category,omitempty"`
-	Subchart *string 		`toml:"Subchart,omitempty"`
-	Embed *string 			`toml:"Embed,omitempty"`
+	ID string			`toml:"ID"`
+	Title *string		`toml:"Title"`
+	Category string		`toml:"Category,omitempty"`
+	EmbedChart *string 	`toml:"EmbedChart,omitempty"`
+	EmbedEvent *string 	`toml:"EmbedEvent,omitempty"`
 	StartDate *Time		`toml:"StartDate,omitempty"`
 	EndDate *Time		`toml:"EndDate,omitempty"`
-	Note *string			`toml:"Note,omitempty"`
-	Attrs []string			`toml:"Attrs,omitempty"`
+	Note *string		`toml:"Note,omitempty"`
+	Attrs []string		`toml:"Attrs,omitempty"`
 }
 
 //-- struct Event: interface ITOMLPrintable
@@ -137,18 +137,18 @@ func (this *Event) PrintTOML() string {
 //-- struct Event: interface IWarningObj
 
 func (this *Event) Summary() (ret string) {
-	if this.Title != "" {
-		ret = "the event '" + this.Title + "'"
+	if this.Title != nil {
+		ret = "the event '" + *this.Title + "'"
 	} else {
 		ret = "the untitled event"
 	}
 
 	extraStr := ""
-	if this.Title == "" {
+	if this.Title == nil {
 		extraStr = warning.BuildSummaryString(
 			WSE{"ID", this.ID},
 			WSE{"category", this.Category}, 
-			WSE{"embedding chart", this.Subchart},
+			WSE{"embedding chart", this.EmbedChart},
 			WSE{"started", this.StartDate}, 
 			WSE{"ended", this.EndDate},
 		)
@@ -156,7 +156,7 @@ func (this *Event) Summary() (ret string) {
 		extraStr = warning.BuildSummaryString(
 			WSE{"ID", this.ID},
 			WSE{"category", this.Category},
-			WSE{"embedding chart", this.Subchart},
+			WSE{"embedding chart", this.EmbedChart},
 		)
 	}
 	if (len(extraStr) > 0) {
@@ -167,8 +167,8 @@ func (this *Event) Summary() (ret string) {
 }
 
 func (this *Event) IsUnknown() bool {
-	return this.ID == "" && this.Title == "" && 
-		this.Category == "" && this.Subchart == nil &&
+	return this.ID == "" && this.Title == nil && 
+		this.Category == "" && this.EmbedChart == nil &&
 		(this.StartDate == nil || this.StartDate.IsUnknown()) &&
 		(this.EndDate == nil || this.EndDate.IsUnknown())
 }
