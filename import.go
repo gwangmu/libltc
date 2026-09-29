@@ -6,7 +6,7 @@ import (
 )
 
 type Import struct {
-	common MainObjCommon
+	MainObjCommon
 
 	Note Note
 
@@ -26,22 +26,14 @@ type Import struct {
 
 //-- interface IMainObj
 
-func (this *Import) Common() *MainObjCommon {
-	return &this.common
-}
-
-func (this *Import) IsUnresolved() bool {
-	return this.common.IsUnresolved()
-}
-
 func (this *Import) Clone(preserveChart bool, preserveID bool) IMainObj {
 	newobj := *this
 	if !preserveChart {
-		newobj.common.chart = nil
+		newobj.chart = nil
 	}
 	if !preserveID {
-		newobj.common.numID = NID_Invalid
-		newobj.common.fullID = ""
+		newobj.numID = NID_Invalid
+		newobj.fullID = ""
 	}
 	return &newobj
 }
@@ -66,7 +58,7 @@ func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
 }
 
 func (this *Import) DiagnoseNonLocal() (warns warning.Warnings) {
-	if this.Common().GetChart() == nil {
+	if this.GetChart() == nil {
 		warns.Add("@0@ is not associated to any chart.", this)
 		return
 	}
@@ -171,26 +163,14 @@ func (this *Import) SetCategories(v *[]string) {
 	panic("Unimplemented")
 }
 
-//-- method (import and export)
-
-func (this *Import) Import(feobj *file.Import) (warning.Warnings, error) {
-	// TODO
-	panic("Unimplemented")
-}
-
-func (this *Import) Export() (*file.Import, warning.Warnings, error) {
-	// TODO
-	panic("Unimplemented")
-}
-
 //-- method (creation)
 
 func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	cimport := CreateEmptyImport()
 	warns := warning.Warnings{}
 
-	cimport.common.kind, cimport.common.numID = convIDStringToInternal(o.ID)
-	cimport.common.attrs = convAttrsFileToChart(o.Attrs)
+	cimport.kind, cimport.numID = convIDStringToInternal(o.ID)
+	cimport.attrs = convAttrsFileToChart(o.Attrs)
 
 	note, moreWarns := CreateNoteFromString(o.Note)
 	warns.Concat(moreWarns)
@@ -198,6 +178,7 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 
 	cimport.link = o.Link
 	// TODO: eagerly load imported objects. warn if it failed.
+	panic("Unimplemented")
 
 	if o.StartDate != nil {
 		startDate := createTimeFromParsed(o.StartDate)
@@ -227,7 +208,7 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 
 func CreateEmptyImport() *Import {
 	return &Import{
-		common: CreateEmptyMainObjCommon(MOK_Import),
+		MainObjCommon: CreateEmptyMainObjCommon(MOK_Import),
 
 		Note: Note{},
 

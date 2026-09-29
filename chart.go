@@ -72,20 +72,20 @@ func (this *Chart) IsUnknown() bool {
 //-- method (main object association)
 
 func (this *Chart) getNextNumberID(kind MainObjKind) (NumberID, error) {
-	mainobjArr := []*MainObjCommon{}
+	mainobjArr := []IMainObj{}
 
 	switch kind {
 	case MOK_Event:
 		for _, o := range this.events {
-			mainobjArr = append(mainobjArr, o.Common())
+			mainobjArr = append(mainobjArr, o)
 		}
 	case MOK_Annex:
 		for _, o := range this.annexs {
-			mainobjArr = append(mainobjArr, o.Common())
+			mainobjArr = append(mainobjArr, o)
 		}
 	case MOK_Import:
 		for _, o := range this.imports {
-			mainobjArr = append(mainobjArr, o.Common())
+			mainobjArr = append(mainobjArr, o)
 		}
 	default:
 		return NID_Invalid, errors.New("Unrecognized main object kind")

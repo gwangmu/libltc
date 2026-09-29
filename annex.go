@@ -10,7 +10,7 @@ import (
 )
 
 type Annex struct {
-	common MainObjCommon
+	MainObjCommon
 
 	Note Note
 	Title string
@@ -26,22 +26,14 @@ type Annex struct {
 
 //-- interface IMainObj
 
-func (this *Annex) Common() *MainObjCommon {
-	return &this.common
-}
-
-func (this *Annex) IsUnresolved() bool {
-	return this.common.IsUnresolved()
-}
-
 func (this *Annex) Clone(preserveChart bool, preserveID bool) IMainObj {
 	newobj := *this
 	if !preserveChart {
-		newobj.common.chart = nil
+		newobj.chart = nil
 	}
 	if !preserveID {
-		newobj.common.numID = NID_Invalid
-		newobj.common.fullID = ""
+		newobj.numID = NID_Invalid
+		newobj.fullID = ""
 	}
 	return &newobj
 }
@@ -73,7 +65,7 @@ func (this *Annex) DiagnoseLocal() (warns warning.Warnings) {
 }
 
 func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
-	if this.Common().GetChart() == nil {
+	if this.GetChart() == nil {
 		warns.Add("@0@ is not associated to any chart.", this)
 		return
 	}
@@ -240,26 +232,14 @@ func (this *Annex) UnsetAttachTo(obj IMainObj) {
 	panic("Unimplemented")
 }
 
-//-- method (import and export)
-
-func (this *Annex) Import(feobj *file.Annex) (warning.Warnings, error) {
-	// TODO
-	panic("Unimplemented")
-}
-
-func (this *Annex) Export() (*file.Annex, warning.Warnings, error) {
-	// TODO
-	panic("Unimplemented")
-}
-
 //-- method (creation)
 
 func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	annex := CreateEmptyAnnex()
 	warns := warning.Warnings{}
 
-	annex.common.kind, annex.common.numID = convIDStringToInternal(o.ID)
-	annex.common.attrs = convAttrsFileToChart(o.Attrs)
+	annex.kind, annex.numID = convIDStringToInternal(o.ID)
+	annex.attrs = convAttrsFileToChart(o.Attrs)
 
 	note, moreWarns := CreateNoteFromString(o.Note)
 	warns.Concat(moreWarns)
@@ -285,7 +265,7 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 
 func CreateEmptyAnnex() *Annex {
 	return &Annex{
-		common: CreateEmptyMainObjCommon(MOK_Annex),
+		MainObjCommon: CreateEmptyMainObjCommon(MOK_Annex),
 
 		Note: Note{},
 		Title: "",

@@ -8,7 +8,7 @@ import (
 )
 
 type Event struct {
-	common MainObjCommon
+	MainObjCommon
 
 	Note Note 
 
@@ -29,22 +29,14 @@ type Event struct {
 
 //-- interface IMainObj
 
-func (this *Event) Common() *MainObjCommon {
-	return &this.common
-}
-
-func (this *Event) IsUnresolved() bool {
-	return this.common.IsUnresolved()
-}
-
 func (this *Event) Clone(preserveChart bool, preserveID bool) IMainObj {
 	newobj := *this
 	if !preserveChart {
-		newobj.common.chart = nil
+		newobj.chart = nil
 	}
 	if !preserveID {
-		newobj.common.numID = NID_Invalid
-		newobj.common.fullID = ""
+		newobj.numID = NID_Invalid
+		newobj.fullID = ""
 	}
 	return &newobj
 }
@@ -64,7 +56,7 @@ func (this *Event) IsUnknown() bool {
 //-- interface IDiagnosable
 
 func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
-	if this.common.kind != MOK_Event || this.common.numID == NID_Invalid {
+	if this.kind != MOK_Event || this.numID == NID_Invalid {
 		warns.Add("@0@ has an invalid ID.", this)
 	}
 
@@ -76,7 +68,7 @@ func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
 }
 
 func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
-	if this.Common().GetChart() == nil {
+	if this.GetChart() == nil {
 		warns.Add("@0@ is not associated to any chart.", this)
 		return
 	}
@@ -185,7 +177,7 @@ func (this *Event) SetCategory(c string) error {
 	// the associated chart, as in the chart may say 'the category is A'
 	// but the event says 'no, the category is B'. Use the interface
 	// provided by the associated chart.
-	if this.common.chart != nil {
+	if this.chart != nil {
 		return errors.New("Already associated to a chart.")
 	} else {
 		this.category = c
@@ -230,26 +222,14 @@ func (this *Event) UnsetContinuedFrom(eobj *Event) {
 	panic("Unimplemented")
 }
 
-//-- method (import and export)
-
-func (this *Event) Import(feobj *file.Event) (warning.Warnings, error) {
-	// TODO
-	panic("Unimplemented")
-}
-
-func (this *Event) Export() (*file.Event, warning.Warnings, error) {
-	// TODO
-	panic("Unimplemented")
-}
-
 //-- method (creation)
 
 func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	event := CreateEmptyEvent()
 	warns := warning.Warnings{}
 
-	event.common.kind, event.common.numID = convIDStringToInternal(o.ID)
-	event.common.attrs = convAttrsFileToChart(o.Attrs)
+	event.kind, event.numID = convIDStringToInternal(o.ID)
+	event.attrs = convAttrsFileToChart(o.Attrs)
 
 	note, moreWarns := CreateNoteFromString(o.Note)
 	warns.Concat(moreWarns)
@@ -281,6 +261,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 		embedEvent := *o.EmbedEvent
 		event.eventEmbedLink = &embedEvent
 		// TODO: eagerly load embedded event. warn if it failed.
+		panic("Unimplemented")
 	}
 
 	moreWarns = event.DiagnoseLocal()
@@ -291,7 +272,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 
 func CreateEmptyEvent() *Event {
 	return &Event{
-		common: CreateEmptyMainObjCommon(MOK_Event),
+		MainObjCommon: CreateEmptyMainObjCommon(MOK_Event),
 
 		Note: Note{},
 

@@ -9,8 +9,17 @@ import (
 
 type WSE = warning.SummaryElement
 
-type ITOMLPrintable interface {
-	PrintTOML() string
+type IFileObject interface {
+	File | Setting | Subject | Event | Annex | Import | Name | Time
+}
+
+type IDiagnosable interface {
+	Diagnose() warning.Warnings
+}
+
+type IDiagnosablePtr[T any] interface {
+	*T
+	IDiagnosable
 }
 
 //-- struct File
@@ -24,13 +33,6 @@ type File struct {
 	Event []Event		`toml:"Event,omitempty"`
 	Annex []Annex		`toml:"Annex,omitempty"`
 	Import []Import		`toml:"Import,omitempty"`
-}
-
-//-- struct File: interface ITOMLPrintable
-
-func (this *File) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
 }
 
 //-- struct File: interface IWarningObj
@@ -65,13 +67,6 @@ type Setting struct {
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Setting: interface ITOMLPrintable
-
-func (this *Setting) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
-}
-
 //-- struct Setting: interface IWarningObj
 
 func (this *Setting) Summary() string {
@@ -96,13 +91,6 @@ type Subject struct {
 	StartDate *Time		`toml:"StartDate"`
 	EndDate *Time		`toml:"EndDate,omitempty"`
 	Sex string			`toml:"Sex,omitempty"`
-}
-
-//-- struct Subject: interface ITOMLPrintable
-
-func (this *Subject) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
 }
 
 //-- struct Subject: interface IWarningObj
@@ -145,13 +133,6 @@ type Event struct {
 	EndDate *Time		`toml:"EndDate,omitempty"`
 	Note string			`toml:"Note,omitempty"`
 	Attrs []string		`toml:"Attrs,omitempty"`
-}
-
-//-- struct Event: interface ITOMLPrintable
-
-func (this *Event) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
 }
 
 //-- struct Event: interface IWarningObj
@@ -212,13 +193,6 @@ type Annex struct {
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Annex: interface ITOMLPrintable
-
-func (this *Annex) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
-}
-
 //-- struct Annex: interface IWarningObj
 
 func (this *Annex) Summary() (ret string) {
@@ -261,13 +235,6 @@ type Import struct {
 	Attrs []string			`toml:"Attrs,omitempty"`
 }
 
-//-- struct Import: interface ITOMLPrintable
-
-func (this *Import) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
-}
-
 //-- struct Import: interface IWarningObj
 
 func (this *Import) Summary() (ret string) {
@@ -305,13 +272,6 @@ type Name struct {
 	Middle string			`toml:"Middle,omitempty"`
 	Last string				`toml:"Last,omitempty"`
 	Attrs []string 			`toml:"Attrs,omitempty"`
-}
-
-//-- struct Name: interface ITOMLPrintable
-
-func (this *Name) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
 }
 
 //-- struct Name: interface IWarningObj
@@ -357,13 +317,6 @@ type Time struct {
 	Second *int				`toml:"Second,omitempty"`
 	Timezone *string		`toml:"Timezone,omitempty"`
 	Attrs []string 			`toml:"Attrs,omitempty"`
-}
-
-//-- struct Time: interface ITOMLPrintable
-
-func (this *Time) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
 }
 
 //-- struct Time: interface IWarningObj

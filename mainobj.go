@@ -5,9 +5,14 @@ import (
 )
 
 type IMainObj interface {
-	Common() *MainObjCommon
 	IsUnresolved() bool
 	Clone(preserveChart bool, preserveID bool) IMainObj
+
+	GetLocalID() string 
+	GetQualifiedIDFrom(stopAt IMainObj) string
+	GetQualifiedID() string
+
+	getNumberID() NumberID 
 }
 
 type MainObjCommon struct {
@@ -58,11 +63,11 @@ func (this *MainObjCommon) GetLocalID() string {
 func (this *MainObjCommon) GetQualifiedIDFrom(stopAt IMainObj) (ret string) {
 	if this.kind == MOK_Unknown {
 		fullid := this.fullID
-		baseid := stopAt.Common().GetQualifiedID()
+		baseid := stopAt.GetQualifiedID()
 		return strings.TrimLeft(strings.TrimPrefix(fullid, baseid), "/")
 	} else {
 		if this.parent != nil && this.parent != stopAt {
-			ret = this.parent.Common().GetQualifiedIDFrom(stopAt) + "/"
+			ret = this.parent.GetQualifiedIDFrom(stopAt) + "/"
 		}
 
 		ret += this.GetLocalID()
