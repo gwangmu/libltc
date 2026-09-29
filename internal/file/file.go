@@ -54,8 +54,28 @@ func (this *File) IsUnknown() bool {
 //-- struct File: interface IDiagnosable
 
 func (this *File) Diagnose() warning.Warnings {
-	// TODO: Auto-fix some issues and report via Warning.
-	panic("Unimplemented")
+	warns := warning.Warnings{}
+
+	warns.Concat(this.Setting.Diagnose())
+
+	if this.Subject.IsUnknown() {
+		warns.Add("@0@ has an unknown subject.", this)
+	}
+	warns.Concat(this.Subject.Diagnose())
+
+	for _, event := range this.Event {
+		warns.Concat(event.Diagnose())
+	}
+
+	for _, annex := range this.Annex {
+		warns.Concat(annex.Diagnose())
+	}
+
+	for _, fimport := range this.Import {
+		warns.Concat(fimport.Diagnose())
+	}
+
+	return warns
 }
 
 //-- struct Setting
@@ -80,8 +100,7 @@ func (this *Setting) IsUnknown() bool {
 //-- struct Setting: interface IDiagnosable
 
 func (this *Setting) Diagnose() warning.Warnings {
-	// TODO
-	panic("Unimplemented")
+	return warning.Warnings{}
 }
 
 //-- struct Subject
@@ -117,8 +136,7 @@ func (this *Subject) IsUnknown() bool {
 //-- struct Subject: interface IDiagnosable
 
 func (this *Subject) Diagnose() warning.Warnings {
-	// TODO
-	panic("Unimplemented")
+	return warning.Warnings{}
 }
 
 //-- struct Event
@@ -177,8 +195,24 @@ func (this *Event) IsUnknown() bool {
 //-- struct Event: interface IDiagnosable
 
 func (this *Event) Diagnose() warning.Warnings {
-	// TODO
-	panic("Unimplemented")
+	warns := warning.Warnings{}
+
+	if this.EmbedChart == nil && this.EmbedEvent == nil {
+		if this.Title == nil {
+			warns.Add("@0@ has no title, but it's not an embedding event.", this)
+		}
+	}
+
+	if this.StartDate != nil && this.EndDate != nil {
+		if this.StartDate.IsLaterThan(this.EndDate) {
+			warns.Add("@0@ has the start date (@1@) later than the end date (@2@). swapping dates...", this, this.StartDate, this.EndDate)
+			tmpDatePtr := this.StartDate
+			this.StartDate = this.EndDate
+			this.EndDate = tmpDatePtr
+		}
+	}
+
+	return warns
 }
 
 //-- struct Annex
@@ -218,7 +252,7 @@ func (this *Annex) IsUnknown() bool {
 //-- struct Annex: interface IDiagnosable
 
 func (this *Annex) Diagnose() warning.Warnings {
-	// TODO
+	// TODO: Auto-fix some issues and report via Warning.
 	panic("Unimplemented")
 }
 
@@ -261,7 +295,7 @@ func (this *Import) IsUnknown() bool {
 //-- struct Import: interface IDiagnosable
 
 func (this *Import) Diagnose() warning.Warnings {
-	// TODO
+	// TODO: Auto-fix some issues and report via Warning.
 	panic("Unimplemented")
 }
 
@@ -302,7 +336,7 @@ func (this *Name) IsUnknown() bool {
 //-- struct Name: interface IDiagnosable
 
 func (this *Name) Diagnose() warning.Warnings {
-	// TODO
+	// TODO: Auto-fix some issues and report via Warning.
 	panic("Unimplemented")
 }
 
@@ -375,6 +409,13 @@ func (this *Time) IsUnknown() bool {
 //-- struct Time: interface IDiagnosable
 
 func (this *Time) Diagnose() warning.Warnings {
+	// TODO: Auto-fix some issues and report via Warning.
+	panic("Unimplemented")
+}
+
+//-- struct Time: method
+
+func (this *Time) IsLaterThan(t *Time) bool {
 	// TODO
 	panic("Unimplemented")
 }

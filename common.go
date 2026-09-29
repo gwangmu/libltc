@@ -276,6 +276,18 @@ func (this Time) IsUnknown() bool {
 	panic("Unimplemented")
 }
 
+//-- struct Time: method (util)
+
+func (this Time) IsLaterThan(t Time) bool {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this Time) IsAmbiguous() bool {
+	// TODO
+	panic("Unimplemented")
+}
+
 //-- struct Time: method (creation)
 
 func createTimeFromParsed(optr *file.Time) (ret Time) {
