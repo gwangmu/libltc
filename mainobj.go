@@ -43,7 +43,7 @@ type IMainObj interface {
 type MainObjCommon struct {
 	kind MainObjKind			// Main object kind
 
-	chart IChart				// Linked chart
+	chart IChart				// Associated chart
 	parent IMainObj				// Included by... (nil: chart-local)
 	numID NumberID 				// Numeric part of ID
 	fullID string 				// Full ID (ONLY FOR UNRESOLVED!)
