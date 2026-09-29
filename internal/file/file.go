@@ -123,7 +123,7 @@ type Event struct {
 	EmbedEvent *string 	`toml:"EmbedEvent,omitempty"`
 	StartDate *Time		`toml:"StartDate,omitempty"`
 	EndDate *Time		`toml:"EndDate,omitempty"`
-	Note *string		`toml:"Note,omitempty"`
+	Note string			`toml:"Note,omitempty"`
 	Attrs []string		`toml:"Attrs,omitempty"`
 }
 

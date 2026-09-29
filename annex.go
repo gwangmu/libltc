@@ -248,8 +248,21 @@ func (this *Annex) Export() (*file.Annex, warning.Warnings, error) {
 //-- method (creation)
 
 func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
-	// TODO
-	panic("Unimplemented")
+	annex := CreateEmptyAnnex()
+	warns := warning.Warnings{}
+
+	annex.common.kind, annex.common.numID = convIDStringToInternal(o.ID)
+
+	note, moreWarns := CreateNoteFromString(o.Note)
+	warns.Concat(moreWarns)
+	annex.Note = note
+
+	// TODO: fill `annex`. 
+	
+	moreWarns = annex.DiagnoseLocal()
+	warns.Concat(moreWarns)
+
+	return annex, warns
 }
 
 func CreateEmptyAnnex() *Annex {

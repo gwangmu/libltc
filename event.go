@@ -244,11 +244,15 @@ func (this *Event) Export() (*file.Event, warning.Warnings, error) {
 
 //-- method (creation)
 
-// TODO: working
 func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	event := CreateEmptyEvent()
+	warns := warning.Warnings{}
 
 	event.common.kind, event.common.numID = convIDStringToInternal(o.ID)
+
+	note, moreWarns := CreateNoteFromString(o.Note)
+	warns.Concat(moreWarns)
+	event.Note = note
 
 	if o.Title != nil {
 		localTitle := *o.Title
@@ -278,7 +282,8 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 		// TODO: eagerly load embedded event. warn if it failed.
 	}
 
-	warns := event.DiagnoseLocal() 
+	moreWarns = event.DiagnoseLocal()
+	warns.Concat(moreWarns)
 
 	return event, warns
 }

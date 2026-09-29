@@ -186,8 +186,12 @@ func (this *Import) Export() (*file.Import, warning.Warnings, error) {
 //-- method (creation)
 
 func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
-	// TODO
-	panic("Unimplemented")
+	cimport := CreateEmptyImport()
+
+	// TODO: fill `cimport`.
+	cimport.common.kind, cimport.common.numID = convIDStringToInternal(o.ID)
+
+	return cimport, cimport.DiagnoseLocal()
 }
 
 func CreateEmptyImport() *Import {
