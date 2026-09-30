@@ -19,6 +19,7 @@ type Annex struct {
 	encoding string
 	rawData []byte
 	encodedData string
+	isDecoded bool
 
 	attachedToObjs []IMainObj
 	extraNoteOfObjs []IMainObj
@@ -41,10 +42,6 @@ func (this *Annex) IsUnknown() bool {
 func (this *Annex) DiagnoseLocal() (warns warning.Warnings) {
 	if _, ok := coder.Decoders[this.encoding]; !ok {
 		warns.Add("@0@ specifies unsupported encoding '%s'", this, this.encoding)
-	}
-
-	if len(this.encodedData) != 0 && len(this.rawData) == 0 {
-		warns.Add("@0@ contains undecoded data.", this)
 	}
 
 	return
@@ -70,8 +67,20 @@ func (this *Annex) GetEncoding() string {
 	return this.encoding
 }
 
-func (this *Annex) GetRawData() []byte {
-	return this.rawData
+func (this *Annex) GetRawData() ([]byte, error) {
+	if !this.isDecoded {
+		if decoder, ok := coder.Decoders[this.encoding]; !ok {
+			return []byte{}, errors.New("No decoder for 'Encoding'.")
+		} else {
+			if rawData, err := decoder(this.encodedData); err != nil {
+				return []byte{}, errors.New("Failed to decode data.")
+			} else {
+				this.rawData = rawData
+				this.isDecoded = true
+			}
+		}
+	}
+	return this.rawData, nil
 }
 
 func (this *Annex) GetEncodedData() string {
@@ -110,22 +119,17 @@ func (this *Annex) SetFormat(format string) {
 	this.format = format
 }
 
-func (this *Annex) SetEncoding(encoding string) error {
-	encoded, err := tryEncode(encoding, this.rawData)
-	if err == nil {
-		this.encoding = encoding
-		this.encodedData = encoded
-		return nil
-	} else {
-		return err
-	}
+func (this *Annex) SetEncoding(encoding string) {
+	this.encoding = encoding
 }
 
 func (this *Annex) SetRawData(data []byte) error {
+	// Early-encoding and fast-fail.
 	encoded, err := tryEncode(this.encoding, data)
 	if err == nil {
 		this.rawData = data
 		this.encodedData = encoded
+		this.isDecoded = true
 		return nil
 	} else {
 		return err
@@ -236,12 +240,7 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	annex.encoding = o.Encoding
 
 	annex.encodedData = o.Data
-
-	if decoder, ok := coder.Decoders[o.Encoding]; ok {
-		if rawData, err := decoder(o.Data); err == nil {
-			annex.rawData = rawData
-		}
-	}
+	annex.isDecoded = false		// NOTE: lazy decode.
 	
 	moreWarns = annex.DiagnoseLocal()
 	warns.Concat(moreWarns)
@@ -260,6 +259,7 @@ func CreateEmptyAnnex() *Annex {
 		encoding: "",
 		rawData: []byte{},
 		encodedData: "",
+		isDecoded: true,
 
 		attachedToObjs: []IMainObj{},
 		extraNoteOfObjs: []IMainObj{},

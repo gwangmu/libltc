@@ -203,14 +203,7 @@ func (this *Event) Diagnose() warning.Warnings {
 		}
 	}
 
-	if this.StartDate != nil && this.EndDate != nil {
-		if this.StartDate.IsAfter(this.EndDate) {
-			warns.Add("@0@ has the start date (@1@) later than the end date (@2@). swapping dates...", this, this.StartDate, this.EndDate)
-			tmpDatePtr := this.StartDate
-			this.StartDate = this.EndDate
-			this.EndDate = tmpDatePtr
-		}
-	}
+	// NOTE: the after-ness of EndDate will be done on the chart side.
 
 	return warns
 }
@@ -427,12 +420,5 @@ func (this *Time) IsUnknown() bool {
 
 func (this *Time) Diagnose() warning.Warnings {
 	// TODO: Auto-fix some issues and report via Warning.
-	panic("Unimplemented")
-}
-
-//-- struct Time: method
-
-func (this *Time) IsAfter(t *Time) bool {
-	// TODO
 	panic("Unimplemented")
 }

@@ -294,8 +294,7 @@ func (this *Time) IsAfter(that *Time) bool {
 }
 
 func (this *Time) IsAmbiguous() bool {
-	// TODO
-	panic("Unimplemented")
+	return this.year == nil || this.month == nil
 }
 
 //-- struct Time: method (creation)
