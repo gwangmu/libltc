@@ -336,7 +336,7 @@ func (this *Setting) DiagnoseNonLocal() warning.Warnings {
 
 //-- struct Setting: method (creation)
 
-func createSettingFromParsed(o file.Setting) (Setting, warning.Warnings ) {
+func createSettingFromParsed(o file.Setting) (Setting, warning.Warnings) {
 	setting := Setting{
 		CalendarSystem: "",
 		NoteFormat: "",

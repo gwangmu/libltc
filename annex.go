@@ -53,7 +53,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 		return
 	}
 
-	// TODO
+	// TODO: check duplicate ID between 'this' and other chart objs.
 	panic("Unimplemented")
 }
 

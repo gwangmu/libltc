@@ -39,7 +39,7 @@ func (this *Import) IsUnknown() bool {
 //-- interface IDiagnosable
 
 func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
-	// TODO
+	// TODO: recursive to 'loadedChart'
 	panic("Unimplemented")
 }
 
@@ -49,7 +49,7 @@ func (this *Import) DiagnoseNonLocal() (warns warning.Warnings) {
 		return
 	}
 
-	// TODO
+	// TODO: check duplicate ID between 'this' and other chart objs.
 	panic("Unimplemented")
 }
 
