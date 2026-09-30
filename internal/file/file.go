@@ -1,6 +1,7 @@
 package file
 
 import (
+	"regexp"
 	"strconv"
 	"strings"
 
@@ -197,6 +198,11 @@ func (this *Event) IsUnknown() bool {
 func (this *Event) Diagnose() warning.Warnings {
 	warns := warning.Warnings{}
 
+	re := regexp.MustCompile(`^e[0-9]+$`)
+	if !re.MatchString(this.ID) {
+		warns.Add("@0@ has non-standard event ID (not 'e<number>').", this)
+	}
+
 	if this.EmbedChart == nil && this.EmbedEvent == nil {
 		if this.Title == nil {
 			warns.Add("@0@ has no title, but it's not an embedding event.", this)
@@ -245,8 +251,16 @@ func (this *Annex) IsUnknown() bool {
 //-- struct Annex: interface IDiagnosable
 
 func (this *Annex) Diagnose() warning.Warnings {
-	// TODO: Auto-fix some issues and report via Warning.
-	panic("Unimplemented")
+	warns := warning.Warnings{}
+
+	re := regexp.MustCompile(`^a[0-9]+$`)
+	if !re.MatchString(this.ID) {
+		warns.Add("@0@ has non-standard annex ID (not 'a<number>').", this)
+	}
+
+	// NOTE: default format and encoding --> chart side.
+
+	return warns
 }
 
 //-- struct Import
@@ -288,8 +302,14 @@ func (this *Import) IsUnknown() bool {
 //-- struct Import: interface IDiagnosable
 
 func (this *Import) Diagnose() warning.Warnings {
-	// TODO: Auto-fix some issues and report via Warning.
-	panic("Unimplemented")
+	warns := warning.Warnings{}
+
+	re := regexp.MustCompile(`^i[0-9]+$`)
+	if !re.MatchString(this.ID) {
+		warns.Add("@0@ has non-standard import ID (not 'i<number>').", this)
+	}
+
+	return warns
 }
 
 //-- struct Name
@@ -335,8 +355,7 @@ func (this *Name) IsUnknown() bool {
 //-- struct Name: interface IDiagnosable
 
 func (this *Name) Diagnose() warning.Warnings {
-	// TODO: Auto-fix some issues and report via Warning.
-	panic("Unimplemented")
+	return warning.Warnings{}
 }
 
 //-- struct Time
@@ -419,6 +438,5 @@ func (this *Time) IsUnknown() bool {
 //-- struct Time: interface IDiagnosable
 
 func (this *Time) Diagnose() warning.Warnings {
-	// TODO: Auto-fix some issues and report via Warning.
-	panic("Unimplemented")
+	return warning.Warnings{}
 }
