@@ -233,6 +233,7 @@ func createChartFromParsed(o *file.File) (*Chart, warning.Warnings) {
 		chart.AddObject(cimport)
 	}
 
+	// TODO: sort events by StartDate.
 	// TODO: build `eventsPerCategory`.
 
 	// Diagnose main objects. (non-local: comfirmed after adding to chart)
