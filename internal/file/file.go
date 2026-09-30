@@ -273,7 +273,7 @@ type Import struct {
 	StartDate *Time			`toml:"StartDate,omitempty"`
 	EndDate *Time			`toml:"EndDate,omitempty"`
 	OffsetDate *Time		`toml:"OffsetDate,omitempty"`
-	Categories *[]string	`toml:"Categories,omitempty"`
+	Categories []string		`toml:"Categories,omitempty"`
 	Note string				`toml:"Note,omitempty"`
 	Attrs []string			`toml:"Attrs,omitempty"`
 }

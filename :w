@@ -185,8 +185,8 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 }
 
 func (this *Chart) ReserveEventCategory(category string) {
-	if _, ok := this.events[category]; !ok {
-		this.events[category] = []*Event{}
+	if _, ok := this.eventsPerCategory[category]; !ok {
+		this.eventsPerCategory[category] = []*Event{}
 	}
 }
 
@@ -250,10 +250,8 @@ func createChartFromParsed(o *file.File) (*Chart, warning.Warnings) {
 	// TODO: build `eventsPerCategory`.
 
 	// Diagnose main objects. (non-local: comfirmed after adding to chart)
-	for _, cevs := range chart.events {
-		for _, cevent := range cevs {
-			warns.Concat(cevent.DiagnoseNonLocal())
-		}
+	for _, cevent := range chart.events {
+		warns.Concat(cevent.DiagnoseNonLocal())
 	}
 	for _, cannex := range chart.annexs {
 		warns.Concat(cannex.DiagnoseNonLocal())
@@ -288,7 +286,7 @@ func CreateEmptyChart() *Chart {
 		Setting: Setting{},
 		Subject: Subject{},
 
-		events: map[string][]*Event{},
+		events: []*Event{},
 		annexs: []*Annex{},
 		imports: []*Import{},
 

@@ -14,7 +14,7 @@ type Import struct {
 	startDate *Time
 	endDate *Time
 	offsetDate *Time
-	categories *[]string		// nil: any categories
+	categories []string		// nil: any categories
 	
 	loadedChart *Chart
 	importedEvents []*Event
@@ -75,7 +75,7 @@ func (this *Import) GetOffsetDate() *Time {
 	panic("Unimplemented")
 }
 
-func (this *Import) GetCategories() *[]string {
+func (this *Import) GetCategories() []string {
 	// TODO
 	panic("Unimplemented")
 }
@@ -142,7 +142,7 @@ func (this *Import) SetOffsetDate(v *Time) {
 	panic("Unimplemented")
 }
 
-func (this *Import) SetCategories(v *[]string) {
+func (this *Import) SetCategories(v []string) {
 	// TODO: unresolveReferenceTo all imported objects.
 	// TODO: clone `cachedEvents`, mask categories, apply offsetDate
 	// TODO: resolveReferenceTo all imported objects.
@@ -182,8 +182,7 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	}
 
 	if o.Categories != nil {
-		categories := *o.Categories
-		cimport.categories = &categories
+		cimport.categories = append([]string{}, o.Categories...)
 	}
 
 	moreWarns = cimport.DiagnoseLocal()
