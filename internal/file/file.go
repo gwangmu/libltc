@@ -76,6 +76,8 @@ func (this *File) Diagnose() warning.Warnings {
 		warns.Concat(fimport.Diagnose())
 	}
 
+	// NOTE: check duplicate ID --> chart side
+
 	return warns
 }
 
