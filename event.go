@@ -97,17 +97,29 @@ func (this *Event) GetSubchartLink() string {
 	panic("Unimplemented")
 }
 
-func (this *Event) GetStartDate() *Time {
+func (this *Event) GetStartDate() Time {
 	// TODO: use 'localStartDate` if it was defined.
 	// TODO: otherwise, use the `StartDate` of the embedded event.
 	// TODO: otherwise, return unknown.
 	panic("Unimplemented")
 }
 
-func (this *Event) GetEndDate() *Time {
+func (this *Event) GetEndDate() Time {
 	// TODO: use 'localEndDate` if it was defined.
 	// TODO: otherwise, use the `EndDate` of the embedded event.
 	// TODO: otherwise, return unknown.
+	panic("Unimplemented")
+}
+
+func (this *Event) GetLocalStartDate() *Time {
+	// TODO: return 'localStartDate` if it was defined.
+	// TODO: otherwise, return nil.
+	panic("Unimplemented")
+}
+
+func (this *Event) GetLocalEndDate() *Time {
+	// TODO: return 'localEndDate` if it was defined.
+	// TODO: otherwise, return nil.
 	panic("Unimplemented")
 }
 
@@ -149,7 +161,11 @@ func (this *Event) SetSubchartLink(uri string) {
 }
 
 func (this *Event) SetLocalStartDate(t *Time) {
-	// TODO
+	// TODO: call 'GetChart().changeEventStartDate()' if successful.
+	// TODO: "successful": non-embedding event, unconditional.
+	// 			embedding event, (before) local unused, (after) local used.
+	//			embedding event, (before) local used, (after) local unused.
+	//			embedding event, (before) local used, (after) local used.
 	panic("Unimplemented")
 }
 
