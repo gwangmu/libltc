@@ -50,7 +50,7 @@ By default, the `Attrs` field of any main object is considered an attribute list
 #### Time
 
  - TOML object: inline table
- - Default: `1` for `Day`, `0` for other integer-typed fields, `"UTC"` for `Timezone`, empty for `Attrs`.
+ - Default: `1` for `Year, `Day`, and `Month`, `0` for  Hour`, `Minute`, and `Second`, `"UTC"` for `Timezone`, empty for `Attrs`.
 
 A time object consists of six optional integer-typed fields (`Year`, `Month`, `Day`, `Hour`, `Minute`, and `Second`) and one optional string-typed field (`Timezone`). If no field is specified, the time is considered _unknown_, and the corresponding field in the enclosing object may be omitted in the LTC file. If `Year` or `Month` is unspecified even after considering the `Incremental` attribute (see below), the time is considered _ambiguous_.
 

@@ -204,7 +204,7 @@ func (this *Event) Diagnose() warning.Warnings {
 	}
 
 	if this.StartDate != nil && this.EndDate != nil {
-		if this.StartDate.IsLaterThan(this.EndDate) {
+		if this.StartDate.IsAfter(this.EndDate) {
 			warns.Add("@0@ has the start date (@1@) later than the end date (@2@). swapping dates...", this, this.StartDate, this.EndDate)
 			tmpDatePtr := this.StartDate
 			this.StartDate = this.EndDate
@@ -322,6 +322,11 @@ func (this *Name) Summary() string {
 		names = append(names, this.Last)
 	}
 
+	if len(this.Attrs) != 0 {
+		addname := strings.Join(this.Attrs, ", ")
+		names = append(names, "(" + addname + ")")
+	}
+
 	if (len(names) > 0) {
 		return strings.Join(names, " ")
 	} else {
@@ -330,7 +335,8 @@ func (this *Name) Summary() string {
 }
 
 func (this *Name) IsUnknown() bool {
-	return this.First == "" && this.Middle == "" && this.Last == ""
+	return this.First == "" && this.Middle == "" && this.Last == "" &&
+		len(this.Attrs) == 0
 }
 
 //-- struct Name: interface IDiagnosable
@@ -358,46 +364,57 @@ type Time struct {
 func (this *Time) Summary() (ret string) {
 	if this.IsUnknown() {
 		return "an unknown time"
+	} else {
+		ret = "the time"
 	}
 
-	var syear, smonth, sday string
-	var stime []string
-
+	stime := []string{}
 	if this.Year != nil {
-		syear = strconv.Itoa(*this.Year)
+		stime = append(stime, strconv.Itoa(*this.Year))
 	} else {
-		syear = "????"
+		stime = append(stime, "????")
 	}
 	if this.Month != nil {
-		smonth = strconv.Itoa(*this.Month)
+		stime = append(stime, strconv.Itoa(*this.Month))
 	} else {
-		smonth = "??"
+		stime = append(stime, "??")
 	}
 	if this.Day != nil {
-		sday = strconv.Itoa(*this.Day)
+		stime = append(stime, strconv.Itoa(*this.Day))
 	} else {
-		sday = "??"
+		stime = append(stime, "??")
 	}
-
-	if this.Hour == nil && this.Minute == nil && this.Second == nil {
-		return syear + "/" + smonth + "/" + sday
-	}
-
 	if this.Hour != nil {
 		stime = append(stime, strconv.Itoa(*this.Hour))
-	} else if this.Minute != nil || this.Second != nil {
+	} else {
 		stime = append(stime, "??")
 	} 
 	if this.Minute != nil {
 		stime = append(stime, strconv.Itoa(*this.Minute))
-	} else if this.Second != nil {
+	} else {
 		stime = append(stime, "??")
 	}
 	if this.Second != nil {
 		stime = append(stime, strconv.Itoa(*this.Second))
 	}
 
-	return syear + "/" + smonth + "/" + sday + " " + strings.Join(stime, ":")
+	sextra := []string{}
+	if this.Timezone != nil {
+		sextra = append(sextra, *this.Timezone)
+	}
+	if len(this.Attrs) != 0 {
+		sextra = append(sextra, this.Attrs...)
+	}
+
+	ret += " " + strings.Join(stime[0:3], "-")
+	if this.Hour != nil || this.Minute != nil || this.Second == nil {
+		ret += " " + strings.Join(stime[3:6], ":")
+	}
+	if len(sextra) != 0 {
+		ret += " (" + strings.Join(sextra, ", ")
+	}
+
+	return
 }
 
 func (this *Time) IsUnknown() bool {
@@ -415,7 +432,7 @@ func (this *Time) Diagnose() warning.Warnings {
 
 //-- struct Time: method
 
-func (this *Time) IsLaterThan(t *Time) bool {
+func (this *Time) IsAfter(t *Time) bool {
 	// TODO
 	panic("Unimplemented")
 }

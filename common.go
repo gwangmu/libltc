@@ -1,7 +1,6 @@
 package libltc
 
 import (
-	"errors"
 	"regexp"
 	"strconv"
 	"strings"
@@ -14,7 +13,7 @@ import (
 //-- Common interfaces
 
 type IStringifiable interface {
-	ToString() string
+	String() string
 }
 
 //-- struct Name
@@ -26,9 +25,9 @@ type Name struct {
 	Attrs map[string][]string
 }
 
-//-- struct Name: interface Stringifiable
+//-- struct Name: interface IStringifiable
 
-func (this *Name) ToString() string {
+func (this *Name) String() string {
 	names := []string{}
 	if this.First != "" {
 		names = append(names, this.First)
@@ -46,20 +45,17 @@ func (this *Name) ToString() string {
 //-- struct Name: interface WarningObj
 
 func (this *Name) Summary() string {
-	// TODO
-	panic("Unimplemented")
+	strname := this.String()
+	if len(this.Attrs) != 0 {
+		addname := strings.Join(convAttrsChartToFile(this.Attrs), ", ")
+		strname += " (" + addname + ")"
+	}
+	return strname
 }
 
 func (this *Name) IsUnknown() bool {
-	// TODO
-	panic("Unimplemented")
-}
-
-//-- struct Name: interface TOMLPrintable
-
-func (this *Name) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
+	return this.First == "" && this.Middle == "" && this.Last == "" &&
+		len(this.Attrs) == 0
 }
 
 //-- struct Name : method (creation)
@@ -76,7 +72,6 @@ func createNameFromParsed(o file.Name) Name {
 //-- struct Time
 
 type Time struct {
-	Timezone *time.Location
 	Attrs map[string][]string
 
 	year *int
@@ -85,102 +80,129 @@ type Time struct {
 	hour *int
 	minute *int
 	second *int
+	timezone *time.Location
+}
+
+//-- struct Time: interface IStringifiable
+
+func (this *Time) String() (ret string) {
+	stime := []string{
+		strconv.Itoa(this.GetYear()),
+		strconv.Itoa(this.GetMonth()),
+		strconv.Itoa(this.GetDay()),
+		strconv.Itoa(this.GetHour()),
+		strconv.Itoa(this.GetMinute()),
+		strconv.Itoa(this.GetSecond()),
+	}
+
+	sextra := []string{}
+	if this.timezone != nil {
+		sextra = append(sextra, this.timezone.String())
+	}
+	if len(this.Attrs) != 0 {
+		sextra = append(sextra, convAttrsChartToFile(this.Attrs)...)
+	}
+
+	ret += strings.Join(stime[0:3], "-")
+	if this.hour != nil || this.minute != nil || this.second == nil {
+		ret += " " + strings.Join(stime[3:6], ":")
+	}
+	if len(sextra) != 0 {
+		ret += " (" + strings.Join(sextra, ", ")
+	}
+
+	return
+}
+
+//-- struct Time: interface WarningObj
+
+func (this *Time) Summary() string {
+	return this.String()
+}
+
+func (this *Time) IsUnknown() bool {
+	return this.year == nil && this.month == nil && this.day == nil &&
+		this.hour == nil && this.minute == nil && this.second == nil &&
+		this.timezone == nil
 }
 
 //-- struct Time: methods (getters and setters)
 
-func (this Time) GetTime() time.Time {
-	var nyear, nday, nhour, nminute, nsecond int
-	var nmonth time.Month
+func (this *Time) GetTime() time.Time {
+	return time.Date(
+		this.GetYear(),
+		time.Month(this.GetMonth()),
+		this.GetDay(),
+		this.GetHour(),
+		this.GetMinute(),
+		this.GetSecond(),
+		0, 
+		this.GetTimezone(),
+	)
+}
 
+func (this *Time) GetYear() int {
 	if this.year == nil {
-		nyear = 0
+		return 1 
 	} else {
-		nyear = *this.year
+		return *this.year
 	}
+}
 
+func (this *Time) GetMonth() int {
 	if this.month == nil {
-		nmonth = time.January
+		return 1
 	} else {
-		nmonth = time.Month(*this.month)
+		return *this.month
 	}
+}
 
+func (this *Time) GetDay() int {
 	if this.day == nil {
-		nday = 1
+		return 1
 	} else {
-		nday = *this.day
+		return *this.day
 	}
+}
 
+func (this *Time) GetHour() int {
 	if this.hour == nil {
-		nhour = 0 
+		return 0
 	} else {
-		nhour = *this.hour
+		return *this.hour
 	}
+}
 
+func (this *Time) GetMinute() int {
 	if this.minute == nil {
-		nminute = 0
+		return 0
 	} else {
-		nminute = *this.minute
+		return *this.minute
 	}
+}
 
+func (this *Time) GetSecond() int {
 	if this.second == nil {
-		nsecond = 0
+		return 0
 	} else {
-		nsecond = *this.second
-	}
-
-	return time.Date(nyear, nmonth, nday, nhour, nminute, nsecond, 0, this.Timezone)
-}
-
-func (this Time) GetYear() (int, error) {
-	if this.year == nil {
-		return 0, errors.New("Year not specified")
-	} else {
-		return *this.year, nil
+		return *this.second
 	}
 }
 
-func (this Time) GetMonth() (int, error) {
-	if this.month == nil {
-		return 0, errors.New("Month not specified")
+func (this *Time) GetTimezone() *time.Location {
+	if this.timezone == nil {
+		utcloc, err := time.LoadLocation("UTC")
+		if err == nil {
+			return utcloc
+		} else {
+			panic("UTC not loaded")
+		}
 	} else {
-		return *this.month, nil
+		return this.timezone
 	}
 }
 
-func (this Time) GetDay() (int, error) {
-	if this.day == nil {
-		return 0, errors.New("Day not specified")
-	} else {
-		return *this.day, nil
-	}
-}
-
-func (this Time) GetHour() (int, error) {
-	if this.hour == nil {
-		return 0, errors.New("Hour not specified")
-	} else {
-		return *this.hour, nil
-	}
-}
-
-func (this Time) GetMinute() (int, error) {
-	if this.minute == nil {
-		return 0, errors.New("Minute not specified")
-	} else {
-		return *this.minute, nil
-	}
-}
-
-func (this Time) GetSecond() (int, error) {
-	if this.second == nil {
-		return 0, errors.New("Second not specified")
-	} else {
-		return *this.second, nil
-	}
-}
-
-func (this Time) SetTime(date time.Time, tz bool) {
+func (this *Time) SetTime(date time.Time, tz bool) {
 	nyear := date.Year()
 	nmonth := int(date.Month())
 	nday := date.Day()
@@ -196,11 +218,11 @@ func (this Time) SetTime(date time.Time, tz bool) {
 	this.second = &nsecond
 
 	if tz {
-		this.Timezone = date.Location()
+		this.timezone = date.Location()
 	}
 }
 
-func (this Time) UnsetTime() {
+func (this *Time) UnsetTime() {
 	this.year = nil
 	this.month= nil
 	this.day = nil
@@ -209,81 +231,69 @@ func (this Time) UnsetTime() {
 	this.second = nil
 }
 
-func (this Time) SetYear(v int) {
+func (this *Time) SetYear(v int) {
 	this.year = &v
 }
 
-func (this Time) UnsetYear() {
+func (this *Time) UnsetYear() {
 	this.year = nil
 }
 
-func (this Time) SetMonth(v int) {
+func (this *Time) SetMonth(v int) {
 	this.month = &v
 }
 
-func (this Time) UnsetMonth() {
+func (this *Time) UnsetMonth() {
 	this.month = nil
 }
 
-func (this Time) SetDay(v int) {
+func (this *Time) SetDay(v int) {
 	this.day = &v
 }
 
-func (this Time) UnsetDay() {
+func (this *Time) UnsetDay() {
 	this.day = nil
 }
 
-func (this Time) SetHour(v int) {
+func (this *Time) SetHour(v int) {
 	this.hour = &v
 }
 
-func (this Time) UnsetHour() {
+func (this *Time) UnsetHour() {
 	this.hour = nil
 }
 
-func (this Time) SetMinute(v int) {
+func (this *Time) SetMinute(v int) {
 	this.minute = &v
 }
 
-func (this Time) UnsetMinute() {
+func (this *Time) UnsetMinute() {
 	this.minute = nil
 }
 
-func (this Time) SetSecond(v int) {
+func (this *Time) SetSecond(v int) {
 	this.second = &v
 }
 
-func (this Time) UnsetSecond() {
+func (this *Time) UnsetSecond() {
 	this.second = nil
 }
 
-//-- struct Time: interface Stringifiable
-
-func (this Time) ToString() string {
-	// TODO
-	panic("Unimplemented")
-}
-
-//-- struct Time: interface WarningObj
-
-func (this Time) Summary() string {
-	// TODO
-	panic("Unimplemented")
-}
-
-func (this Time) IsUnknown() bool {
-	// TODO
-	panic("Unimplemented")
+func (this *Time) SetTimezone(v *time.Location) {
+	this.timezone = v
 }
 
 //-- struct Time: method (util)
 
-func (this Time) IsLaterThan(t Time) bool {
-	// TODO
-	panic("Unimplemented")
+func (this *Time) IsAfter(that *Time) bool {
+	// The 'compare' using the 'time' package should be correct as long as
+	// the calendar system is "monotonic", meaing bigger higher units mean
+	// later in time. Assume that the concept of "timezone" is the same in
+	// other calendar systems (i.e., a constant offset in time).
+	return this.GetTime().Compare(that.GetTime()) > 0
 }
 
-func (this Time) IsAmbiguous() bool {
+func (this *Time) IsAmbiguous() bool {
 	// TODO
 	panic("Unimplemented")
 }
@@ -331,11 +341,11 @@ func createTimeFromParsed(optr *file.Time) (ret Time) {
 		loc, tzerr := time.LoadLocation(*o.Timezone)
 
 		if tzerr == nil {
-			ret.Timezone = loc
+			ret.timezone = loc
 		} else {
 			utcloc, tzerr := time.LoadLocation("UTC")
 			if tzerr == nil {
-				ret.Timezone = utcloc
+				ret.timezone = utcloc
 			} else {
 				panic("UTC not loaded")
 			}
@@ -382,11 +392,11 @@ func CreateTimeFromTag(tagstr string) (ret Time) {
 		loc, tzerr := time.LoadLocation(matches[7])
 
 		if tzerr == nil {
-			ret.Timezone = loc
+			ret.timezone = loc
 		} else {
 			utcloc, tzerr := time.LoadLocation("UTC")
 			if tzerr == nil {
-				ret.Timezone = utcloc
+				ret.timezone = utcloc
 			} else {
 				panic("UTC not loaded")
 			}
@@ -396,13 +406,6 @@ func CreateTimeFromTag(tagstr string) (ret Time) {
 	return
 }
 
-//-- struct Time: interface TOMLPrintable
-
-func (this *Time) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
-}
-
 //-- struct NoteSnippet
 
 type NoteSnippet struct {
@@ -410,9 +413,9 @@ type NoteSnippet struct {
 	Text string
 }
 
-//-- struct NoteSnippet: interface Stringifiable
+//-- struct NoteSnippet: interface IStringifiable
 
-func (this *NoteSnippet) ToString() string {
+func (this *NoteSnippet) String() string {
 	// TODO
 	panic("Unimplemented")
 }
@@ -426,7 +429,7 @@ type Note struct {
 
 //-- struct Note: interface IStringifiable
 
-func (this *Note) ToString() string {
+func (this *Note) String() string {
 	// TODO: title (if non-empty), first snippet -- just Text, others -- ToString()
 	panic("Unimplemented")
 }
