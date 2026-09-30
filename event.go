@@ -175,14 +175,11 @@ func (this *Event) SetLocalEndDate(t *Time) {
 }
 
 func (this *Event) SetCategory(c string) error {
-	// WARNING: directly calling this won't guarantee any consistency in
-	// the associated chart, as in the chart may say 'the category is A'
-	// but the event says 'no, the category is B'. Use the interface
-	// provided by the associated chart.
 	if this.chart != nil {
 		return errors.New("Already associated to a chart.")
 	} else {
 		this.category = c
+		// TODO: call 'GetChart().changeEventCategory()'.
 		return nil
 	}
 }
