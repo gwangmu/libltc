@@ -265,7 +265,7 @@ The web URI may follow the same rule as the local URI, but it may depend on the 
 
 #### Inside Notes
 
-In [event notes](#Event), if an object is specified as the source path or address, it should follow the format `@<kind>:<uri>@`, where `<kind>` is `Event`, `Annex`, `Import`, or `Chart`, and `<uri>` is either a local or a web URI of the object. For example, a Markdown note may embed an image of a chart-local annex object `a001` with `![](@Annex:a001@)`. Note that directly using the URI of an LTC file (e.g., `[Link to chart](/home/john/chart.ltc)`) may be syntactically valid to the note format, although the front-end LTC tool doesn't have to recognize such URI as an LTC file.
+In [event notes](#Event), if an object is specified as the source path or address, it should follow the format `@<kind>:<uri>@`, where `<kind>` is `Event`, `Annex`, `Import`, or `Chart`, and `<uri>` is either a local or a web URI of the object. For example, a Markdown note may embed an image of a chart-local annex object `a001` with `![](@Annex:a001@)`. Note that directly using the URI of an LTC file (e.g., `[Link to chart](/home/john/chart.ltc)`) may be syntactically valid to the note format, but the front-end LTC tool doesn't have to recognize such a URI as an LTC file.
 
 Embedding images directly via a path or a web address is highly discouraged (e.g., `![](/home/john/image.png)`) as they create fragile external dependencies on the LTC file. If any such cases are discovered, the front-end LTC tool should report them and provide an option to include such images as [annex objects](#Annex) across the LTC file load/save boundary.
 
