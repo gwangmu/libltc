@@ -3,6 +3,7 @@ package libltc
 import (
 	"errors"
 	"fmt"
+	"regexp"
 
 	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/coder"
@@ -21,20 +22,20 @@ type Annex struct {
 	encodedData string
 	isDecoded bool
 
-	attachedToObjs []IMainObj
+	attachToObjs []IMainObj
 	extraNoteOfObjs []IMainObj
 }
 
 //-- interface IWarningObj
 
 func (this *Annex) Summary() string {
-	// TODO
-	panic("Unimplemented")
+	// TODO: unimplemented
+	return "an annex"
 }
 
 func (this *Annex) IsUnknown() bool {
-	// TODO
-	panic("Unimplemented")
+	// TODO: unimplemented
+	return false
 }
 
 //-- interface IDiagnosable
@@ -42,6 +43,24 @@ func (this *Annex) IsUnknown() bool {
 func (this *Annex) DiagnoseLocal() (warns warning.Warnings) {
 	if _, ok := coder.Decoders[this.encoding]; !ok {
 		warns.Add("@0@ specifies unsupported encoding '%s'", this, this.encoding)
+	}
+
+	for akey, avals := range this.attrs {
+		if akey == "AttachTo" || akey == "ExtraNoteOf" {
+			newAvals := []string{}
+			for _, aval := range avals {
+				if aval == "" {
+					warns.Add("a 'ContinuedFrom' attribute in @0@ is empty. removed.", this)
+				} else {
+					reEmbedChart := regexp.MustCompile(`e[0-9]+/`)
+					if reEmbedChart.MatchString(aval) {
+						warns.Add("@0@ attempts to continue from a subchart event (%s), which is not recommended.", this, aval)
+					}
+					newAvals = append(newAvals, aval)
+				}
+			}
+			this.attrs[akey] = newAvals
+		}
 	}
 
 	return
@@ -87,16 +106,16 @@ func (this *Annex) GetEncodedData() string {
 	return this.encodedData
 }
 
-func (this *Annex) GetAttachedToObjects() []IMainObj {
-	return this.attachedToObjs
+func (this *Annex) GetAttachToObjects() []IMainObj {
+	return this.attachToObjs
 }
 
 func (this *Annex) GetExtraNoteOfObjects() []IMainObj {
 	return this.extraNoteOfObjs
 }
 
-func (this *Annex) HasAttachedToObject(obj IMainObj) bool {
-	for _, elem := range this.attachedToObjs {
+func (this *Annex) HasAttachToObject(obj IMainObj) bool {
+	for _, elem := range this.attachToObjs {
 		if elem == obj {
 			return true
 		}
@@ -136,27 +155,36 @@ func (this *Annex) SetRawData(data []byte) error {
 	}
 }
 
-func (this *Annex) addAttachedToObject(obj IMainObj) {
-	if !this.HasAttachedToObject(obj) {
-		this.attachedToObjs = append(this.attachedToObjs, obj)
+func (this *Annex) addAttachToObject(obj IMainObj) {
+	if !this.HasAttachToObject(obj) {
+		this.attachToObjs = append(this.attachToObjs, obj)
 	}
 }
 
-// `Swap` kind of methods: only for the objects that can be "unresolved."
+// `(un)resolve*` kind of methods: only for the objects that can be "unresolved."
 
-func (this *Annex) swapAttachedToObject(oldobj IMainObj, newobj IMainObj) {
-	for i, elem := range this.attachedToObjs {
-		if elem == oldobj {
-			this.attachedToObjs[i] = newobj
+func (this *Annex) resolveAttachToObject(qualid string, newobj IMainObj) {
+	for i, elem := range this.attachToObjs {
+		if elem.IsUnresolved() && elem.GetQualifiedID() == qualid {
+			this.attachToObjs[i] = newobj
 			return
 		}
 	}
 }
 
-func (this *Annex) removeAttachedToObject(obj IMainObj) {
-	for i, elem := range this.attachedToObjs {
+func (this *Annex) unresolveAttachToObject(qualid string) {
+	for i, elem := range this.attachToObjs {
+		if !elem.IsUnresolved() && elem.GetQualifiedID() == qualid {
+			this.attachToObjs[i] = CreateUnresolvedMainObjCommon(MOK_Unknown, qualid)
+			return
+		}
+	}
+}
+
+func (this *Annex) removeAttachToObject(obj IMainObj) {
+	for i, elem := range this.attachToObjs {
 		if elem == obj {
-			this.attachedToObjs = append(this.attachedToObjs[:i], this.attachedToObjs[i+1:]...) 
+			this.attachToObjs = append(this.attachToObjs[:i], this.attachToObjs[i+1:]...) 
 			break
 		}
 	}
@@ -168,10 +196,19 @@ func (this *Annex) addExtraNoteOfObject(obj IMainObj) {
 	}
 }
 
-func (this *Annex) swapExtraNoteOfObject(oldobj IMainObj, newobj IMainObj) {
+func (this *Annex) resolveExtraNoteOfObject(qualid string, newobj IMainObj) {
 	for i, elem := range this.extraNoteOfObjs {
-		if elem == oldobj {
+		if elem.IsUnresolved() && elem.GetQualifiedID() == qualid {
 			this.extraNoteOfObjs[i] = newobj
+			return
+		}
+	}
+}
+
+func (this *Annex) unresolveExtraNoteOfObject(qualid string) {
+	for i, elem := range this.extraNoteOfObjs {
+		if !elem.IsUnresolved() && elem.GetQualifiedID() == qualid {
+			this.extraNoteOfObjs[i] = CreateUnresolvedMainObjCommon(MOK_Unknown, qualid)
 			return
 		}
 	}
@@ -250,7 +287,7 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 
 func CreateEmptyAnnex() *Annex {
 	return &Annex{
-		MainObjCommon: CreateEmptyMainObjCommon(MOK_Annex),
+		MainObjCommon: *CreateEmptyMainObjCommon(MOK_Annex),
 
 		Note: Note{},
 		Title: "",
@@ -261,7 +298,7 @@ func CreateEmptyAnnex() *Annex {
 		encodedData: "",
 		isDecoded: true,
 
-		attachedToObjs: []IMainObj{},
+		attachToObjs: []IMainObj{},
 		extraNoteOfObjs: []IMainObj{},
 	}
 }

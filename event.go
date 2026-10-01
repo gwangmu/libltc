@@ -30,13 +30,13 @@ type Event struct {
 //-- interface IWarningObj
 
 func (this *Event) Summary() string {
-	// TODO
-	panic("Unimplemented")
+	// TODO: unimplemented
+	return "an event"
 }
 
 func (this *Event) IsUnknown() bool {
-	// TODO
-	panic("Unimplemented")
+	// TODO: unimplemented
+	return false
 }
 
 //-- interface IDiagnosable
@@ -246,7 +246,12 @@ func (this *Event) addContinuedFromEvent(eobj *Event) {
 	panic("Unimplemented")
 }
 
-func (this *Event) swapContinuedFromEvent(oldobj *Event, newobj *Event) {
+func (this *Event) resolveContinuedFromEvent(qualid string, newobj *Event) {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Event) unresolveContinuedFromEvent(qualid string) {
 	// TODO
 	panic("Unimplemented")
 }
@@ -328,7 +333,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 
 func CreateEmptyEvent() *Event {
 	return &Event{
-		MainObjCommon: CreateEmptyMainObjCommon(MOK_Event),
+		MainObjCommon: *CreateEmptyMainObjCommon(MOK_Event),
 
 		Note: Note{},
 

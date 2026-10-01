@@ -244,8 +244,8 @@ func (this *MainObjCommon) RemoveAttr(key string, value string) {
 // Unresolved = non-empty `fullid`
 // `fullid` should be a "qualified" ID, meaning if an object was included,
 // the `fullid` here should prepend the qualified ID of the chart-embedding event object.
-func createMainObjCommon(kind MainObjKind, fullid string) MainObjCommon {
-	return MainObjCommon{
+func createMainObjCommon(kind MainObjKind, fullid string) *MainObjCommon {
+	return &MainObjCommon{
 		kind: kind,
 
 		chart: nil,
@@ -259,10 +259,10 @@ func createMainObjCommon(kind MainObjKind, fullid string) MainObjCommon {
 	}
 }
 
-func CreateEmptyMainObjCommon(kind MainObjKind) MainObjCommon {
+func CreateEmptyMainObjCommon(kind MainObjKind) *MainObjCommon {
 	return createMainObjCommon(kind, "")
 }
 
-func CreateUnresolvedMainObjCommon(kind MainObjKind, fullid string) MainObjCommon {
+func CreateUnresolvedMainObjCommon(kind MainObjKind, fullid string) *MainObjCommon {
 	return createMainObjCommon(kind, fullid)
 }
