@@ -13,6 +13,7 @@ type IChart interface {
 	GetStringifiedSubjectName() string
 	GetObject(qualid string) IMainObj 
 	GetObjectByLocalID(locid string) IMainObj 
+	GetAllMainObjects() []IMainObj
 	GetEmbeddingEvent() *Event
 	GetEventCategories() []string
 	GetEventsInCategory(category string) []*Event
@@ -167,6 +168,11 @@ func (this *Chart) GetObject(qualid string) IMainObj {
 
 func (this *Chart) GetObjectByLocalID(locid string) IMainObj {
 	// TODO: return obj by qualified id.
+	panic("Unimplemented")
+}
+
+func (this *Chart) GetAllMainObjects() []IMainObj {
+	// TODO
 	panic("Unimplemented")
 }
 

@@ -142,28 +142,55 @@ func (this *Event) GetTitle() string {
 }
 
 func (this *Event) GetEmbeddedEvent() *Event {
-	// TODO: return a embedded event (nil if `Embed` is invalid)
-	// TODO: eagerly load `embeddedEvent` upon the file load because it may
-	//       determine `{Start,End}Date`.
-	panic("Unimplemented")
+	return this.embeddedEvent
 }
 
 func (this *Event) GetEmbedEventLink() string {
-	// TODO
-	panic("Unimplemented")
+	if this.eventEmbedLink != nil {
+		return *this.eventEmbedLink
+	} else {
+		return ""
+	}
+}
+
+func (this *Event) IsEventEmbedding() bool {
+	return this.eventEmbedLink != nil
 }
 
 func (this *Event) GetSubchart() *Chart {
-	// TODO: return a subchart (nil if `Embed` is valid or `Subchart` is invalid).
-	// TODO: lazy-load `embeddedChart` if it's nil.
-	// TODO: on lazy-load, update `parent`s of the objects inside.
-	// TODO: on lazy-load, invoke `resolveReferenceTo` for all subchart objs.
-	panic("Unimplemented")
+	// Lazy-load `embeddedChart` if it's nil (but shouldn't).
+	if this.chartEmbedLink != nil && this.embeddedChart == nil {
+		efile, _, err := file.LoadFromURI[file.File](*this.chartEmbedLink)
+		if err != nil {
+			this.embeddedChart = CreateEmptyChart()
+		} else {
+			echart, _ := createChartFromParsed(efile)
+			allobjs := this.chart.GetAllMainObjects()
+
+			// Update 'parent's of all subchart objects.
+			for _, obj := range allobjs {
+				obj.SetParent(this)
+			}
+
+			// Resolve possible unresolved references.
+			for _, obj := range allobjs {
+				this.chart.resolveReferenceTo(obj)
+			}
+
+			this.embeddedChart = echart
+		}
+	}
+
+	return this.embeddedChart.asChart()
 }
 
 func (this *Event) GetEmbedChartLink() string {
 	// TODO
 	panic("Unimplemented")
+}
+
+func (this *Event) IsChartEmbedding() bool {
+	return this.chartEmbedLink != nil
 }
 
 func (this *Event) GetStartDate() Time {
