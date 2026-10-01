@@ -3,7 +3,6 @@ package libltc
 import (
 	"errors"
 	"fmt"
-	"regexp"
 
 	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/coder"
@@ -52,10 +51,6 @@ func (this *Annex) DiagnoseLocal() (warns warning.Warnings) {
 				if aval == "" {
 					warns.Add("a 'ContinuedFrom' attribute in @0@ is empty. removed.", this)
 				} else {
-					reEmbedChart := regexp.MustCompile(`e[0-9]+/`)
-					if reEmbedChart.MatchString(aval) {
-						warns.Add("@0@ attempts to continue from a subchart event (%s), which is not recommended.", this, aval)
-					}
 					newAvals = append(newAvals, aval)
 				}
 			}
