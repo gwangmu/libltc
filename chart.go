@@ -10,7 +10,14 @@ import (
 )
 
 type IChart interface {
+	GetObject(qualid string) IMainObj 
+	GetObjectByLocalID(locid string) IMainObj 
 	GetEmbeddingEvent() *Event
+	GetEventCategories() []string
+	GetEventsInCategory(category string) []*Event
+	HasObject(obj IMainObj, onlyLocal bool) bool
+
+	getNextNumberID(kind MainObjKind) (NumberID, error) 
 
 	asChart() *Chart
 	resolveReferenceTo(IMainObj)
@@ -148,13 +155,26 @@ func (this *Chart) setEmbeddingEvent(o *Event) {
 
 //-- method (main object manipulation)
 
-func (this *Chart) GetObject(qualId string) IMainObj {
+func (this *Chart) GetObject(qualid string) IMainObj {
+	// TODO: return obj by qualified id.
+	panic("Unimplemented")
+}
+
+func (this *Chart) GetObjectByLocalID(locid string) IMainObj {
 	// TODO: return obj by qualified id.
 	panic("Unimplemented")
 }
 
 func (this *Chart) GetEventCategories() []string {
 	return slices.Collect(maps.Keys(this.events))
+}
+
+func (this *Chart) GetEventsInCategory(category string) []*Event {
+	if evs, ok := this.events[category]; ok {
+		return evs
+	} else {
+		return []*Event{}
+	}
 }
 
 func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end Time, inclusive bool) []*Event {

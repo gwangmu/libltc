@@ -1,7 +1,7 @@
 package libltc
 
 import (
-	"errors"
+	"regexp"
 
 	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/file"
@@ -43,24 +43,84 @@ func (this *Event) IsUnknown() bool {
 
 func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
 	if this.kind != MOK_Event || this.numID == NID_Invalid {
-		warns.Add("@0@ has an invalid ID.", this)
+		this.kind = MOK_Event
+		this.numID = 0
+		warns.Add("@0@ has an invalid ID. auto-corrected to 'e0'.", this)
 	}
 
 	if this.eventEmbedLink != nil && this.embeddedEvent == nil {
 		warns.Add("Cannot load the embedded event of @0@.", this)
 	}
 
+	for akey, avals := range this.attrs {
+		if akey == "ContinuedFrom" {
+			newAvals := []string{}
+			for _, aval := range avals {
+				if aval == "" {
+					warns.Add("a 'ContinuedFrom' attribute in @0@ is empty. removed.", this)
+				} else {
+					reEmbedChart := regexp.MustCompile(`e[0-9]+/`)
+					if reEmbedChart.MatchString(aval) {
+						warns.Add("@0@ attempts to continue from a subchart event (%s), which is not recommended.", this, aval)
+					}
+					newAvals = append(newAvals, aval)
+				}
+			}
+			this.attrs[akey] = newAvals
+		}
+	}
+
 	return
 }
 
 func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
-	if this.GetChart() == nil {
+	if this.chart == nil {
 		warns.Add("@0@ is not associated to any chart.", this)
 		return
 	}
 
-	// TODO: check duplicate ID between 'this' and other chart objs.
-	panic("Unimplemented")
+	if this.kind != MOK_Event || this.numID == NID_Invalid {
+		panic("call DiagnoseLocal() first.")
+	}
+
+	for _, category := range this.chart.GetEventCategories() {
+		for _, eobj := range this.chart.GetEventsInCategory(category) {
+			if eobj.numID == this.numID {
+				newNumID, err := this.chart.getNextNumberID(MOK_Event)
+				if err != nil {
+					panic("Cannot get new number ID.")
+				}
+				this.numID = newNumID
+				warns.Add("@0@ has a duplicated ID. auto-corrected to 'e%d'.", newNumID)
+				break
+			}
+		}
+	}
+
+	for akey, avals := range this.attrs {
+		if akey == "ContinuedFrom" {
+			for _, aval := range avals {
+				var eobjFrom *Event
+				for _, eobjIn := range this.contFromEvents {
+					if eobjIn.GetQualifiedIDFrom(this.chart.GetEmbeddingEvent()) == aval {
+						eobjFrom = eobjIn
+						break
+					}
+				}
+
+				if eobjFrom == nil || eobjFrom.IsUnresolved() {
+					warns.Add("@0@ has a dangling 'ContinuedFrom' to '%s'.", this, aval)
+				} 
+
+				if eobjFrom != nil && !eobjFrom.HasContinuedToEvent(this) {
+					warns.Add("!!!INTERNAL WARN!!! @0@ has 'ContinuedFrom' to '%s', but it doesn't reference back. corrected.", this, aval)
+					eobjFrom.addContinuedToEvent(this)
+				}
+			}
+		}
+	}
+
+	return
 }
 
 //-- method (getters)
@@ -137,12 +197,12 @@ func (this *Event) GetContinuedToEvents() []*Event {
 	panic("Unimplemented")
 }
 
-func (this *Event) HasContinuedFromEvent() bool {
+func (this *Event) HasContinuedFromEvent(eobj *Event) bool {
 	// TODO
 	panic("Unimplemented")
 }
 
-func (this *Event) HasContinuedToEvent() bool {
+func (this *Event) HasContinuedToEvent(eobj *Event) bool {
 	// TODO
 	panic("Unimplemented")
 }
@@ -176,13 +236,9 @@ func (this *Event) SetLocalEndDate(t *Time) {
 }
 
 func (this *Event) SetCategory(c string) error {
-	if this.chart != nil {
-		return errors.New("Already associated to a chart.")
-	} else {
-		this.category = c
-		// TODO: call 'GetChart().changeEventCategory()'.
-		return nil
-	}
+	this.category = c
+	// TODO: call 'GetChart().changeEventCategory()'.
+	return nil
 }
 
 func (this *Event) addContinuedFromEvent(eobj *Event) {
