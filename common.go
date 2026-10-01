@@ -297,6 +297,18 @@ func (this *Time) IsAmbiguous() bool {
 	return this.year == nil || this.month == nil
 }
 
+//-- struct NoteSnippet: method
+
+func (this *Time) ToTimeTag() string {
+	if this.IsUnknown() {
+		return "<!-- Edit: -->"
+	} else {
+		t := *this
+		t.Attrs = map[string][]string{}
+		return "<!-- Edit: " + t.String() + " -->"
+	}	
+}
+
 //-- struct Time: method (creation)
 
 func createTimeFromParsed(optr *file.Time) (ret Time) {
@@ -357,7 +369,7 @@ func createTimeFromParsed(optr *file.Time) (ret Time) {
 }
 
 func CreateTimeFromTag(tagstr string) (ret Time) {
-	re := regexp.MustCompile(`^(\d{4})-(\d{2})-(\d{2})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?(?:\s*\((.*)\))?$`)
+	re := regexp.MustCompile(`^([0-9?]{4})-([0-9?]{2})-([0-9?]{2})(?:\s+([0-9?]{2}):([0-9?]{2})(?::([0-9?]{2}))?)?(?:\s*\((.*)\))?$`)
 	matches := re.FindStringSubmatch(tagstr)
 
 	if len(matches) < 8 {
@@ -372,33 +384,33 @@ func CreateTimeFromTag(tagstr string) (ret Time) {
 		ret.SetYear(nyear)
 		ret.SetMonth(nmonth)
 		ret.SetDay(nday)
+	}
 
-		nhour, herr := strconv.Atoi(matches[4])
-		nminute, mmerr := strconv.Atoi(matches[5])
-		nsecond, serr := strconv.Atoi(matches[6])
+	nhour, herr := strconv.Atoi(matches[4])
+	nminute, mmerr := strconv.Atoi(matches[5])
+	nsecond, serr := strconv.Atoi(matches[6])
 
-		if herr == nil && mmerr == nil {
-			ret.SetHour(nhour)
-			ret.SetMinute(nminute)
+	if herr == nil && mmerr == nil {
+		ret.SetHour(nhour)
+		ret.SetMinute(nminute)
 
-			if serr == nil {
-				ret.SetSecond(nsecond)
-			} else {
-				ret.SetSecond(0)
-			}
-		}
-
-		loc, tzerr := time.LoadLocation(matches[7])
-
-		if tzerr == nil {
-			ret.timezone = loc
+		if serr == nil {
+			ret.SetSecond(nsecond)
 		} else {
-			utcloc, tzerr := time.LoadLocation("UTC")
-			if tzerr == nil {
-				ret.timezone = utcloc
-			} else {
-				panic("UTC not loaded")
-			}
+			ret.SetSecond(0)
+		}
+	}
+
+	loc, tzerr := time.LoadLocation(matches[7])
+
+	if tzerr == nil {
+		ret.timezone = loc
+	} else {
+		utcloc, tzerr := time.LoadLocation("UTC")
+		if tzerr == nil {
+			ret.timezone = utcloc
+		} else {
+			panic("UTC not loaded")
 		}
 	}
 
@@ -415,8 +427,7 @@ type NoteSnippet struct {
 //-- struct NoteSnippet: interface IStringifiable
 
 func (this *NoteSnippet) String() string {
-	// TODO
-	panic("Unimplemented")
+	return this.Time.ToTimeTag() + "\n" + this.Text
 }
 
 //-- struct Note
@@ -428,21 +439,65 @@ type Note struct {
 
 //-- struct Note: interface IStringifiable
 
-func (this *Note) String() string {
-	// TODO: title (if non-empty), first snippet -- just Text, others -- ToString()
-	panic("Unimplemented")
+func (this *Note) String() (ret string) {
+	for i, snippet := range this.Snippets {
+		if i == 0 && snippet.Time.IsUnknown() {
+			ret += snippet.Text + "\n"
+		} else {
+			ret += snippet.String() + "\n"
+		}
+	}
+	if len(ret) > 1 {
+		ret = ret[:len(ret)-1]
+	}
+
+	if this.Title != "" {
+		ret = "<!-- Title: " + this.Title + " -->\n" + ret
+	}
+	
+	return
 }
 
 //-- struct Note: interface IWarningObj
 
-func (this *Note) Summary() string {
-	// TODO
-	panic("Unimplemented")
+func (this *Note) Summary() (ret string) {
+	if this.Title != "" {
+		ret = "a note titled '" + this.Title + "'"
+	} else {
+		ret = "an untitled note"
+	}
+
+	if len(this.Snippets) > 1 && this.Snippets[0].Text != "" {
+		ret += " ("
+
+		fraglen := min(10, len(this.Snippets[0].Text))
+		ret += "\"" + this.Snippets[0].Text[:fraglen] + "...\""
+		
+		if !this.Snippets[0].Time.IsUnknown() {
+			ret += " @ " + this.Snippets[0].Time.String()
+		}
+
+		ret += ")"
+	}
+
+	return
 }
 
 func (this *Note) IsUnknown() bool {
-	// TODO
-	panic("Unimplemented")
+	if this.Title != "" {
+		return false
+	} else {
+		if len(this.Snippets) == 0 {
+			return true
+		} else {
+			for _, snippet := range this.Snippets {
+				if len(snippet.Text) != 0 {
+					return false
+				}
+			}
+			return true
+		}
+	}
 }
 
 //-- struct Note: method (creation)
