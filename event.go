@@ -127,9 +127,8 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 //-- method (getters)
 
 func (this *Event) GetTitle() string {
-	// TODO: use `localTitle` if it was defined.
-	// TODO: otherwise, use the title of `embeddedEvent`.
-	// TODO: otherwise, use the stringified name of `embeddedChart`.
+	// Use `localTitle` if it was defined.
+	// Otherwise, use the title of `embeddedEvent` or `embeddedChart`.
 	if this.localTitle != nil {
 		return *this.localTitle
 	} else if this.embeddedEvent != nil {
@@ -185,8 +184,11 @@ func (this *Event) GetSubchart() *Chart {
 }
 
 func (this *Event) GetEmbedChartLink() string {
-	// TODO
-	panic("Unimplemented")
+	if this.chartEmbedLink != nil {
+		return *this.chartEmbedLink
+	} else {
+		return ""
+	}
 }
 
 func (this *Event) IsChartEmbedding() bool {
@@ -194,29 +196,31 @@ func (this *Event) IsChartEmbedding() bool {
 }
 
 func (this *Event) GetStartDate() Time {
-	// TODO: use 'localStartDate` if it was defined.
-	// TODO: otherwise, use the `StartDate` of the embedded event.
-	// TODO: otherwise, return unknown.
-	panic("Unimplemented")
+	if this.localStartDate != nil {
+		return *this.localStartDate
+	} else if this.embeddedEvent != nil {
+		return this.embeddedEvent.GetStartDate()
+	} else {
+		return Time{}
+	}
 }
 
 func (this *Event) GetEndDate() Time {
-	// TODO: use 'localEndDate` if it was defined.
-	// TODO: otherwise, use the `EndDate` of the embedded event.
-	// TODO: otherwise, return unknown.
-	panic("Unimplemented")
+	if this.localEndDate != nil {
+		return *this.localEndDate
+	} else if this.embeddedEvent != nil {
+		return this.embeddedEvent.GetEndDate()
+	} else {
+		return Time{}
+	}
 }
 
 func (this *Event) GetLocalStartDate() *Time {
-	// TODO: return 'localStartDate` if it was defined.
-	// TODO: otherwise, return nil.
-	panic("Unimplemented")
+	return this.localStartDate
 }
 
 func (this *Event) GetLocalEndDate() *Time {
-	// TODO: return 'localEndDate` if it was defined.
-	// TODO: otherwise, return nil.
-	panic("Unimplemented")
+	return this.localEndDate
 }
 
 func (this *Event) GetCategory() string{
