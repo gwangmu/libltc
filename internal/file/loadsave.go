@@ -28,6 +28,39 @@ func LoadFromString[T IFileObject, U IDiagnosablePtr[T]](ltcstr string) (U, warn
 	return out, warns, nil
 }
 
+func readFromLocalURI(uri string) (string, error) {
+	// If `uri` contains ".obj/", the trailing part should be considered 
+	// an object ID. Find that id from the preceding path. Otherwise, 
+	// simply read the file and return.
+
+	uri = filepath.ToSlash(uri)
+	path, qualid, seped := strings.Cut(uri, ".obj/")
+
+	if !seped {
+		// Read a file.
+		bs, err := os.ReadFile(uri)
+		if err != nil {
+			return "", err
+		} else {
+			return string(bs), nil
+		}
+	} else {
+		// Read an object in a file.
+		ids := strings.Split(qualid, "/")
+		curPath := path
+		for i, idstr := range ids {
+			objstr, objkind := extractObjectByLocalID(path, idstr)
+			switch objkind {
+			case "Event":
+				if len(ids) == i - 1 {
+				eobj, _, err := LoadFromString[*Event](objstr)
+
+		}
+	}
+
+	notelines := strings.Split(notestr, "\n")
+}
+
 func LoadFromURI[T IFileObject, U IDiagnosablePtr[T]](uri string) (U, warning.Warnings, error) {
 	var ltcstr string
 
@@ -38,7 +71,10 @@ func LoadFromURI[T IFileObject, U IDiagnosablePtr[T]](uri string) (U, warning.Wa
 		// ltcstr = ...
 		panic("Unimplemented")
 	} else {
-		bs, err := os.ReadFile(uri)
+		// TODO: if `uri` contains ".obj/", the trailing part should be
+		// TODO: considered an object ID. The load logic should only load
+		// TODO: that object.
+		bs, err := readFromLocalURI(uri)
 		if err != nil {
 			warns := warning.Warnings{}
 			warns.Add("cannot read a local file.")
@@ -67,7 +103,8 @@ func SaveToString[T IFileObject, U IDiagnosablePtr[T]](fobj U) (string, warning.
 	return out.String(), warns, nil
 }
 
-func SaveToURI[T IFileObject, U IDiagnosablePtr[T]](uri string, fobj U) (warning.Warnings, error) {
+// For now, saving non-file to URI is unsupported.
+func SaveToURI[T interface{File}, U IDiagnosablePtr[T]](uri string, fobj U) (warning.Warnings, error) {
 	ltcstr, warns, err := SaveToString[T, U](fobj)
 	if err != nil {
 		warns.Add("unsaved due to errors.")
