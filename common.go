@@ -461,6 +461,7 @@ func CreateNoteFromString(notestr string) (Note, warning.Warnings) {
 
 	notelines := strings.Split(notestr, "\n")
 	for i, line := range notelines {
+		line = strings.TrimRight(line, "\r")
 		if i == 0 {
 			re := regexp.MustCompile(`^\s*<!--\s*Title:(.*)-->\s*$`)
 			if matches := re.FindStringSubmatch(line); matches != nil {
