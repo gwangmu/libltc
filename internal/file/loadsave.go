@@ -34,8 +34,6 @@ func readFileFromURI(uri string) (string, error) {
 	protRe := regexp.MustCompile(`^[a-z]+://`)
 	if protRe.MatchString(uri) {
 		// TODO: probably an online resource. download TOML string.
-		// TODO: send requests after '?'
-		// ltcstr = ...
 		panic("Unimplemented")
 	} else {
 		bs, err := os.ReadFile(uri)

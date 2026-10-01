@@ -79,7 +79,7 @@ func (this *Event) GetEmbeddedEvent() *Event {
 	panic("Unimplemented")
 }
 
-func (this *Event) GetEmbedLink() string {
+func (this *Event) GetEmbedEventLink() string {
 	// TODO
 	panic("Unimplemented")
 }
@@ -92,7 +92,7 @@ func (this *Event) GetSubchart() *Chart {
 	panic("Unimplemented")
 }
 
-func (this *Event) GetSubchartLink() string {
+func (this *Event) GetEmbedChartLink() string {
 	// TODO
 	panic("Unimplemented")
 }
@@ -149,13 +149,13 @@ func (this *Event) HasContinuedToEvent() bool {
 
 //-- method (setters)
 
-func (this *Event) SetEmbedLink(uri string) {
+func (this *Event) SetEmbedEventLink(uri string) {
 	// TODO: invalidate non-nill embed event.
 	// TODO: eagerly load 'embeddedEvent'
 	panic("Unimplemented")
 }
 
-func (this *Event) SetSubchartLink(uri string) {
+func (this *Event) SetEmbedChartLink(uri string) {
 	// TODO: invalidate non-nill subchart.
 	panic("Unimplemented")
 }
@@ -170,7 +170,8 @@ func (this *Event) SetLocalStartDate(t *Time) {
 }
 
 func (this *Event) SetLocalEndDate(t *Time) {
-	// TODO
+	// TODO: swap if StartDate is after `t`.
+	// TODO: if so, call `chart.changeEventStartDate()` according to above std.
 	panic("Unimplemented")
 }
 

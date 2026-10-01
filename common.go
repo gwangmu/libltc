@@ -445,13 +445,6 @@ func (this *Note) IsUnknown() bool {
 	panic("Unimplemented")
 }
 
-//-- struct Note: interface ITOMLPrintable
-
-func (this *Note) PrintTOML() string {
-	// TODO
-	panic("Unimplemented")
-}
-
 //-- struct Note: method (creation)
 
 func CreateNoteFromString(notestr string) (Note, warning.Warnings) {
