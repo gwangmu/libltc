@@ -156,31 +156,16 @@ func (this *Event) IsEventEmbedding() bool {
 	return this.eventEmbedLink != nil
 }
 
-func (this *Event) GetSubchart() *Chart {
+func (this *Event) GetSubchart() (*Chart, warning.Warnings) {
+	warns := warning.Warnings{}
+
 	// Lazy-load `embeddedChart` if it's nil (but shouldn't).
 	if this.chartEmbedLink != nil && this.embeddedChart == nil {
-		efile, _, err := file.LoadFromURI[file.File](*this.chartEmbedLink)
-		if err != nil {
-			this.embeddedChart = CreateEmptyChart()
-		} else {
-			echart, _ := createChartFromParsed(efile)
-			allobjs := this.chart.GetAllMainObjects()
-
-			// Update 'parent's of all subchart objects.
-			for _, obj := range allobjs {
-				obj.SetParent(this)
-			}
-
-			// Resolve possible unresolved references.
-			for _, obj := range allobjs {
-				this.chart.resolveReferenceTo(obj)
-			}
-
-			this.embeddedChart = echart
-		}
+		moreWarns := this.loadEmbeddedChart()
+		warns.Concat(moreWarns)
 	}
 
-	return this.embeddedChart.asChart()
+	return this.embeddedChart.asChart(), warns
 }
 
 func (this *Event) GetEmbedChartLink() string {
@@ -228,36 +213,51 @@ func (this *Event) GetCategory() string{
 }
 
 func (this *Event) GetContinuedFromEvents() []*Event {
-	// TODO
-	panic("Unimplemented")
+	return this.contFromEvents
 }
 
 func (this *Event) GetContinuedToEvents() []*Event {
-	// TODO
-	panic("Unimplemented")
+	return this.contToEvents
 }
 
 func (this *Event) HasContinuedFromEvent(eobj *Event) bool {
-	// TODO
-	panic("Unimplemented")
+	for _, oobj := range this.contFromEvents {
+		if oobj == eobj {
+			return true
+		}
+	}
+	return false
 }
 
 func (this *Event) HasContinuedToEvent(eobj *Event) bool {
-	// TODO
-	panic("Unimplemented")
+	for _, oobj := range this.contToEvents {
+		if oobj == eobj {
+			return true
+		}
+	}
+	return false
 }
 
 //-- method (setters)
 
-func (this *Event) SetEmbedEventLink(uri string) {
-	// TODO: invalidate non-nill embed event.
-	// TODO: eagerly load 'embeddedEvent'
-	panic("Unimplemented")
+func (this *Event) SetEmbedEventLink(uri string) (warns warning.Warnings) {
+	this.eventEmbedLink = &uri
+
+	// Eagerly load embedded event. Warn if it failed.
+	moreWarns := this.loadEmbeddedEvent()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Event) SetEmbedChartLink(uri string) {
-	// TODO: invalidate non-nill subchart.
-	panic("Unimplemented")
+	if this.embeddedChart != nil {
+		this.unloadEmbeddedChart()
+	}
+
+	// Lazy-load subchart.
+	this.chartEmbedLink = &uri
+	this.embeddedChart = nil
 }
 
 func (this *Event) SetLocalStartDate(t *Time) {
@@ -277,7 +277,9 @@ func (this *Event) SetLocalEndDate(t *Time) {
 
 func (this *Event) SetCategory(c string) error {
 	this.category = c
-	// TODO: call 'GetChart().changeEventCategory()'.
+	if this.chart != nil {
+		this.chart.changeEventCategory(this)
+	}
 	return nil
 }
 
@@ -363,20 +365,23 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 		event.eventEmbedLink = &embedEvent
 
 		// Eagerly load embedded event. Warn if it failed.
-		efevent, moreWarns, err := file.LoadFromURI[file.Event](*event.eventEmbedLink)
+		moreWarns := event.loadEmbeddedEvent()
 		warns.Concat(moreWarns)
-		if err != nil {
-			warns.Add("@0@ cannot load an embedded event.", event)
-			event.embeddedEvent = CreateEmptyEvent()
-		} else {
-			ecevent, moreWarns := createEventFromParsed(*efevent)
-			warns.Concat(moreWarns)
-			event.embeddedEvent = ecevent
-		}
 	}
 
+	// Diagnose and partially auto-correct.
 	moreWarns = event.DiagnoseLocal()
 	warns.Concat(moreWarns)
+
+	// Create unresolved references.
+	for akey, avals := range event.attrs {
+		if akey == "ContinuedFrom" {
+			for _, aval := range avals {
+				ueobj := CreateUnresolvedEvent(aval)
+				event.addContinuedFromEvent(ueobj)
+			}
+		}
+	}
 
 	return event, warns
 }
@@ -399,4 +404,63 @@ func CreateEmptyEvent() *Event {
 		contFromEvents: []*Event{},
 		contToEvents: []*Event{},
 	} 
+}
+
+func CreateUnresolvedEvent(fullid string) *Event {
+	ret := CreateEmptyEvent()
+	ret.fullID = fullid
+	return ret
+}
+
+//-- method (util)
+
+func (this *Event) loadEmbeddedEvent() (warns warning.Warnings) {
+	if this.eventEmbedLink != nil {
+		efevent, moreWarns, err := file.LoadFromURI[file.Event](*this.eventEmbedLink)
+		warns.Concat(moreWarns)
+		if err != nil {
+			warns.Add("@0@ cannot load an embedded event.", this)
+			this.embeddedEvent = CreateEmptyEvent()
+		} else {
+			ecevent, moreWarns := createEventFromParsed(*efevent)
+			warns.Concat(moreWarns)
+			this.embeddedEvent = ecevent
+		}
+	}
+	return
+}
+
+func (this *Event) loadEmbeddedChart() (warns warning.Warnings) {
+	if this.chartEmbedLink != nil {
+		efile, moreWarns, err := file.LoadFromURI[file.File](*this.chartEmbedLink)
+		warns.Concat(moreWarns)
+		if err != nil {
+			warns.Add("@0@ cannot load an embedded chart.", this)
+			this.embeddedChart = CreateEmptyChart()
+		} else {
+			echart, moreWarns := createChartFromParsed(efile)
+			warns.Concat(moreWarns)
+			this.embeddedChart = echart
+
+			// Update 'parent's of all subchart objects.
+			for _, obj := range this.chart.GetAllMainObjects() {
+				obj.SetParent(this)
+			}
+
+			// Resolve possible unresolved references.
+			for _, obj := range this.embeddedChart.GetAllMainObjects() {
+				this.chart.resolveReferenceTo(obj)
+			}
+		}
+	}
+	return
+}
+
+func (this *Event) unloadEmbeddedChart() {
+	if this.embeddedChart != nil {
+		// unresolve references.
+		for _, obj := range this.embeddedChart.GetAllMainObjects() {
+			this.chart.unresolveReferenceTo(obj)
+		}
+	}
 }

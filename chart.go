@@ -202,6 +202,8 @@ func (this *Chart) HasObject(obj IMainObj, onlyLocal bool) bool {
 func (this *Chart) AddObject(obj IMainObj) {
 	// TODO: add already-created obj. update chart and id.
 	// TODO: sort events by StartDate.
+	// TODO: resolveReferenceTo 'obj'
+	// TODO: resolve the references of 'obj' itself.
 	// TODO: for import objects, add `imported*` to the chart, too.
 	// TODO: for import objects, resorveReferenceTo all imported objs.
 	panic("Unimplemented")
@@ -211,6 +213,8 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 	// TODO: dispose of any possible links to other objs.
 	// TODO: for import objects, unresorveReferenceTo all imported objs.
 	// TODO: for import objects, remove `imported*` from the chart, too.
+	// TODO: unresolveReferenceTo 'obj'
+	// TODO: unresolve the references of 'obj' itself.
 	// TODO: remove itself from the chart.
 	panic("Unimplemented")
 }

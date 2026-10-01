@@ -274,8 +274,24 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	annex.encodedData = o.Data
 	annex.isDecoded = false		// NOTE: lazy decode.
 	
+	// Diagnose and partially auto-correct.
 	moreWarns = annex.DiagnoseLocal()
 	warns.Concat(moreWarns)
+	
+	// Create unresolved references.
+	for akey, avals := range annex.attrs {
+		if akey == "AttachTo" {
+			for _, aval := range avals {
+				uobj := CreateUnresolvedMainObjCommon(MOK_Unknown, aval)
+				annex.addAttachToObject(uobj)
+			}
+		} else if akey == "ExtraNoteOf" {
+			for _, aval := range avals {
+				uobj := CreateUnresolvedMainObjCommon(MOK_Unknown, aval)
+				annex.addExtraNoteOfObject(uobj)
+			}
+		}
+	}
 
 	return annex, warns
 }
