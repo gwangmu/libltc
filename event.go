@@ -47,9 +47,10 @@ func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
 		this.numID = 0
 		warns.Add("@0@ has an invalid ID. auto-corrected to 'e0'.", this)
 	}
-
-	if this.eventEmbedLink != nil && this.embeddedEvent == nil {
-		warns.Add("Cannot load the embedded event of @0@.", this)
+	
+	if this.embeddedChart != nil && this.embeddedEvent != nil {
+		warns.Add("@0@ attempted to embed both an event and a chart. Favoring event...", this)
+		this.embeddedChart = nil
 	}
 
 	for akey, avals := range this.attrs {
@@ -129,7 +130,15 @@ func (this *Event) GetTitle() string {
 	// TODO: use `localTitle` if it was defined.
 	// TODO: otherwise, use the title of `embeddedEvent`.
 	// TODO: otherwise, use the stringified name of `embeddedChart`.
-	panic("Unimplemented")
+	if this.localTitle != nil {
+		return *this.localTitle
+	} else if this.embeddedEvent != nil {
+		return this.embeddedEvent.GetTitle()
+	} else if this.embeddedChart != nil {
+		return this.embeddedChart.GetStringifiedSubjectName()
+	} else {
+		return ""
+	}
 }
 
 func (this *Event) GetEmbeddedEvent() *Event {

@@ -10,6 +10,7 @@ import (
 )
 
 type IChart interface {
+	GetStringifiedSubjectName() string
 	GetObject(qualid string) IMainObj 
 	GetObjectByLocalID(locid string) IMainObj 
 	GetEmbeddingEvent() *Event
@@ -136,6 +137,10 @@ func (this *Chart) getNextNumberID(kind MainObjKind) (NumberID, error) {
 }
 
 //-- method (getters)
+
+func (this *Chart) GetStringifiedSubjectName() string {
+	return this.Subject.Name.String()
+}
 
 func (this *Chart) GetAnnexs() []*Annex {
 	// TODO
