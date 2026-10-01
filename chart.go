@@ -11,6 +11,7 @@ import (
 
 type IChart interface {
 	GetStringifiedSubjectName() string
+	GetAnnexs() []*Annex
 	GetObject(qualid string) IMainObj 
 	GetObjectByLocalID(locid string) IMainObj 
 	GetAllMainObjects() []IMainObj

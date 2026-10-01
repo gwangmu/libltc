@@ -67,8 +67,65 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 		return
 	}
 
-	// TODO: check duplicate ID between 'this' and other chart objs.
-	panic("Unimplemented")
+	if this.kind != MOK_Annex || this.numID == NID_Invalid {
+		panic("call DiagnoseLocal() first.")
+	}
+
+	for _, aobj := range this.chart.GetAnnexs() {
+		if aobj.numID == this.numID {
+			newNumID, err := this.chart.getNextNumberID(MOK_Annex)
+			if err != nil {
+				panic("Cannot get new number ID.")
+			}
+			this.numID = newNumID
+			warns.Add("@0@ has a duplicated ID. auto-corrected to 'a%d'.", newNumID)
+			break
+		}
+	}
+
+	for akey, avals := range this.attrs {
+		if akey == "AttachTo" {
+			for _, aval := range avals {
+				var objTo IMainObj
+				for _, aobjIn := range this.attachToObjs {
+					if aobjIn.GetQualifiedIDFrom(this.chart.GetEmbeddingEvent()) == aval {
+						objTo = aobjIn
+						break
+					}
+				}
+
+				if objTo == nil || objTo.IsUnresolved() {
+					warns.Add("@0@ has a dangling 'AttachTo' to '%s'.", this, aval)
+				} 
+
+				if objTo != nil && !objTo.HasAttachedAnnex(this) {
+					warns.Add("!!!INTERNAL WARN!!! @0@ has 'AttachTo' to '%s', but it doesn't reference back. corrected.", this, aval)
+					objTo.AddAttachedAnnex(this)
+				}
+			}
+		} else if akey == "ExtraNoteOf" {
+			for _, aval := range avals {
+				var objOf IMainObj
+				for _, aobjIn := range this.extraNoteOfObjs {
+					if aobjIn.GetQualifiedIDFrom(this.chart.GetEmbeddingEvent()) == aval {
+						objOf = aobjIn
+						break
+					}
+				}
+
+				if objOf == nil || objOf.IsUnresolved() {
+					warns.Add("@0@ has a dangling 'ExtraNoteOf' to '%s'.", this, aval)
+				} 
+
+				if objOf != nil && !objOf.HasExtraNoteAnnex(this) {
+					warns.Add("!!!INTERNAL WARN!!! @0@ has 'ExtraNoteOf' to '%s', but it doesn't reference back. corrected.", this, aval)
+					objOf.AddExtraNoteAnnex(this)
+				}
+			}
+		}
+	}
+
+	return
 }
 
 //-- method (getters)

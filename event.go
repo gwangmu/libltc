@@ -304,15 +304,7 @@ func (this *Event) removeContinuedFromEvent(eobj *Event) {
 }
 
 func (this *Event) addContinuedToEvent(eobj *Event) {
-	found := false
-	for _, elem := range this.contToEvents {
-		if elem == eobj {
-			found = true
-			break
-		}
-	}
-
-	if !found {
+	if !this.HasContinuedToEvent(eobj) {
 		this.contToEvents = append(this.contToEvents, eobj)
 	}
 }
