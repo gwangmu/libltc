@@ -321,8 +321,18 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	if o.EmbedEvent != nil {
 		embedEvent := *o.EmbedEvent
 		event.eventEmbedLink = &embedEvent
-		// TODO: eagerly load embedded event. warn if it failed.
-		panic("Unimplemented")
+
+		// Eagerly load embedded event. Warn if it failed.
+		efevent, moreWarns, err := file.LoadFromURI[file.Event](*event.eventEmbedLink)
+		warns.Concat(moreWarns)
+		if err != nil {
+			warns.Add("@0@ cannot load an embedded event.", event)
+			event.embeddedEvent = CreateEmptyEvent()
+		} else {
+			ecevent, moreWarns := createEventFromParsed(*efevent)
+			warns.Concat(moreWarns)
+			event.embeddedEvent = ecevent
+		}
 	}
 
 	moreWarns = event.DiagnoseLocal()
