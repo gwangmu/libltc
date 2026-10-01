@@ -284,45 +284,61 @@ func (this *Event) SetCategory(c string) error {
 }
 
 func (this *Event) addContinuedFromEvent(eobj *Event) {
-	// TODO
+	// TODO: update contToEvent of eobj (if not unresolved)
 	panic("Unimplemented")
 }
 
 func (this *Event) resolveContinuedFromEvent(qualid string, newobj *Event) {
-	// TODO
+	// TODO: update contToEvent of newobj 
 	panic("Unimplemented")
 }
 
 func (this *Event) unresolveContinuedFromEvent(qualid string) {
-	// TODO
+	// TODO: update contToEvent of qualid 
 	panic("Unimplemented")
 }
 
 func (this *Event) removeContinuedFromEvent(eobj *Event) {
-	// TODO
+	// TODO: update contToEvent of eobj
 	panic("Unimplemented")
 }
 
 func (this *Event) addContinuedToEvent(eobj *Event) {
-	// TODO
-	panic("Unimplemented")
+	found := false
+	for _, elem := range this.contToEvents {
+		if elem == eobj {
+			found = true
+			break
+		}
+	}
+
+	if !found {
+		this.contToEvents = append(this.contToEvents, eobj)
+	}
 }
 
 func (this *Event) removeContinuedToEvent(eobj *Event) {
-	// TODO
-	panic("Unimplemented")
+	idx := -1
+	for i, elem := range this.contToEvents {
+		if elem == eobj {
+			idx = i
+			break
+		}
+	}
+
+	if idx != -1 {
+		this.contToEvents = append(this.contToEvents[:idx], this.contToEvents[idx+1:]...)
+	}
 }
 
 //-- method (high-level operation)
 
 func (this *Event) SetContinuedFrom(eobj *Event) {
-	// TODO
-	panic("Unimplemented")
+	this.addContinuedFromEvent(eobj)
 }
 
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
-	// TODO
-	panic("Unimplemented")
+	this.removeContinuedFromEvent(eobj)
 }
 
 //-- method (creation)

@@ -235,23 +235,19 @@ func (this *Annex) SetAnnex(format string, encoding string, data []byte) error {
 }
 
 func (this *Annex) SetExtraNoteOf(obj IMainObj) {
-	// TODO
-	panic("Unimplemented")
+	this.addExtraNoteOfObject(obj)
 }
 
 func (this *Annex) UnsetExtraNoteOf(obj IMainObj) {
-	// TODO
-	panic("Unimplemented")
+	this.removeExtraNoteOfObject(obj)
 }
 
 func (this *Annex) SetAttachTo(obj IMainObj) {
-	// TODO
-	panic("Unimplemented")
+	this.addAttachToObject(obj)
 }
 
 func (this *Annex) UnsetAttachTo(obj IMainObj) {
-	// TODO
-	panic("Unimplemented")
+	this.removeAttachToObject(obj)
 }
 
 //-- method (creation)
