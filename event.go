@@ -90,6 +90,11 @@ func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
 		}
 	}
 
+    if this.GetStartDate().IsAfter(this.GetEndDate()) {
+        warns.Add("@0@ has an inverted start/end date pair. correcting...", this)
+        this.correctLocalStartEndDates()
+    }
+
 	return
 }
 
@@ -575,7 +580,7 @@ func (this *Event) correctLocalStartEndDates() {
 	}
 
     // Notify chart if 'StartDate' was changed.
-    if !oldStartDate.Equal(this.GetStartDate()) {
+    if !oldStartDate.Equal(this.GetStartDate()) && this.chart != nil {
         this.chart.changeEventStartDate(this)
     }
 }
