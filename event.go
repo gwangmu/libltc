@@ -29,14 +29,33 @@ type Event struct {
 
 //-- interface IWarningObj
 
-func (this *Event) Summary() string {
-	// TODO: unimplemented
-	return "an event"
+func (this *Event) Summary() (ret string) {
+	if this.GetTitle() != "" {
+		ret = "an event '" + this.GetTitle() + "'"
+	} else {
+		ret = "a untitled event"
+	}
+
+	extraStr := warning.BuildSummaryString(
+		WSE{"ID", this.GetLocalID()},
+		WSE{"category", this.GetCategory()},
+		WSE{"started", this.GetStartDate()}, 
+		WSE{"ended", this.GetEndDate()},
+		WSE{"embedding event", this.GetEmbedEventLink()},
+		WSE{"embedding chart", this.GetEmbedChartLink()},
+	)
+	if (len(extraStr) > 0) {
+		ret += " (" + extraStr + ")"
+	}
+	
+	return
 }
 
-func (this *Event) IsUnknown() bool {
-	// TODO: unimplemented
-	return false
+func (this Event) IsUnknown() bool {
+	return this.GetTitle() == "" && this.GetLocalID() == "" &&
+		this.GetCategory() == "" && this.GetStartDate().IsUnknown() &&
+		this.GetEndDate().IsUnknown() && this.GetEmbedEventLink() == "" &&
+		this.GetEmbedChartLink() == ""
 }
 
 //-- interface IDiagnosable

@@ -97,7 +97,7 @@ func (this *Chart) Summary() (ret string) {
 	return
 }
 
-func (this *Chart) IsUnknown() bool {
+func (this Chart) IsUnknown() bool {
 	return this.Subject.IsUnknown() && this.Filepath == ""
 }
 
@@ -347,7 +347,7 @@ func (this *Setting) Summary() string {
 	)
 }
 
-func (this *Setting) IsUnknown() bool {
+func (this Setting) IsUnknown() bool {
 	return false
 }
 
@@ -425,7 +425,7 @@ func (this *Subject) Summary() (ret string) {
 	return
 }
 
-func (this *Subject) IsUnknown() bool {
+func (this Subject) IsUnknown() bool {
 	return this.Name.IsUnknown() && this.StartDate.IsUnknown() &&
 			this.EndDate.IsUnknown() && this.Sex == ""
 }

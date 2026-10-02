@@ -31,7 +31,7 @@ func (this *Import) Summary() string {
 	panic("Unimplemented")
 }
 
-func (this *Import) IsUnknown() bool {
+func (this Import) IsUnknown() bool {
 	// TODO
 	panic("Unimplemented")
 }

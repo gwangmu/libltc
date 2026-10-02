@@ -46,7 +46,7 @@ func (this *Annex) Summary() (ret string) {
 	return
 }
 
-func (this *Annex) IsUnknown() bool {
+func (this Annex) IsUnknown() bool {
 	return this.Title == "" && this.GetLocalID() == "" &&
 		this.format == "" && this.encoding == ""
 }

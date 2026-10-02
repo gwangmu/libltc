@@ -88,7 +88,7 @@ func (this *MainObjCommon) setFullID(fullid string) {
 	this.fullID = fullid
 }
 
-func (this *MainObjCommon) IsUnresolved() bool {
+func (this MainObjCommon) IsUnresolved() bool {
 	return this.fullID != ""
 }
 

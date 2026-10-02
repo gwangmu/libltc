@@ -55,7 +55,7 @@ func (this *Name) Summary() string {
 	return strname
 }
 
-func (this *Name) IsUnknown() bool {
+func (this Name) IsUnknown() bool {
 	return this.First == "" && this.Middle == "" && this.Last == "" &&
 		len(this.Attrs) == 0
 }
@@ -122,7 +122,7 @@ func (this *Time) Summary() string {
 	return this.String()
 }
 
-func (this *Time) IsUnknown() bool {
+func (this Time) IsUnknown() bool {
 	return this.year == nil && this.month == nil && this.day == nil &&
 		this.hour == nil && this.minute == nil && this.second == nil &&
 		this.timezone == nil
@@ -485,7 +485,7 @@ func (this *Note) Summary() (ret string) {
 	return
 }
 
-func (this *Note) IsUnknown() bool {
+func (this Note) IsUnknown() bool {
 	if this.Title != "" {
 		return false
 	} else {
