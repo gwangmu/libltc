@@ -167,17 +167,17 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	panic("Unimplemented")
 
 	if o.StartDate != nil {
-		startDate := createTimeFromParsed(o.StartDate)
+		startDate := createTimeFromParsed(o.StartDate, TUK_Start)
 		cimport.startDate = &startDate
 	}
 
 	if o.EndDate != nil {
-		endDate := createTimeFromParsed(o.EndDate)
+		endDate := createTimeFromParsed(o.EndDate, TUK_End)
 		cimport.endDate = &endDate
 	}
 
 	if o.OffsetDate != nil {
-		endDate := createTimeFromParsed(o.OffsetDate)
+		endDate := createTimeFromParsed(o.OffsetDate, TUK_General)
 		cimport.offsetDate = &endDate
 	}
 

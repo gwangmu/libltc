@@ -1,7 +1,9 @@
 package libltc
 
 import (
+	"maps"
 	"regexp"
+	"slices"
 	"strconv"
 	"strings"
 	"time"
@@ -73,6 +75,13 @@ func createNameFromParsed(o file.Name) Name {
 
 //-- struct Time
 
+type TimeUsageKind int
+const (
+	TUK_General TimeUsageKind = iota
+	TUK_Start
+	TUK_End
+)
+
 type Time struct {
 	Attrs map[string][]string
 
@@ -83,6 +92,9 @@ type Time struct {
 	minute *int
 	second *int
 	timezone *time.Location
+
+	// Time usages are never considered in unknown-ness or ambiguity.
+	usage TimeUsageKind
 }
 
 //-- struct Time: interface IStringifiable
@@ -204,6 +216,10 @@ func (this *Time) GetTimezone() *time.Location {
 	}
 }
 
+func (this *Time) GetUsage() TimeUsageKind {
+	return this.usage
+}
+
 func (this *Time) SetTime(date time.Time, tz bool) {
 	nyear := date.Year()
 	nmonth := int(date.Month())
@@ -285,17 +301,65 @@ func (this *Time) SetTimezone(v *time.Location) {
 	this.timezone = v
 }
 
-//-- struct Time: method (util)
-
-func (this *Time) IsAfter(that *Time) bool {
-	// The 'compare' using the 'time' package should be correct as long as
-	// the calendar system is "monotonic", meaing bigger higher units mean
-	// later in time. Assume that the concept of "timezone" is the same in
-	// other calendar systems (i.e., a constant offset in time).
-	return this.GetTime().Compare(that.GetTime()) > 0
+func (this *Time) SetUsage(v TimeUsageKind) {
+	this.usage = v
 }
 
-func (this *Time) IsAmbiguous() bool {
+//-- struct Time: method (util)
+
+func (this Time) IsInfiniteFuture() bool {
+	_, ok := this.Attrs["InfinitePast"]
+	return ok || (this.IsUnknown() && this.GetUsage() == TUK_End)
+}
+
+func (this Time) IsInfinitePast() bool {
+	_, ok := this.Attrs["InfiniteFuture"]
+	return ok || (this.IsUnknown() && this.GetUsage() == TUK_Start)
+}
+
+func (this Time) IsAfter(that Time) bool {
+	if (this.IsInfiniteFuture() && !that.IsInfiniteFuture()) ||
+		(this.IsInfinitePast() && !that.IsInfinitePast()) {
+		return true
+	} else if (this.IsInfiniteFuture() && that.IsInfiniteFuture()) ||
+		(this.IsInfinitePast() && that.IsInfinitePast()) {
+		return false
+	} else {
+		// The 'compare' using the 'time' package should be correct as long as
+		// the calendar system is "monotonic", meaing bigger higher units mean
+		// later in time. Assume that the concept of "timezone" is the same in
+		// other calendar systems (i.e., a constant offset in time).
+		return this.GetTime().Compare(that.GetTime()) > 0
+	}
+}
+
+func (this Time) Equal(that Time) bool {
+	hasSameAttrs := maps.EqualFunc(this.Attrs, that.Attrs, func(thisAvals []string, thatAvals []string) bool {
+		return slices.Equal(thisAvals, thatAvals)
+	})
+
+	if !hasSameAttrs {
+		return false
+	}
+
+	hasSamePoint := false 
+	if !this.IsInfinitePast() && !this.IsInfiniteFuture() &&
+		!that.IsInfinitePast() && !that.IsInfiniteFuture() {
+		hasSamePoint = this.year == that.year && 
+			this.month == that.month &&	this.day == that.day && 
+			this.hour == that.hour && this.minute == that.minute && 
+			this.second == that.second && this.timezone == that.timezone
+	} else if (this.IsInfinitePast() && that.IsInfinitePast()) ||
+		(this.IsInfiniteFuture() && that.IsInfiniteFuture()) {
+		hasSamePoint = true
+	} else {
+		hasSamePoint = false
+	}
+
+	return hasSamePoint
+}
+
+func (this Time) IsAmbiguous() bool {
 	return this.year == nil || this.month == nil
 }
 
@@ -313,7 +377,7 @@ func (this *Time) ToTimeTag() string {
 
 //-- struct Time: method (creation)
 
-func createTimeFromParsed(optr *file.Time) (ret Time) {
+func createTimeFromParsed(optr *file.Time, usage TimeUsageKind) (ret Time) {
 	if optr == nil {
 		return
 	} 
@@ -366,7 +430,13 @@ func createTimeFromParsed(optr *file.Time) (ret Time) {
 	}
 
 	ret.Attrs = convAttrsFileToChart(o.Attrs)
+	ret.usage = usage
 
+	return
+}
+
+func CreateEmptyTime(usage TimeUsageKind) (ret Time) {
+	ret.usage = usage
 	return
 }
 

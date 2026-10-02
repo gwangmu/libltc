@@ -448,14 +448,14 @@ func (this *Subject) DiagnoseNonLocal() warning.Warnings {
 func createSubjectFromParsed(o file.Subject) (Subject, warning.Warnings) {
 	subject := Subject{
 		Name: Name{},
-		StartDate: Time{},
-		EndDate: Time{},
+		StartDate: CreateEmptyTime(TUK_Start),
+		EndDate: CreateEmptyTime(TUK_End),
 		Sex: "",
 	}
 
 	subject.Name = createNameFromParsed(o.Name)
-	subject.StartDate = createTimeFromParsed(o.StartDate)
-	subject.EndDate = createTimeFromParsed(o.EndDate)
+	subject.StartDate = createTimeFromParsed(o.StartDate, TUK_Start)
+	subject.EndDate = createTimeFromParsed(o.EndDate, TUK_End)
 	subject.Sex = o.Sex
 
 	warns := subject.DiagnoseLocal()

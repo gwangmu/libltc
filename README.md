@@ -61,6 +61,8 @@ A time object consists of six optional integer-typed fields (`Year`, `Month`, `D
  - `Approx`: The time is approximate.
  - `Untracked`: At the boundary of a certain period, the time outside this period is untracked.
  - `Emphasized`: The time should be emphasized.
+ - `InfinitePast`: The time is infinitely past.
+ - `InfiniteFuture`: The time is infinitely future.
 
 #### Name
 

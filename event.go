@@ -67,7 +67,7 @@ func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
 		warns.Add("@0@ has an invalid ID. auto-corrected to 'e0'.", this)
 	}
 	
-	if this.embeddedChart != nil && this.embeddedEvent != nil {
+	if this.IsEventEmbedding() && this.IsChartEmbedding() {
 		warns.Add("@0@ attempted to embed both an event and a chart. Favoring event...", this)
 		this.embeddedChart = nil
 	}
@@ -164,7 +164,7 @@ func (this *Event) GetEmbeddedEvent() *Event {
 }
 
 func (this *Event) GetEmbedEventLink() string {
-	if this.eventEmbedLink != nil {
+	if this.IsEventEmbedding() {
 		return *this.eventEmbedLink
 	} else {
 		return ""
@@ -179,7 +179,7 @@ func (this *Event) GetSubchart() (*Chart, warning.Warnings) {
 	warns := warning.Warnings{}
 
 	// Lazy-load `embeddedChart` if it's nil (but shouldn't).
-	if this.chartEmbedLink != nil && this.embeddedChart == nil {
+	if this.IsChartEmbedding() && this.embeddedChart == nil {
 		moreWarns := this.loadEmbeddedChart()
 		warns.Concat(moreWarns)
 	}
@@ -188,7 +188,7 @@ func (this *Event) GetSubchart() (*Chart, warning.Warnings) {
 }
 
 func (this *Event) GetEmbedChartLink() string {
-	if this.chartEmbedLink != nil {
+	if this.IsChartEmbedding() {
 		return *this.chartEmbedLink
 	} else {
 		return ""
@@ -205,7 +205,7 @@ func (this *Event) GetStartDate() Time {
 	} else if this.embeddedEvent != nil {
 		return this.embeddedEvent.GetStartDate()
 	} else {
-		return Time{}
+		return CreateEmptyTime(TUK_Start) 
 	}
 }
 
@@ -215,7 +215,7 @@ func (this *Event) GetEndDate() Time {
 	} else if this.embeddedEvent != nil {
 		return this.embeddedEvent.GetEndDate()
 	} else {
-		return Time{}
+		return CreateEmptyTime(TUK_End) 
 	}
 }
 
@@ -225,6 +225,14 @@ func (this *Event) GetLocalStartDate() *Time {
 
 func (this *Event) GetLocalEndDate() *Time {
 	return this.localEndDate
+}
+
+func (this *Event) HasLocalStartDate() bool {
+	return this.localStartDate != nil
+}
+
+func (this *Event) HasLocalEndDate() bool {
+	return this.localEndDate != nil
 }
 
 func (this *Event) GetCategory() string{
@@ -371,12 +379,12 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	}
 
 	if o.StartDate != nil {
-		startDate := createTimeFromParsed(o.StartDate)
+		startDate := createTimeFromParsed(o.StartDate, TUK_Start)
 		event.localStartDate = &startDate
 	}
 
 	if o.EndDate != nil {
-		endDate := createTimeFromParsed(o.EndDate)
+		endDate := createTimeFromParsed(o.EndDate, TUK_End)
 		event.localEndDate = &endDate
 	}
 
@@ -442,7 +450,7 @@ func CreateUnresolvedEvent(fullid string) *Event {
 //-- method (util)
 
 func (this *Event) loadEmbeddedEvent() (warns warning.Warnings) {
-	if this.eventEmbedLink != nil {
+	if this.IsEventEmbedding() && this.embeddedEvent != nil {
 		efevent, moreWarns, err := file.LoadFromURI[file.Event](*this.eventEmbedLink)
 		warns.Concat(moreWarns)
 		if err != nil {
@@ -457,8 +465,16 @@ func (this *Event) loadEmbeddedEvent() (warns warning.Warnings) {
 	return
 }
 
+func (this *Event) isEmbeddedEventLoaded() bool {
+	return this.embeddedEvent != nil
+}
+
+func (this *Event) unloadEmbeddedEvent() {
+	this.embeddedEvent = nil
+}
+
 func (this *Event) loadEmbeddedChart() (warns warning.Warnings) {
-	if this.chartEmbedLink != nil {
+	if this.IsChartEmbedding() && this.embeddedChart != nil {
 		efile, moreWarns, err := file.LoadFromURI[file.File](*this.chartEmbedLink)
 		warns.Concat(moreWarns)
 		if err != nil {
@@ -488,6 +504,59 @@ func (this *Event) unloadEmbeddedChart() {
 		// unresolve references.
 		for _, obj := range this.embeddedChart.GetAllMainObjects() {
 			this.chart.unresolveReferenceTo(obj)
+		}
+	}
+	this.embeddedChart = nil
+}
+
+func (this *Event) isEmbeddedChartLoaded() bool {
+	return this.embeddedChart != nil
+}
+
+func (this *Event) correctLocalStartEndDates() {
+	// Correct ambiguity.
+	// Assume 12-month years. (Sorry non-Gregorian calendars)
+	if this.GetStartDate().IsAmbiguous() && !this.GetEndDate().IsAmbiguous() {
+		newStartDate := this.GetEndDate()
+		newStartDate.SetUsage(TUK_Start)
+		newStartDate.SetMonth(newStartDate.GetMonth() - 1)
+		if newStartDate.GetMonth() <= 0 {
+			newStartDate.SetYear(newStartDate.GetYear() - 1)
+			newStartDate.SetMonth(12)
+		}
+		this.SetLocalStartDate(&newStartDate)
+	} else if this.GetEndDate().IsAmbiguous() && !this.GetStartDate().IsAmbiguous() {
+		newEndDate := this.GetStartDate()
+		newEndDate.SetUsage(TUK_End)
+		newEndDate.SetMonth(newEndDate.GetMonth() + 1)
+		if newEndDate.GetMonth() >= 12 {
+			newEndDate.SetYear(newEndDate.GetYear() + 1)
+			newEndDate.SetMonth(1)
+		}
+		this.SetLocalEndDate(&newEndDate)
+	}
+
+	// Correct order.
+	if this.GetStartDate().IsAfter(this.GetEndDate()) {
+		hlsd := this.HasLocalStartDate()
+		hled := this.HasLocalEndDate()
+		
+		if hlsd && hled {
+			orgStartTime := this.GetLocalStartDate()
+			this.SetLocalStartDate(this.GetLocalEndDate())
+			this.SetLocalEndDate(orgStartTime)
+			this.GetLocalStartDate().SetUsage(TUK_Start)
+			this.GetLocalEndDate().SetUsage(TUK_End)
+		} else if hlsd && !hled {
+			this.SetLocalEndDate(this.GetLocalStartDate())
+			this.SetLocalStartDate(nil)
+			this.GetLocalEndDate().SetUsage(TUK_End)
+		} else if !hlsd && hled {
+			this.SetLocalStartDate(this.GetLocalEndDate())
+			this.SetLocalEndDate(nil)
+			this.GetLocalStartDate().SetUsage(TUK_Start)
+		} else { //if !hlsd && !hled 
+			// TODO: Create times.
 		}
 	}
 }
