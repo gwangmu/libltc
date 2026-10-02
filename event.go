@@ -2,6 +2,7 @@ package libltc
 
 import (
 	"regexp"
+	"slices"
 
 	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/file"
@@ -253,21 +254,11 @@ func (this *Event) GetContinuedToEvents() []*Event {
 }
 
 func (this *Event) HasContinuedFromEvent(eobj *Event) bool {
-	for _, oobj := range this.contFromEvents {
-		if oobj == eobj {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(this.contFromEvents, eobj)
 }
 
 func (this *Event) HasContinuedToEvent(eobj *Event) bool {
-	for _, oobj := range this.contToEvents {
-		if oobj == eobj {
-			return true
-		}
-	}
-	return false
+    return slices.Contains(this.contToEvents, eobj)
 }
 
 //-- method (setters)
@@ -347,25 +338,19 @@ func (this *Event) addContinuedToEvent(eobj *Event) {
 }
 
 func (this *Event) removeContinuedToEvent(eobj *Event) {
-	idx := -1
-	for i, elem := range this.contToEvents {
-		if elem == eobj {
-			idx = i
-			break
-		}
-	}
-
-	if idx != -1 {
+	if idx := slices.Index(this.contToEvents, eobj); idx != -1 {
 		this.contToEvents = append(this.contToEvents[:idx], this.contToEvents[idx+1:]...)
 	}
 }
 
 //-- method (high-level operation)
 
+// Public wrapper of 'addContinuedFromEvent'.
 func (this *Event) SetContinuedFrom(eobj *Event) {
 	this.addContinuedFromEvent(eobj)
 }
 
+// Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
 	this.removeContinuedFromEvent(eobj)
 }

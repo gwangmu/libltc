@@ -3,6 +3,7 @@ package libltc
 import (
 	"errors"
 	"fmt"
+	"slices"
 
 	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/coder"
@@ -181,21 +182,11 @@ func (this *Annex) GetExtraNoteOfObjects() []IMainObj {
 }
 
 func (this *Annex) HasAttachToObject(obj IMainObj) bool {
-	for _, elem := range this.attachToObjs {
-		if elem == obj {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(this.attachToObjs, obj)
 }
 
 func (this *Annex) HasExtraNoteOfObject(obj IMainObj) bool {
-	for _, elem := range this.extraNoteOfObjs {
-		if elem == obj {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(this.extraNoteOfObjs, obj)
 }
 
 //-- method (setters)

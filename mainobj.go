@@ -1,6 +1,7 @@
 package libltc
 
 import (
+	"slices"
 	"strings"
 )
 
@@ -144,12 +145,7 @@ func (this *MainObjCommon) GetExtraNotes() (ret []*Note) {
 }
 
 func (this *MainObjCommon) HasExtraNoteAnnex(aobj *Annex) bool {
-	for _, elem := range this.extraNoteAnnexs {
-		if elem == aobj {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(this.extraNoteAnnexs, aobj)
 }
 
 func (this *MainObjCommon) AddExtraNoteAnnex(aobj *Annex) {
@@ -172,12 +168,7 @@ func (this *MainObjCommon) GetAttachedAnnexs() []*Annex {
 }
 
 func (this *MainObjCommon) HasAttachedAnnex(aobj *Annex) bool {
-	for _, elem := range this.attachedAnnexs {
-		if elem == aobj {
-			return true
-		}
-	}
-	return false
+	return slices.Contains(this.attachedAnnexs, aobj)
 }
 
 func (this *MainObjCommon) AddAttachedAnnex(aobj *Annex) {
@@ -206,11 +197,7 @@ func (this *MainObjCommon) GetAttrs(key string) []string {
 
 func (this *MainObjCommon) HasAttr(key string, value string) bool {
 	if attrlist, ok := this.attrs[key]; ok {
-		for _, elem := range attrlist {
-			if elem == value {
-				return true
-			}
-		}
+		return slices.Contains(attrlist, value)
 	}
 	return false
 }
