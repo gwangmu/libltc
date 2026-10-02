@@ -288,20 +288,13 @@ func (this *Event) SetEmbedChartLink(uri string) {
 }
 
 func (this *Event) SetLocalStartDate(t *Time) {
-    oldStartDate := this.GetStartDate()
     this.localStartDate = t
     this.correctLocalStartEndDates()
-
-    // Notify chart if 'StartDate' was changed.
-    if !oldStartDate.Equal(this.GetStartDate()) {
-        this.chart.changeEventStartDate(this)
-    }
 }
 
 func (this *Event) SetLocalEndDate(t *Time) {
-	// TODO: swap if StartDate is after `t`.
-	// TODO: if so, call `chart.changeEventStartDate()` according to above std.
-	panic("Unimplemented")
+    this.localEndDate = t
+    this.correctLocalStartEndDates()
 }
 
 // Convenience wrapper to 'SetLocalStartDate'.
@@ -526,6 +519,8 @@ func (this *Event) isEmbeddedChartLoaded() bool {
 }
 
 func (this *Event) correctLocalStartEndDates() {
+    oldStartDate := this.GetStartDate()
+
 	// Correct ambiguity.
 	// Assume 12-month years. (Sorry non-Gregorian calendars)
 	if this.GetStartDate().IsAmbiguous() && !this.GetEndDate().IsAmbiguous() {
@@ -568,6 +563,8 @@ func (this *Event) correctLocalStartEndDates() {
 			this.SetLocalEndDate(nil)
 			this.GetLocalStartDate().SetUsage(TUK_Start)
 		} else { //if !hlsd && !hled 
+            // This case shouldn't happen (unless the embedded event is broken),
+            // but if it does, create local dates to "overshadow" the problem.
             newStartDate := this.GetEndDate()
             newEndDate := this.GetStartDate()
             newStartDate.SetUsage(TUK_Start)
@@ -576,4 +573,9 @@ func (this *Event) correctLocalStartEndDates() {
             this.SetLocalEndDate(&newEndDate)
 		}
 	}
+
+    // Notify chart if 'StartDate' was changed.
+    if !oldStartDate.Equal(this.GetStartDate()) {
+        this.chart.changeEventStartDate(this)
+    }
 }
