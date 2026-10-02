@@ -42,6 +42,11 @@ type IMainObj interface {
 	convIDRelToAbs(relid string) string
 }
 
+type IMainObjPtr[T any] interface {
+	*T
+	IMainObj
+}
+
 type MainObjCommon struct {
 	kind MainObjKind			// Main object kind
 
@@ -266,6 +271,6 @@ func CreateEmptyMainObjCommon(kind MainObjKind) *MainObjCommon {
 	return createMainObjCommon(kind, "")
 }
 
-func CreateUnresolvedMainObjCommon(kind MainObjKind, relQualID string) *MainObjCommon {
-	return createMainObjCommon(kind, relQualID)
+func CreateUnresolvedMainObjCommon(relQualID string) *MainObjCommon {
+	return createMainObjCommon(MOK_Unknown, relQualID)
 }

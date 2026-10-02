@@ -244,7 +244,7 @@ func (this *Annex) unresolveAttachToObject(absQualID string) {
 		if elem.GetQualifiedID() == absQualID {
 			if !elem.IsUnresolved() {
 				elem.removeAttachedAnnex(this)
-				this.attachToObjs[i] = CreateUnresolvedMainObjCommon(MOK_Unknown, this.convIDAbsToRel(absQualID))
+				this.attachToObjs[i] = CreateUnresolvedMainObjCommon(this.convIDAbsToRel(absQualID))
 			}
 			return
 		}
@@ -289,7 +289,7 @@ func (this *Annex) unresolveExtraNoteOfObject(absQualID string) {
 		if elem.GetQualifiedID() == absQualID {
 			if !elem.IsUnresolved() {
 				elem.removeExtraNoteAnnex(this)
-				this.extraNoteOfObjs[i] = CreateUnresolvedMainObjCommon(MOK_Unknown, this.convIDAbsToRel(absQualID))
+				this.extraNoteOfObjs[i] = CreateUnresolvedMainObjCommon(this.convIDAbsToRel(absQualID))
 			}
 			return
 		}
@@ -382,12 +382,12 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	for akey, avals := range annex.attrs {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
-				uobj := CreateUnresolvedMainObjCommon(MOK_Unknown, aval)
+				uobj := CreateUnresolvedMainObjCommon(aval)
 				annex.addAttachToObject(uobj)
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
-				uobj := CreateUnresolvedMainObjCommon(MOK_Unknown, aval)
+				uobj := CreateUnresolvedMainObjCommon(aval)
 				annex.addExtraNoteOfObject(uobj)
 			}
 		}
