@@ -312,28 +312,48 @@ func (this *Event) SetCategory(c string) error {
 }
 
 func (this *Event) addContinuedFromEvent(eobj *Event) {
-	// TODO: update contToEvent of qualid (if not unresolved)
-	panic("Unimplemented")
-
     if !this.HasContinuedFromEvent(eobj) {
         this.contFromEvents = append(this.contFromEvents, eobj)
+        if !eobj.IsUnresolved() {
+            eobj.addContinuedToEvent(this)
+        }
     }
-    eobj.addContinuedToEvent(this)
 }
 
-func (this *Event) resolveContinuedFromEvent(absQualID string, newobj *Event) {
-	// TODO: update contToEvent of newobj 
-	panic("Unimplemented")
+func (this *Event) resolveContinuedFromEvent(absQualID string, newev *Event) {
+	for i, elem := range this.contFromEvents {
+		if elem.GetQualifiedID() == absQualID {
+			if elem.IsUnresolved() {
+				this.contFromEvents[i] = newev
+				newev.addContinuedToEvent(this)
+			}
+			return
+		}
+	}
 }
 
 func (this *Event) unresolveContinuedFromEvent(absQualID string) {
-	// TODO: update contToEvent of absQualID 
-	panic("Unimplemented")
+	for i, elem := range this.contFromEvents {
+		if elem.GetQualifiedID() == absQualID {
+			if !elem.IsUnresolved() {
+				elem.removeContinuedToEvent(this)
+				this.contFromEvents[i] = CreateUnresolvedEvent(this.convIDAbsToRel(absQualID))
+			}
+			return
+		}
+	}
 }
 
-func (this *Event) removeContinuedFromEvent(eobj *Event) {
-	// TODO: update contToEvent of eobj
-	panic("Unimplemented")
+func (this *Event) removeContinuedFromEvent(absQualID string) {
+	for i, elem := range this.contFromEvents {
+		if elem.GetQualifiedID() == absQualID {
+			if !elem.IsUnresolved() {
+				elem.removeContinuedToEvent(this)
+			}
+			this.contFromEvents = append(this.contFromEvents[:i], this.contFromEvents[i+1:]...) 
+			break
+		}
+	}
 }
 
 func (this *Event) addContinuedToEvent(eobj *Event) {
@@ -357,7 +377,12 @@ func (this *Event) SetContinuedFrom(eobj *Event) {
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
-	this.removeContinuedFromEvent(eobj)
+	this.removeContinuedFromEvent(eobj.GetQualifiedID())
+}
+
+// Public wrapper of 'removeContinuedFromEvent'.
+func (this *Event) UnsetContinuedFromByID(absQualID string) {
+	this.removeContinuedFromEvent(absQualID)
 }
 
 //-- method (creation)

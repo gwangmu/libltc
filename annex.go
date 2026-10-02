@@ -215,19 +215,25 @@ func (this *Annex) SetRawData(data []byte) error {
 func (this *Annex) addAttachToObject(obj IMainObj) {
 	if !this.HasAttachToObject(obj) {
 		this.attachToObjs = append(this.attachToObjs, obj)
-	}
-	if !obj.IsUnresolved() {
-		obj.addAttachedAnnex(this)
+		if !obj.IsUnresolved() {
+			obj.addAttachedAnnex(this)
+		}
 	}
 }
 
 // `(un)resolve*` kind of methods: only for the objects that can be "unresolved."
+// For the lists having `(un)resolve*`, its `remove*` function accepts a
+// qualified ID instead of an object pointer because the underlying object
+// in the list could not have been resolved yet. For the other lists, `remove*`
+// functions accept object pointers.
 
 func (this *Annex) resolveAttachToObject(absQualID string, newobj IMainObj) {
 	for i, elem := range this.attachToObjs {
-		if elem.IsUnresolved() && elem.GetQualifiedID() == absQualID {
-			this.attachToObjs[i] = newobj
-			newobj.addAttachedAnnex(this)
+		if elem.GetQualifiedID() == absQualID {
+			if elem.IsUnresolved() {
+				this.attachToObjs[i] = newobj
+				newobj.addAttachedAnnex(this)
+			}
 			return
 		}
 	}
@@ -235,40 +241,44 @@ func (this *Annex) resolveAttachToObject(absQualID string, newobj IMainObj) {
 
 func (this *Annex) unresolveAttachToObject(absQualID string) {
 	for i, elem := range this.attachToObjs {
-		if !elem.IsUnresolved() && elem.GetQualifiedID() == absQualID {
-			this.attachToObjs[i].removeAttachedAnnex(this)
-			this.attachToObjs[i] = CreateUnresolvedMainObjCommon(MOK_Unknown, this.convIDAbsToRel(absQualID))
+		if elem.GetQualifiedID() == absQualID {
+			if !elem.IsUnresolved() {
+				elem.removeAttachedAnnex(this)
+				this.attachToObjs[i] = CreateUnresolvedMainObjCommon(MOK_Unknown, this.convIDAbsToRel(absQualID))
+			}
 			return
 		}
 	}
 }
 
-func (this *Annex) removeAttachToObject(obj IMainObj) {
+func (this *Annex) removeAttachToObject(absQualID string) {
 	for i, elem := range this.attachToObjs {
-		if elem == obj {
+		if elem.GetQualifiedID() == absQualID {
+			if !elem.IsUnresolved() {
+				elem.removeAttachedAnnex(this)
+			}
 			this.attachToObjs = append(this.attachToObjs[:i], this.attachToObjs[i+1:]...) 
 			break
 		}
-	}
-	if !obj.IsUnresolved() {
-		obj.removeAttachedAnnex(this)
 	}
 }
 
 func (this *Annex) addExtraNoteOfObject(obj IMainObj) {
 	if !this.HasExtraNoteOfObject(obj) {
 		this.extraNoteOfObjs = append(this.extraNoteOfObjs, obj)
-	}
-	if !obj.IsUnresolved() {
-		obj.addExtraNoteAnnex(this)
+		if !obj.IsUnresolved() {
+			obj.addExtraNoteAnnex(this)
+		}
 	}
 }
 
 func (this *Annex) resolveExtraNoteOfObject(absQualID string, newobj IMainObj) {
 	for i, elem := range this.extraNoteOfObjs {
-		if elem.IsUnresolved() && elem.GetQualifiedID() == absQualID {
-			this.extraNoteOfObjs[i] = newobj
-			newobj.addExtraNoteAnnex(this)
+		if elem.GetQualifiedID() == absQualID {
+			if elem.IsUnresolved() {
+				this.extraNoteOfObjs[i] = newobj
+				newobj.addExtraNoteAnnex(this)
+			}
 			return
 		}
 	}
@@ -276,23 +286,25 @@ func (this *Annex) resolveExtraNoteOfObject(absQualID string, newobj IMainObj) {
 
 func (this *Annex) unresolveExtraNoteOfObject(absQualID string) {
 	for i, elem := range this.extraNoteOfObjs {
-		if !elem.IsUnresolved() && elem.GetQualifiedID() == absQualID {
-			this.extraNoteOfObjs[i].removeExtraNoteAnnex(this)
-			this.extraNoteOfObjs[i] = CreateUnresolvedMainObjCommon(MOK_Unknown, this.convIDAbsToRel(absQualID))
+		if elem.GetQualifiedID() == absQualID {
+			if !elem.IsUnresolved() {
+				elem.removeExtraNoteAnnex(this)
+				this.extraNoteOfObjs[i] = CreateUnresolvedMainObjCommon(MOK_Unknown, this.convIDAbsToRel(absQualID))
+			}
 			return
 		}
 	}
 }
 
-func (this *Annex) removeExtraNoteOfObject(obj IMainObj) {
+func (this *Annex) removeExtraNoteOfObject(absQualID string) {
 	for i, elem := range this.extraNoteOfObjs {
-		if elem == obj {
+		if elem.GetQualifiedID() == absQualID {
+			if !elem.IsUnresolved() {
+				elem.removeExtraNoteAnnex(this)
+			}
 			this.extraNoteOfObjs = append(this.extraNoteOfObjs[:i], this.extraNoteOfObjs[i+1:]...) 
 			break
 		}
-	}
-	if !obj.IsUnresolved() {
-		obj.removeExtraNoteAnnex(this)
 	}
 }
 
@@ -312,20 +324,34 @@ func (this *Annex) SetAnnex(format string, encoding string, data []byte) error {
 	}
 }
 
+// Public wrapper of 'addExtraNoteOfObject'.
 func (this *Annex) SetExtraNoteOf(obj IMainObj) {
 	this.addExtraNoteOfObject(obj)
 }
 
+// Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOf(obj IMainObj) {
-	this.removeExtraNoteOfObject(obj)
+	this.removeExtraNoteOfObject(obj.GetQualifiedID())
 }
 
+// Public wrapper of 'removeExtraNoteOfObject'.
+func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
+	this.removeExtraNoteOfObject(absQualID)
+}
+
+// Public wrapper of 'addAttachToObject'.
 func (this *Annex) SetAttachTo(obj IMainObj) {
 	this.addAttachToObject(obj)
 }
 
+// Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachTo(obj IMainObj) {
-	this.removeAttachToObject(obj)
+	this.removeAttachToObject(obj.GetQualifiedID())
+}
+
+// Public wrapper of 'removeAttachToObject'.
+func (this *Annex) UnsetAttachToByID(absQualID string) {
+	this.removeAttachToObject(absQualID)
 }
 
 //-- method (creation)
