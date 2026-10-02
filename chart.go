@@ -12,13 +12,14 @@ import (
 type IChart interface {
 	GetStringifiedSubjectName() string
 	GetAnnexs() []*Annex
+	GetImports() []*Import
 	GetObject(qualid string) IMainObj 
 	GetObjectByLocalID(locid string) IMainObj 
 	GetAllMainObjects() []IMainObj
 	GetEmbeddingEvent() *Event
 	GetEventCategories() []string
 	GetEventsInCategory(category string) []*Event
-	HasObject(obj IMainObj, onlyLocal bool) bool
+	HasObject(absQualID string) bool
 
 	getNextNumberID(kind MainObjKind) (NumberID, error) 
 
@@ -145,13 +146,11 @@ func (this *Chart) GetStringifiedSubjectName() string {
 }
 
 func (this *Chart) GetAnnexs() []*Annex {
-	// TODO
-	panic("Unimplemented")
+	return this.annexs
 }
 
 func (this *Chart) GetImports() []*Import {
-	// TODO
-	panic("Unimplemented")
+	return this.imports
 }
 
 //-- method (setters)
@@ -168,13 +167,23 @@ func (this *Chart) GetObject(qualid string) IMainObj {
 }
 
 func (this *Chart) GetObjectByLocalID(locid string) IMainObj {
-	// TODO: return obj by qualified id.
+	// TODO: return obj by local id.
 	panic("Unimplemented")
 }
 
-func (this *Chart) GetAllMainObjects() []IMainObj {
-	// TODO
-	panic("Unimplemented")
+func (this *Chart) GetAllMainObjects() (ret []IMainObj) {
+	for _, evs := range this.events {
+		for _, eobj := range evs {
+			ret = append(ret, eobj)
+		}
+	}
+	for _, aobj := range this.annexs {
+		ret = append(ret, aobj)
+	}
+	for _, iobj := range this.imports {
+		ret = append(ret, iobj)
+	}
+	return
 }
 
 func (this *Chart) GetEventCategories() []string {
@@ -195,7 +204,7 @@ func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end T
 	panic("Unimplemented")
 }
 
-func (this *Chart) HasObject(obj IMainObj, onlyLocal bool) bool {
+func (this *Chart) HasObject(absQualID string) bool {
 	// TODO
 	panic("Unimplemented")
 }
@@ -224,12 +233,6 @@ func (this *Chart) ReserveEventCategory(category string) {
 	if _, ok := this.events[category]; !ok {
 		this.events[category] = []*Event{}
 	}
-}
-
-func (this *Chart) MoveEventCategory(eobj *Event, category string) {
-	// TODO: move the `eobj`s category to `category`.
-	// TODO: this should move the chart's cache AND the `category` in event.
-	panic("Unimplemented")
 }
 
 //-- method (creation)

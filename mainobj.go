@@ -48,7 +48,7 @@ type MainObjCommon struct {
 	chart IChart				// Associated chart
 	parent IMainObj				// Included by... (nil: chart-local)
 	numID NumberID 				// Numeric part of ID
-	unresRelQualID string 				// Full ID (ONLY FOR UNRESOLVED! Relative to parent)
+	unresRelQualID string		// **UNRESOLVED** qualified ID (relative to creator's parent)
 
 	extraNoteAnnexs []*Annex	// Annexs as extra notes
 	attachedAnnexs []*Annex		// Annexs as attachments
