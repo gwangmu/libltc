@@ -115,7 +115,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 
 				if objTo != nil && !objTo.HasAttachedAnnex(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'AttachTo' to '%s', but it doesn't reference back. corrected.", this, aval)
-					objTo.AddAttachedAnnex(this)
+					objTo.addAttachedAnnex(this)
 				}
 			}
 		} else if akey == "ExtraNoteOf" {
@@ -134,7 +134,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 
 				if objOf != nil && !objOf.HasExtraNoteAnnex(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'ExtraNoteOf' to '%s', but it doesn't reference back. corrected.", this, aval)
-					objOf.AddExtraNoteAnnex(this)
+					objOf.addExtraNoteAnnex(this)
 				}
 			}
 		}
@@ -216,7 +216,9 @@ func (this *Annex) addAttachToObject(obj IMainObj) {
 	if !this.HasAttachToObject(obj) {
 		this.attachToObjs = append(this.attachToObjs, obj)
 	}
-	obj.AddAttachedAnnex(this)
+	if !obj.IsUnresolved() {
+		obj.addAttachedAnnex(this)
+	}
 }
 
 // `(un)resolve*` kind of methods: only for the objects that can be "unresolved."
@@ -225,6 +227,7 @@ func (this *Annex) resolveAttachToObject(absQualID string, newobj IMainObj) {
 	for i, elem := range this.attachToObjs {
 		if elem.IsUnresolved() && elem.GetQualifiedID() == absQualID {
 			this.attachToObjs[i] = newobj
+			newobj.addAttachedAnnex(this)
 			return
 		}
 	}
@@ -233,6 +236,7 @@ func (this *Annex) resolveAttachToObject(absQualID string, newobj IMainObj) {
 func (this *Annex) unresolveAttachToObject(absQualID string) {
 	for i, elem := range this.attachToObjs {
 		if !elem.IsUnresolved() && elem.GetQualifiedID() == absQualID {
+			this.attachToObjs[i].removeAttachedAnnex(this)
 			this.attachToObjs[i] = CreateUnresolvedMainObjCommon(MOK_Unknown, this.convIDAbsToRel(absQualID))
 			return
 		}
@@ -246,20 +250,25 @@ func (this *Annex) removeAttachToObject(obj IMainObj) {
 			break
 		}
 	}
-	obj.RemoveAttachedAnnex(this)
+	if !obj.IsUnresolved() {
+		obj.removeAttachedAnnex(this)
+	}
 }
 
 func (this *Annex) addExtraNoteOfObject(obj IMainObj) {
 	if !this.HasExtraNoteOfObject(obj) {
 		this.extraNoteOfObjs = append(this.extraNoteOfObjs, obj)
 	}
-	obj.AddExtraNoteAnnex(this)
+	if !obj.IsUnresolved() {
+		obj.addExtraNoteAnnex(this)
+	}
 }
 
 func (this *Annex) resolveExtraNoteOfObject(absQualID string, newobj IMainObj) {
 	for i, elem := range this.extraNoteOfObjs {
 		if elem.IsUnresolved() && elem.GetQualifiedID() == absQualID {
 			this.extraNoteOfObjs[i] = newobj
+			newobj.addExtraNoteAnnex(this)
 			return
 		}
 	}
@@ -268,6 +277,7 @@ func (this *Annex) resolveExtraNoteOfObject(absQualID string, newobj IMainObj) {
 func (this *Annex) unresolveExtraNoteOfObject(absQualID string) {
 	for i, elem := range this.extraNoteOfObjs {
 		if !elem.IsUnresolved() && elem.GetQualifiedID() == absQualID {
+			this.extraNoteOfObjs[i].removeExtraNoteAnnex(this)
 			this.extraNoteOfObjs[i] = CreateUnresolvedMainObjCommon(MOK_Unknown, this.convIDAbsToRel(absQualID))
 			return
 		}
@@ -281,7 +291,9 @@ func (this *Annex) removeExtraNoteOfObject(obj IMainObj) {
 			break
 		}
 	}
-	obj.RemoveExtraNoteAnnex(this)
+	if !obj.IsUnresolved() {
+		obj.removeExtraNoteAnnex(this)
+	}
 }
 
 //-- method (high-level operation)

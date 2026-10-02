@@ -26,13 +26,13 @@ type IMainObj interface {
 
 	GetExtraNotes() (ret []*Note)
 	HasExtraNoteAnnex(aobj *Annex) bool
-	AddExtraNoteAnnex(aobj *Annex)
-	RemoveExtraNoteAnnex(aobj *Annex)
+	addExtraNoteAnnex(aobj *Annex)
+	removeExtraNoteAnnex(aobj *Annex)
 
 	GetAttachedAnnexs() []*Annex
 	HasAttachedAnnex(aobj *Annex) bool
-	AddAttachedAnnex(aobj *Annex)
-	RemoveAttachedAnnex(aobj *Annex)
+	addAttachedAnnex(aobj *Annex)
+	removeAttachedAnnex(aobj *Annex)
 
 	GetAttrs(key string) []string
 	HasAttr(key string, value string) bool
@@ -148,13 +148,13 @@ func (this *MainObjCommon) HasExtraNoteAnnex(aobj *Annex) bool {
 	return slices.Contains(this.extraNoteAnnexs, aobj)
 }
 
-func (this *MainObjCommon) AddExtraNoteAnnex(aobj *Annex) {
+func (this *MainObjCommon) addExtraNoteAnnex(aobj *Annex) {
 	if !this.HasExtraNoteAnnex(aobj) {
 		this.extraNoteAnnexs = append(this.extraNoteAnnexs, aobj)
 	}
 }
 
-func (this *MainObjCommon) RemoveExtraNoteAnnex(aobj *Annex) {
+func (this *MainObjCommon) removeExtraNoteAnnex(aobj *Annex) {
 	for i, elem := range this.extraNoteAnnexs {
 		if elem == aobj {
 			this.extraNoteAnnexs = append(this.extraNoteAnnexs[:i], this.extraNoteAnnexs[i+1:]...) 
@@ -171,13 +171,13 @@ func (this *MainObjCommon) HasAttachedAnnex(aobj *Annex) bool {
 	return slices.Contains(this.attachedAnnexs, aobj)
 }
 
-func (this *MainObjCommon) AddAttachedAnnex(aobj *Annex) {
+func (this *MainObjCommon) addAttachedAnnex(aobj *Annex) {
 	if !this.HasAttachedAnnex(aobj) {
 		this.attachedAnnexs = append(this.attachedAnnexs, aobj)
 	}
 }
 
-func (this *MainObjCommon) RemoveAttachedAnnex(aobj *Annex) {
+func (this *MainObjCommon) removeAttachedAnnex(aobj *Annex) {
 	for i, elem := range this.attachedAnnexs {
 		if elem == aobj {
 			this.attachedAnnexs = append(this.attachedAnnexs[:i], this.attachedAnnexs[i+1:]...) 

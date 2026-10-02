@@ -314,6 +314,11 @@ func (this *Event) SetCategory(c string) error {
 func (this *Event) addContinuedFromEvent(eobj *Event) {
 	// TODO: update contToEvent of qualid (if not unresolved)
 	panic("Unimplemented")
+
+    if !this.HasContinuedFromEvent(eobj) {
+        this.contFromEvents = append(this.contFromEvents, eobj)
+    }
+    eobj.addContinuedToEvent(this)
 }
 
 func (this *Event) resolveContinuedFromEvent(absQualID string, newobj *Event) {
