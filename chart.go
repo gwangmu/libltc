@@ -332,8 +332,6 @@ func CreateEmptyChart() *Chart {
 
 //-- struct Setting 
 
-type WSE = warning.SummaryElement
-
 type Setting struct {
 	CalendarSystem string
 	NoteFormat string

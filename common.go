@@ -10,6 +10,8 @@ import (
 	"github.com/gwangmu/libltc/internal/file"
 )
 
+type WSE = warning.SummaryElement
+
 //-- Common interfaces
 
 type IStringifiable interface {

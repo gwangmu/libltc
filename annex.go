@@ -27,14 +27,28 @@ type Annex struct {
 
 //-- interface IWarningObj
 
-func (this *Annex) Summary() string {
-	// TODO: unimplemented
-	return "an annex"
+func (this *Annex) Summary() (ret string) {
+	if this.Title != "" {
+		ret = "an annex '" + this.Title + "'"
+	} else {
+		ret = "a untitled annex"
+	}
+
+	extraStr := warning.BuildSummaryString(
+		WSE{"ID", this.GetLocalID()},
+		WSE{"format", this.format}, 
+		WSE{"encoding", this.encoding},
+	)
+	if (len(extraStr) > 0) {
+		ret += " (" + extraStr + ")"
+	}
+	
+	return
 }
 
 func (this *Annex) IsUnknown() bool {
-	// TODO: unimplemented
-	return false
+	return this.Title == "" && this.GetLocalID() == "" &&
+		this.format == "" && this.encoding == ""
 }
 
 //-- interface IDiagnosable
