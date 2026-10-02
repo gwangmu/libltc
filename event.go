@@ -320,16 +320,18 @@ func (this *Event) addContinuedFromEvent(eobj *Event) {
     }
 }
 
-func (this *Event) resolveContinuedFromEvent(absQualID string, newev *Event) {
+func (this *Event) resolveContinuedFromEvent(newev *Event) bool {
+    absQualID := newev.GetQualifiedID() 
 	for i, elem := range this.contFromEvents {
 		if elem.GetQualifiedID() == absQualID {
 			if elem.IsUnresolved() {
 				this.contFromEvents[i] = newev
 				newev.addContinuedToEvent(this)
 			}
-			return
+			return true
 		}
 	}
+    return false
 }
 
 func (this *Event) unresolveContinuedFromEvent(absQualID string) {
@@ -351,7 +353,7 @@ func (this *Event) removeContinuedFromEvent(absQualID string) {
 				elem.removeContinuedToEvent(this)
 			}
 			this.contFromEvents = append(this.contFromEvents[:i], this.contFromEvents[i+1:]...) 
-			break
+			return
 		}
 	}
 }

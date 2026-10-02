@@ -57,15 +57,38 @@ func (this *Chart) asChart() *Chart {
 }
 
 func (this *Chart) resolveReferenceTo(obj IMainObj) {
-	// TODO: resolve dangling references to `obj` in existing objs.
-	// TODO: assume GetQualifiedID() of `obj` is valid.
-	panic("Unimplemented")
+	for _, evs := range this.events {
+		for _, event := range evs {
+			switch eobj := obj.(type) {
+			case *Event:
+				event.resolveContinuedFromEvent(eobj)
+			}
+		}
+	}
+
+	for _, annex := range this.annexs {
+		annex.resolveAttachToObject(obj)
+		annex.resolveExtraNoteOfObject(obj)
+	}
 }
 
 func (this *Chart) unresolveReferenceTo(obj IMainObj) {
 	// TODO: change references to `obj` dangling ref.
 	// TODO: assume GetQualifiedID() of `obj` is valid.
 	panic("Unimplemented")
+
+	objID := obj.GetQualifiedID()
+	
+	for _, evs := range this.events {
+		for _, event := range evs {
+			event.unresolveContinuedFromEvent(objID)
+		}
+	}
+
+	for _, annex := range this.annexs {
+		annex.unresolveAttachToObject(objID)
+		annex.unresolveExtraNoteOfObject(objID)
+	}
 }
 
 func (this *Chart) changeEventStartDate(eobj *Event) {

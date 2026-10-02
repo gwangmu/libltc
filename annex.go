@@ -227,16 +227,18 @@ func (this *Annex) addAttachToObject(obj IMainObj) {
 // in the list could not have been resolved yet. For the other lists, `remove*`
 // functions accept object pointers.
 
-func (this *Annex) resolveAttachToObject(absQualID string, newobj IMainObj) {
+func (this *Annex) resolveAttachToObject(newobj IMainObj) bool {
+    absQualID := newobj.GetQualifiedID() 
 	for i, elem := range this.attachToObjs {
 		if elem.GetQualifiedID() == absQualID {
 			if elem.IsUnresolved() {
 				this.attachToObjs[i] = newobj
 				newobj.addAttachedAnnex(this)
 			}
-			return
+			return true
 		}
 	}
+	return false
 }
 
 func (this *Annex) unresolveAttachToObject(absQualID string) {
@@ -246,7 +248,7 @@ func (this *Annex) unresolveAttachToObject(absQualID string) {
 				elem.removeAttachedAnnex(this)
 				this.attachToObjs[i] = CreateUnresolvedMainObjCommon(this.convIDAbsToRel(absQualID))
 			}
-			return
+			return 
 		}
 	}
 }
@@ -258,7 +260,7 @@ func (this *Annex) removeAttachToObject(absQualID string) {
 				elem.removeAttachedAnnex(this)
 			}
 			this.attachToObjs = append(this.attachToObjs[:i], this.attachToObjs[i+1:]...) 
-			break
+			return
 		}
 	}
 }
@@ -272,16 +274,18 @@ func (this *Annex) addExtraNoteOfObject(obj IMainObj) {
 	}
 }
 
-func (this *Annex) resolveExtraNoteOfObject(absQualID string, newobj IMainObj) {
+func (this *Annex) resolveExtraNoteOfObject(newobj IMainObj) bool {
+    absQualID := newobj.GetQualifiedID() 
 	for i, elem := range this.extraNoteOfObjs {
 		if elem.GetQualifiedID() == absQualID {
 			if elem.IsUnresolved() {
 				this.extraNoteOfObjs[i] = newobj
 				newobj.addExtraNoteAnnex(this)
 			}
-			return
+			return true
 		}
 	}
+	return false
 }
 
 func (this *Annex) unresolveExtraNoteOfObject(absQualID string) {
@@ -291,7 +295,7 @@ func (this *Annex) unresolveExtraNoteOfObject(absQualID string) {
 				elem.removeExtraNoteAnnex(this)
 				this.extraNoteOfObjs[i] = CreateUnresolvedMainObjCommon(this.convIDAbsToRel(absQualID))
 			}
-			return
+			return 
 		}
 	}
 }
@@ -303,7 +307,7 @@ func (this *Annex) removeExtraNoteOfObject(absQualID string) {
 				elem.removeExtraNoteAnnex(this)
 			}
 			this.extraNoteOfObjs = append(this.extraNoteOfObjs[:i], this.extraNoteOfObjs[i+1:]...) 
-			break
+			return 
 		}
 	}
 }
