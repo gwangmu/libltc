@@ -103,7 +103,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var objTo IMainObj
 				for _, aobjIn := range this.attachToObjs {
-					if aobjIn.GetQualifiedIDFrom(this.chart.GetEmbeddingEvent()) == aval {
+					if aobjIn.GetQualifiedID() == this.convIDRelToAbs(aval) {
 						objTo = aobjIn
 						break
 					}
@@ -122,7 +122,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var objOf IMainObj
 				for _, aobjIn := range this.extraNoteOfObjs {
-					if aobjIn.GetQualifiedIDFrom(this.chart.GetEmbeddingEvent()) == aval {
+					if aobjIn.GetQualifiedID() == this.convIDRelToAbs(aval) {
 						objOf = aobjIn
 						break
 					}
@@ -216,6 +216,8 @@ func (this *Annex) addAttachToObject(obj IMainObj) {
 	if !this.HasAttachToObject(obj) {
 		this.attachToObjs = append(this.attachToObjs, obj)
 	}
+
+	// TODO: update 'obj's attachobj
 }
 
 // `(un)resolve*` kind of methods: only for the objects that can be "unresolved."
@@ -245,12 +247,16 @@ func (this *Annex) removeAttachToObject(obj IMainObj) {
 			break
 		}
 	}
+
+	// TODO: update 'obj's attachobj
 }
 
 func (this *Annex) addExtraNoteOfObject(obj IMainObj) {
 	if !this.HasExtraNoteOfObject(obj) {
 		this.extraNoteOfObjs = append(this.extraNoteOfObjs, obj)
 	}
+
+	// TODO: update 'obj's extranoteobj
 }
 
 func (this *Annex) resolveExtraNoteOfObject(qualid string, newobj IMainObj) {
@@ -278,6 +284,8 @@ func (this *Annex) removeExtraNoteOfObject(obj IMainObj) {
 			break
 		}
 	}
+
+	// TODO: update 'obj's extranoteobj
 }
 
 //-- method (high-level operation)

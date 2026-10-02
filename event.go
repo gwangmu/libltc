@@ -128,7 +128,7 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var eobjFrom *Event
 				for _, eobjIn := range this.contFromEvents {
-					if eobjIn.GetQualifiedIDFrom(this.chart.GetEmbeddingEvent()) == aval {
+					if eobjIn.GetQualifiedID() == this.convIDRelToAbs(aval) {
 						eobjFrom = eobjIn
 						break
 					}
@@ -312,7 +312,7 @@ func (this *Event) SetCategory(c string) error {
 }
 
 func (this *Event) addContinuedFromEvent(eobj *Event) {
-	// TODO: update contToEvent of eobj (if not unresolved)
+	// TODO: update contToEvent of qualid (if not unresolved)
 	panic("Unimplemented")
 }
 

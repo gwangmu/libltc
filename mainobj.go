@@ -19,7 +19,6 @@ type IMainObj interface {
 	IsUnresolved() bool
 
 	GetLocalID() string 
-	GetQualifiedIDFrom(stopAt IMainObj) string
 	GetQualifiedID() string
 
 	GetParent() IMainObj
@@ -39,6 +38,8 @@ type IMainObj interface {
 	HasAttr(key string, value string) bool
 	AddAttr(key string, value string)
 	RemoveAttr(key string, value string)
+
+	convIDRelToAbs(relid string) string
 }
 
 type MainObjCommon struct {
@@ -110,23 +111,22 @@ func (this *MainObjCommon) GetLocalID() string {
 	}
 }
 
-func (this *MainObjCommon) GetQualifiedIDFrom(stopAt IMainObj) (ret string) {
-	if this.kind == MOK_Unknown {
+func (this *MainObjCommon) GetQualifiedID() (ret string) {
+	if this.IsUnresolved() {
 		fullid := this.fullID
-		baseid := stopAt.GetQualifiedID()
-		return strings.TrimLeft(strings.TrimPrefix(fullid, baseid), "/")
+		prefixid := ""
+		if this.parent != nil {
+			prefixid = this.parent.GetQualifiedID() + "/"
+		}
+		return prefixid + fullid
 	} else {
-		if this.parent != nil && this.parent != stopAt {
-			ret = this.parent.GetQualifiedIDFrom(stopAt) + "/"
+		if this.parent != nil {
+			ret = this.parent.GetQualifiedID() + "/"
 		}
 
 		ret += this.GetLocalID()
 		return
 	}
-}
-
-func (this *MainObjCommon) GetQualifiedID() string {
-	return this.GetQualifiedIDFrom(nil)
 }
 
 func (this *MainObjCommon) GetParent() IMainObj {
@@ -225,6 +225,14 @@ func (this *MainObjCommon) RemoveAttr(key string, value string) {
 				return
 			}
 		}
+	}
+}
+
+func (this *MainObjCommon) convIDRelToAbs(relid string) string {
+	if this.parent != nil {
+		return this.parent.GetQualifiedID() + "/" + relid
+	} else {
+		return relid
 	}
 }
 
