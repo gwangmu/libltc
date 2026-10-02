@@ -14,8 +14,8 @@ type IMainObj interface {
 	getNumberID() NumberID 
 	setNumberID(nid NumberID)
 
-	getFullID() string
-	setFullID(fullid string)
+	getUnresRelQualID() string
+	setUnresRelQualID(unresRelQualID string)
 	IsUnresolved() bool
 
 	GetLocalID() string 
@@ -48,7 +48,7 @@ type MainObjCommon struct {
 	chart IChart				// Associated chart
 	parent IMainObj				// Included by... (nil: chart-local)
 	numID NumberID 				// Numeric part of ID
-	fullID string 				// Full ID (ONLY FOR UNRESOLVED!)
+	unresRelQualID string 				// Full ID (ONLY FOR UNRESOLVED! Relative to parent)
 
 	extraNoteAnnexs []*Annex	// Annexs as extra notes
 	attachedAnnexs []*Annex		// Annexs as attachments
@@ -82,29 +82,29 @@ func (this *MainObjCommon) setNumberID(nid NumberID) {
 	this.numID = nid
 }
 
-func (this *MainObjCommon) getFullID() string {
-	return this.fullID
+func (this *MainObjCommon) getUnresRelQualID() string {
+	return this.unresRelQualID
 }
 
-func (this *MainObjCommon) setFullID(fullid string) {
-	this.fullID = fullid
+func (this *MainObjCommon) setUnresRelQualID(unresRelQualID string) {
+	this.unresRelQualID = unresRelQualID
 }
 
 func (this MainObjCommon) IsUnresolved() bool {
-	return this.fullID != ""
+	return this.unresRelQualID != ""
 }
 
 func (this *MainObjCommon) GetLocalID() string {
 	if this.kind == MOK_Unknown {
-		fullid := this.fullID
-		lastidx := strings.LastIndex(fullid, "/")
+		unresRelQualID := this.unresRelQualID
+		lastidx := strings.LastIndex(unresRelQualID, "/")
 
 		if lastidx == -1 {
-			return fullid
-		} else if len(fullid) < lastidx + 1 {
+			return unresRelQualID
+		} else if len(unresRelQualID) < lastidx + 1 {
 			return ""
 		} else {
-			return fullid[lastidx+1:]
+			return unresRelQualID[lastidx+1:]
 		}
 	} else {
 		return convIDInternalToString(this.kind, this.numID)
@@ -113,12 +113,12 @@ func (this *MainObjCommon) GetLocalID() string {
 
 func (this *MainObjCommon) GetQualifiedID() (ret string) {
 	if this.IsUnresolved() {
-		fullid := this.fullID
+		unresRelQualID := this.unresRelQualID
 		prefixid := ""
 		if this.parent != nil {
 			prefixid = this.parent.GetQualifiedID() + "/"
 		}
-		return prefixid + fullid
+		return prefixid + unresRelQualID
 	} else {
 		if this.parent != nil {
 			ret = this.parent.GetQualifiedID() + "/"
@@ -236,17 +236,25 @@ func (this *MainObjCommon) convIDRelToAbs(relid string) string {
 	}
 }
 
-// Unresolved = non-empty `fullid`
-// `fullid` should be a "qualified" ID, meaning if an object was included,
-// the `fullid` here should prepend the qualified ID of the chart-embedding event object.
-func createMainObjCommon(kind MainObjKind, fullid string) *MainObjCommon {
+func (this *MainObjCommon) convIDAbsToRel(absid string) string {
+	if this.parent != nil {
+		return strings.TrimPrefix(absid, this.parent.GetQualifiedID() + "/")
+	} else {
+		return absid
+	}
+}
+
+// Unresolved = non-empty `unresRelQualID`
+// `unresRelQualID` should be a "qualified" ID, meaning if an object was included,
+// the `unresRelQualID` here should prepend the qualified ID of the chart-embedding event object.
+func createMainObjCommon(kind MainObjKind, unresRelQualID string) *MainObjCommon {
 	return &MainObjCommon{
 		kind: kind,
 
 		chart: nil,
 		parent: nil,
 		numID: NID_Invalid,
-		fullID: fullid,
+		unresRelQualID: unresRelQualID,
 
 		extraNoteAnnexs: []*Annex{},
 		attachedAnnexs: []*Annex{},
@@ -258,6 +266,6 @@ func CreateEmptyMainObjCommon(kind MainObjKind) *MainObjCommon {
 	return createMainObjCommon(kind, "")
 }
 
-func CreateUnresolvedMainObjCommon(kind MainObjKind, fullid string) *MainObjCommon {
-	return createMainObjCommon(kind, fullid)
+func CreateUnresolvedMainObjCommon(kind MainObjKind, relQualID string) *MainObjCommon {
+	return createMainObjCommon(kind, relQualID)
 }

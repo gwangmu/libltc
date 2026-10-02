@@ -316,13 +316,13 @@ func (this *Event) addContinuedFromEvent(eobj *Event) {
 	panic("Unimplemented")
 }
 
-func (this *Event) resolveContinuedFromEvent(qualid string, newobj *Event) {
+func (this *Event) resolveContinuedFromEvent(absQualID string, newobj *Event) {
 	// TODO: update contToEvent of newobj 
 	panic("Unimplemented")
 }
 
-func (this *Event) unresolveContinuedFromEvent(qualid string) {
-	// TODO: update contToEvent of qualid 
+func (this *Event) unresolveContinuedFromEvent(absQualID string) {
+	// TODO: update contToEvent of absQualID 
 	panic("Unimplemented")
 }
 
@@ -436,9 +436,9 @@ func CreateEmptyEvent() *Event {
 	} 
 }
 
-func CreateUnresolvedEvent(fullid string) *Event {
+func CreateUnresolvedEvent(relQualID string) *Event {
 	ret := CreateEmptyEvent()
-	ret.fullID = fullid
+	ret.setUnresRelQualID(relQualID)
 	return ret
 }
 
