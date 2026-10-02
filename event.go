@@ -288,18 +288,30 @@ func (this *Event) SetEmbedChartLink(uri string) {
 }
 
 func (this *Event) SetLocalStartDate(t *Time) {
-	// TODO: call 'GetChart().changeEventStartDate()' if successful.
-	// TODO: "successful": non-embedding event, unconditional.
-	// 			embedding event, (before) local unused, (after) local used.
-	//			embedding event, (before) local used, (after) local unused.
-	//			embedding event, (before) local used, (after) local used.
-	panic("Unimplemented")
+    oldStartDate := this.GetStartDate()
+    this.localStartDate = t
+    this.correctLocalStartEndDates()
+
+    // Notify chart if 'StartDate' was changed.
+    if !oldStartDate.Equal(this.GetStartDate()) {
+        this.chart.changeEventStartDate(this)
+    }
 }
 
 func (this *Event) SetLocalEndDate(t *Time) {
 	// TODO: swap if StartDate is after `t`.
 	// TODO: if so, call `chart.changeEventStartDate()` according to above std.
 	panic("Unimplemented")
+}
+
+// Convenience wrapper to 'SetLocalStartDate'.
+func (this *Event) SetStartDate(t Time) {
+	this.SetLocalStartDate(&t)
+}
+
+// Convenience wrapper to 'SetLocalEndDate'.
+func (this *Event) SetEndDate(t Time) {
+	this.SetLocalEndDate(&t)
 }
 
 func (this *Event) SetCategory(c string) error {
@@ -542,9 +554,9 @@ func (this *Event) correctLocalStartEndDates() {
 		hled := this.HasLocalEndDate()
 		
 		if hlsd && hled {
-			orgStartTime := this.GetLocalStartDate()
+			orgStartDate := this.GetLocalStartDate()
 			this.SetLocalStartDate(this.GetLocalEndDate())
-			this.SetLocalEndDate(orgStartTime)
+			this.SetLocalEndDate(orgStartDate)
 			this.GetLocalStartDate().SetUsage(TUK_Start)
 			this.GetLocalEndDate().SetUsage(TUK_End)
 		} else if hlsd && !hled {
@@ -556,7 +568,12 @@ func (this *Event) correctLocalStartEndDates() {
 			this.SetLocalEndDate(nil)
 			this.GetLocalStartDate().SetUsage(TUK_Start)
 		} else { //if !hlsd && !hled 
-			// TODO: Create times.
+            newStartDate := this.GetEndDate()
+            newEndDate := this.GetStartDate()
+            newStartDate.SetUsage(TUK_Start)
+            newEndDate.SetUsage(TUK_End)
+            this.SetLocalStartDate(&newStartDate)
+            this.SetLocalEndDate(&newEndDate)
 		}
 	}
 }
