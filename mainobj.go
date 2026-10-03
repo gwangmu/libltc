@@ -62,6 +62,8 @@ type MainObjCommon struct {
 	extraNoteAnnexs []*Annex	// Annexs as extra notes
 	attachedAnnexs []*Annex		// Annexs as attachments
 	attrs map[string][]string	// Attributes
+
+	epAttached Endpoint[Annex, *Annex]
 }
 
 //-- struct MainObjCommon: method

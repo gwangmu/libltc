@@ -10,6 +10,23 @@ import (
 	"github.com/gwangmu/libltc/internal/file"
 )
 
+type AttachTo struct {}
+func (this AttachTo) GetSourceEndpoint(aobj *Annex) *Endpoint[MainObjCommon, *MainObjCommon] {
+	return &aobj.epAttachTo
+}
+func (this AttachTo) GetSinkEndpoint(obj *MainObjCommon) *Endpoint[Annex, *Annex] {
+	return &obj.epAttached
+}
+func (this AttachTo) GetUnresolver(obj *MainObjCommon) func (string) {
+	return obj.markUnresolved
+}
+func (this AttachTo) GetResolver(obj *MainObjCommon) func () {
+	return obj.unmarkUnresolved
+}
+func (this AttachTo) GetInitializer(obj *MainObjCommon) func () {
+	return obj.initialize
+}
+
 type Annex struct {
 	MainObjCommon
 
@@ -24,6 +41,8 @@ type Annex struct {
 
 	attachToObjs []IMainObj
 	extraNoteOfObjs []IMainObj
+
+	epAttachTo Endpoint[MainObjCommon, *MainObjCommon]
 }
 
 //-- interface IMainObj
