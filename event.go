@@ -23,7 +23,7 @@ type Event struct {
 	eventEmbedLink *string
 	embeddedEvent *Event
 
-    ContinuedFrom EPSource[*Event]  // Attr 'ContinuedFrom'
+    ContinuedFrom EPSource[*Event]  // Specifying 'ContinuedFrom'
     ContinuedTo EPSink[*Event]      // Pointed by 'ContinuedFrom'
 }
 

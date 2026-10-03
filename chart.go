@@ -11,15 +11,19 @@ import (
 
 type IChart interface {
 	GetStringifiedSubjectName() string
-	GetAnnexs() []*Annex
-	GetImports() []*Import
-	GetObject(qualid string) IMainObj 
-	GetObjectByLocalID(locid string) IMainObj 
-	GetAllMainObjects() []IMainObj
-	GetEmbeddingEvent() *Event
+
 	GetEventCategories() []string
 	GetEventsInCategory(category string) []*Event
+	GetAnnexs() []*Annex
+	GetImports() []*Import
+	GetAllMainObjects() []IMainObj
 	HasObject(absQualID string) bool
+
+	GetObject(qualid string) IMainObj 
+ 	GetObjectByInChartQualID(iqualid string) IMainObj 
+	GetObjectByLocalID(locid string) IMainObj 
+
+	GetEmbeddingEvent() *Event
 
 	getNextNumberID(kind MainObjKind) (NumberID, error) 
 
@@ -189,7 +193,7 @@ func (this *Chart) GetObject(qualid string) IMainObj {
 				return nextObj
 			} else if eobj, ok := nextObj.(*Event); ok {
 				if eobj.IsChartEmbedding() {
-					curChart = eobj.GetSubchart()
+					curChart, _ = eobj.GetSubchart()
 					continue
 				} else {
 					break
@@ -198,6 +202,11 @@ func (this *Chart) GetObject(qualid string) IMainObj {
 		}
 	}
 	return nil
+}
+
+func (this *Chart) GetObjectByInChartQualID(iqualid string) IMainObj {
+	// TODO: return obj by local id.
+	panic("Unimplemented")
 }
 
 func (this *Chart) GetObjectByLocalID(locid string) IMainObj {
