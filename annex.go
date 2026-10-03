@@ -21,8 +21,8 @@ type Annex struct {
 	encodedData string
 	isDecoded bool
 
-	AttachTo EPSource[MainObjCommon, *MainObjCommon]
-	ExtraNoteOf EPSource[MainObjCommon, *MainObjCommon]
+	AttachTo EPSource[*MainObjCommon]
+	ExtraNoteOf EPSource[*MainObjCommon]
 }
 
 //-- interface IMainObj

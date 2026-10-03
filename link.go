@@ -25,39 +25,39 @@ type ILinkElemPtr[T any] interface {
 // Endpoints are the "endpoints" of links. Each main object should include it
 // with an appropriate field name.
 
-type Endpoint[T any, TPtr ILinkElemPtr[T]] struct {
-	objs []TPtr
+type Endpoint[T comparable] struct {
+	objs []T
 }
 
-type EPSource[T any, TPtr ILinkElemPtr[T]] struct {
-	Endpoint[T, TPtr]
+type EPSource[T comparable] struct {
+	Endpoint[T]
 }
 
-type EPSink[T any, TPtr ILinkElemPtr[T]] struct {
-	Endpoint[T, TPtr]
+type EPSink[T comparable] struct {
+	Endpoint[T]
 }
 
-func (this *Endpoint[_, TPtr]) Get() []TPtr {
+func (this *Endpoint[T]) Get() []T {
 	return this.objs
 }
 
-func (this *Endpoint[_, TPtr]) Has(obj TPtr) bool {
+func (this *Endpoint[T]) Has(obj T) bool {
 	return slices.Contains(this.objs, obj)
 }
 
-func (this *Endpoint[_, TPtr]) add(obj TPtr) {
+func (this *Endpoint[T]) add(obj T) {
 	if !this.Has(obj) {
 		this.objs = append(this.objs, obj)
 	}
 }
 
-func (this *Endpoint[_, TPtr]) swap(oldobj TPtr, newobj TPtr) {
+func (this *Endpoint[T]) swap(oldobj T, newobj T) {
 	if i := slices.Index(this.objs, oldobj); i != -1 {
 		this.objs[i] = newobj
 	}
 }
 
-func (this *Endpoint[_, TPtr]) remove(obj TPtr) {
+func (this *Endpoint[T]) remove(obj T) {
 	for i, elem := range this.objs {
 		if elem == obj {
 			this.objs = append(this.objs[:i], this.objs[i+1:]...) 
@@ -70,8 +70,8 @@ func (this *Endpoint[_, TPtr]) remove(obj TPtr) {
 // source/sink objects. It should define the following methods.
 
 type ILinkBase[SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]] interface {
-	GetSourceEndpoint(SrcTPtr) *EPSource[SinkT, SinkTPtr]
-	GetSinkEndpoint(SinkTPtr) *EPSink[SrcT, SrcTPtr]
+	GetSourceEndpoint(SrcTPtr) *EPSource[SinkTPtr]
+	GetSinkEndpoint(SinkTPtr) *EPSink[SrcTPtr]
 }
 
 func CreateLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
@@ -151,25 +151,25 @@ func RemoveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT
 // Here are some specialized links.
 
 type AttachTo struct {}
-func (this AttachTo) GetSourceEndpoint(aobj *Annex) *EPSource[MainObjCommon, *MainObjCommon] {
+func (this AttachTo) GetSourceEndpoint(aobj *Annex) *EPSource[*MainObjCommon] {
 	return &aobj.AttachTo
 }
-func (this AttachTo) GetSinkEndpoint(obj *MainObjCommon) *EPSink[Annex, *Annex] {
+func (this AttachTo) GetSinkEndpoint(obj *MainObjCommon) *EPSink[*Annex] {
 	return &obj.Attached
 }
 
 type ExtraNoteOf struct {}
-func (this ExtraNoteOf) GetSourceEndpoint(aobj *Annex) *EPSource[MainObjCommon, *MainObjCommon] {
+func (this ExtraNoteOf) GetSourceEndpoint(aobj *Annex) *EPSource[*MainObjCommon] {
 	return &aobj.ExtraNoteOf
 }
-func (this ExtraNoteOf) GetSinkEndpoint(obj *MainObjCommon) *EPSink[Annex, *Annex] {
+func (this ExtraNoteOf) GetSinkEndpoint(obj *MainObjCommon) *EPSink[*Annex] {
 	return &obj.ExtraNote
 }
 
 type ContinuedFrom struct {}
-func (this ContinuedFrom) GetSourceEndpoint(aobj *Event) *EPSource[Event, *Event] {
+func (this ContinuedFrom) GetSourceEndpoint(aobj *Event) *EPSource[*Event] {
 	return &aobj.ContinuedFrom
 }
-func (this ContinuedFrom) GetSinkEndpoint(obj *Event) *EPSink[Event, *Event] {
+func (this ContinuedFrom) GetSinkEndpoint(obj *Event) *EPSink[*Event] {
 	return &obj.ContinuedTo
 }

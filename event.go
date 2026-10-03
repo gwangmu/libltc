@@ -23,8 +23,8 @@ type Event struct {
 	eventEmbedLink *string
 	embeddedEvent *Event
 
-    ContinuedFrom EPSource[Event, *Event]
-    ContinuedTo EPSink[Event, *Event]
+    ContinuedFrom EPSource[*Event]
+    ContinuedTo EPSink[*Event]
 }
 
 //-- interface IMainObj
