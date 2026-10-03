@@ -179,13 +179,25 @@ func (this *Chart) setEmbeddingEvent(o *Event) {
 //-- method (main object manipulation)
 
 func (this *Chart) GetObject(qualid string) IMainObj {
-	// TODO: return obj by qualified id.
-	panic("Unimplemented")
+	inChartQualIDs := splitIntoInChartQualIDs(qualid)
+	curChart := this
+	for i, inChartQualID := range inChartQualIDs {
+		nextObj := curChart.GetObjectByInChartQualID(inChartQualID)
 
-	// TODO: cut at the earliest 'e*' => before, after (no / inbetween).
-	// TODO: find 'before' by the last-ID's kind. (matching qualid in events, annex, imports)
-	// TODO: if the found object is event and embedding a chart and after != "",
-	// TODO: call 'GetObject(after)' of the embedded chart. return that.
+		if nextObj != nil {
+			if i == len(inChartQualIDs) - 1 {
+				return nextObj
+			} else if eobj, ok := nextObj.(*Event); ok {
+				if eobj.IsChartEmbedding() {
+					curChart = eobj.GetSubchart()
+					continue
+				} else {
+					break
+				}
+			}
+		}
+	}
+	return nil
 }
 
 func (this *Chart) GetObjectByLocalID(locid string) IMainObj {

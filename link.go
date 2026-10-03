@@ -4,24 +4,6 @@ import (
 	"slices"
 )
 
-type ILinkElem interface {
-	GetQualifiedID() string
-	IsUnresolved() bool
-
-	markUnresolved(unresRelQualID string)
-	unmarkUnresolved()
-
-	convIDRelToAbs(relid string) string
-	convIDAbsToRel(absid string) string
-
-	initialize()
-}
-
-type ILinkElemPtr[T any] interface {
-	*T
-	ILinkElem
-}
-
 // Endpoints are the "endpoints" of links. Each main object should include it
 // with an appropriate field name.
 
@@ -68,6 +50,24 @@ func (this *Endpoint[T]) remove(obj T) {
 
 // Links are dummy structs that provide the appropriate endpoints in the
 // source/sink objects. It should define the following methods.
+
+type ILinkElem interface {
+	GetQualifiedID() string
+	IsUnresolved() bool
+
+	markUnresolved(unresRelQualID string)
+	unmarkUnresolved()
+
+	convIDRelToAbs(relid string) string
+	convIDAbsToRel(absid string) string
+
+	initialize()
+}
+
+type ILinkElemPtr[T any] interface {
+	*T
+	ILinkElem
+}
 
 type ILinkBase[SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]] interface {
 	GetSourceEndpoint(SrcTPtr) *EPSource[SinkTPtr]

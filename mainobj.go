@@ -22,6 +22,7 @@ type IMainObj interface {
 	IsUnresolved() bool
 
 	GetLocalID() string 
+	GetInChartQualID() string
 	GetQualifiedID() string
 
 	GetParent() IMainObj
@@ -53,8 +54,8 @@ type MainObjCommon struct {
 
 	attrs map[string][]string	// Attributes
 
-	ExtraNote EPSink[*Annex]		// Annexs as extra notes
-	Attached EPSink[*Annex]		// Annexs as attachments
+	ExtraNote EPSink[*Annex]	// Pointed by 'ExtraNoteOf' 
+	Attached EPSink[*Annex]		// Pointed by 'AttachTo'
 }
 
 //-- struct MainObjCommon: method
@@ -134,6 +135,18 @@ func (this *MainObjCommon) GetLocalID() string {
 	}
 }
 
+func (this *MainObjCommon) GetInChartQualID() (ret string) {
+	if this.IsUnresolved() {
+		return this.unresRelQualID
+	} else {
+		if this.parent != nil && this.parent.GetChart() == this.GetChart() {
+			ret = this.parent.GetInChartQualID() + "/"
+		}
+		ret += this.GetLocalID()
+		return
+	}
+}
+
 func (this *MainObjCommon) GetQualifiedID() (ret string) {
 	if this.IsUnresolved() {
 		unresRelQualID := this.unresRelQualID
@@ -146,7 +159,6 @@ func (this *MainObjCommon) GetQualifiedID() (ret string) {
 		if this.parent != nil {
 			ret = this.parent.GetQualifiedID() + "/"
 		}
-
 		ret += this.GetLocalID()
 		return
 	}
