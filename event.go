@@ -2,7 +2,6 @@ package libltc
 
 import (
 	"regexp"
-	"slices"
 
 	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/file"
@@ -24,8 +23,8 @@ type Event struct {
 	eventEmbedLink *string
 	embeddedEvent *Event
 
-	contFromEvents []*Event
-	contToEvents []*Event
+    ContinuedFrom Endpoint[Event, *Event]
+    ContinuedTo Endpoint[Event, *Event]
 }
 
 //-- interface IMainObj
@@ -44,9 +43,6 @@ func (this *Event) initialize() {
 		embeddedChart: nil,
 		eventEmbedLink: nil,
 		embeddedEvent: nil,
-
-		contFromEvents: []*Event{},
-		contToEvents: []*Event{},
 	} 
     this.kind = MOK_Event
 }
@@ -150,7 +146,7 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 		if akey == "ContinuedFrom" {
 			for _, aval := range avals {
 				var eobjFrom *Event
-				for _, eobjIn := range this.contFromEvents {
+				for _, eobjIn := range this.ContinuedFrom.Get() {
 					if eobjIn.GetQualifiedID() == this.convIDRelToAbs(aval) {
 						eobjFrom = eobjIn
 						break
@@ -161,9 +157,9 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 					warns.Add("@0@ has a dangling 'ContinuedFrom' to '%s'.", this, aval)
 				} 
 
-				if eobjFrom != nil && !eobjFrom.HasContinuedToEvent(this) {
+				if eobjFrom != nil && !eobjFrom.ContinuedTo.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'ContinuedFrom' to '%s', but it doesn't reference back. corrected.", this, aval)
-					eobjFrom.addContinuedToEvent(this)
+                    CreateLink[ContinuedFrom](this, eobjFrom)
 				}
 			}
 		}
@@ -268,22 +264,6 @@ func (this *Event) GetCategory() string{
 	return this.category
 }
 
-func (this *Event) GetContinuedFromEvents() []*Event {
-	return this.contFromEvents
-}
-
-func (this *Event) GetContinuedToEvents() []*Event {
-	return this.contToEvents
-}
-
-func (this *Event) HasContinuedFromEvent(eobj *Event) bool {
-	return slices.Contains(this.contFromEvents, eobj)
-}
-
-func (this *Event) HasContinuedToEvent(eobj *Event) bool {
-    return slices.Contains(this.contToEvents, eobj)
-}
-
 //-- method (setters)
 
 func (this *Event) SetEmbedEventLink(uri string) (warns warning.Warnings) {
@@ -334,82 +314,21 @@ func (this *Event) SetCategory(c string) error {
 	return nil
 }
 
-func (this *Event) addContinuedFromEvent(eobj *Event) {
-    if !this.HasContinuedFromEvent(eobj) {
-        this.contFromEvents = append(this.contFromEvents, eobj)
-        if !eobj.IsUnresolved() {
-            eobj.addContinuedToEvent(this)
-        }
-    }
-}
-
-func (this *Event) resolveContinuedFromEvent(newev *Event) bool {
-    absQualID := newev.GetQualifiedID() 
-	for i, elem := range this.contFromEvents {
-		if elem.GetQualifiedID() == absQualID {
-			if elem.IsUnresolved() {
-				this.contFromEvents[i] = newev
-				newev.addContinuedToEvent(this)
-			}
-			return true
-		}
-	}
-    return false
-}
-
-func (this *Event) unresolveContinuedFromEvent(absQualID string) {
-	for i, elem := range this.contFromEvents {
-		if elem.GetQualifiedID() == absQualID {
-			if !elem.IsUnresolved() {
-				elem.removeContinuedToEvent(this)
-                neweobj := CreateEmptyEvent()
-                neweobj.markUnresolved(this.convIDAbsToRel(absQualID))
-				this.contFromEvents[i] = neweobj
-			}
-			return
-		}
-	}
-}
-
-func (this *Event) removeContinuedFromEvent(absQualID string) {
-	for i, elem := range this.contFromEvents {
-		if elem.GetQualifiedID() == absQualID {
-			if !elem.IsUnresolved() {
-				elem.removeContinuedToEvent(this)
-			}
-			this.contFromEvents = append(this.contFromEvents[:i], this.contFromEvents[i+1:]...) 
-			return
-		}
-	}
-}
-
-func (this *Event) addContinuedToEvent(eobj *Event) {
-	if !this.HasContinuedToEvent(eobj) {
-		this.contToEvents = append(this.contToEvents, eobj)
-	}
-}
-
-func (this *Event) removeContinuedToEvent(eobj *Event) {
-	if idx := slices.Index(this.contToEvents, eobj); idx != -1 {
-		this.contToEvents = append(this.contToEvents[:idx], this.contToEvents[idx+1:]...)
-	}
-}
-
 //-- method (high-level operation)
 
 // Public wrapper of 'addContinuedFromEvent'.
 func (this *Event) SetContinuedFrom(eobj *Event) {
-	this.addContinuedFromEvent(eobj)
+    CreateLink[ContinuedFrom](this, eobj)
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
-	this.removeContinuedFromEvent(eobj.GetQualifiedID())
+	RemoveLink[ContinuedFrom](this, eobj.GetQualifiedID())
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFromByID(absQualID string) {
-	this.removeContinuedFromEvent(absQualID)
+	RemoveLink[ContinuedFrom](this, absQualID)
 }
 
 //-- method (creation)
@@ -466,7 +385,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 			for _, aval := range avals {
 				ueobj := CreateEmptyEvent()
                 ueobj.markUnresolved(aval)
-				event.addContinuedFromEvent(ueobj)
+				event.ContinuedFrom.add(ueobj)
 			}
 		}
 	}

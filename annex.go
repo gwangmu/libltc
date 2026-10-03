@@ -3,29 +3,11 @@ package libltc
 import (
 	"errors"
 	"fmt"
-	"slices"
 
 	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/coder"
 	"github.com/gwangmu/libltc/internal/file"
 )
-
-type AttachTo struct {}
-func (this AttachTo) GetSourceEndpoint(aobj *Annex) *Endpoint[MainObjCommon, *MainObjCommon] {
-	return &aobj.epAttachTo
-}
-func (this AttachTo) GetSinkEndpoint(obj *MainObjCommon) *Endpoint[Annex, *Annex] {
-	return &obj.epAttached
-}
-func (this AttachTo) GetUnresolver(obj *MainObjCommon) func (string) {
-	return obj.markUnresolved
-}
-func (this AttachTo) GetResolver(obj *MainObjCommon) func () {
-	return obj.unmarkUnresolved
-}
-func (this AttachTo) GetInitializer(obj *MainObjCommon) func () {
-	return obj.initialize
-}
 
 type Annex struct {
 	MainObjCommon
@@ -39,10 +21,8 @@ type Annex struct {
 	encodedData string
 	isDecoded bool
 
-	attachToObjs []IMainObj
-	extraNoteOfObjs []IMainObj
-
-	epAttachTo Endpoint[MainObjCommon, *MainObjCommon]
+	AttachTo Endpoint[MainObjCommon, *MainObjCommon]
+	ExtraNoteOf Endpoint[MainObjCommon, *MainObjCommon]
 }
 
 //-- interface IMainObj
@@ -59,9 +39,6 @@ func (this *Annex) initialize() {
 		rawData: []byte{},
 		encodedData: "",
 		isDecoded: true,
-
-		attachToObjs: []IMainObj{},
-		extraNoteOfObjs: []IMainObj{},
 	}
 	this.kind = MOK_Annex
 }
@@ -141,8 +118,8 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 	for akey, avals := range this.attrs {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
-				var objTo IMainObj
-				for _, aobjIn := range this.attachToObjs {
+				var objTo *MainObjCommon
+				for _, aobjIn := range this.AttachTo.Get() {
 					if aobjIn.GetQualifiedID() == this.convIDRelToAbs(aval) {
 						objTo = aobjIn
 						break
@@ -153,15 +130,15 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 					warns.Add("@0@ has a dangling 'AttachTo' to '%s'.", this, aval)
 				} 
 
-				if objTo != nil && !objTo.HasAttachedAnnex(this) {
+				if objTo != nil && !objTo.Attached.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'AttachTo' to '%s', but it doesn't reference back. corrected.", this, aval)
-					objTo.addAttachedAnnex(this)
+					CreateLink[AttachTo](this, objTo)
 				}
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
-				var objOf IMainObj
-				for _, aobjIn := range this.extraNoteOfObjs {
+				var objOf *MainObjCommon
+				for _, aobjIn := range this.ExtraNoteOf.Get() {
 					if aobjIn.GetQualifiedID() == this.convIDRelToAbs(aval) {
 						objOf = aobjIn
 						break
@@ -172,9 +149,9 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 					warns.Add("@0@ has a dangling 'ExtraNoteOf' to '%s'.", this, aval)
 				} 
 
-				if objOf != nil && !objOf.HasExtraNoteAnnex(this) {
+				if objOf != nil && !objOf.ExtraNote.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'ExtraNoteOf' to '%s', but it doesn't reference back. corrected.", this, aval)
-					objOf.addExtraNoteAnnex(this)
+					CreateLink[ExtraNoteOf](this, objOf)
 				}
 			}
 		}
@@ -213,22 +190,6 @@ func (this *Annex) GetEncodedData() string {
 	return this.encodedData
 }
 
-func (this *Annex) GetAttachToObjects() []IMainObj {
-	return this.attachToObjs
-}
-
-func (this *Annex) GetExtraNoteOfObjects() []IMainObj {
-	return this.extraNoteOfObjs
-}
-
-func (this *Annex) HasAttachToObject(obj IMainObj) bool {
-	return slices.Contains(this.attachToObjs, obj)
-}
-
-func (this *Annex) HasExtraNoteOfObject(obj IMainObj) bool {
-	return slices.Contains(this.extraNoteOfObjs, obj)
-}
-
 //-- method (setters)
 
 func (this *Annex) SetFormat(format string) {
@@ -252,109 +213,11 @@ func (this *Annex) SetRawData(data []byte) error {
 	}
 }
 
-func (this *Annex) addAttachToObject(obj IMainObj) {
-	if !this.HasAttachToObject(obj) {
-		this.attachToObjs = append(this.attachToObjs, obj)
-		if !obj.IsUnresolved() {
-			obj.addAttachedAnnex(this)
-		}
-	}
-}
-
 // `(un)resolve*` kind of methods: only for the objects that can be "unresolved."
 // For the lists having `(un)resolve*`, its `remove*` function accepts a
 // qualified ID instead of an object pointer because the underlying object
 // in the list could not have been resolved yet. For the other lists, `remove*`
 // functions accept object pointers.
-
-func (this *Annex) resolveAttachToObject(newobj IMainObj) bool {
-    absQualID := newobj.GetQualifiedID() 
-	for i, elem := range this.attachToObjs {
-		if elem.GetQualifiedID() == absQualID {
-			if elem.IsUnresolved() {
-				this.attachToObjs[i] = newobj
-				newobj.addAttachedAnnex(this)
-			}
-			return true
-		}
-	}
-	return false
-}
-
-func (this *Annex) unresolveAttachToObject(absQualID string) {
-	for i, elem := range this.attachToObjs {
-		if elem.GetQualifiedID() == absQualID {
-			if !elem.IsUnresolved() {
-				elem.removeAttachedAnnex(this)
-				nobj := CreateEmptyMainObjCommon()
-				nobj.markUnresolved(this.convIDAbsToRel(absQualID))
-				this.attachToObjs[i] = nobj
-			}
-			return 
-		}
-	}
-}
-
-func (this *Annex) removeAttachToObject(absQualID string) {
-	for i, elem := range this.attachToObjs {
-		if elem.GetQualifiedID() == absQualID {
-			if !elem.IsUnresolved() {
-				elem.removeAttachedAnnex(this)
-			}
-			this.attachToObjs = append(this.attachToObjs[:i], this.attachToObjs[i+1:]...) 
-			return
-		}
-	}
-}
-
-func (this *Annex) addExtraNoteOfObject(obj IMainObj) {
-	if !this.HasExtraNoteOfObject(obj) {
-		this.extraNoteOfObjs = append(this.extraNoteOfObjs, obj)
-		if !obj.IsUnresolved() {
-			obj.addExtraNoteAnnex(this)
-		}
-	}
-}
-
-func (this *Annex) resolveExtraNoteOfObject(newobj IMainObj) bool {
-    absQualID := newobj.GetQualifiedID() 
-	for i, elem := range this.extraNoteOfObjs {
-		if elem.GetQualifiedID() == absQualID {
-			if elem.IsUnresolved() {
-				this.extraNoteOfObjs[i] = newobj
-				newobj.addExtraNoteAnnex(this)
-			}
-			return true
-		}
-	}
-	return false
-}
-
-func (this *Annex) unresolveExtraNoteOfObject(absQualID string) {
-	for i, elem := range this.extraNoteOfObjs {
-		if elem.GetQualifiedID() == absQualID {
-			if !elem.IsUnresolved() {
-				elem.removeExtraNoteAnnex(this)
-				nobj := CreateEmptyMainObjCommon()
-				nobj.markUnresolved(this.convIDAbsToRel(absQualID))
-				this.extraNoteOfObjs[i] = nobj 
-			}
-			return 
-		}
-	}
-}
-
-func (this *Annex) removeExtraNoteOfObject(absQualID string) {
-	for i, elem := range this.extraNoteOfObjs {
-		if elem.GetQualifiedID() == absQualID {
-			if !elem.IsUnresolved() {
-				elem.removeExtraNoteAnnex(this)
-			}
-			this.extraNoteOfObjs = append(this.extraNoteOfObjs[:i], this.extraNoteOfObjs[i+1:]...) 
-			return 
-		}
-	}
-}
 
 //-- method (high-level operation)
 
@@ -373,33 +236,33 @@ func (this *Annex) SetAnnex(format string, encoding string, data []byte) error {
 }
 
 // Public wrapper of 'addExtraNoteOfObject'.
-func (this *Annex) SetExtraNoteOf(obj IMainObj) {
-	this.addExtraNoteOfObject(obj)
+func (this *Annex) SetExtraNoteOf(obj *MainObjCommon) {
+	CreateLink[ExtraNoteOf](this, obj)
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
-func (this *Annex) UnsetExtraNoteOf(obj IMainObj) {
-	this.removeExtraNoteOfObject(obj.GetQualifiedID())
+func (this *Annex) UnsetExtraNoteOf(obj *MainObjCommon) {
+	RemoveLink[ExtraNoteOf](this, obj.GetQualifiedID())
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
-	this.removeExtraNoteOfObject(absQualID)
+	RemoveLink[ExtraNoteOf](this, absQualID)
 }
 
 // Public wrapper of 'addAttachToObject'.
-func (this *Annex) SetAttachTo(obj IMainObj) {
-	this.addAttachToObject(obj)
+func (this *Annex) SetAttachTo(obj *MainObjCommon) {
+	CreateLink[AttachTo](this, obj)
 }
 
 // Public wrapper of 'removeAttachToObject'.
-func (this *Annex) UnsetAttachTo(obj IMainObj) {
-	this.removeAttachToObject(obj.GetQualifiedID())
+func (this *Annex) UnsetAttachTo(obj *MainObjCommon) {
+	RemoveLink[AttachTo](this, obj.GetQualifiedID())
 }
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachToByID(absQualID string) {
-	this.removeAttachToObject(absQualID)
+	RemoveLink[AttachTo](this, absQualID)
 }
 
 //-- method (creation)
@@ -432,13 +295,13 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 			for _, aval := range avals {
 				uobj := CreateEmptyMainObjCommon()
 				uobj.markUnresolved(aval)
-				annex.addAttachToObject(uobj)
+				annex.AttachTo.add(uobj)
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
 				uobj := CreateEmptyMainObjCommon()
 				uobj.markUnresolved(aval)
-				annex.addExtraNoteOfObject(uobj)
+				annex.ExtraNoteOf.add(uobj)
 			}
 		}
 	}

@@ -61,29 +61,27 @@ func (this *Chart) resolveReferenceTo(obj IMainObj) {
 		for _, event := range evs {
 			switch eobj := obj.(type) {
 			case *Event:
-				event.resolveContinuedFromEvent(eobj)
+				ResolveLink[ContinuedFrom](event, eobj)
 			}
 		}
 	}
 
 	for _, annex := range this.annexs {
-		annex.resolveAttachToObject(obj)
-		annex.resolveExtraNoteOfObject(obj)
+		ResolveLink[AttachTo](annex, obj.GetCommon())
+		ResolveLink[ExtraNoteOf](annex, obj.GetCommon())
 	}
 }
 
 func (this *Chart) unresolveReferenceTo(obj IMainObj) {
-	objID := obj.GetQualifiedID()
-	
 	for _, evs := range this.events {
 		for _, event := range evs {
-			event.unresolveContinuedFromEvent(objID)
+			UnresolveLink[ContinuedFrom](event, event)
 		}
 	}
 
 	for _, annex := range this.annexs {
-		annex.unresolveAttachToObject(objID)
-		annex.unresolveExtraNoteOfObject(objID)
+		UnresolveLink[AttachTo](annex, obj.GetCommon())
+		UnresolveLink[ExtraNoteOf](annex, obj.GetCommon())
 	}
 }
 

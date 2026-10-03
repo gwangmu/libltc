@@ -7,6 +7,8 @@ import (
 
 type IMainObj interface {
 	GetKind() MainObjKind
+	
+	GetCommon() *MainObjCommon
 
 	GetChart() *Chart
 	setChart(c *Chart)
@@ -25,23 +27,13 @@ type IMainObj interface {
 	GetParent() IMainObj
 	SetParent(p IMainObj)
 
-	GetExtraNotes() (ret []*Note)
-	HasExtraNoteAnnex(aobj *Annex) bool
-	addExtraNoteAnnex(aobj *Annex)
-	removeExtraNoteAnnex(aobj *Annex)
-
-	GetAttachedAnnexs() []*Annex
-	HasAttachedAnnex(aobj *Annex) bool
-	addAttachedAnnex(aobj *Annex)
-	removeAttachedAnnex(aobj *Annex)
-
 	GetAttrs(key string) []string
 	HasAttr(key string, value string) bool
 	AddAttr(key string, value string)
 	RemoveAttr(key string, value string)
 
 	convIDRelToAbs(relid string) string
-	convIDAbsToRel(relid string) string
+	convIDAbsToRel(absid string) string
 
 	initialize()
 }
@@ -59,17 +51,20 @@ type MainObjCommon struct {
 	numID NumberID 				// Numeric part of ID
 	unresRelQualID string		// **UNRESOLVED** qualified ID (relative to creator's parent)
 
-	extraNoteAnnexs []*Annex	// Annexs as extra notes
-	attachedAnnexs []*Annex		// Annexs as attachments
 	attrs map[string][]string	// Attributes
 
-	epAttached Endpoint[Annex, *Annex]
+	ExtraNote Endpoint[Annex, *Annex]		// Annexs as extra notes
+	Attached Endpoint[Annex, *Annex]		// Annexs as attachments
 }
 
 //-- struct MainObjCommon: method
 
 func (this *MainObjCommon) GetKind() MainObjKind {
 	return this.kind
+}
+
+func (this *MainObjCommon) GetCommon() *MainObjCommon {
+	return this
 }
 
 // Relationship Taxonomy:
@@ -152,55 +147,6 @@ func (this *MainObjCommon) SetParent(p IMainObj) {
 	this.parent = p
 }
 
-func (this *MainObjCommon) GetExtraNotes() (ret []*Note) {
-	for _, aobj := range this.extraNoteAnnexs {
-		ret = append(ret, &aobj.Note)
-	}
-	return
-}
-
-func (this *MainObjCommon) HasExtraNoteAnnex(aobj *Annex) bool {
-	return slices.Contains(this.extraNoteAnnexs, aobj)
-}
-
-func (this *MainObjCommon) addExtraNoteAnnex(aobj *Annex) {
-	if !this.HasExtraNoteAnnex(aobj) {
-		this.extraNoteAnnexs = append(this.extraNoteAnnexs, aobj)
-	}
-}
-
-func (this *MainObjCommon) removeExtraNoteAnnex(aobj *Annex) {
-	for i, elem := range this.extraNoteAnnexs {
-		if elem == aobj {
-			this.extraNoteAnnexs = append(this.extraNoteAnnexs[:i], this.extraNoteAnnexs[i+1:]...) 
-			break
-		}
-	}
-}
-
-func (this *MainObjCommon) GetAttachedAnnexs() []*Annex {
-	return this.attachedAnnexs
-}
-
-func (this *MainObjCommon) HasAttachedAnnex(aobj *Annex) bool {
-	return slices.Contains(this.attachedAnnexs, aobj)
-}
-
-func (this *MainObjCommon) addAttachedAnnex(aobj *Annex) {
-	if !this.HasAttachedAnnex(aobj) {
-		this.attachedAnnexs = append(this.attachedAnnexs, aobj)
-	}
-}
-
-func (this *MainObjCommon) removeAttachedAnnex(aobj *Annex) {
-	for i, elem := range this.attachedAnnexs {
-		if elem == aobj {
-			this.attachedAnnexs = append(this.attachedAnnexs[:i], this.attachedAnnexs[i+1:]...) 
-			break
-		}
-	}
-}
-
 func (this *MainObjCommon) GetAttrs(key string) []string {
 	if attrlist, ok := this.attrs[key]; ok {
 		// `attrlist` CANNOT be an empty list. (at least [""])
@@ -268,8 +214,6 @@ func (this *MainObjCommon) initialize() {
 		numID: NID_Invalid,
 		unresRelQualID: "",
 
-		extraNoteAnnexs: []*Annex{},
-		attachedAnnexs: []*Annex{},
 		attrs: map[string][]string{},
 	}
 }

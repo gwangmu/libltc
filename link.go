@@ -4,14 +4,16 @@ import (
 	"slices"
 )
 
-//-- struct Endpoint[T]
-
 type ILinkElem interface {
 	GetQualifiedID() string
 	IsUnresolved() bool
 
 	markUnresolved(unresRelQualID string)
 	unmarkUnresolved()
+
+	convIDRelToAbs(relid string) string
+	convIDAbsToRel(absid string) string
+
 	initialize()
 }
 
@@ -20,12 +22,8 @@ type ILinkElemPtr[T any] interface {
 	ILinkElem
 }
 
-type IEndpoint[T any, TPtr ILinkElemPtr[T]] interface {
-	Get() []TPtr
-	Has(TPtr) bool
-	add(TPtr)
-	remove(TPtr)
-}
+// Endpoints are the "endpoints" of links. Each main object should include it
+// with an appropriate field name.
 
 type Endpoint[T any, TPtr ILinkElemPtr[T]] struct {
 	objs []TPtr
@@ -45,6 +43,12 @@ func (this *Endpoint[_, TPtr]) add(obj TPtr) {
 	}
 }
 
+func (this *Endpoint[_, TPtr]) swap(oldobj TPtr, newobj TPtr) {
+	if i := slices.Index(this.objs, oldobj); i != -1 {
+		this.objs[i] = newobj
+	}
+}
+
 func (this *Endpoint[_, TPtr]) remove(obj TPtr) {
 	for i, elem := range this.objs {
 		if elem == obj {
@@ -54,29 +58,15 @@ func (this *Endpoint[_, TPtr]) remove(obj TPtr) {
 	}
 }
 
-//type ILinkBase[SrcT ILinkElem, SinkT ILinkElem] interface {
-//	GetSource(*SrcT) *Endpoint[SinkT]
-//	GetSink(*SinkT) *Endpoint[SrcT]
-//}
-//type AttachTo struct {}
-//func (this AttachTo) GetSource(aobj *Annex) *Endpoint[IMainObj] {
-//	return aobj.epAttachTo
-//}
-//func (this AttachTo) GetSink(obj IMainObj) *Endpoint[Annex] {
-// 	return obj.epAttached
-//}
-//
-//Create[AttachTo](aobj, obj)
-//Resolve[AttachTo](aobj, "e000/e001", obj)
-//Unresolve[AttachTo](aobj, "e000/e001")
-//Remove[AttachTo](aobj, "e000/e001")
+// Links are dummy structs that provide the appropriate endpoints in the
+// source/sink objects. It should define the following methods.
 
-type ILinkBase[SrcT ILinkElem, SinkT ILinkElem, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]] interface {
+type ILinkBase[SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]] interface {
 	GetSourceEndpoint(SrcTPtr) *Endpoint[SinkT, SinkTPtr]
 	GetSinkEndpoint(SinkTPtr) *Endpoint[SrcT, SrcTPtr]
 }
 
-func Create[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT ILinkElem, SinkT ILinkElem, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
+func CreateLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
 		osrc SrcTPtr, osink SinkTPtr) {
 	var l LinkT
 	epSrc := l.GetSourceEndpoint(osrc)
@@ -90,46 +80,22 @@ func Create[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT ILinkElem, Sin
     }
 }
 
-func Resolve[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT ILinkElem, SinkT ILinkElem, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
-		osrc SrcT, absQualID string, osink SinkT) {
-	// TODO
-	panic("Unimplmemented")
-}
+func ResolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
+		osrc SrcTPtr, osink SinkTPtr) bool {
+	var l LinkT
+	epSrc := l.GetSourceEndpoint(osrc)
+	epSink := l.GetSinkEndpoint(osink)
 
-func Unresolve[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT ILinkElem, SinkT ILinkElem, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
-		osrc SrcT, absQualID string) {
-	// TODO
-	panic("Unimplmemented")
-}
+	if osink.IsUnresolved() {
+		return false
+	}
 
-func Remove[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT ILinkElem, SinkT ILinkElem, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
-		osrc SrcT, absQualID string) {
-	// TODO
-	panic("Unimplmemented")
-}
-
-/*
-type ILinkElemPtr[T any] interface {
-	*T
-	ILinkElem
-}
-
-func Create[ElemT ILinkElem, ElemTPtr ILinkElemPtr[ILinkElem]](fromObj ElemTPtr, from *Endpoint, toObj ElemTPtr, to *Endpoint) {
-    if !fromobjs.Has(toObj) {
-        from.objs = append(from.objs, toObj)
-        if !toObj.IsUnresolved() {
-            toObj.add(fromObj)
-        }
-    }
-}
-
-func Create[ElemT ILinkElem, ElemTPtr ILinkElemPtr[ILinkElem]](fromObj ElemTPtr, from *Endpoint, toObj ElemTPtr, to *Endpoint) {
-    absQualID := newobj.GetQualifiedID() 
-	for i, elem := range this.objs {
+    absQualID := osink.GetQualifiedID() 
+	for _, elem := range epSrc.Get() {
 		if elem.GetQualifiedID() == absQualID {
 			if elem.IsUnresolved() {
-				this.objs[i] = newobj
-				newobj.SinkT.add(this)
+				epSrc.swap(elem, osink)
+				epSink.add(osrc)
 			}
 			return true
 		}
@@ -137,26 +103,65 @@ func Create[ElemT ILinkElem, ElemTPtr ILinkElemPtr[ILinkElem]](fromObj ElemTPtr,
     return false
 }
 
-func (this *Source[ElemT, SinkT, ElemTPtr]) unresolve(absQualID string) {
-	for i, elem := range this.objs {
-		if elem.GetQualifiedID() == absQualID {
+func UnresolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
+		osrc SrcTPtr, osink SinkTPtr) {
+	var l LinkT
+	epSrc := l.GetSourceEndpoint(osrc)
+	epSink := l.GetSinkEndpoint(osink)
+
+	absQualID := osink.GetQualifiedID()
+	epSink.remove(osrc)
+
+	for _, elem := range epSrc.Get() {
+		if elem == osink {
 			if !elem.IsUnresolved() {
-				elem.markUnresolved(this.convIDAbsToRel(absQualID))
+				elem.initialize()
+				elem.markUnresolved(osrc.convIDAbsToRel(absQualID))
 			}
 			return
 		}
 	}
 }
 
-func (this *Source[ElemT, SinkT, ElemTPtr]) remove(absQualID string) {
-	for i, elem := range this.objs {
+func RemoveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
+		osrc SrcTPtr, absQualID string) {
+	var l LinkT
+	epSrc := l.GetSourceEndpoint(osrc)
+
+	for _, elem := range epSrc.Get() {
 		if elem.GetQualifiedID() == absQualID {
 			if !elem.IsUnresolved() {
-				elem.SinkT.remove(this)
+				epSink := l.GetSinkEndpoint(elem)
+				epSink.remove(osrc)
 			}
-			this.objs = append(this.objs[:i], this.objs[i+1:]...) 
+			epSrc.remove(elem)
 			return
 		}
 	}
 }
-*/
+
+// Here are some specialized links.
+
+type AttachTo struct {}
+func (this AttachTo) GetSourceEndpoint(aobj *Annex) *Endpoint[MainObjCommon, *MainObjCommon] {
+	return &aobj.AttachTo
+}
+func (this AttachTo) GetSinkEndpoint(obj *MainObjCommon) *Endpoint[Annex, *Annex] {
+	return &obj.Attached
+}
+
+type ExtraNoteOf struct {}
+func (this ExtraNoteOf) GetSourceEndpoint(aobj *Annex) *Endpoint[MainObjCommon, *MainObjCommon] {
+	return &aobj.ExtraNoteOf
+}
+func (this ExtraNoteOf) GetSinkEndpoint(obj *MainObjCommon) *Endpoint[Annex, *Annex] {
+	return &obj.ExtraNote
+}
+
+type ContinuedFrom struct {}
+func (this ContinuedFrom) GetSourceEndpoint(aobj *Event) *Endpoint[Event, *Event] {
+	return &aobj.ContinuedFrom
+}
+func (this ContinuedFrom) GetSinkEndpoint(obj *Event) *Endpoint[Event, *Event] {
+	return &obj.ContinuedTo
+}
