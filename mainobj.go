@@ -7,8 +7,8 @@ import (
 
 type IMainObj interface {
 	GetKind() MainObjKind
-	
 	GetCommon() *MainObjCommon
+	GetEnclosingObject() IMainObj
 
 	GetChart() *Chart
 	setChart(c *Chart)
@@ -44,7 +44,7 @@ type IMainObjPtr[T any] interface {
 }
 
 type MainObjCommon struct {
-	kind MainObjKind			// Main object kind
+	enclosing IMainObj			// Enclosing object of this common struct
 
 	chart IChart				// Associated chart
 	parent IMainObj				// Included by... (nil: chart-local)
@@ -60,11 +60,24 @@ type MainObjCommon struct {
 //-- struct MainObjCommon: method
 
 func (this *MainObjCommon) GetKind() MainObjKind {
-	return this.kind
+	switch this.enclosing.(type) {
+	case *Event:
+		return MOK_Event
+	case *Annex:
+		return MOK_Annex
+	case *Import:
+		return MOK_Import
+	default:
+		return MOK_Unknown
+	}
 }
 
 func (this *MainObjCommon) GetCommon() *MainObjCommon {
 	return this
+}
+
+func (this *MainObjCommon) GetEnclosingObject() IMainObj {
+	return this.enclosing
 }
 
 // Relationship Taxonomy:
@@ -105,7 +118,7 @@ func (this MainObjCommon) IsUnresolved() bool {
 }
 
 func (this *MainObjCommon) GetLocalID() string {
-	if this.kind == MOK_Unknown {
+	if this.GetKind() == MOK_Unknown {
 		unresRelQualID := this.unresRelQualID
 		lastidx := strings.LastIndex(unresRelQualID, "/")
 
@@ -117,7 +130,7 @@ func (this *MainObjCommon) GetLocalID() string {
 			return unresRelQualID[lastidx+1:]
 		}
 	} else {
-		return convIDInternalToString(this.kind, this.numID)
+		return convIDInternalToString(this.GetKind(), this.numID)
 	}
 }
 
@@ -207,7 +220,7 @@ func (this *MainObjCommon) convIDAbsToRel(absid string) string {
 
 func (this *MainObjCommon) initialize() {
 	*this = MainObjCommon{
-		kind: MOK_Unknown,
+		enclosing: nil,
 
 		chart: nil,
 		parent: nil,

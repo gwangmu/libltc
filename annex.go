@@ -40,7 +40,7 @@ func (this *Annex) initialize() {
 		encodedData: "",
 		isDecoded: true,
 	}
-	this.kind = MOK_Annex
+	this.enclosing = this
 }
 
 //-- interface IWarningObj
@@ -76,6 +76,11 @@ func (this *Annex) DiagnoseLocal() (warns warning.Warnings) {
 		warns.Add("@0@ specifies unsupported encoding '%s'", this, this.encoding)
 	}
 
+	if this.numID == NID_Invalid {
+		this.numID = 0
+		warns.Add("@0@ has an invalid ID. auto-corrected to 'e0'.", this)
+	}
+
 	for akey, avals := range this.attrs {
 		if akey == "AttachTo" || akey == "ExtraNoteOf" {
 			newAvals := []string{}
@@ -99,7 +104,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 		return
 	}
 
-	if this.kind != MOK_Annex || this.numID == NID_Invalid {
+	if this.numID == NID_Invalid {
 		panic("call DiagnoseLocal() first.")
 	}
 
@@ -271,8 +276,13 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	annex := CreateEmptyAnnex()
 	warns := warning.Warnings{}
 
-	annex.kind, annex.numID = convIDStringToInternal(o.ID)
+	kind, numID := convIDStringToInternal(o.ID)
+	annex.numID = numID
 	annex.attrs = convAttrsFileToChart(o.Attrs)
+
+	if kind != MOK_Annex {
+		warns.Add("@0@ has a wrong kind prefix. Fixing...")
+	}
 
 	note, moreWarns := CreateNoteFromString(o.Note)
 	warns.Concat(moreWarns)

@@ -155,8 +155,13 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	cimport := CreateEmptyImport()
 	warns := warning.Warnings{}
 
-	cimport.kind, cimport.numID = convIDStringToInternal(o.ID)
+	kind, numID := convIDStringToInternal(o.ID)
+	cimport.numID = numID
 	cimport.attrs = convAttrsFileToChart(o.Attrs)
+
+	if kind != MOK_Import {
+		warns.Add("@0@ has a wrong kind prefix. Fixing...")
+	}
 
 	note, moreWarns := CreateNoteFromString(o.Note)
 	warns.Concat(moreWarns)
@@ -210,6 +215,6 @@ func CreateEmptyImport() *Import {
 
 		preOffsetEvents: []*Event{},
 	}
-	cimport.kind = MOK_Import
+	cimport.enclosing = cimport
 	return cimport
 }

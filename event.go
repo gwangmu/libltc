@@ -44,7 +44,7 @@ func (this *Event) initialize() {
 		eventEmbedLink: nil,
 		embeddedEvent: nil,
 	} 
-    this.kind = MOK_Event
+    this.enclosing = this
 }
 
 //-- interface IWarningObj
@@ -81,8 +81,7 @@ func (this Event) IsUnknown() bool {
 //-- interface IDiagnosable
 
 func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
-	if this.kind != MOK_Event || this.numID == NID_Invalid {
-		this.kind = MOK_Event
+	if this.numID == NID_Invalid {
 		this.numID = 0
 		warns.Add("@0@ has an invalid ID. auto-corrected to 'e0'.", this)
 	}
@@ -124,7 +123,7 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 		return
 	}
 
-	if this.kind != MOK_Event || this.numID == NID_Invalid {
+	if this.numID == NID_Invalid {
 		panic("call DiagnoseLocal() first.")
 	}
 
@@ -337,8 +336,13 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	event := CreateEmptyEvent()
 	warns := warning.Warnings{}
 
-	event.kind, event.numID = convIDStringToInternal(o.ID)
+    kind, numID := convIDStringToInternal(o.ID)
+    event.numID = numID
 	event.attrs = convAttrsFileToChart(o.Attrs)
+
+	if kind != MOK_Event {
+		warns.Add("@0@ has a wrong kind prefix. Fixing...")
+	}
 
 	note, moreWarns := CreateNoteFromString(o.Note)
 	warns.Concat(moreWarns)
