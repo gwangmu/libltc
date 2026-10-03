@@ -73,10 +73,6 @@ func (this *Chart) resolveReferenceTo(obj IMainObj) {
 }
 
 func (this *Chart) unresolveReferenceTo(obj IMainObj) {
-	// TODO: change references to `obj` dangling ref.
-	// TODO: assume GetQualifiedID() of `obj` is valid.
-	panic("Unimplemented")
-
 	objID := obj.GetQualifiedID()
 	
 	for _, evs := range this.events {
@@ -187,6 +183,11 @@ func (this *Chart) setEmbeddingEvent(o *Event) {
 func (this *Chart) GetObject(qualid string) IMainObj {
 	// TODO: return obj by qualified id.
 	panic("Unimplemented")
+
+	// TODO: cut at the earliest 'e*' => before, after (no / inbetween).
+	// TODO: find 'before' by the last-ID's kind. (matching qualid in events, annex, imports)
+	// TODO: if the found object is event and embedding a chart and after != "",
+	// TODO: call 'GetObject(after)' of the embedded chart. return that.
 }
 
 func (this *Chart) GetObjectByLocalID(locid string) IMainObj {
