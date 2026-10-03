@@ -26,6 +26,27 @@ type Annex struct {
 	extraNoteOfObjs []IMainObj
 }
 
+//-- interface IMainObj
+
+func (this *Annex) initialize() {
+	*this = Annex{
+		MainObjCommon: *CreateEmptyMainObjCommon(),
+
+		Note: Note{},
+		Title: "",
+
+		format: "",
+		encoding: "",
+		rawData: []byte{},
+		encodedData: "",
+		isDecoded: true,
+
+		attachToObjs: []IMainObj{},
+		extraNoteOfObjs: []IMainObj{},
+	}
+	this.kind = MOK_Annex
+}
+
 //-- interface IWarningObj
 
 func (this *Annex) Summary() (ret string) {
@@ -246,7 +267,9 @@ func (this *Annex) unresolveAttachToObject(absQualID string) {
 		if elem.GetQualifiedID() == absQualID {
 			if !elem.IsUnresolved() {
 				elem.removeAttachedAnnex(this)
-				this.attachToObjs[i] = CreateUnresolvedMainObjCommon(this.convIDAbsToRel(absQualID))
+				nobj := CreateEmptyMainObjCommon()
+				nobj.markUnresolved(this.convIDAbsToRel(absQualID))
+				this.attachToObjs[i] = nobj
 			}
 			return 
 		}
@@ -293,7 +316,9 @@ func (this *Annex) unresolveExtraNoteOfObject(absQualID string) {
 		if elem.GetQualifiedID() == absQualID {
 			if !elem.IsUnresolved() {
 				elem.removeExtraNoteAnnex(this)
-				this.extraNoteOfObjs[i] = CreateUnresolvedMainObjCommon(this.convIDAbsToRel(absQualID))
+				nobj := CreateEmptyMainObjCommon()
+				nobj.markUnresolved(this.convIDAbsToRel(absQualID))
+				this.extraNoteOfObjs[i] = nobj 
 			}
 			return 
 		}
@@ -386,12 +411,14 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	for akey, avals := range annex.attrs {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
-				uobj := CreateUnresolvedMainObjCommon(aval)
+				uobj := CreateEmptyMainObjCommon()
+				uobj.markUnresolved(aval)
 				annex.addAttachToObject(uobj)
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
-				uobj := CreateUnresolvedMainObjCommon(aval)
+				uobj := CreateEmptyMainObjCommon()
+				uobj.markUnresolved(aval)
 				annex.addExtraNoteOfObject(uobj)
 			}
 		}
@@ -401,21 +428,9 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 }
 
 func CreateEmptyAnnex() *Annex {
-	return &Annex{
-		MainObjCommon: *CreateEmptyMainObjCommon(MOK_Annex),
-
-		Note: Note{},
-		Title: "",
-
-		format: "",
-		encoding: "",
-		rawData: []byte{},
-		encodedData: "",
-		isDecoded: true,
-
-		attachToObjs: []IMainObj{},
-		extraNoteOfObjs: []IMainObj{},
-	}
+	aobj := Annex{}
+	aobj.initialize()
+	return &aobj
 }
 
 //-- method (private)

@@ -28,6 +28,29 @@ type Event struct {
 	contToEvents []*Event
 }
 
+//-- interface IMainObj
+
+func (this *Event) initialize() {
+	*this = Event{
+		MainObjCommon: *CreateEmptyMainObjCommon(),
+
+		Note: Note{},
+
+		localTitle: nil, 
+		localStartDate: nil,
+		localEndDate: nil,
+
+		chartEmbedLink: nil,
+		embeddedChart: nil,
+		eventEmbedLink: nil,
+		embeddedEvent: nil,
+
+		contFromEvents: []*Event{},
+		contToEvents: []*Event{},
+	} 
+    this.kind = MOK_Event
+}
+
 //-- interface IWarningObj
 
 func (this *Event) Summary() (ret string) {
@@ -339,7 +362,9 @@ func (this *Event) unresolveContinuedFromEvent(absQualID string) {
 		if elem.GetQualifiedID() == absQualID {
 			if !elem.IsUnresolved() {
 				elem.removeContinuedToEvent(this)
-				this.contFromEvents[i] = CreateUnresolvedEvent(this.convIDAbsToRel(absQualID))
+                neweobj := CreateEmptyEvent()
+                neweobj.markUnresolved(this.convIDAbsToRel(absQualID))
+				this.contFromEvents[i] = neweobj
 			}
 			return
 		}
@@ -439,7 +464,8 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	for akey, avals := range event.attrs {
 		if akey == "ContinuedFrom" {
 			for _, aval := range avals {
-				ueobj := CreateUnresolvedEvent(aval)
+				ueobj := CreateEmptyEvent()
+                ueobj.markUnresolved(aval)
 				event.addContinuedFromEvent(ueobj)
 			}
 		}
@@ -449,29 +475,9 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 }
 
 func CreateEmptyEvent() *Event {
-	return &Event{
-		MainObjCommon: *CreateEmptyMainObjCommon(MOK_Event),
-
-		Note: Note{},
-
-		localTitle: nil, 
-		localStartDate: nil,
-		localEndDate: nil,
-
-		chartEmbedLink: nil,
-		embeddedChart: nil,
-		eventEmbedLink: nil,
-		embeddedEvent: nil,
-
-		contFromEvents: []*Event{},
-		contToEvents: []*Event{},
-	} 
-}
-
-func CreateUnresolvedEvent(relQualID string) *Event {
-	ret := CreateEmptyEvent()
-	ret.setUnresRelQualID(relQualID)
-	return ret
+    eobj := Event{}
+    eobj.initialize()
+    return &eobj
 }
 
 //-- method (util)

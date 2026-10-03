@@ -192,8 +192,8 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 }
 
 func CreateEmptyImport() *Import {
-	return &Import{
-		MainObjCommon: *CreateEmptyMainObjCommon(MOK_Import),
+	cimport := &Import{
+		MainObjCommon: *CreateEmptyMainObjCommon(),
 
 		Note: Note{},
 
@@ -210,4 +210,6 @@ func CreateEmptyImport() *Import {
 
 		preOffsetEvents: []*Event{},
 	}
+	cimport.kind = MOK_Import
+	return cimport
 }

@@ -15,7 +15,8 @@ type IMainObj interface {
 	setNumberID(nid NumberID)
 
 	getUnresRelQualID() string
-	setUnresRelQualID(unresRelQualID string)
+	markUnresolved(unresRelQualID string)
+	unmarkUnresolved()
 	IsUnresolved() bool
 
 	GetLocalID() string 
@@ -40,6 +41,9 @@ type IMainObj interface {
 	RemoveAttr(key string, value string)
 
 	convIDRelToAbs(relid string) string
+	convIDAbsToRel(relid string) string
+
+	initialize()
 }
 
 type IMainObjPtr[T any] interface {
@@ -91,8 +95,12 @@ func (this *MainObjCommon) getUnresRelQualID() string {
 	return this.unresRelQualID
 }
 
-func (this *MainObjCommon) setUnresRelQualID(unresRelQualID string) {
+func (this *MainObjCommon) markUnresolved(unresRelQualID string) {
 	this.unresRelQualID = unresRelQualID
+}
+
+func (this *MainObjCommon) unmarkUnresolved() {
+	this.unresRelQualID = ""
 }
 
 func (this MainObjCommon) IsUnresolved() bool {
@@ -249,17 +257,14 @@ func (this *MainObjCommon) convIDAbsToRel(absid string) string {
 	}
 }
 
-// Unresolved = non-empty `unresRelQualID`
-// `unresRelQualID` should be a "qualified" ID, meaning if an object was included,
-// the `unresRelQualID` here should prepend the qualified ID of the chart-embedding event object.
-func createMainObjCommon(kind MainObjKind, unresRelQualID string) *MainObjCommon {
-	return &MainObjCommon{
-		kind: kind,
+func (this *MainObjCommon) initialize() {
+	*this = MainObjCommon{
+		kind: MOK_Unknown,
 
 		chart: nil,
 		parent: nil,
 		numID: NID_Invalid,
-		unresRelQualID: unresRelQualID,
+		unresRelQualID: "",
 
 		extraNoteAnnexs: []*Annex{},
 		attachedAnnexs: []*Annex{},
@@ -267,10 +272,12 @@ func createMainObjCommon(kind MainObjKind, unresRelQualID string) *MainObjCommon
 	}
 }
 
-func CreateEmptyMainObjCommon(kind MainObjKind) *MainObjCommon {
-	return createMainObjCommon(kind, "")
-}
+// Unresolved = non-empty `unresRelQualID`
+// `unresRelQualID` should be a "qualified" ID, meaning if an object was included,
+// the `unresRelQualID` here should prepend the qualified ID of the chart-embedding event object.
 
-func CreateUnresolvedMainObjCommon(relQualID string) *MainObjCommon {
-	return createMainObjCommon(MOK_Unknown, relQualID)
+func CreateEmptyMainObjCommon() *MainObjCommon {
+	obj := MainObjCommon{}
+	obj.initialize()
+	return &obj
 }

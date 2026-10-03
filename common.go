@@ -669,7 +669,7 @@ func CloneMainObject[T IMainObj](obj *T, preserveChart bool, preserveID bool) *T
 	}
 	if !preserveID {
 		newobj.setNumberID(NID_Invalid)
-		newobj.setUnresRelQualID("")
+		newobj.unmarkUnresolved()
 	}
 	return &newobj
 }
