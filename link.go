@@ -29,6 +29,14 @@ type Endpoint[T any, TPtr ILinkElemPtr[T]] struct {
 	objs []TPtr
 }
 
+type EPSource[T any, TPtr ILinkElemPtr[T]] struct {
+	Endpoint[T, TPtr]
+}
+
+type EPSink[T any, TPtr ILinkElemPtr[T]] struct {
+	Endpoint[T, TPtr]
+}
+
 func (this *Endpoint[_, TPtr]) Get() []TPtr {
 	return this.objs
 }
@@ -62,8 +70,8 @@ func (this *Endpoint[_, TPtr]) remove(obj TPtr) {
 // source/sink objects. It should define the following methods.
 
 type ILinkBase[SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]] interface {
-	GetSourceEndpoint(SrcTPtr) *Endpoint[SinkT, SinkTPtr]
-	GetSinkEndpoint(SinkTPtr) *Endpoint[SrcT, SrcTPtr]
+	GetSourceEndpoint(SrcTPtr) *EPSource[SinkT, SinkTPtr]
+	GetSinkEndpoint(SinkTPtr) *EPSink[SrcT, SrcTPtr]
 }
 
 func CreateLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
@@ -143,25 +151,25 @@ func RemoveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT
 // Here are some specialized links.
 
 type AttachTo struct {}
-func (this AttachTo) GetSourceEndpoint(aobj *Annex) *Endpoint[MainObjCommon, *MainObjCommon] {
+func (this AttachTo) GetSourceEndpoint(aobj *Annex) *EPSource[MainObjCommon, *MainObjCommon] {
 	return &aobj.AttachTo
 }
-func (this AttachTo) GetSinkEndpoint(obj *MainObjCommon) *Endpoint[Annex, *Annex] {
+func (this AttachTo) GetSinkEndpoint(obj *MainObjCommon) *EPSink[Annex, *Annex] {
 	return &obj.Attached
 }
 
 type ExtraNoteOf struct {}
-func (this ExtraNoteOf) GetSourceEndpoint(aobj *Annex) *Endpoint[MainObjCommon, *MainObjCommon] {
+func (this ExtraNoteOf) GetSourceEndpoint(aobj *Annex) *EPSource[MainObjCommon, *MainObjCommon] {
 	return &aobj.ExtraNoteOf
 }
-func (this ExtraNoteOf) GetSinkEndpoint(obj *MainObjCommon) *Endpoint[Annex, *Annex] {
+func (this ExtraNoteOf) GetSinkEndpoint(obj *MainObjCommon) *EPSink[Annex, *Annex] {
 	return &obj.ExtraNote
 }
 
 type ContinuedFrom struct {}
-func (this ContinuedFrom) GetSourceEndpoint(aobj *Event) *Endpoint[Event, *Event] {
+func (this ContinuedFrom) GetSourceEndpoint(aobj *Event) *EPSource[Event, *Event] {
 	return &aobj.ContinuedFrom
 }
-func (this ContinuedFrom) GetSinkEndpoint(obj *Event) *Endpoint[Event, *Event] {
+func (this ContinuedFrom) GetSinkEndpoint(obj *Event) *EPSink[Event, *Event] {
 	return &obj.ContinuedTo
 }
