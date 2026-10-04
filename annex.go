@@ -125,7 +125,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var objTo *MainObjCommon
 				for _, aobjIn := range this.AttachTo.Get() {
-					if aobjIn.GetRelQualifiedID() == aval {
+					if aobjIn.GetLocalQualifiedID() == aval {
 						objTo = aobjIn
 						break
 					}
@@ -144,7 +144,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var objOf *MainObjCommon
 				for _, aobjIn := range this.ExtraNoteOf.Get() {
-					if aobjIn.GetRelQualifiedID() == aval {
+					if aobjIn.GetLocalQualifiedID() == aval {
 						objOf = aobjIn
 						break
 					}
@@ -247,7 +247,7 @@ func (this *Annex) SetExtraNoteOf(obj *MainObjCommon) {
 
 // Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOf(obj *MainObjCommon) {
-	RemoveLink[ExtraNoteOf](this, obj.GetAbsQualifiedID())
+	RemoveLink[ExtraNoteOf](this, obj.GetFullQualifiedID())
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
@@ -262,7 +262,7 @@ func (this *Annex) SetAttachTo(obj *MainObjCommon) {
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachTo(obj *MainObjCommon) {
-	RemoveLink[AttachTo](this, obj.GetAbsQualifiedID())
+	RemoveLink[AttachTo](this, obj.GetFullQualifiedID())
 }
 
 // Public wrapper of 'removeAttachToObject'.

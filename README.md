@@ -257,7 +257,7 @@ There are two types of IDs: _intrinsic_ and _qualified_. The intrinsic ID is the
 
 The example above describes only the qualified IDs of event objects, but the same applies to any objects with intrinsic IDs (e.g., annex and import objects).
 
-A convenience concept called _relative qualified_ ID is the qualified ID within the direct associated chart, without crossing any subchart boundaries. For example, the local qualified ID of the final example (`e999/e004`) will be `e004` because `e999` belongs to a different subchart than `e004`. The opposite concept is an _absolute qualified_ ID that encompasses all subcharts.
+A convenience concept called _local qualified_ ID is the qualified ID within the direct associated chart, without crossing any subchart boundaries. For example, the local qualified ID of the final example (`e999/e004`) will be `e004` because `e999` belongs to a different subchart than `e004`. The opposite concept is an _full qualified_ ID that encompasses all subcharts.
 
 ### Referencing
 

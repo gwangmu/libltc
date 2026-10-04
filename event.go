@@ -146,7 +146,7 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var eobjFrom *Event
 				for _, eobjIn := range this.ContinuedFrom.Get() {
-					if eobjIn.GetRelQualifiedID() == aval {
+					if eobjIn.GetLocalQualifiedID() == aval {
 						eobjFrom = eobjIn
 						break
 					}
@@ -322,7 +322,7 @@ func (this *Event) SetContinuedFrom(eobj *Event) {
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
-	RemoveLink[ContinuedFrom](this, eobj.GetAbsQualifiedID())
+	RemoveLink[ContinuedFrom](this, eobj.GetFullQualifiedID())
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
