@@ -76,9 +76,9 @@ A name object consists of three optional string-typed fields: `First`, `Middle`,
  - TOML object: string
  - Default: empty
 
-An ID object is a string that represents the _chart-local_ ID of the enclosing object ("chart-local ID": see [ID Qualification](#ID-Qualification) for more). A chart-local ID should be distinguished from the chart-local IDs of other chart-local objects.
+An ID object is a string that represents the _intrinsic_ ID of the enclosing object ("intrinsic ID": see [ID Qualification](#ID-Qualification) for more). A intrinsic ID should be distinguished from the intrinsic IDs of other chart-local objects.
 
-Across the LTC file load/save boundary, a duplicate, invalid, or empty ID object is assigned a new unique chart-local ID, and its old value is added to the enclosing object's attribute list with a key `OldID` (if it was non-empty).
+Across the LTC file load/save boundary, a duplicate, invalid, or empty ID object is assigned a new unique intrinsic ID, and its old value is added to the enclosing object's attribute list with a key `OldID` (if it was non-empty).
 
 #### Note
 
@@ -248,20 +248,22 @@ A chart object represents the entire chart described in an LTC file. A valid LTC
 
 ### ID Qualification
 
-There are two types of IDs: _chart-local_ and _qualified_. The chart-local ID is the one directly specified in the object. The qualified ID is the chart-local ID prefixed with the IDs of the objects through which the corresponding object is included (i.e., imported or embedded) in the current LTC file. The IDs in a prefix are separated by slashes (`/`), and the object IDs with fewer nesting levels should come first. For chart-local (i.e., not included) objects, the prefix is empty. Some examples below:
+There are two types of IDs: _intrinsic_ and _qualified_. The intrinsic ID is the one directly specified in the object. The qualified ID is the intrinsic ID prefixed with the IDs of the objects through which the corresponding object is included (i.e., imported or embedded) in the current LTC file. The IDs in a prefix are separated by slashes (`/`), and the object IDs with fewer nesting levels should come first. For chart-local (i.e., not included) objects, the prefix is empty. Some examples below:
 
  - For an event object `e001` that was chart-local, the qualified ID is `e001`.
  - For an event object `e002` that was imported through an import object `i001`, the qualified ID is `i001/e002`.
  - For an event object `e003` that was imported through an import object `i002`, which in turn was imported through an import object `i001`, the qualified ID is `i001/i002/e003`.
  - For an event object `e004` that was embedded through a chart-embedding event object `e999`, the qualified ID is `e999/e004`.
 
-The example above describes only the qualified IDs of event objects, but the same applies to any objects with chart-local IDs (e.g., annex and import objects).
+The example above describes only the qualified IDs of event objects, but the same applies to any objects with intrinsic IDs (e.g., annex and import objects).
+
+A convenience concept called _local qualified_ ID is the qualified ID within the direct associated chart, without crossing any subchart boundaries. For example, the local qualified ID of the final example (`e999/e004`) will be `e004` because `e999` belongs to a different subchart than `e004`.
 
 ### Referencing
 
 #### URIs
 
-An LTC object with a chart-local ID has both _a local URI_ and _a web URI_. The local URI is either a relative (to the current LTC file's directory) or an absolute filesystem path of the LTC file, plus `?id=<qual_id>` at the end if it's not a chart object (`<qual_id>`: the object's qualified ID). For example, given an LTC file at `/home/john/chart.ltc` that contains an event object `e001`, the local URIs of the chart and the event are `/home/john/chart.ltc` and `/home/john/chart.ltc?id=e001`, respectively. A Local URI may only specify the qualified ID of the reference object (i.e., may omit the LTC file's filesystem path and the following `?id=`) if it belongs to the same LTC file. For example, the qualified ID `i001/e002` is the same as the local URI `/home/john/chart.ltc?id=i001/e002` inside the LTC file `/home/john/chart.ltc`.
+An LTC object with a intrinsic ID has both _a local URI_ and _a web URI_. The local URI is either a relative (to the current LTC file's directory) or an absolute filesystem path of the LTC file, plus `?id=<qual_id>` at the end if it's not a chart object (`<qual_id>`: the object's qualified ID). For example, given an LTC file at `/home/john/chart.ltc` that contains an event object `e001`, the local URIs of the chart and the event are `/home/john/chart.ltc` and `/home/john/chart.ltc?id=e001`, respectively. A Local URI may only specify the qualified ID of the reference object (i.e., may omit the LTC file's filesystem path and the following `?id=`) if it belongs to the same LTC file. For example, the qualified ID `i001/e002` is the same as the local URI `/home/john/chart.ltc?id=i001/e002` inside the LTC file `/home/john/chart.ltc`.
 
 The web URI may follow the same rule as the local URI, but it may depend on the provider that hosts the LTC file. If the rule is the same, a web address to an LTC file is combined with an HTML query key `id` at the end (similar to local URIs). For example, if `https://myltc.com/john` is a web address to an LTC file, the web URI of the event object `e001` in such a file is `https://myltc.com/john?id=e001`. 
 

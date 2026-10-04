@@ -19,9 +19,9 @@ type IChart interface {
 	GetAllMainObjects() []IMainObj
 	HasObject(absQualID string) bool
 
-	GetObject(qualid string) IMainObj 
- 	GetObjectByInChartQualID(iqualid string) IMainObj 
-	GetObjectByLocalID(locid string) IMainObj 
+	GetObjectByQualID(qualid string) IMainObj 
+ 	GetObjectByLocalQualID(iqualid string) IMainObj 
+	GetObjectByIntrinsicID(locid string) IMainObj 
 
 	GetEmbeddingEvent() *Event
 
@@ -182,16 +182,16 @@ func (this *Chart) setEmbeddingEvent(o *Event) {
 
 //-- method (main object manipulation)
 
-func (this *Chart) GetObject(qualid string) IMainObj {
-	inChartQualIDs := splitIntoInChartQualIDs(qualid)
+func (this *Chart) GetObjectByQualID(qualid string) IMainObj {
+	inChartQualIDs := splitIntoLocalQualIDs(qualid)
 	curChart := this
 	for i, inChartQualID := range inChartQualIDs {
-		nextObj := curChart.GetObjectByInChartQualID(inChartQualID)
+		curObj := curChart.GetObjectByLocalQualID(inChartQualID)
 
-		if nextObj != nil {
+		if curObj != nil {
 			if i == len(inChartQualIDs) - 1 {
-				return nextObj
-			} else if eobj, ok := nextObj.(*Event); ok {
+				return curObj
+			} else if eobj, ok := curObj.(*Event); ok {
 				if eobj.IsChartEmbedding() {
 					curChart, _ = eobj.GetSubchart()
 					continue
@@ -204,12 +204,12 @@ func (this *Chart) GetObject(qualid string) IMainObj {
 	return nil
 }
 
-func (this *Chart) GetObjectByInChartQualID(iqualid string) IMainObj {
+func (this *Chart) GetObjectByLocalQualID(iqualid string) IMainObj {
 	// TODO: return obj by local id.
 	panic("Unimplemented")
 }
 
-func (this *Chart) GetObjectByLocalID(locid string) IMainObj {
+func (this *Chart) GetObjectByIntrinsicID(locid string) IMainObj {
 	// TODO: return obj by local id.
 	panic("Unimplemented")
 }

@@ -21,8 +21,8 @@ type IMainObj interface {
 	unmarkUnresolved()
 	IsUnresolved() bool
 
-	GetLocalID() string 
-	GetInChartQualID() string
+	GetIntrinsicID() string 
+	GetLocalQualID() string
 	GetQualifiedID() string
 
 	GetParent() IMainObj
@@ -118,7 +118,7 @@ func (this MainObjCommon) IsUnresolved() bool {
 	return this.unresRelQualID != ""
 }
 
-func (this *MainObjCommon) GetLocalID() string {
+func (this *MainObjCommon) GetIntrinsicID() string {
 	if this.GetKind() == MOK_Unknown {
 		unresRelQualID := this.unresRelQualID
 		lastidx := strings.LastIndex(unresRelQualID, "/")
@@ -135,14 +135,14 @@ func (this *MainObjCommon) GetLocalID() string {
 	}
 }
 
-func (this *MainObjCommon) GetInChartQualID() (ret string) {
+func (this *MainObjCommon) GetLocalQualID() (ret string) {
 	if this.IsUnresolved() {
 		return this.unresRelQualID
 	} else {
 		if this.parent != nil && this.parent.GetChart() == this.GetChart() {
-			ret = this.parent.GetInChartQualID() + "/"
+			ret = this.parent.GetLocalQualID() + "/"
 		}
-		ret += this.GetLocalID()
+		ret += this.GetIntrinsicID()
 		return
 	}
 }
@@ -159,7 +159,7 @@ func (this *MainObjCommon) GetQualifiedID() (ret string) {
 		if this.parent != nil {
 			ret = this.parent.GetQualifiedID() + "/"
 		}
-		ret += this.GetLocalID()
+		ret += this.GetIntrinsicID()
 		return
 	}
 }
