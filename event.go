@@ -326,8 +326,8 @@ func (this *Event) UnsetContinuedFrom(eobj *Event) {
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
-func (this *Event) UnsetContinuedFromByID(absQualID string) {
-	RemoveLink[ContinuedFrom](this, absQualID)
+func (this *Event) UnsetContinuedFromByID(fullQualID string) {
+	RemoveLink[ContinuedFrom](this, fullQualID)
 }
 
 //-- method (creation)

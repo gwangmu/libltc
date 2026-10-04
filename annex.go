@@ -251,8 +251,8 @@ func (this *Annex) UnsetExtraNoteOf(obj *MainObjCommon) {
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
-func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
-	RemoveLink[ExtraNoteOf](this, absQualID)
+func (this *Annex) UnsetExtraNoteOfByID(fullQualID string) {
+	RemoveLink[ExtraNoteOf](this, fullQualID)
 }
 
 // Public wrapper of 'addAttachToObject'.
@@ -266,8 +266,8 @@ func (this *Annex) UnsetAttachTo(obj *MainObjCommon) {
 }
 
 // Public wrapper of 'removeAttachToObject'.
-func (this *Annex) UnsetAttachToByID(absQualID string) {
-	RemoveLink[AttachTo](this, absQualID)
+func (this *Annex) UnsetAttachToByID(fullQualID string) {
+	RemoveLink[AttachTo](this, fullQualID)
 }
 
 //-- method (creation)

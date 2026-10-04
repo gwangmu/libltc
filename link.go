@@ -98,9 +98,9 @@ func ResolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, Sink
 		return false
 	}
 
-    absQualID := osink.GetFullQualifiedID() 
+    fullQualID := osink.GetFullQualifiedID() 
 	for _, elem := range epSrc.Get() {
-		if elem.GetFullQualifiedID() == absQualID {
+		if elem.GetFullQualifiedID() == fullQualID {
 			if elem.IsUnresolved() {
 				epSrc.swap(elem, osink)
 				epSink.add(osrc)
@@ -117,14 +117,14 @@ func UnresolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, Si
 	epSrc := l.GetSourceEndpoint(osrc)
 	epSink := l.GetSinkEndpoint(osink)
 
-	absQualID := osink.GetFullQualifiedID()
+	fullQualID := osink.GetFullQualifiedID()
 	epSink.remove(osrc)
 
 	for _, elem := range epSrc.Get() {
 		if elem == osink {
 			if !elem.IsUnresolved() {
 				elem.initialize()
-				elem.markUnresolved(osrc.convIDFullToLocal(absQualID))
+				elem.markUnresolved(osrc.convIDFullToLocal(fullQualID))
 			}
 			return
 		}
@@ -132,12 +132,12 @@ func UnresolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, Si
 }
 
 func RemoveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr ILinkElemPtr[SrcT], SinkTPtr ILinkElemPtr[SinkT]](
-		osrc SrcTPtr, absQualID string) {
+		osrc SrcTPtr, fullQualID string) {
 	var l LinkT
 	epSrc := l.GetSourceEndpoint(osrc)
 
 	for _, elem := range epSrc.Get() {
-		if elem.GetFullQualifiedID() == absQualID {
+		if elem.GetFullQualifiedID() == fullQualID {
 			if !elem.IsUnresolved() {
 				epSink := l.GetSinkEndpoint(elem)
 				epSink.remove(osrc)

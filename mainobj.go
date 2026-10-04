@@ -54,7 +54,7 @@ type MainObjCommon struct {
 	chart IChart				// Associated chart
 	parent IMainObj				// Included by...
 	numID NumberID 				// Numeric part of ID
-	unresLocalQualID string		// **UNRESOLVED** qualified ID (relative to creator's parent)
+	unresLocalQualID string		// **UNRESOLVED** local qualified ID
 
 	attrs map[string][]string	// Attributes
 

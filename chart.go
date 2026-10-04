@@ -17,7 +17,7 @@ type IChart interface {
 	GetAnnexs() []*Annex
 	GetImports() []*Import
 	GetAllMainObjects() []IMainObj
-	HasObject(absQualID string) bool
+	HasObject(fullQualID string) bool
 
 	GetObjectByFullQualID(qualid string) IMainObj 
  	GetObjectByLocalQualID(iqualid string) IMainObj 
@@ -182,14 +182,14 @@ func (this *Chart) setEmbeddingEvent(o *Event) {
 
 //-- method (main object manipulation)
 
-func (this *Chart) GetObjectByFullQualID(qualid string) IMainObj {
-	relQualIDs := splitIntoLocalQualIDs(qualid)
+func (this *Chart) GetObjectByFullQualID(fullQualID string) IMainObj {
+	localQualIDs := splitIntoLocalQualIDs(fullQualID)
 	curChart := this
-	for i, relQualID := range relQualIDs {
-		curObj := curChart.GetObjectByLocalQualID(relQualID)
+	for i, localQualID := range localQualIDs {
+		curObj := curChart.GetObjectByLocalQualID(localQualID)
 
 		if curObj != nil {
-			if i == len(relQualIDs) - 1 {
+			if i == len(localQualIDs) - 1 {
 				return curObj
 			} else if eobj, ok := curObj.(*Event); ok {
 				if eobj.IsChartEmbedding() {
@@ -204,8 +204,8 @@ func (this *Chart) GetObjectByFullQualID(qualid string) IMainObj {
 	return nil
 }
 
-func (this *Chart) GetObjectByLocalQualID(iqualid string) IMainObj {
-	objs := this.getObjectsWithIDGetter(iqualid, func (obj IMainObj) string {
+func (this *Chart) GetObjectByLocalQualID(localQualID string) IMainObj {
+	objs := this.getObjectsWithIDGetter(localQualID, func (obj IMainObj) string {
 		return obj.GetLocalQualifiedID()
 	}, true)
 
@@ -216,8 +216,8 @@ func (this *Chart) GetObjectByLocalQualID(iqualid string) IMainObj {
 	}
 }
 
-func (this *Chart) GetObjectsByIntrinsicID(locid string) []IMainObj {
-	return this.getObjectsWithIDGetter(locid, func (obj IMainObj) string {
+func (this *Chart) GetObjectsByIntrinsicID(intrID string) []IMainObj {
+	return this.getObjectsWithIDGetter(intrID, func (obj IMainObj) string {
 		return obj.GetIntrinsicID()
 	}, false)
 }
@@ -255,7 +255,7 @@ func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end T
 	panic("Unimplemented")
 }
 
-func (this *Chart) HasObject(absQualID string) bool {
+func (this *Chart) HasObject(fullQualID string) bool {
 	// TODO
 	panic("Unimplemented")
 }
