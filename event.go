@@ -320,9 +320,10 @@ func (this *Event) SetEndDate(t Time) {
 }
 
 func (this *Event) SetCategory(c string) error {
+	oldc := this.category
 	this.category = c
 	if this.chart != nil {
-		this.chart.changeEventCategory(this)
+		this.chart.changeEventCategory(this, oldc)
 	}
 	return nil
 }

@@ -31,7 +31,7 @@ type IChart interface {
 	resolveReferenceTo(IMainObj)
 	unresolveReferenceTo(IMainObj)
 	changeEventStartDate(*Event)
-	changeEventCategory(*Event)
+	changeEventCategory(*Event, string)
 }
 
 type Chart struct {
@@ -114,21 +114,15 @@ func (this *Chart) unresolveReferenceTo(obj IMainObj) {
 }
 
 func (this *Chart) changeEventStartDate(eobj *Event) {
-	// TODO: find the previous index of `eobj` in `this.events`.
-	// TODO: should find! remove this index in `this.events`.
-	// TODO: scanning `this.events` from the beginning,
-	// TODO: find the index where `eobj`'s StartDate is !IsAfter() first.
-	// TODO: insert `eobj` in that index.
-	panic("Unimplmemented")
+	category := eobj.GetCategory()
+	tmpevs := removeMainObjectFromSlice[Event](this.events[category], eobj)
+	this.events[category] = insertEventToSlice(tmpevs, eobj)
 }
 
-func (this *Chart) changeEventCategory(eobj *Event) {
-	// TODO: find the previous index of `eobj` in `this.events`.
-	// TODO: should find! remove this index in `this.events`.
-	// TODO: scanning `this.events` from the beginning,
-	// TODO: find the index where `eobj`'s StartDate is !IsAfter() first.
-	// TODO: insert `eobj` in that index.
-	panic("Unimplemented")
+func (this *Chart) changeEventCategory(eobj *Event, oldc string) {
+	newc := eobj.GetCategory()
+	tmpevs := removeMainObjectFromSlice[Event](this.events[oldc], eobj)
+	this.events[newc] = insertEventToSlice(tmpevs, eobj)
 }
 
 //-- interface IWarningObj
@@ -302,7 +296,7 @@ func (this *Chart) AddObject(obj IMainObj) error {
 		// Insert 'obj' to the slice.
 		category := eobj.GetCategory()
 		this.ReserveEventCategory(category)
-		this.events[category] = insertEventByStartDate(this.events[category], eobj)
+		this.events[category] = insertEventToSlice(this.events[category], eobj)
 	case MOK_Annex:
 		aobj, _ := obj.(*Annex)
 
@@ -328,7 +322,7 @@ func (this *Chart) AddObject(obj IMainObj) error {
 		for _, ieobj := range iobj.GetImportedEvents() {
 			category := ieobj.GetCategory()
 			this.ReserveEventCategory(category)
-			this.events[category] = insertEventByStartDate(this.events[category], ieobj)
+			this.events[category] = insertEventToSlice(this.events[category], ieobj)
 		}
 		for _, iaobj := range iobj.GetImportedAnnexs() {
 			this.annexs = append(this.annexs, iaobj)
@@ -358,7 +352,7 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 
 		// Remove 'obj' from the slice.
 		category := eobj.GetCategory()
-		this.events[category] = removeMainObject[Event](this.events[category], eobj)
+		this.events[category] = removeMainObjectFromSlice[Event](this.events[category], eobj)
 
 		// Unresolve references.
 		this.unresolveReferenceTo(eobj)
@@ -367,7 +361,7 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 		aobj, _ := obj.(*Annex)
 
 		// Remove 'obj' from the slice.
-		this.annexs = removeMainObject[Annex](this.annexs, aobj)
+		this.annexs = removeMainObjectFromSlice[Annex](this.annexs, aobj)
 
 		// Unresolve references.
 		this.unresolveReferenceTo(aobj)
@@ -376,16 +370,16 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 		iobj, _ := obj.(*Import)
 
 		// Remove 'obj' from the slice.
-		this.imports = removeMainObject[Import](this.imports, iobj)
+		this.imports = removeMainObjectFromSlice[Import](this.imports, iobj)
 		for _, ieobj := range iobj.GetImportedEvents() {
 			category := ieobj.GetCategory()
-			this.events[category] = removeMainObject[Event](this.events[category], ieobj)
+			this.events[category] = removeMainObjectFromSlice[Event](this.events[category], ieobj)
 		}
 		for _, iaobj := range iobj.GetImportedAnnexs() {
-			this.annexs = removeMainObject[Annex](this.annexs, iaobj)
+			this.annexs = removeMainObjectFromSlice[Annex](this.annexs, iaobj)
 		}
 		for _, iiobj := range iobj.GetImportedImports() {
-			this.imports = removeMainObject[Import](this.imports, iiobj)
+			this.imports = removeMainObjectFromSlice[Import](this.imports, iiobj)
 		}
 
 		// Unresolve references.
@@ -584,7 +578,8 @@ func findObjectKindByID(id string) MainObjKind {
 	return MOK_Unknown
 }
 
-func insertEventByStartDate(evs []*Event, eobj *Event) (ret []*Event) {
+func insertEventToSlice(evs []*Event, eobj *Event) (ret []*Event) {
+	// Events are inserted by its start date (ascending).
 	inserted := false
 	for i, oeobj := range evs {
 		if oeobj.GetStartDate().IsAfter(eobj.GetStartDate()) {
@@ -599,7 +594,7 @@ func insertEventByStartDate(evs []*Event, eobj *Event) (ret []*Event) {
 	return
 }
 
-func removeMainObject[T any, TPtr IMainObjPtr[T]](objs []TPtr, obj TPtr) []TPtr {
+func removeMainObjectFromSlice[T any, TPtr IMainObjPtr[T]](objs []TPtr, obj TPtr) []TPtr {
 	idx := slices.Index(objs, obj)
 	if idx != -1 {
 		return slices.Delete(objs, idx, idx+1)
