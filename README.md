@@ -248,7 +248,7 @@ A chart object represents the entire chart described in an LTC file. A valid LTC
 
 ### ID Qualification
 
-There are three types of IDs: _intrinsic_, _local qualified_, and _full qualified_. The intrinsic ID is the one directly specified in the object. The qualified ID is the intrinsic ID prefixed with the IDs of the objects through which the corresponding object is included (i.e., imported or embedded) in the current LTC file. The local qualified ID stops at the boundary of the subchart that it belongs to, while the full qualified ID continues until the root subchart. The IDs in a prefix are separated by slashes (`/`), and the object IDs with fewer nesting levels should come first. For chart-local (i.e., not included) objects, the prefix is empty. Some examples below:
+There are three types of IDs: _intrinsic_ and _qualified_. The intrinsic ID is the one directly specified in the object. The qualified ID is the intrinsic ID prefixed with the IDs of the objects through which the corresponding object is included (i.e., imported or embedded) in the current LTC file. The IDs in a prefix are separated by slashes (`/`), and the object IDs with fewer nesting levels should come first. For chart-local (i.e., not included) objects, the prefix is empty. Some examples below:
 
  - For an event object `e001` that was chart-local, the qualified ID is `e001`.
  - For an event object `e002` that was imported through an import object `i001`, the qualified ID is `i001/e002`.
@@ -256,6 +256,8 @@ There are three types of IDs: _intrinsic_, _local qualified_, and _full qualifie
  - For an event object `e004` that was embedded through a chart-embedding event object `e999`, the full qualified ID is `e999/e004`, while the local qualified ID is `e004`.
 
 The example above describes only the qualified IDs of event objects, but the same applies to any objects with intrinsic IDs (e.g., annex and import objects).
+
+A qualified ID can be _relative_ to a subchart; in this case, the ID prefix below this subchart level is cut. For example, in the final example, the qualified ID of `e004` relative to its associated subchart is just `e004` because `e999`. A qualified ID is _absolute_ if it's relative to the bottom-most (i.e., root) subchart.
 
 ### Referencing
 
