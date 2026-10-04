@@ -209,6 +209,10 @@ func (this *Event) IsEventEmbedding() bool {
 	return this.eventEmbedLink != nil
 }
 
+func (this *Event) IsSubchartLoaded() bool {
+	return this.embeddedChart != nil
+}
+
 func (this *Event) GetSubchart() (*Chart, warning.Warnings) {
 	warns := warning.Warnings{}
 

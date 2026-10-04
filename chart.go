@@ -65,24 +65,40 @@ func (this *Chart) asChart() *Chart {
 }
 
 func (this *Chart) resolveReferenceTo(obj IMainObj) {
+	// Ensure it's the main object itself, not just a common one. 
+	obj = obj.GetEnclosingObject()
+
+	// If 'obj' points to an event, resolve 'ContinuedFrom'.
 	if eobj, ok := obj.(*Event); ok {
 		for _, evs := range this.events {
-			for _, event := range evs {
-				ResolveLink[ContinuedFrom](event, eobj)
+			for _, ceobj := range evs {
+				ResolveLink[ContinuedFrom](ceobj, eobj)
 			}
 		}
+
+		// NOTE: subchart objects should be resolved when it's loaded.
 	}
 
-	for _, annex := range this.annexs {
-		ResolveLink[AttachTo](annex, obj.GetCommon())
-		ResolveLink[ExtraNoteOf](annex, obj.GetCommon())
+	// Resolve the references from existing annexs to 'obj'.
+	for _, caobj := range this.annexs {
+		ResolveLink[AttachTo](caobj, obj.GetCommon())
+		ResolveLink[ExtraNoteOf](caobj, obj.GetCommon())
 	}
-
-	// TODO: if obj==import, resolveReferenceTo all imported objs.
 }
 
 func (this *Chart) unresolveReferenceTo(obj IMainObj) {
+	// Ensure it's the main object itself, not just a common one. 
+	obj = obj.GetEnclosingObject()
+
+	// If 'obj' points to an event, unresolve 'ContinuedFrom'.
 	if eobj, ok := obj.(*Event); ok {
+		if eobj.IsSubchartLoaded() {
+			subchart, _ := eobj.GetSubchart()
+			for _, scobj := range subchart.GetAllMainObjects() {
+				this.unresolveReferenceTo(scobj)
+			}
+		}
+
 		for _, evs := range this.events {
 			for _, event := range evs {
 				UnresolveLink[ContinuedFrom](event, eobj)
@@ -90,12 +106,11 @@ func (this *Chart) unresolveReferenceTo(obj IMainObj) {
 		}
 	}
 
+	// Unresolve the references from existing annexs to 'obj'.
 	for _, annex := range this.annexs {
 		UnresolveLink[AttachTo](annex, obj.GetCommon())
 		UnresolveLink[ExtraNoteOf](annex, obj.GetCommon())
 	}
-
-	// TODO: if obj==import, unresolveReferenceTo all imported objs.
 }
 
 func (this *Chart) changeEventStartDate(eobj *Event) {
@@ -279,32 +294,47 @@ func (this *Chart) AddObject(obj IMainObj) error {
 	case MOK_Event:
 		eobj, _ := obj.(*Event)
 
+		// Resolve references.
+		this.resolveReferenceTo(eobj)
+		eobj.resolveReferenceTo(this)
+
 		// Insert 'obj' to the slice.
 		category := eobj.GetCategory()
 		this.ReserveEventCategory(category)
 		insertEventByStartDate(this.events[category], eobj)
-
-		// Resolve references.
-		this.resolveReferenceTo(eobj)
-		eobj.resolveReferenceTo(this)
 	case MOK_Annex:
 		aobj, _ := obj.(*Annex)
-
-		// Insert 'obj' to the slice.
-		this.annexs = append(this.annexs, aobj)
 
 		// Resolve references.
 		this.resolveReferenceTo(aobj)
 		aobj.resolveReferenceTo(this)
-	case MOK_Import:
-		iobj, _ := obj.(*Import)
 
 		// Insert 'obj' to the slice.
-		this.imports = append(this.imports, iobj)
+		this.annexs = append(this.annexs, aobj)
+	case MOK_Import:
+		iobj, _ := obj.(*Import)
 
 		// Resolve references.
 		this.resolveReferenceTo(iobj)
 		iobj.resolveReferenceTo(this)
+		for _, imobj := range iobj.GetImportedMainObjects() {
+			this.resolveReferenceTo(imobj)
+			// NOTE: Not the other way round. No back reference.
+		}
+
+		// Insert 'obj' to the slice.
+		this.imports = append(this.imports, iobj)
+		for _, ieobj := range iobj.GetImportedEvents() {
+			category := ieobj.GetCategory()
+			this.ReserveEventCategory(category)
+			insertEventByStartDate(this.events[category], ieobj)
+		}
+		for _, iaobj := range iobj.GetImportedAnnexs() {
+			this.annexs = append(this.annexs, iaobj)
+		}
+		for _, iiobj := range iobj.GetImportedImports() {
+			this.imports = append(this.imports, iiobj)
+		}
 	}
 
 	return nil

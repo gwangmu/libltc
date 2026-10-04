@@ -90,12 +90,17 @@ func (this *Import) GetImportedEvents() []*Event {
 	panic("Unimplemented")
 }
 
-func (this *Import) GetImportedAnnexs() []*Event {
+func (this *Import) GetImportedAnnexs() []*Annex {
 	// TODO
 	panic("Unimplemented")
 }
 
 func (this *Import) GetImportedImports() []*Import {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Import) GetImportedMainObjects() []IMainObj {
 	// TODO
 	panic("Unimplemented")
 }

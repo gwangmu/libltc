@@ -290,7 +290,7 @@ func (this *MainObjCommon) unresolveReferenceTo(c IChart) {
 
 func (this *MainObjCommon) initialize() {
 	*this = MainObjCommon{
-		enclosing: nil,
+		enclosing: this,
 
 		chart: nil,
 		parent: nil,
