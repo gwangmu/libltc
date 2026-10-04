@@ -3,7 +3,9 @@ package libltc
 import (
 	"errors"
 	"slices"
+	"strings"
 	"maps"
+	"regexp"
 
 	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/file"
@@ -422,14 +424,36 @@ func (this *Chart) getObjectsWithIDGetter(id string, idGetter func(IMainObj) str
 	return 
 }
 
-func splitIntoLocalQualIDs(qualid string) []string {
-	// TODO
-	panic("Unimplemented")
+func splitIntoLocalQualIDs(fullQualID string) (ret []string) {
+	re := regexp.MustCompile(`e[0-9]+/`)
+
+	prevI := 0
+	for prevI < len(fullQualID) {
+		if idxs := re.FindStringIndex(fullQualID[prevI:]); idxs != nil {
+			ret = append(ret, fullQualID[prevI:prevI+idxs[1]-1])
+			prevI += idxs[1]
+		} else {
+			break
+		}
+	}
+	if prevI < len(fullQualID) {
+		ret = append(ret, fullQualID[prevI:])
+	}
+
+	return 
 }
 
 func findObjectKindByID(id string) MainObjKind {
-	// TODO
-	panic("Unimplemented")
+	ids := strings.Split(id, "/")
+	if len(ids) != 0 {
+		lastid := ids[len(ids)-1]
+		re := regexp.MustCompile(`^([a-z])[0-9]+$`)
+		if match := re.FindStringSubmatch(lastid); match != nil {
+			kind, _ := GetMainObjKind(match[1])
+			return kind
+		}
+	}
+	return MOK_Unknown
 }
 
 //-- struct Setting 
