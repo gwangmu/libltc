@@ -280,6 +280,7 @@ func (this *Chart) AddObject(obj IMainObj) error {
 		return errors.New("Bogus object. Cannot add to the chart.")
 	}
 
+	obj = obj.GetEnclosingObject()
 	objKind := obj.GetKind()
 
 	// Associate 'obj' to this chart.
@@ -301,7 +302,7 @@ func (this *Chart) AddObject(obj IMainObj) error {
 		// Insert 'obj' to the slice.
 		category := eobj.GetCategory()
 		this.ReserveEventCategory(category)
-		insertEventByStartDate(this.events[category], eobj)
+		this.events[category] = insertEventByStartDate(this.events[category], eobj)
 	case MOK_Annex:
 		aobj, _ := obj.(*Annex)
 
@@ -327,7 +328,7 @@ func (this *Chart) AddObject(obj IMainObj) error {
 		for _, ieobj := range iobj.GetImportedEvents() {
 			category := ieobj.GetCategory()
 			this.ReserveEventCategory(category)
-			insertEventByStartDate(this.events[category], ieobj)
+			this.events[category] = insertEventByStartDate(this.events[category], ieobj)
 		}
 		for _, iaobj := range iobj.GetImportedAnnexs() {
 			this.annexs = append(this.annexs, iaobj)
@@ -348,6 +349,61 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 	// TODO: unresolve the references of 'obj' itself.
 	// TODO: remove itself from the chart.
 	panic("Unimplemented")
+
+	if obj == nil || obj.GetKind() == MOK_Unknown {
+		return
+	}
+
+	objKind := obj.GetKind()
+
+	// Dissociate 'obj' to this chart.
+	obj.setChart(nil)
+	obj.setNumberID(NID_Invalid)
+
+	switch objKind {
+	case MOK_Event:
+		eobj, _ := obj.(*Event)
+
+		// Remove 'obj' from the slice.
+		category := eobj.GetCategory()
+		this.events[category] = removeMainObject[Event](this.events[category], eobj)
+
+		// Unresolve references.
+		this.unresolveReferenceTo(eobj)
+		eobj.unresolveReferenceTo(this)
+	case MOK_Annex:
+		aobj, _ := obj.(*Annex)
+
+		// Remove 'obj' from the slice.
+		this.annexs = removeMainObject[Annex](this.annexs, aobj)
+
+		// Unresolve references.
+		this.unresolveReferenceTo(aobj)
+		aobj.unresolveReferenceTo(this)
+	case MOK_Import:
+		iobj, _ := obj.(*Import)
+
+		// Remove 'obj' from the slice.
+		this.imports = removeMainObject[Import](this.imports, iobj)
+		for _, ieobj := range iobj.GetImportedEvents() {
+			category := ieobj.GetCategory()
+			this.events[category] = removeMainObject[Event](this.events[category], ieobj)
+		}
+		for _, iaobj := range iobj.GetImportedAnnexs() {
+			this.annexs = removeMainObject[Annex](this.annexs, iaobj)
+		}
+		for _, iiobj := range iobj.GetImportedImports() {
+			this.imports = removeMainObject[Import](this.imports, iiobj)
+		}
+
+		// Unresolve references.
+		this.unresolveReferenceTo(iobj)
+		iobj.unresolveReferenceTo(this)
+		for _, imobj := range iobj.GetImportedMainObjects() {
+			this.unresolveReferenceTo(imobj)
+			// NOTE: Not the other way round. No back reference.
+		}
+	}
 }
 
 func (this *Chart) ReserveEventCategory(category string) {
@@ -529,17 +585,27 @@ func findObjectKindByID(id string) MainObjKind {
 	return MOK_Unknown
 }
 
-func insertEventByStartDate(evs []*Event, eobj *Event) {
+func insertEventByStartDate(evs []*Event, eobj *Event) (ret []*Event) {
 	inserted := false
 	for i, oeobj := range evs {
 		if oeobj.GetStartDate().IsAfter(eobj.GetStartDate()) {
-			evs = slices.Insert(evs, i, eobj)
+			ret = slices.Insert(evs, i, eobj)
 			inserted = true
 			break
 		}
 	}
 	if !inserted {
-		evs = append(evs, eobj)
+		ret = append(evs, eobj)
+	}
+	return
+}
+
+func removeMainObject[T any, TPtr IMainObjPtr[T]](objs []TPtr, obj TPtr) []TPtr {
+	idx := slices.Index(objs, obj)
+	if idx != -1 {
+		return slices.Delete(objs, idx, idx+1)
+	} else {
+		return objs
 	}
 }
 
