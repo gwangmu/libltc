@@ -248,16 +248,14 @@ A chart object represents the entire chart described in an LTC file. A valid LTC
 
 ### ID Qualification
 
-There are two types of IDs: _intrinsic_ and _qualified_. The intrinsic ID is the one directly specified in the object. The qualified ID is the intrinsic ID prefixed with the IDs of the objects through which the corresponding object is included (i.e., imported or embedded) in the current LTC file. The IDs in a prefix are separated by slashes (`/`), and the object IDs with fewer nesting levels should come first. For chart-local (i.e., not included) objects, the prefix is empty. Some examples below:
+There are three types of IDs: _intrinsic_, _local qualified_, and _full qualified_. The intrinsic ID is the one directly specified in the object. The qualified ID is the intrinsic ID prefixed with the IDs of the objects through which the corresponding object is included (i.e., imported or embedded) in the current LTC file. The local qualified ID stops at the boundary of the subchart that it belongs to, while the full qualified ID continues until the root subchart. The IDs in a prefix are separated by slashes (`/`), and the object IDs with fewer nesting levels should come first. For chart-local (i.e., not included) objects, the prefix is empty. Some examples below:
 
  - For an event object `e001` that was chart-local, the qualified ID is `e001`.
  - For an event object `e002` that was imported through an import object `i001`, the qualified ID is `i001/e002`.
  - For an event object `e003` that was imported through an import object `i002`, which in turn was imported through an import object `i001`, the qualified ID is `i001/i002/e003`.
- - For an event object `e004` that was embedded through a chart-embedding event object `e999`, the qualified ID is `e999/e004`.
+ - For an event object `e004` that was embedded through a chart-embedding event object `e999`, the full qualified ID is `e999/e004`, while the local qualified ID is `e004`.
 
 The example above describes only the qualified IDs of event objects, but the same applies to any objects with intrinsic IDs (e.g., annex and import objects).
-
-A convenience concept called _local qualified_ ID is the qualified ID within the direct associated chart, without crossing any subchart boundaries. For example, the local qualified ID of the final example (`e999/e004`) will be `e004` because `e999` belongs to a different subchart than `e004`. The opposite concept is an _full qualified_ ID that encompasses all subcharts.
 
 ### Referencing
 
