@@ -22,11 +22,15 @@ type IMainObj interface {
 	IsUnresolved() bool
 
 	GetIntrinsicID() string 
-	GetLocalQualID() string
-	GetQualifiedID() string
+	GetRelQualifiedID() string
+	GetAbsQualifiedID() string
 
 	GetParent() IMainObj
 	SetParent(p IMainObj)
+
+	IsImported() bool	// Imported by an import object?
+	IsEmbedded() bool	// Embedded in an event object? (incl. subchart objs)
+	IsIncluded() bool	// Imported or embedded?
 
 	GetAttrs(key string) []string
 	HasAttr(key string, value string) bool
@@ -48,7 +52,7 @@ type MainObjCommon struct {
 	enclosing IMainObj			// Enclosing object of this common struct
 
 	chart IChart				// Associated chart
-	parent IMainObj				// Included by... (nil: chart-local)
+	parent IMainObj				// Included by...
 	numID NumberID 				// Numeric part of ID
 	unresRelQualID string		// **UNRESOLVED** qualified ID (relative to creator's parent)
 
@@ -135,29 +139,29 @@ func (this *MainObjCommon) GetIntrinsicID() string {
 	}
 }
 
-func (this *MainObjCommon) GetLocalQualID() (ret string) {
+func (this *MainObjCommon) GetRelQualifiedID() (ret string) {
 	if this.IsUnresolved() {
 		return this.unresRelQualID
 	} else {
 		if this.parent != nil && this.parent.GetChart() == this.GetChart() {
-			ret = this.parent.GetLocalQualID() + "/"
+			ret = this.parent.GetRelQualifiedID() + "/"
 		}
 		ret += this.GetIntrinsicID()
 		return
 	}
 }
 
-func (this *MainObjCommon) GetQualifiedID() (ret string) {
+func (this *MainObjCommon) GetAbsQualifiedID() (ret string) {
 	if this.IsUnresolved() {
 		unresRelQualID := this.unresRelQualID
 		prefixid := ""
 		if this.parent != nil {
-			prefixid = this.parent.GetQualifiedID() + "/"
+			prefixid = this.parent.GetAbsQualifiedID() + "/"
 		}
 		return prefixid + unresRelQualID
 	} else {
 		if this.parent != nil {
-			ret = this.parent.GetQualifiedID() + "/"
+			ret = this.parent.GetAbsQualifiedID() + "/"
 		}
 		ret += this.GetIntrinsicID()
 		return
@@ -170,6 +174,34 @@ func (this *MainObjCommon) GetParent() IMainObj {
 
 func (this *MainObjCommon) SetParent(p IMainObj) {
 	this.parent = p
+}
+
+func (this *MainObjCommon) IsImported() bool {
+	if this.parent != nil {
+		if this.parent.GetKind() == MOK_Import {
+			return true
+		} else {
+			return this.parent.IsEmbedded()
+		}
+	} else {
+		return false
+	}
+}
+
+func (this *MainObjCommon) IsEmbedded() bool {
+	if this.parent != nil {
+		if this.parent.GetKind() == MOK_Event {
+			return true
+		} else {
+			return this.parent.IsEmbedded()
+		}
+	} else {
+		return false
+	}
+}
+
+func (this *MainObjCommon) IsIncluded() bool {
+	return this.IsImported() || this.IsEmbedded()
 }
 
 func (this *MainObjCommon) GetAttrs(key string) []string {
@@ -216,7 +248,7 @@ func (this *MainObjCommon) RemoveAttr(key string, value string) {
 
 func (this *MainObjCommon) convIDRelToAbs(relid string) string {
 	if this.parent != nil {
-		return this.parent.GetQualifiedID() + "/" + relid
+		return this.parent.GetAbsQualifiedID() + "/" + relid
 	} else {
 		return relid
 	}
@@ -224,7 +256,7 @@ func (this *MainObjCommon) convIDRelToAbs(relid string) string {
 
 func (this *MainObjCommon) convIDAbsToRel(absid string) string {
 	if this.parent != nil {
-		return strings.TrimPrefix(absid, this.parent.GetQualifiedID() + "/")
+		return strings.TrimPrefix(absid, this.parent.GetAbsQualifiedID() + "/")
 	} else {
 		return absid
 	}

@@ -53,7 +53,7 @@ func (this *Annex) Summary() (ret string) {
 	}
 
 	extraStr := warning.BuildSummaryString(
-		WSE{"ID", this.GetLocalID()},
+		WSE{"ID", this.GetIntrinsicID()},
 		WSE{"format", this.format}, 
 		WSE{"encoding", this.encoding},
 	)
@@ -65,7 +65,7 @@ func (this *Annex) Summary() (ret string) {
 }
 
 func (this Annex) IsUnknown() bool {
-	return this.Title == "" && this.GetLocalID() == "" &&
+	return this.Title == "" && this.GetIntrinsicID() == "" &&
 		this.format == "" && this.encoding == ""
 }
 
@@ -125,7 +125,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var objTo *MainObjCommon
 				for _, aobjIn := range this.AttachTo.Get() {
-					if aobjIn.GetQualifiedID() == this.convIDRelToAbs(aval) {
+					if aobjIn.GetRelQualifiedID() == aval {
 						objTo = aobjIn
 						break
 					}
@@ -144,7 +144,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var objOf *MainObjCommon
 				for _, aobjIn := range this.ExtraNoteOf.Get() {
-					if aobjIn.GetQualifiedID() == this.convIDRelToAbs(aval) {
+					if aobjIn.GetRelQualifiedID() == aval {
 						objOf = aobjIn
 						break
 					}
@@ -247,7 +247,7 @@ func (this *Annex) SetExtraNoteOf(obj *MainObjCommon) {
 
 // Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOf(obj *MainObjCommon) {
-	RemoveLink[ExtraNoteOf](this, obj.GetQualifiedID())
+	RemoveLink[ExtraNoteOf](this, obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
@@ -262,7 +262,7 @@ func (this *Annex) SetAttachTo(obj *MainObjCommon) {
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachTo(obj *MainObjCommon) {
-	RemoveLink[AttachTo](this, obj.GetQualifiedID())
+	RemoveLink[AttachTo](this, obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeAttachToObject'.

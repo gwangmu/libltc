@@ -19,9 +19,9 @@ type IChart interface {
 	GetAllMainObjects() []IMainObj
 	HasObject(absQualID string) bool
 
-	GetObjectByQualID(qualid string) IMainObj 
- 	GetObjectByLocalQualID(iqualid string) IMainObj 
-	GetObjectByIntrinsicID(locid string) IMainObj 
+	GetObjectByAbsQualID(qualid string) IMainObj 
+ 	GetObjectByRelQualID(iqualid string) IMainObj 
+	GetObjectsByIntrinsicID(locid string) []IMainObj 
 
 	GetEmbeddingEvent() *Event
 
@@ -182,14 +182,14 @@ func (this *Chart) setEmbeddingEvent(o *Event) {
 
 //-- method (main object manipulation)
 
-func (this *Chart) GetObjectByQualID(qualid string) IMainObj {
-	inChartQualIDs := splitIntoLocalQualIDs(qualid)
+func (this *Chart) GetObjectByAbsQualID(qualid string) IMainObj {
+	relQualIDs := splitIntoRelQualIDs(qualid)
 	curChart := this
-	for i, inChartQualID := range inChartQualIDs {
-		curObj := curChart.GetObjectByLocalQualID(inChartQualID)
+	for i, relQualID := range relQualIDs {
+		curObj := curChart.GetObjectByRelQualID(relQualID)
 
 		if curObj != nil {
-			if i == len(inChartQualIDs) - 1 {
+			if i == len(relQualIDs) - 1 {
 				return curObj
 			} else if eobj, ok := curObj.(*Event); ok {
 				if eobj.IsChartEmbedding() {
@@ -204,14 +204,22 @@ func (this *Chart) GetObjectByQualID(qualid string) IMainObj {
 	return nil
 }
 
-func (this *Chart) GetObjectByLocalQualID(iqualid string) IMainObj {
-	// TODO: return obj by local id.
-	panic("Unimplemented")
+func (this *Chart) GetObjectByRelQualID(iqualid string) IMainObj {
+	objs := this.getObjectsWithIDGetter(iqualid, func (obj IMainObj) string {
+		return obj.GetRelQualifiedID()
+	}, true)
+
+	if len(objs) > 0 {
+		return objs[0]
+	} else {
+		return nil
+	}
 }
 
-func (this *Chart) GetObjectByIntrinsicID(locid string) IMainObj {
-	// TODO: return obj by local id.
-	panic("Unimplemented")
+func (this *Chart) GetObjectsByIntrinsicID(locid string) []IMainObj {
+	return this.getObjectsWithIDGetter(locid, func (obj IMainObj) string {
+		return obj.GetIntrinsicID()
+	}, false)
 }
 
 func (this *Chart) GetAllMainObjects() (ret []IMainObj) {
@@ -374,6 +382,54 @@ func CreateEmptyChart() *Chart {
 
 		embeddingEvent: nil,
 	}
+}
+
+//-- method (util)
+
+func (this *Chart) getObjectsWithIDGetter(id string, idGetter func(IMainObj) string, onlyFirst bool) (ret []IMainObj) {
+	objKind := findObjectKindByID(id)
+	switch objKind {
+	case MOK_Event:
+		for _, evs := range this.events {
+			for _, event := range evs {
+				if idGetter(event) == id {
+					ret = append(ret, event)
+					if onlyFirst {
+						return
+					}
+				}
+			}
+		}
+	case MOK_Annex:
+		for _, annex := range this.annexs {
+			if idGetter(annex) == id {
+				ret = append(ret, annex)
+				if onlyFirst {
+					return
+				}
+			}
+		}
+	case MOK_Import:
+		for _, cimport := range this.imports {
+			if idGetter(cimport) == id {
+				ret = append(ret, cimport)
+				if onlyFirst {
+					return
+				}
+			}
+		}
+	}
+	return 
+}
+
+func splitIntoRelQualIDs(qualid string) []string {
+	// TODO
+	panic("Unimplemented")
+}
+
+func findObjectKindByID(id string) MainObjKind {
+	// TODO
+	panic("Unimplemented")
 }
 
 //-- struct Setting 

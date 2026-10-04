@@ -52,7 +52,7 @@ func (this *Endpoint[T]) remove(obj T) {
 // source/sink objects. It should define the following methods.
 
 type ILinkElem interface {
-	GetQualifiedID() string
+	GetAbsQualifiedID() string
 	IsUnresolved() bool
 
 	markUnresolved(unresRelQualID string)
@@ -98,9 +98,9 @@ func ResolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, Sink
 		return false
 	}
 
-    absQualID := osink.GetQualifiedID() 
+    absQualID := osink.GetAbsQualifiedID() 
 	for _, elem := range epSrc.Get() {
-		if elem.GetQualifiedID() == absQualID {
+		if elem.GetAbsQualifiedID() == absQualID {
 			if elem.IsUnresolved() {
 				epSrc.swap(elem, osink)
 				epSink.add(osrc)
@@ -117,7 +117,7 @@ func UnresolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, Si
 	epSrc := l.GetSourceEndpoint(osrc)
 	epSink := l.GetSinkEndpoint(osink)
 
-	absQualID := osink.GetQualifiedID()
+	absQualID := osink.GetAbsQualifiedID()
 	epSink.remove(osrc)
 
 	for _, elem := range epSrc.Get() {
@@ -137,7 +137,7 @@ func RemoveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT
 	epSrc := l.GetSourceEndpoint(osrc)
 
 	for _, elem := range epSrc.Get() {
-		if elem.GetQualifiedID() == absQualID {
+		if elem.GetAbsQualifiedID() == absQualID {
 			if !elem.IsUnresolved() {
 				epSink := l.GetSinkEndpoint(elem)
 				epSink.remove(osrc)

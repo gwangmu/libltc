@@ -57,7 +57,7 @@ func (this *Event) Summary() (ret string) {
 	}
 
 	extraStr := warning.BuildSummaryString(
-		WSE{"ID", this.GetLocalID()},
+		WSE{"ID", this.GetIntrinsicID()},
 		WSE{"category", this.GetCategory()},
 		WSE{"started", this.GetStartDate()}, 
 		WSE{"ended", this.GetEndDate()},
@@ -72,7 +72,7 @@ func (this *Event) Summary() (ret string) {
 }
 
 func (this Event) IsUnknown() bool {
-	return this.GetTitle() == "" && this.GetLocalID() == "" &&
+	return this.GetTitle() == "" && this.GetIntrinsicID() == "" &&
 		this.GetCategory() == "" && this.GetStartDate().IsUnknown() &&
 		this.GetEndDate().IsUnknown() && this.GetEmbedEventLink() == "" &&
 		this.GetEmbedChartLink() == ""
@@ -146,7 +146,7 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var eobjFrom *Event
 				for _, eobjIn := range this.ContinuedFrom.Get() {
-					if eobjIn.GetQualifiedID() == this.convIDRelToAbs(aval) {
+					if eobjIn.GetRelQualifiedID() == aval {
 						eobjFrom = eobjIn
 						break
 					}
@@ -322,7 +322,7 @@ func (this *Event) SetContinuedFrom(eobj *Event) {
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
-	RemoveLink[ContinuedFrom](this, eobj.GetQualifiedID())
+	RemoveLink[ContinuedFrom](this, eobj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
