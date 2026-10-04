@@ -31,6 +31,7 @@ type IMainObj interface {
 	IsImported() bool	// Imported by an import object?
 	IsEmbedded() bool	// Embedded in an event object? (incl. subchart objs)
 	IsIncluded() bool	// Imported or embedded?
+	IsLocallyImported() bool	// Imported within a subchart? 
 
 	GetAttrs(key string) []string
 	HasAttr(key string, value string) bool
@@ -181,7 +182,7 @@ func (this *MainObjCommon) IsImported() bool {
 		if this.parent.GetKind() == MOK_Import {
 			return true
 		} else {
-			return this.parent.IsEmbedded()
+			return this.parent.IsImported()
 		}
 	} else {
 		return false
@@ -202,6 +203,10 @@ func (this *MainObjCommon) IsEmbedded() bool {
 
 func (this *MainObjCommon) IsIncluded() bool {
 	return this.IsImported() || this.IsEmbedded()
+}
+
+func (this *MainObjCommon) IsLocallyImported() bool {
+	return this.parent != nil && this.parent.GetKind() == MOK_Import 
 }
 
 func (this *MainObjCommon) GetAttrs(key string) []string {
