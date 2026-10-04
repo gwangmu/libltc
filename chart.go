@@ -342,14 +342,6 @@ func (this *Chart) AddObject(obj IMainObj) error {
 }
 
 func (this *Chart) RemoveObject(obj IMainObj) {
-	// TODO: dispose of any possible links to other objs.
-	// TODO: for import objects, unresolveReferenceTo all imported objs.
-	// TODO: for import objects, remove `imported*` from the chart, too.
-	// TODO: unresolveReferenceTo 'obj'
-	// TODO: unresolve the references of 'obj' itself.
-	// TODO: remove itself from the chart.
-	panic("Unimplemented")
-
 	if obj == nil || obj.GetKind() == MOK_Unknown {
 		return
 	}
@@ -412,9 +404,16 @@ func (this *Chart) ReserveEventCategory(category string) {
 	}
 }
 
-func (this *Chart) RemoveEventCategory(category string) {
-	// TODO: remove events if it's not empty.
-	panic("Unimplemented")
+func (this *Chart) RemoveEventCategory(category string) error {
+	// TODO: remove events if it's only empty.
+	if evs, ok := this.events[category]; ok {
+		if len(evs) != 0 {
+			return errors.New("Not an empty category")
+		} else {
+			delete(this.events, category)
+		}
+	}
+	return nil
 }
 
 //-- method (creation)
