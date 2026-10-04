@@ -12,6 +12,7 @@ import (
 )
 
 type IChart interface {
+	GetEmbeddingEvent() *Event
 	GetStringifiedSubjectName() string
 
 	GetEventCategories() []string
@@ -19,13 +20,10 @@ type IChart interface {
 	GetAnnexs() []*Annex
 	GetImports() []*Import
 	GetAllMainObjects() []IMainObj
-	HasObject(fullQualID string) bool
 
 	GetObjectByFullQualID(qualid string) IMainObj 
  	GetObjectByLocalQualID(iqualid string) IMainObj 
 	GetObjectsByIntrinsicID(locid string) []IMainObj 
-
-	GetEmbeddingEvent() *Event
 
 	getNextNumberID(kind MainObjKind) (NumberID, error) 
 
@@ -56,6 +54,10 @@ type Chart struct {
 
 func (this *Chart) GetEmbeddingEvent() *Event {
 	return this.embeddingEvent
+}
+
+func (this *Chart) GetStringifiedSubjectName() string {
+	return this.Subject.Name.String()
 }
 
 func (this *Chart) asChart() *Chart {
@@ -164,10 +166,6 @@ func (this *Chart) getNextNumberID(kind MainObjKind) (NumberID, error) {
 
 //-- method (getters)
 
-func (this *Chart) GetStringifiedSubjectName() string {
-	return this.Subject.Name.String()
-}
-
 func (this *Chart) GetAnnexs() []*Annex {
 	return this.annexs
 }
@@ -254,11 +252,6 @@ func (this *Chart) GetEventsInCategory(category string) []*Event {
 func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end Time, inclusive bool) []*Event {
 	// TODO: inclusive = false: start < estart && eend < end
 	// TODO: inclusive = true: start <= eend || estart <= end
-	panic("Unimplemented")
-}
-
-func (this *Chart) HasObject(fullQualID string) bool {
-	// TODO
 	panic("Unimplemented")
 }
 
