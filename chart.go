@@ -263,9 +263,8 @@ func (this *Chart) GetEventsInCategory(category string) []*Event {
 	}
 }
 
-func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end Time, inclusive bool) []*Event {
-	// TODO: inclusive = false: start < estart && eend < end
-	// TODO: inclusive = true: start <= eend || estart <= end
+func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end Time, mode IntervalKind) []*Event {
+	// TODO
 	panic("Unimplemented")
 }
 

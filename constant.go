@@ -96,3 +96,23 @@ func GetMainObjKind(prefix string) (MainObjKind, error) {
 		return MOK_Unknown, errors.New("Bogus main object prefix")
 	}
 }
+
+//-- type IntervalKind 
+
+// Let's say there is an "interval" (start~end) with respect to another
+// "interval" (estart~eend).
+//
+//   |          |------------|            |
+//   ^          ^            ^            ^
+// start      estart        eend         end
+//
+// Exclusive: strict inside. (start < estart && eend < end)
+// Inclusive: include equals at the boundary. (start <= estart && eend <= end)
+// Extended: include stradding ones. (start <= eend || estart <= end)
+
+type IntervalKind int
+const (
+	IK_Exclusive IntervalKind = iota
+	IK_Inclusive
+	IK_Extended
+)
