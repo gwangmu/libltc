@@ -16,14 +16,14 @@ type IMainObj interface {
 	getNumberID() NumberID 
 	setNumberID(nid NumberID)
 
-	getUnresLocalQualID() string
-	markUnresolved(unresLocalQualID string)
+	getUnresRelQualID() string
+	markUnresolved(unresRelQualID string, parent IMainObj)
 	unmarkUnresolved()
 	IsUnresolved() bool
 
 	GetIntrinsicID() string 
-	GetLocalQualifiedID() string
-	GetFullQualifiedID() string
+	GetRelQualifiedID(baseChart *Chart) string
+	GetAbsQualifiedID() string
 
 	GetParent() IMainObj
 	SetParent(p IMainObj)
@@ -38,8 +38,11 @@ type IMainObj interface {
 	AddAttr(key string, value string)
 	RemoveAttr(key string, value string)
 
-	convIDLocalToFull(relid string) string
-	convIDFullToLocal(absid string) string
+	convIDRelToAbs(relid string) string
+	convIDAbsToRel(absid string) string
+
+	resolveReferenceTo(c IChart)
+	unresolveReferenceTo(c IChart)
 
 	initialize()
 }
@@ -55,7 +58,7 @@ type MainObjCommon struct {
 	chart IChart				// Associated chart
 	parent IMainObj				// Included by...
 	numID NumberID 				// Numeric part of ID
-	unresLocalQualID string		// **UNRESOLVED** local qualified ID
+	unresRelQualID string		// **UNRESOLVED** local qualified ID
 
 	attrs map[string][]string	// Attributes
 
@@ -107,62 +110,70 @@ func (this *MainObjCommon) setNumberID(nid NumberID) {
 	this.numID = nid
 }
 
-func (this *MainObjCommon) getUnresLocalQualID() string {
-	return this.unresLocalQualID
+func (this *MainObjCommon) getUnresRelQualID() string {
+	return this.unresRelQualID
 }
 
-func (this *MainObjCommon) markUnresolved(unresLocalQualID string) {
-	this.unresLocalQualID = unresLocalQualID
+func (this *MainObjCommon) markUnresolved(unresRelQualID string, parent IMainObj) {
+	this.unresRelQualID = unresRelQualID
+	this.parent = parent
 }
 
 func (this *MainObjCommon) unmarkUnresolved() {
-	this.unresLocalQualID = ""
+	this.unresRelQualID = ""
 }
 
 func (this MainObjCommon) IsUnresolved() bool {
-	return this.unresLocalQualID != ""
+	return this.unresRelQualID != ""
 }
 
 func (this *MainObjCommon) GetIntrinsicID() string {
 	if this.GetKind() == MOK_Unknown {
-		unresLocalQualID := this.unresLocalQualID
-		lastidx := strings.LastIndex(unresLocalQualID, "/")
+		unresRelQualID := this.unresRelQualID
+		lastidx := strings.LastIndex(unresRelQualID, "/")
 
 		if lastidx == -1 {
-			return unresLocalQualID
-		} else if len(unresLocalQualID) < lastidx + 1 {
+			return unresRelQualID
+		} else if len(unresRelQualID) < lastidx + 1 {
 			return ""
 		} else {
-			return unresLocalQualID[lastidx+1:]
+			return unresRelQualID[lastidx+1:]
 		}
 	} else {
 		return convIDInternalToString(this.GetKind(), this.numID)
 	}
 }
 
-func (this *MainObjCommon) GetLocalQualifiedID() (ret string) {
+func (this *MainObjCommon) GetRelQualifiedID(baseChart *Chart) (ret string) {
 	if this.IsUnresolved() {
-		return this.unresLocalQualID
+		if this.parent != nil {
+			absQualID := this.GetAbsQualifiedID()
+			return strings.TrimPrefix(this.parent.GetAbsQualifiedID(), absQualID)
+		} else {
+			// THIS SHOULDN'T HAPPEN.
+			return this.unresRelQualID
+		}
 	} else {
-		if this.parent != nil && this.parent.GetChart() == this.GetChart() {
-			ret = this.parent.GetLocalQualifiedID() + "/"
+		if this.parent != nil && (this.GetChart() != baseChart || 
+			this.parent.GetChart() == baseChart) {
+			ret = this.parent.GetRelQualifiedID(baseChart) + "/"
 		}
 		ret += this.GetIntrinsicID()
 		return
 	}
 }
 
-func (this *MainObjCommon) GetFullQualifiedID() (ret string) {
+func (this *MainObjCommon) GetAbsQualifiedID() (ret string) {
 	if this.IsUnresolved() {
-		unresLocalQualID := this.unresLocalQualID
+		unresRelQualID := this.unresRelQualID
 		prefixid := ""
 		if this.parent != nil {
-			prefixid = this.parent.GetFullQualifiedID() + "/"
+			prefixid = this.parent.GetAbsQualifiedID() + "/"
 		}
-		return prefixid + unresLocalQualID
+		return prefixid + unresRelQualID
 	} else {
 		if this.parent != nil {
-			ret = this.parent.GetFullQualifiedID() + "/"
+			ret = this.parent.GetAbsQualifiedID() + "/"
 		}
 		ret += this.GetIntrinsicID()
 		return
@@ -251,20 +262,30 @@ func (this *MainObjCommon) RemoveAttr(key string, value string) {
 	}
 }
 
-func (this *MainObjCommon) convIDLocalToFull(relid string) string {
+func (this *MainObjCommon) convIDRelToAbs(relid string) string {
 	if this.parent != nil {
-		return this.parent.GetFullQualifiedID() + "/" + relid
+		return this.parent.GetAbsQualifiedID() + "/" + relid
 	} else {
 		return relid
 	}
 }
 
-func (this *MainObjCommon) convIDFullToLocal(absid string) string {
+func (this *MainObjCommon) convIDAbsToRel(absid string) string {
 	if this.parent != nil {
-		return strings.TrimPrefix(absid, this.parent.GetFullQualifiedID() + "/")
+		return strings.TrimPrefix(absid, this.parent.GetAbsQualifiedID() + "/")
 	} else {
 		return absid
 	}
+}
+
+func (this *MainObjCommon) resolveReferenceTo(c IChart) {
+	// No EPSource. Nothing to do.
+	return
+}
+
+func (this *MainObjCommon) unresolveReferenceTo(c IChart) {
+	// No EPSource. Nothing to do.
+	return
 }
 
 func (this *MainObjCommon) initialize() {
@@ -274,15 +295,15 @@ func (this *MainObjCommon) initialize() {
 		chart: nil,
 		parent: nil,
 		numID: NID_Invalid,
-		unresLocalQualID: "",
+		unresRelQualID: "",
 
 		attrs: map[string][]string{},
 	}
 }
 
-// Unresolved = non-empty `unresLocalQualID`
-// `unresLocalQualID` should be a "qualified" ID, meaning if an object was included,
-// the `unresLocalQualID` here should prepend the qualified ID of the chart-embedding event object.
+// Unresolved = non-empty `unresRelQualID`
+// `unresRelQualID` should be a "qualified" ID, meaning if an object was included,
+// the `unresRelQualID` here should prepend the qualified ID of the chart-embedding event object.
 
 func CreateEmptyMainObjCommon() *MainObjCommon {
 	obj := MainObjCommon{}

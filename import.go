@@ -218,3 +218,13 @@ func CreateEmptyImport() *Import {
 	cimport.enclosing = cimport
 	return cimport
 }
+
+func (this *Import) resolveReferenceTo(c IChart) {
+	// No EPSource. Nothing to do.
+	return
+}
+
+func (this *Import) unresolveReferenceTo(c IChart) {
+	// No EPSource. Nothing to do.
+	return
+}

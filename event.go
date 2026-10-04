@@ -29,6 +29,16 @@ type Event struct {
 
 //-- interface IMainObj
 
+func (this *Event) resolveReferenceTo(c IChart) {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Event) unresolveReferenceTo(c IChart) {
+	// TODO
+	panic("Unimplemented")
+}
+
 func (this *Event) initialize() {
 	*this = Event{
 		MainObjCommon: *CreateEmptyMainObjCommon(),
@@ -146,7 +156,7 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var eobjFrom *Event
 				for _, eobjIn := range this.ContinuedFrom.Get() {
-					if eobjIn.GetLocalQualifiedID() == aval {
+					if eobjIn.GetRelQualifiedID(this.GetChart()) == aval {
 						eobjFrom = eobjIn
 						break
 					}
@@ -322,12 +332,12 @@ func (this *Event) SetContinuedFrom(eobj *Event) {
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
-	RemoveLink[ContinuedFrom](this, eobj.GetFullQualifiedID())
+	RemoveLink[ContinuedFrom](this, eobj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
-func (this *Event) UnsetContinuedFromByID(fullQualID string) {
-	RemoveLink[ContinuedFrom](this, fullQualID)
+func (this *Event) UnsetContinuedFromByID(absQualID string) {
+	RemoveLink[ContinuedFrom](this, absQualID)
 }
 
 //-- method (creation)
@@ -388,7 +398,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 		if akey == "ContinuedFrom" {
 			for _, aval := range avals {
 				ueobj := CreateEmptyEvent()
-                ueobj.markUnresolved(aval)
+                ueobj.markUnresolved(aval, event)
 				event.ContinuedFrom.add(ueobj)
 			}
 		}

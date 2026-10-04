@@ -21,8 +21,8 @@ type IChart interface {
 	GetImports() []*Import
 	GetAllMainObjects() []IMainObj
 
-	GetObjectByFullQualID(qualid string) IMainObj 
- 	GetObjectByLocalQualID(iqualid string) IMainObj 
+	GetObjectByAbsQualID(qualid string) IMainObj 
+ 	GetObjectByRelQualID(iqualid string, baseChart *Chart) IMainObj 
 	GetObjectsByIntrinsicID(locid string) []IMainObj 
 
 	getNextNumberID(kind MainObjKind) (NumberID, error) 
@@ -65,10 +65,9 @@ func (this *Chart) asChart() *Chart {
 }
 
 func (this *Chart) resolveReferenceTo(obj IMainObj) {
-	for _, evs := range this.events {
-		for _, event := range evs {
-			switch eobj := obj.(type) {
-			case *Event:
+	if eobj, ok := obj.(*Event); ok {
+		for _, evs := range this.events {
+			for _, event := range evs {
 				ResolveLink[ContinuedFrom](event, eobj)
 			}
 		}
@@ -78,12 +77,16 @@ func (this *Chart) resolveReferenceTo(obj IMainObj) {
 		ResolveLink[AttachTo](annex, obj.GetCommon())
 		ResolveLink[ExtraNoteOf](annex, obj.GetCommon())
 	}
+
+	// TODO: if obj==import, resolveReferenceTo all imported objs.
 }
 
 func (this *Chart) unresolveReferenceTo(obj IMainObj) {
-	for _, evs := range this.events {
-		for _, event := range evs {
-			UnresolveLink[ContinuedFrom](event, event)
+	if eobj, ok := obj.(*Event); ok {
+		for _, evs := range this.events {
+			for _, event := range evs {
+				UnresolveLink[ContinuedFrom](event, eobj)
+			}
 		}
 	}
 
@@ -91,6 +94,8 @@ func (this *Chart) unresolveReferenceTo(obj IMainObj) {
 		UnresolveLink[AttachTo](annex, obj.GetCommon())
 		UnresolveLink[ExtraNoteOf](annex, obj.GetCommon())
 	}
+
+	// TODO: if obj==import, unresolveReferenceTo all imported objs.
 }
 
 func (this *Chart) changeEventStartDate(eobj *Event) {
@@ -182,14 +187,14 @@ func (this *Chart) setEmbeddingEvent(o *Event) {
 
 //-- method (main object manipulation)
 
-func (this *Chart) GetObjectByFullQualID(fullQualID string) IMainObj {
-	localQualIDs := splitIntoLocalQualIDs(fullQualID)
+func (this *Chart) GetObjectByAbsQualID(absQualID string) IMainObj {
+	inChartQualIDs := splitIntoInChartQualIDs(absQualID)
 	curChart := this
-	for i, localQualID := range localQualIDs {
-		curObj := curChart.GetObjectByLocalQualID(localQualID)
+	for i, inChartQualID := range inChartQualIDs {
+		curObj := curChart.GetObjectByRelQualID(inChartQualID, curChart)
 
 		if curObj != nil {
-			if i == len(localQualIDs) - 1 {
+			if i == len(inChartQualIDs) - 1 {
 				return curObj
 			} else if eobj, ok := curObj.(*Event); ok {
 				if eobj.IsChartEmbedding() {
@@ -204,9 +209,9 @@ func (this *Chart) GetObjectByFullQualID(fullQualID string) IMainObj {
 	return nil
 }
 
-func (this *Chart) GetObjectByLocalQualID(localQualID string) IMainObj {
-	objs := this.getObjectsWithIDGetter(localQualID, func (obj IMainObj) string {
-		return obj.GetLocalQualifiedID()
+func (this *Chart) GetObjectByRelQualID(relQualID string, baseChart *Chart) IMainObj {
+	objs := this.getObjectsWithIDGetter(relQualID, func (obj IMainObj) string {
+		return obj.GetRelQualifiedID(baseChart)
 	}, true)
 
 	if len(objs) > 0 {
@@ -255,19 +260,59 @@ func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end T
 	panic("Unimplemented")
 }
 
-func (this *Chart) AddObject(obj IMainObj) {
-	// TODO: add already-created obj. update chart and id.
-	// TODO: sort events by StartDate.
-	// TODO: resolveReferenceTo 'obj'
-	// TODO: resolve the references of 'obj' itself.
-	// TODO: for import objects, add `imported*` to the chart, too.
-	// TODO: for import objects, resorveReferenceTo all imported objs.
-	panic("Unimplemented")
+func (this *Chart) AddObject(obj IMainObj) error {
+	if obj == nil || obj.GetKind() == MOK_Unknown {
+		return errors.New("Bogus object. Cannot add to the chart.")
+	}
+
+	objKind := obj.GetKind()
+
+	// Associate 'obj' to this chart.
+	if nnid, err := this.getNextNumberID(objKind); err != nil {
+		obj.setChart(this)
+		obj.setNumberID(nnid)
+	} else {
+		return err
+	}
+
+	switch objKind {
+	case MOK_Event:
+		eobj, _ := obj.(*Event)
+
+		// Insert 'obj' to the slice.
+		category := eobj.GetCategory()
+		this.ReserveEventCategory(category)
+		insertEventByStartDate(this.events[category], eobj)
+
+		// Resolve references.
+		this.resolveReferenceTo(eobj)
+		eobj.resolveReferenceTo(this)
+	case MOK_Annex:
+		aobj, _ := obj.(*Annex)
+
+		// Insert 'obj' to the slice.
+		this.annexs = append(this.annexs, aobj)
+
+		// Resolve references.
+		this.resolveReferenceTo(aobj)
+		aobj.resolveReferenceTo(this)
+	case MOK_Import:
+		iobj, _ := obj.(*Import)
+
+		// Insert 'obj' to the slice.
+		this.imports = append(this.imports, iobj)
+
+		// Resolve references.
+		this.resolveReferenceTo(iobj)
+		iobj.resolveReferenceTo(this)
+	}
+
+	return nil
 }
 
 func (this *Chart) RemoveObject(obj IMainObj) {
 	// TODO: dispose of any possible links to other objs.
-	// TODO: for import objects, unresorveReferenceTo all imported objs.
+	// TODO: for import objects, unresolveReferenceTo all imported objs.
 	// TODO: for import objects, remove `imported*` from the chart, too.
 	// TODO: unresolveReferenceTo 'obj'
 	// TODO: unresolve the references of 'obj' itself.
@@ -279,6 +324,11 @@ func (this *Chart) ReserveEventCategory(category string) {
 	if _, ok := this.events[category]; !ok {
 		this.events[category] = []*Event{}
 	}
+}
+
+func (this *Chart) RemoveEventCategory(category string) {
+	// TODO: remove events if it's not empty.
+	panic("Unimplemented")
 }
 
 //-- method (creation)
@@ -417,20 +467,20 @@ func (this *Chart) getObjectsWithIDGetter(id string, idGetter func(IMainObj) str
 	return 
 }
 
-func splitIntoLocalQualIDs(fullQualID string) (ret []string) {
+func splitIntoInChartQualIDs(absQualID string) (ret []string) {
 	re := regexp.MustCompile(`e[0-9]+/`)
 
 	prevI := 0
-	for prevI < len(fullQualID) {
-		if idxs := re.FindStringIndex(fullQualID[prevI:]); idxs != nil {
-			ret = append(ret, fullQualID[prevI:prevI+idxs[1]-1])
+	for prevI < len(absQualID) {
+		if idxs := re.FindStringIndex(absQualID[prevI:]); idxs != nil {
+			ret = append(ret, absQualID[prevI:prevI+idxs[1]-1])
 			prevI += idxs[1]
 		} else {
 			break
 		}
 	}
-	if prevI < len(fullQualID) {
-		ret = append(ret, fullQualID[prevI:])
+	if prevI < len(absQualID) {
+		ret = append(ret, absQualID[prevI:])
 	}
 
 	return 
@@ -447,6 +497,20 @@ func findObjectKindByID(id string) MainObjKind {
 		}
 	}
 	return MOK_Unknown
+}
+
+func insertEventByStartDate(evs []*Event, eobj *Event) {
+	inserted := false
+	for i, oeobj := range evs {
+		if oeobj.GetStartDate().IsAfter(eobj.GetStartDate()) {
+			evs = slices.Insert(evs, i, eobj)
+			inserted = true
+			break
+		}
+	}
+	if !inserted {
+		evs = append(evs, eobj)
+	}
 }
 
 //-- struct Setting 

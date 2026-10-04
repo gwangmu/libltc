@@ -27,6 +27,16 @@ type Annex struct {
 
 //-- interface IMainObj
 
+func (this *Annex) resolveReferenceTo(c IChart) {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Annex) unresolveReferenceTo(c IChart) {
+	// TODO
+	panic("Unimplemented")
+}
+
 func (this *Annex) initialize() {
 	*this = Annex{
 		MainObjCommon: *CreateEmptyMainObjCommon(),
@@ -125,7 +135,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var objTo *MainObjCommon
 				for _, aobjIn := range this.AttachTo.Get() {
-					if aobjIn.GetLocalQualifiedID() == aval {
+					if aobjIn.GetRelQualifiedID(this.GetChart()) == aval {
 						objTo = aobjIn
 						break
 					}
@@ -144,7 +154,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 			for _, aval := range avals {
 				var objOf *MainObjCommon
 				for _, aobjIn := range this.ExtraNoteOf.Get() {
-					if aobjIn.GetLocalQualifiedID() == aval {
+					if aobjIn.GetRelQualifiedID(this.GetChart()) == aval {
 						objOf = aobjIn
 						break
 					}
@@ -247,12 +257,12 @@ func (this *Annex) SetExtraNoteOf(obj *MainObjCommon) {
 
 // Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOf(obj *MainObjCommon) {
-	RemoveLink[ExtraNoteOf](this, obj.GetFullQualifiedID())
+	RemoveLink[ExtraNoteOf](this, obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
-func (this *Annex) UnsetExtraNoteOfByID(fullQualID string) {
-	RemoveLink[ExtraNoteOf](this, fullQualID)
+func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
+	RemoveLink[ExtraNoteOf](this, absQualID)
 }
 
 // Public wrapper of 'addAttachToObject'.
@@ -262,12 +272,12 @@ func (this *Annex) SetAttachTo(obj *MainObjCommon) {
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachTo(obj *MainObjCommon) {
-	RemoveLink[AttachTo](this, obj.GetFullQualifiedID())
+	RemoveLink[AttachTo](this, obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeAttachToObject'.
-func (this *Annex) UnsetAttachToByID(fullQualID string) {
-	RemoveLink[AttachTo](this, fullQualID)
+func (this *Annex) UnsetAttachToByID(absQualID string) {
+	RemoveLink[AttachTo](this, absQualID)
 }
 
 //-- method (creation)
@@ -304,13 +314,13 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
 				uobj := CreateEmptyMainObjCommon()
-				uobj.markUnresolved(aval)
+				uobj.markUnresolved(aval, annex)
 				annex.AttachTo.add(uobj)
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
 				uobj := CreateEmptyMainObjCommon()
-				uobj.markUnresolved(aval)
+				uobj.markUnresolved(aval, annex)
 				annex.ExtraNoteOf.add(uobj)
 			}
 		}
