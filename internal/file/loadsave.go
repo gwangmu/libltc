@@ -3,9 +3,11 @@ package file
 import (
 	"bytes"
 	"errors"
+	"io"
 	"os"
 	"regexp"
 	"strings"
+	"net/http"
 
 	"github.com/BurntSushi/toml"
 	"github.com/gwangmu/libltc/warning"
@@ -31,10 +33,20 @@ func LoadFromString[T IFileObject, U IDiagnosablePtr[T]](ltcstr string) (U, warn
 }
 
 func readFileFromURI(uri string) (string, error) {
-	protRe := regexp.MustCompile(`^[a-z]+://`)
+	protRe := regexp.MustCompile(`^https?://`)
 	if protRe.MatchString(uri) {
-		// TODO: probably an online resource. download TOML string.
-		panic("Unimplemented")
+		resp, err := http.Get(uri)
+		if err != nil {
+			return "", err
+		} else {
+			defer resp.Body.Close()
+			bs, err := io.ReadAll(resp.Body)
+			if err != nil {
+				return "", err
+			} else {
+				return string(bs), nil
+			}
+		}
 	} else {
 		bs, err := os.ReadFile(uri)
 		if err != nil {
@@ -161,12 +173,12 @@ func SaveToURI[T interface{File}, U IDiagnosablePtr[T]](uri string, fobj U) (war
 		return warns, err
 	}
 
-	protRe := regexp.MustCompile(`^[a-z]+://`)
+	protRe := regexp.MustCompile(`^https?://`)
 	if protRe.MatchString(uri) {
 		// TODO: probably an online resource. upload TOML string.
 		// TODO: send requests after '?'
-		// ltcstr = ...
-		panic("Unimplemented")
+		warns.Add("saving to an online URI is not supported yet.")
+		return warns, errors.New("attempted to save to an online URI")
 	} else {
 		err = os.WriteFile(uri, []byte(ltcstr), 0600)
 		if err != nil {
