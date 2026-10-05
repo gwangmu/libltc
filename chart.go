@@ -263,9 +263,34 @@ func (this *Chart) GetEventsInCategory(category string) []*Event {
 	}
 }
 
-func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end Time, mode IntervalKind) []*Event {
-	// TODO
-	panic("Unimplemented")
+// start, end: all inclusive.
+func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end Time) (ret []*Event) {
+	if evs, ok := this.events[category]; !ok {
+		return
+	} else {
+		inbound := false 
+		for _, eobj := range evs {
+			if !inbound {
+				// Check inbound (based on StartDate).
+				inbound = eobj.GetStartDate().IsAfter(start)
+			}
+			
+			if inbound {
+				// Check out-of-bound (based on StartDate).
+				if eobj.GetStartDate().IsAfter(end) {
+					break
+				}
+			}
+
+			if inbound {
+				// Add if it's actually inbound.
+				if end.IsAfter(eobj.GetEndDate()) {
+					ret = append(ret, eobj)
+				}
+			}
+		}
+		return
+	}
 }
 
 func (this *Chart) AddObject(obj IMainObj) error {

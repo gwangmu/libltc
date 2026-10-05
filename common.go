@@ -91,6 +91,8 @@ type Time struct {
 	hour *int
 	minute *int
 	second *int
+
+	// Having a non-UTC timezone will be considered the Gregorian calendar.
 	timezone *time.Location
 
 	// Time usages are never considered in unknown-ness or ambiguity.
@@ -101,12 +103,12 @@ type Time struct {
 
 func (this *Time) String() (ret string) {
 	stime := []string{
-		strconv.Itoa(this.GetYear()),
-		strconv.Itoa(this.GetMonth()),
-		strconv.Itoa(this.GetDay()),
-		strconv.Itoa(this.GetHour()),
-		strconv.Itoa(this.GetMinute()),
-		strconv.Itoa(this.GetSecond()),
+		this.GetYearString(),
+		this.GetMonthString(),
+		this.GetDayString(),
+		this.GetHourString(),
+		this.GetMinuteString(),
+		this.GetSecondString(),
 	}
 
 	sextra := []string{}
@@ -142,93 +144,199 @@ func (this Time) IsUnknown() bool {
 
 //-- struct Time: methods (getters and setters)
 
-func (this *Time) GetTime() time.Time {
+func (this *Time) GetGOTime() time.Time {
+	mc := min(max(this.GetMonth(), 1), 12)
+	dc := time.Date(0, time.Month(mc+1), 0, 0, 0, 0, 0, this.GetTimezone()).Day()
+	nc := 0
+
+	switch this.usage {
+	case TUK_End: 
+		nc = 1
+	case TUK_Start:
+		nc = -1
+	}
+
 	return time.Date(
-		this.GetYear(),
-		time.Month(this.GetMonth()),
-		this.GetDay(),
-		this.GetHour(),
-		this.GetMinute(),
-		this.GetSecond(),
-		0, 
-		this.GetTimezone(),
+		min(max(this.GetYear(), 0), 9999),
+		time.Month(mc), dc,
+		min(max(this.GetHour(), 0), 23),
+		min(max(this.GetMinute(), 0), 59),
+		min(max(this.GetSecond(), 0), 59),
+		nc, this.GetTimezone(),
 	)
 }
 
 func (this *Time) GetYear() int {
 	if this.year == nil {
-		if this.usage == TUK_End {
-			return YearMax
-		} else {
-			return YearMin 
+		switch this.usage {
+		case TUK_End:
+			return TKValue_Max
+		case TUK_Start:
+			return TKValue_Min 
+		default:
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.year
 	}
 }
 
+func (this *Time) GetYearString() string {
+	v := this.GetYear() 
+	switch v {
+	case TKValue_Max:
+		return "****"
+	case TKValue_Min:
+		return "____"
+	case TKValue_Unknown:
+		return "????"
+	default:
+		return strconv.Itoa(v)
+	}
+}
+
 func (this *Time) GetMonth() int {
 	if this.month == nil {
-		if this.usage == TUK_End {
-			return MonthMax
-		} else {
-			return MonthMin
+		switch this.usage {
+		case TUK_End:
+			return TKValue_Max
+		case TUK_Start:
+			return TKValue_Min 
+		default:
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.month
 	}
 }
 
+func (this *Time) GetMonthString() string {
+	v := this.GetMonth() 
+	switch v {
+	case TKValue_Max:
+		return "**"
+	case TKValue_Min:
+		return "__"
+	case TKValue_Unknown:
+		return "??"
+	default:
+		return strconv.Itoa(v)
+	}
+}
+
 func (this *Time) GetDay() int {
 	if this.day == nil {
-		if this.usage == TUK_End {
-			if month := this.GetMonth(); 1 <= month && month <= 12 {
-				tz := this.GetTimezone()
-				return int(time.Date(0, time.Month(month+1), 0, 0, 0, 0, 0, tz).Month())
-			} else {
-				return DayMax
-			}
-		} else {
-			return DayMin
+		switch this.usage {
+		case TUK_End:
+			return TKValue_Max
+		case TUK_Start:
+			return TKValue_Min 
+		default:
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.day
 	}
 }
 
+func (this *Time) GetDayString() string {
+	v := this.GetDay() 
+	switch v {
+	case TKValue_Max:
+		return "**"
+	case TKValue_Min:
+		return "__"
+	case TKValue_Unknown:
+		return "??"
+	default:
+		return strconv.Itoa(v)
+	}
+}
+
 func (this *Time) GetHour() int {
 	if this.hour == nil {
-		if this.usage == TUK_End {
-			return HourMax
-		} else {
-			return HourMin
+		switch this.usage {
+		case TUK_End:
+			return TKValue_Max
+		case TUK_Start:
+			return TKValue_Min 
+		default:
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.hour
 	}
 }
 
+func (this *Time) GetHourString() string {
+	v := this.GetHour()
+	switch v {
+	case TKValue_Max:
+		return "**"
+	case TKValue_Min:
+		return "__"
+	case TKValue_Unknown:
+		return "??"
+	default:
+		return strconv.Itoa(v)
+	}
+}
+
 func (this *Time) GetMinute() int {
 	if this.minute == nil {
-		if this.usage == TUK_End {
-			return MinuteMax
-		} else {
-			return MinuteMin
+		switch this.usage {
+		case TUK_End:
+			return TKValue_Max
+		case TUK_Start:
+			return TKValue_Min 
+		default:
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.minute
 	}
 }
 
+func (this *Time) GetMinuteString() string {
+	v := this.GetMinute()
+	switch v {
+	case TKValue_Max:
+		return "**"
+	case TKValue_Min:
+		return "__"
+	case TKValue_Unknown:
+		return "??"
+	default:
+		return strconv.Itoa(v)
+	}
+}
+
 func (this *Time) GetSecond() int {
 	if this.second == nil {
-		if this.usage == TUK_End {
-			return SecondMax
-		} else {
-			return SecondMin
+		switch this.usage {
+		case TUK_End:
+			return TKValue_Max
+		case TUK_Start:
+			return TKValue_Min 
+		default:
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.second
+	}
+}
+
+func (this *Time) GetSecondString() string {
+	v := this.GetSecond()
+	switch v {
+	case TKValue_Max:
+		return "**"
+	case TKValue_Min:
+		return "__"
+	case TKValue_Unknown:
+		return "??"
+	default:
+		return strconv.Itoa(v)
 	}
 }
 
@@ -249,7 +357,7 @@ func (this *Time) GetUsage() TimeUsageKind {
 	return this.usage
 }
 
-func (this *Time) SetTime(date time.Time, tz bool) {
+func (this *Time) SetGOTime(date time.Time, tz bool) {
 	nyear := date.Year()
 	nmonth := int(date.Month())
 	nday := date.Day()
@@ -267,15 +375,6 @@ func (this *Time) SetTime(date time.Time, tz bool) {
 	if tz {
 		this.timezone = date.Location()
 	}
-}
-
-func (this *Time) UnsetTime() {
-	this.year = nil
-	this.month= nil
-	this.day = nil
-	this.hour = nil
-	this.minute = nil
-	this.second = nil
 }
 
 func (this *Time) SetYear(v int) {
@@ -354,21 +453,25 @@ func (this Time) IsAfter(that Time) bool {
 		(this.IsInfinitePast() && that.IsInfinitePast()) {
 		return false
 	} else {
+		that.SetUsage(TUK_General)
 		// The 'compare' using the 'time' package should be correct as long as
 		// the calendar system is "monotonic", meaing bigger higher units mean
 		// later in time. Assume that the concept of "timezone" is the same in
 		// other calendar systems (i.e., a constant offset in time).
-		return this.GetTime().Compare(that.GetTime()) > 0
+		return this.GetGOTime().Compare(that.GetGOTime()) > 0
 	}
 }
 
 func (this Time) IsSimultaneous(that Time) bool {
 	if !this.IsInfinitePast() && !this.IsInfiniteFuture() &&
 		!that.IsInfinitePast() && !that.IsInfiniteFuture() {
-		return this.year == that.year && 
-			this.month == that.month &&	this.day == that.day && 
-			this.hour == that.hour && this.minute == that.minute && 
-			this.second == that.second && this.timezone == that.timezone
+		return this.GetYear() == that.GetYear() && 
+			this.GetMonth() == that.GetMonth() &&
+			this.GetDay() == that.GetDay() && 
+			this.GetHour() == that.GetHour() &&
+			this.GetMinute() == that.GetMinute() && 
+			this.GetSecond() == that.GetSecond() &&
+			this.GetTimezone() == that.GetTimezone()
 	} else if (this.IsInfinitePast() && that.IsInfinitePast()) ||
 		(this.IsInfiniteFuture() && that.IsInfiniteFuture()) {
 		return true
@@ -467,7 +570,7 @@ func CreateEmptyTime(usage TimeUsageKind) (ret Time) {
 }
 
 func CreateTimeFromTag(tagstr string) (ret Time) {
-	re := regexp.MustCompile(`^([0-9?]{4})-([0-9?]{2})-([0-9?]{2})(?:\s+([0-9?]{2}):([0-9?]{2})(?::([0-9?]{2}))?)?(?:\s*\((.*)\))?$`)
+	re := regexp.MustCompile(`^([0-9*_?]{4})-([0-9*_?]{2})-([0-9*_)?]{2})(?:\s+([0-9*_?]{2}):([0-9*_?]{2})(?::([0-9*_?]{2}))?)?(?:\s*\((.*)\))?$`)
 	matches := re.FindStringSubmatch(tagstr)
 
 	if len(matches) < 8 {
@@ -513,6 +616,51 @@ func CreateTimeFromTag(tagstr string) (ret Time) {
 	}
 
 	return
+}
+
+var InfinitePast Time = Time{ usage: TUK_Start }
+var InfiniteFuture Time = Time{ usage: TUK_End }
+
+func TimeFrom(vs ...int) Time {
+	t := CreateEmptyTime(TUK_Start)
+	for i, v := range vs {
+		switch i {
+		case 0:
+			t.SetYear(v)
+		case 1:
+			t.SetMonth(v)
+		case 2:
+			t.SetDay(v)
+		case 3:
+			t.SetHour(v)
+		case 4:
+			t.SetMinute(v)
+		case 5:
+			t.SetSecond(v)
+		}
+	}
+	return t
+}
+
+func TimeTo(vs ...int) Time {
+	t := CreateEmptyTime(TUK_End)
+	for i, v := range vs {
+		switch i {
+		case 0:
+			t.SetYear(v)
+		case 1:
+			t.SetMonth(v)
+		case 2:
+			t.SetDay(v)
+		case 3:
+			t.SetHour(v)
+		case 4:
+			t.SetMinute(v)
+		case 5:
+			t.SetSecond(v)
+		}
+	}
+	return t
 }
 
 //-- struct NoteSnippet

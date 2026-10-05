@@ -51,19 +51,9 @@ const (
 	TK_Second
 )
 
-const YearMax int = math.MaxInt
-const MonthMax int = 12			// Gregorian max
-const DayMax int = 31			// Gregorian max
-const HourMax int = 23
-const MinuteMax int = 59 
-const SecondMax int = 59 
-
-const YearMin int = 1
-const MonthMin int = 1
-const DayMin int = 1
-const HourMin int = 0
-const MinuteMin int = 0
-const SecondMin int = 0
+const TKValue_Max int = math.MaxInt
+const TKValue_Min int = math.MinInt 
+const TKValue_Unknown int = -1 
 
 //-- type NumberID
 
@@ -111,6 +101,7 @@ func GetMainObjKind(prefix string) (MainObjKind, error) {
 	}
 }
 
+/*
 //-- type IntervalKind 
 
 // Let's say there is an "interval" (start ~ end) with respect to another
@@ -120,11 +111,12 @@ func GetMainObjKind(prefix string) (MainObjKind, error) {
 //   ^       ^          ^        ^
 // start   estart      eend     end
 //
-// Normal: include equals at the boundary. (start <= estart && eend < end)
-// Extended: include stradding ones. (start <= eend || estart < end)
+// Inclusive: include equals at the boundary. (start <= estart && eend <= end)
+// Extended: include stradding ones. (start <= eend || estart <= end)
 
 type IntervalKind int
 const (
-	IK_Normal IntervalKind = iota
+	IK_Inclusive IntervalKind = iota
 	IK_Extended
 )
+*/

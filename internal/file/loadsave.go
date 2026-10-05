@@ -57,8 +57,12 @@ func extractObjectByLocalID(filestr string, idstr string) (string, string, error
 		fileline = strings.TrimSpace(fileline)
 
 		if len(fileline) > 1 && fileline[0:1] == "[" {
-			idxObjHead = i
+			idxObjEnd = i-1
+			idxObjHead = i+1
 			ouri = ""
+			if idxID != -1 {
+				break
+			}
 			continue
 		}
 
@@ -71,13 +75,7 @@ func extractObjectByLocalID(filestr string, idstr string) (string, string, error
 		reLink := regexp.MustCompile(`^(?:Link|EmbedChart|EmbedEvent)\s*=\s*"([.*])"`)
 		if matches := reLink.FindStringSubmatch(fileline); matches != nil {
 			ouri = matches[1]
-		}
-
-		if len(fileline) == 0 {
-			idxObjEnd = i
-			if idxID != -1 {
-				break
-			}
+			continue
 		}
 	}
 
