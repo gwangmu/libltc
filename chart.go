@@ -75,7 +75,6 @@ func (this *Chart) resolveReferenceTo(obj IMainObj) {
 				ResolveLink[ContinuedFrom](ceobj, eobj)
 			}
 		}
-
 		// NOTE: subchart objects should be resolved when it's loaded.
 	}
 
