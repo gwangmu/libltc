@@ -1,4 +1,4 @@
-package libltc
+package ltc
 
 import (
 	"maps"
@@ -8,17 +8,11 @@ import (
 	"strings"
 	"time"
 
-	"github.com/gwangmu/libltc/warning"
-	"github.com/gwangmu/libltc/internal/file"
+	"libltc/warning"
+	"libltc/internal/file"
 )
 
 type WSE = warning.SummaryElement
-
-//-- Common interfaces
-
-type IStringifiable interface {
-	String() string
-}
 
 //-- struct Name
 

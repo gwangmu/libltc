@@ -110,10 +110,9 @@ func readObjectFromURI(uri string) (string, error) {
 	// an object ID. Find that id from the preceding path. Otherwise, 
 	// simply read the file and return.
 
-	var ret string
+	ret := ""
 	path, qualid, seped := strings.Cut(uri, "?id=")
 	filestr, err := readFileFromURI(path)
-	ret = filestr
 	if err != nil {
 		return "", err
 	}

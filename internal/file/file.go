@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/gwangmu/libltc/warning"
+	"libltc/warning"
 )
 
 type WSE = warning.SummaryElement
@@ -132,8 +132,9 @@ func (this *Subject) Summary() (ret string) {
 }
 
 func (this *Subject) IsUnknown() bool {
-	return this.Name.IsUnknown() && this.StartDate.IsUnknown() && 
-		this.EndDate.IsUnknown() && this.Sex == ""
+	return this.Name.IsUnknown() && this.Sex == "" && 
+		this.StartDate != nil && this.StartDate.IsUnknown() && 
+		this.EndDate != nil && this.EndDate.IsUnknown()
 }
 
 //-- struct Subject: interface IDiagnosable
@@ -410,6 +411,8 @@ func (this *Time) Summary() (ret string) {
 	}
 	if this.Second != nil {
 		stime = append(stime, strconv.Itoa(*this.Second))
+	} else {
+		stime = append(stime, "??")
 	}
 
 	sextra := []string{}
@@ -425,7 +428,7 @@ func (this *Time) Summary() (ret string) {
 		ret += " " + strings.Join(stime[3:6], ":")
 	}
 	if len(sextra) != 0 {
-		ret += " (" + strings.Join(sextra, ", ")
+		ret += " (" + strings.Join(sextra, ", ") + ")"
 	}
 
 	return

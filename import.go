@@ -1,8 +1,8 @@
-package libltc
+package ltc
 
 import (
-	"github.com/gwangmu/libltc/warning"
-	"github.com/gwangmu/libltc/internal/file"
+	"libltc/warning"
+	"libltc/internal/file"
 )
 
 type Import struct {

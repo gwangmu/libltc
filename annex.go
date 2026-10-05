@@ -1,12 +1,12 @@
-package libltc
+package ltc
 
 import (
 	"errors"
 	"fmt"
 
-	"github.com/gwangmu/libltc/warning"
-	"github.com/gwangmu/libltc/internal/coder"
-	"github.com/gwangmu/libltc/internal/file"
+	"libltc/warning"
+	"libltc/internal/coder"
+	"libltc/internal/file"
 )
 
 type Annex struct {

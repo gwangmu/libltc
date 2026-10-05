@@ -1,10 +1,10 @@
-package libltc
+package ltc
 
 import (
 	"regexp"
 
-	"github.com/gwangmu/libltc/warning"
-	"github.com/gwangmu/libltc/internal/file"
+	"libltc/warning"
+	"libltc/internal/file"
 )
 
 type Event struct {
