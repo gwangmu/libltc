@@ -105,8 +105,11 @@ func UnresolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, Si
 	for _, elem := range epSrc.Get() {
 		if elem == osink {
 			if !elem.IsUnresolved() {
-				elem.initialize()
-				elem.markUnresolved(osrc.convIDAbsToRel(absQualID), osrc)
+				var unresOsink SinkTPtr = new(SinkT)
+				unresOsink.initialize()
+				unresOsink.markUnresolved(osrc.convIDAbsToRel(absQualID), osrc)
+				epSrc.swap(elem, unresOsink)
+				epSink.remove(osrc)
 			}
 			return
 		}

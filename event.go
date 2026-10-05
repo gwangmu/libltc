@@ -30,13 +30,19 @@ type Event struct {
 //-- interface IMainObj
 
 func (this *Event) resolveReferenceTo(c IChart) {
-	// TODO
-	panic("Unimplemented")
+	for _, category := range c.GetEventCategories() {
+		for _, eobj := range c.GetEventsInCategory(category) {
+			ResolveLink[ContinuedFrom](this, eobj)			
+		}
+	}
 }
 
 func (this *Event) unresolveReferenceTo(c IChart) {
-	// TODO
-	panic("Unimplemented")
+	for _, category := range c.GetEventCategories() {
+		for _, eobj := range c.GetEventsInCategory(category) {
+			UnresolveLink[ContinuedFrom](this, eobj)			
+		}
+	}
 }
 
 func (this *Event) initialize() {
@@ -457,12 +463,12 @@ func (this *Event) loadEmbeddedChart() (warns warning.Warnings) {
 			this.embeddedChart = echart
 
 			// Update 'parent's of all subchart objects.
-			for _, obj := range this.chart.GetAllMainObjects() {
+			for _, obj := range echart.GetAllMainObjects(false) {
 				obj.SetParent(this)
 			}
 
 			// Resolve possible unresolved references.
-			for _, obj := range this.embeddedChart.GetAllMainObjects() {
+			for _, obj := range echart.GetAllMainObjects(true) {
 				this.chart.resolveReferenceTo(obj)
 			}
 		}
@@ -473,7 +479,7 @@ func (this *Event) loadEmbeddedChart() (warns warning.Warnings) {
 func (this *Event) unloadEmbeddedChart() {
 	if this.embeddedChart != nil {
 		// unresolve references.
-		for _, obj := range this.embeddedChart.GetAllMainObjects() {
+		for _, obj := range this.embeddedChart.GetAllMainObjects(true) {
 			this.chart.unresolveReferenceTo(obj)
 		}
 	}

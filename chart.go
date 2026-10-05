@@ -19,7 +19,7 @@ type IChart interface {
 	GetEventsInCategory(category string) []*Event
 	GetAnnexs() []*Annex
 	GetImports() []*Import
-	GetAllMainObjects() []IMainObj
+	GetAllMainObjects(inclLoadedSubchartObjs bool) []IMainObj
 
 	GetObjectByAbsQualID(qualid string) IMainObj 
  	GetObjectByRelQualID(iqualid string, baseChart *Chart) IMainObj 
@@ -65,10 +65,10 @@ func (this *Chart) asChart() *Chart {
 }
 
 func (this *Chart) resolveReferenceTo(obj IMainObj) {
-	// Ensure it's the main object itself, not just a common one. 
+	// Ensure it's the main object itself, not just the common part. 
 	obj = obj.GetEnclosingObject()
 
-	// If 'obj' points to an event, resolve 'ContinuedFrom'.
+	// If any chart event points to 'obj', resolve 'ContinuedFrom'.
 	if eobj, ok := obj.(*Event); ok {
 		for _, evs := range this.events {
 			for _, ceobj := range evs {
@@ -87,14 +87,14 @@ func (this *Chart) resolveReferenceTo(obj IMainObj) {
 }
 
 func (this *Chart) unresolveReferenceTo(obj IMainObj) {
-	// Ensure it's the main object itself, not just a common one. 
+	// Ensure it's the main object itself, not just the common part. 
 	obj = obj.GetEnclosingObject()
 
 	// If 'obj' points to an event, unresolve 'ContinuedFrom'.
 	if eobj, ok := obj.(*Event); ok {
 		if eobj.IsSubchartLoaded() {
 			subchart, _ := eobj.GetSubchart()
-			for _, scobj := range subchart.GetAllMainObjects() {
+			for _, scobj := range subchart.GetAllMainObjects(true) {
 				this.unresolveReferenceTo(scobj)
 			}
 		}
@@ -236,10 +236,16 @@ func (this *Chart) GetObjectsByIntrinsicID(intrID string) []IMainObj {
 	}, false)
 }
 
-func (this *Chart) GetAllMainObjects() (ret []IMainObj) {
+func (this *Chart) GetAllMainObjects(inclLoadedSubchartObjs bool) (ret []IMainObj) {
 	for _, evs := range this.events {
 		for _, eobj := range evs {
 			ret = append(ret, eobj)
+			if inclLoadedSubchartObjs && eobj.IsSubchartLoaded() {
+				schart, _ := eobj.GetSubchart()
+				for _, seobj := range schart.GetAllMainObjects(true) {
+					ret = append(ret, seobj)
+				}
+			}
 		}
 	}
 	for _, aobj := range this.annexs {

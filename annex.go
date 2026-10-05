@@ -28,13 +28,17 @@ type Annex struct {
 //-- interface IMainObj
 
 func (this *Annex) resolveReferenceTo(c IChart) {
-	// TODO
-	panic("Unimplemented")
+	for _, cobj := range c.GetAllMainObjects(true) {
+		ResolveLink[AttachTo](this, cobj.GetCommon())
+		ResolveLink[ExtraNoteOf](this, cobj.GetCommon())
+	}
 }
 
 func (this *Annex) unresolveReferenceTo(c IChart) {
-	// TODO
-	panic("Unimplemented")
+	for _, cobj := range c.GetAllMainObjects(true) {
+		UnresolveLink[AttachTo](this, cobj.GetCommon())
+		UnresolveLink[ExtraNoteOf](this, cobj.GetCommon())
+	}
 }
 
 func (this *Annex) initialize() {
