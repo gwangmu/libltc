@@ -157,7 +157,11 @@ func (this *Time) GetTime() time.Time {
 
 func (this *Time) GetYear() int {
 	if this.year == nil {
-		return 1 
+		if this.usage == TUK_End {
+			return YearMax
+		} else {
+			return YearMin 
+		}
 	} else {
 		return *this.year
 	}
@@ -165,7 +169,11 @@ func (this *Time) GetYear() int {
 
 func (this *Time) GetMonth() int {
 	if this.month == nil {
-		return 1
+		if this.usage == TUK_End {
+			return MonthMax
+		} else {
+			return MonthMin
+		}
 	} else {
 		return *this.month
 	}
@@ -173,7 +181,16 @@ func (this *Time) GetMonth() int {
 
 func (this *Time) GetDay() int {
 	if this.day == nil {
-		return 1
+		if this.usage == TUK_End {
+			if month := this.GetMonth(); 1 <= month && month <= 12 {
+				tz := this.GetTimezone()
+				return int(time.Date(0, time.Month(month+1), 0, 0, 0, 0, 0, tz).Month())
+			} else {
+				return DayMax
+			}
+		} else {
+			return DayMin
+		}
 	} else {
 		return *this.day
 	}
@@ -181,7 +198,11 @@ func (this *Time) GetDay() int {
 
 func (this *Time) GetHour() int {
 	if this.hour == nil {
-		return 0
+		if this.usage == TUK_End {
+			return HourMax
+		} else {
+			return HourMin
+		}
 	} else {
 		return *this.hour
 	}
@@ -189,7 +210,11 @@ func (this *Time) GetHour() int {
 
 func (this *Time) GetMinute() int {
 	if this.minute == nil {
-		return 0
+		if this.usage == TUK_End {
+			return MinuteMax
+		} else {
+			return MinuteMin
+		}
 	} else {
 		return *this.minute
 	}
@@ -197,7 +222,11 @@ func (this *Time) GetMinute() int {
 
 func (this *Time) GetSecond() int {
 	if this.second == nil {
-		return 0
+		if this.usage == TUK_End {
+			return SecondMax
+		} else {
+			return SecondMin
+		}
 	} else {
 		return *this.second
 	}
@@ -333,30 +362,27 @@ func (this Time) IsAfter(that Time) bool {
 	}
 }
 
-func (this Time) Equal(that Time) bool {
-	hasSameAttrs := maps.EqualFunc(this.Attrs, that.Attrs, func(thisAvals []string, thatAvals []string) bool {
-		return slices.Equal(thisAvals, thatAvals)
-	})
-
-	if !hasSameAttrs {
-		return false
-	}
-
-	hasSamePoint := false 
+func (this Time) IsSimultaneous(that Time) bool {
 	if !this.IsInfinitePast() && !this.IsInfiniteFuture() &&
 		!that.IsInfinitePast() && !that.IsInfiniteFuture() {
-		hasSamePoint = this.year == that.year && 
+		return this.year == that.year && 
 			this.month == that.month &&	this.day == that.day && 
 			this.hour == that.hour && this.minute == that.minute && 
 			this.second == that.second && this.timezone == that.timezone
 	} else if (this.IsInfinitePast() && that.IsInfinitePast()) ||
 		(this.IsInfiniteFuture() && that.IsInfiniteFuture()) {
-		hasSamePoint = true
+		return true
 	} else {
-		hasSamePoint = false
+		return false
 	}
+}
 
-	return hasSamePoint
+func (this Time) Equal(that Time) bool {
+	hasSameAttrs := maps.EqualFunc(this.Attrs, that.Attrs, func(thisAvals []string, thatAvals []string) bool {
+		return slices.Equal(thisAvals, thatAvals)
+	})
+
+	return hasSameAttrs && this.IsSimultaneous(that)
 }
 
 func (this Time) IsAmbiguous() bool {
