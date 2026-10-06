@@ -1,6 +1,9 @@
 package file
 
 import (
+	//"fmt"
+	//"strconv"
+
 	"bytes"
 	"errors"
 	"io"
@@ -87,7 +90,7 @@ func extractObjectByLocalID(filestr string, idstr string) (string, string, error
 			}
 		}
 
-		reLink := regexp.MustCompile(`^(?:Link|EmbedChart|EmbedEvent)\s*=\s*"([.*])"`)
+		reLink := regexp.MustCompile(`^(?:Link|EmbedChart|EmbedEvent)\s*=\s*"(.*?)"`)
 		if matches := reLink.FindStringSubmatch(fileline); matches != nil {
 			ouri = matches[1]
 			continue
@@ -102,10 +105,10 @@ func extractObjectByLocalID(filestr string, idstr string) (string, string, error
 		return "", "", errors.New("Object '" + idstr + "' not found.")
 	}
 	if idxObjHead == -1 || idxObjHead > idxObjEnd {
-		//fmt.Println(idxID, idxObjHead, idxObjEnd)
 		return "", "", errors.New("Cannot find the enclosing object of ID '" + idstr + "'")
 	}
 
+	//fmt.Println(idxID, idxObjHead, idxObjEnd)
 	ostr := strings.Join(filelines[idxObjHead:idxObjEnd], "\n")
 	return ostr, ouri, nil
 }
