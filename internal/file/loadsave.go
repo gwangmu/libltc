@@ -155,7 +155,7 @@ func LoadFromURI[T IFileObject, U IDiagnosablePtr[T]](uri string) (U, warning.Wa
 	bs, lpath, err := readObjectFromURI(uri)
 	if err != nil {
 		warns := warning.Warnings{}
-		warns.Add("cannot read a local file.")
+		warns.Add("cannot read the object: " + err.Error())
 		return nil, warns, err
 	} else {
 		var cwdpath string
