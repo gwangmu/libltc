@@ -178,3 +178,44 @@ func TestNonexistentEmbedEvent(t *testing.T) {
 
 	t.Log("End test.")
 }
+
+func TestQualIDEmbedEvent(t *testing.T) {
+	test.Initialize(t, TestAssetDirPath)
+
+	t.Log("Loading 'qualid_embed_event_2.ltc'...")
+	file, warns, err := LoadFromURI[File]("qualid_embed_event_2.ltc")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+
+	t.Log("Printing all warnings...")
+	for _, warn := range warns {
+		t.Log(" - " + warn.GetDesc())
+	}
+
+	t.Log("Loading embedded event manually...")
+	event, ewarns, eerr := LoadFromURI[Event](*file.Event[0].EmbedEvent)
+	if eerr != nil {
+		t.Fatal(eerr)
+		return
+	}
+
+	t.Log("Printing all warnings...")
+	for _, warn := range ewarns {
+		t.Log(" - " + warn.GetDesc())
+	}
+
+	t.Log("Investigating loaded file...")
+	test.AssertEQ(event.ID, "e0")
+	test.AssertEQ(len(event.Attrs), 1)
+	test.AssertEQ(event.Attrs[0], "AmbiguousPeriod")
+	test.AssertEQ(*event.StartDate.Year, 1991)
+	test.AssertEQ(*event.StartDate.Month, 3)
+	test.AssertEQ(*event.StartDate.Day, 29)
+	test.AssertEQ(event.StartDate.Attrs[0], "Approx")
+	test.AssertEQ(event.EndDate.Attrs[0], "Approx")
+	test.AssertEQ(event.EndDate.Day, nil)
+
+	t.Log("End test.")
+}

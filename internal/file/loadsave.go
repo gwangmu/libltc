@@ -2,7 +2,6 @@ package file
 
 import (
 	//"fmt"
-	//"strconv"
 
 	"bytes"
 	"errors"
@@ -35,42 +34,61 @@ func LoadFromString[T IFileObject, U IDiagnosablePtr[T]](ltcstr string) (U, warn
 	return out, warns, nil
 }
 
-func readFileFromURI(uri string) (ret string, local bool, err error) {
+func splitURIIntoPathAndIDs(uri string) (string, []string) {
+	re := regexp.MustCompile(`\?id=(.*?)$`)
+	if matches := re.FindStringSubmatchIndex(uri); matches != nil {
+		path := uri[:matches[0]]
+		ids := strings.Split(uri[matches[2]:matches[3]], "/")
+		return path, ids
+	} else {
+		return uri, []string{}
+	}
+}
+
+func getLocalPath(uri string) string {
 	protRe := regexp.MustCompile(`^https?://`)
-	if protRe.MatchString(uri) {
+	if !protRe.MatchString(uri) {
+		path, _ := splitURIIntoPathAndIDs(uri)
+		return path
+	} else {
+		return ""
+	}
+}
+
+func readFileFromURI(uri string) (ret string, err error) {
+	if getLocalPath(uri) == "" {
 		resp, err := http.Get(uri)
 		if err != nil {
-			return "", false, err
+			return "", err
 		} else {
 			defer resp.Body.Close()
 			bs, err := io.ReadAll(resp.Body)
 			if err != nil {
-				return "", false, err
+				return "", err
 			} else {
-				return string(bs), false, nil
+				return string(bs), nil
 			}
 		}
 	} else {
 		bs, err := os.ReadFile(uri)
 		if err != nil {
-			return "", true, err
+			return "", err
 		} else {
-			return string(bs), true, nil
+			return string(bs), nil
 		}
 	}
 }
 
-func extractObjectByLocalID(filestr string, idstr string) (string, string, error) {
+func extractObjectByLocalID(filestr string, idstr string) (ostr string, olink string, oembed string, err error) {
 	filelines := strings.Split(filestr, "\n")
 
 	idxID := -1
 	idxObjHead := -1
 	idxObjEnd := -1
-	ouri := ""
 
 	for i, fileline := range filelines {
 		fileline = strings.TrimSpace(fileline)
-		//fmt.Println(strconv.Itoa(i) + " : " + fileline)
+		//fmt.Printf("%d : %s\n", i, fileline)
 
 		if len(fileline) > 1 && fileline[0:1] == "[" {
 			idxObjEnd = i-1
@@ -78,7 +96,8 @@ func extractObjectByLocalID(filestr string, idstr string) (string, string, error
 				break
 			}
 			idxObjHead = i+1
-			ouri = ""
+			olink = ""
+			oembed = ""
 			continue
 		}
 
@@ -90,75 +109,91 @@ func extractObjectByLocalID(filestr string, idstr string) (string, string, error
 			}
 		}
 
-		reLink := regexp.MustCompile(`^(?:Link|EmbedChart|EmbedEvent)\s*=\s*"(.*?)"`)
+		reLink := regexp.MustCompile(`^(?:Link)\s*=\s*"(.*?)"`)
 		if matches := reLink.FindStringSubmatch(fileline); matches != nil {
-			ouri = matches[1]
+			olink = matches[1]
+			continue
+		}
+
+		reEmbed := regexp.MustCompile(`^(?:EmbedChart|EmbedEvent)\s*=\s*"(.*?)"`)
+		if matches := reEmbed.FindStringSubmatch(fileline); matches != nil {
+			oembed = matches[1]
 			continue
 		}
 	}
 
-	if idxObjEnd == -1 {
+	if idxObjEnd == -1 || idxObjEnd < idxObjHead {
 		idxObjEnd = len(filelines)
 	}
+	//fmt.Printf("idxID: %d, idxObjHead: %d, idxObjEnd: %d\n", idxID, idxObjHead, idxObjEnd)
 
 	if idxID == -1 {
-		return "", "", errors.New("Object '" + idstr + "' not found.")
+		err = errors.New("Object '" + idstr + "' not found.")
+		return
 	}
 	if idxObjHead == -1 || idxObjHead > idxObjEnd {
-		return "", "", errors.New("Cannot find the enclosing object of ID '" + idstr + "'")
+		err = errors.New("Cannot find the enclosing object of ID '" + idstr + "'")
+		return
 	}
 
-	//fmt.Println(idxID, idxObjHead, idxObjEnd)
-	ostr := strings.Join(filelines[idxObjHead:idxObjEnd], "\n")
-	return ostr, ouri, nil
+	ostr = strings.Join(filelines[idxObjHead:idxObjEnd], "\n")
+	return
 }
 
-func readObjectFromURI(uri string) (ret string, lpath string, err error) {
+func readObjectFromURI(uri string) (ret string, err error) {
 	// If `uri` contains ".obj/", the trailing part should be considered 
 	// an object ID. Find that id from the preceding path. Otherwise, 
 	// simply read the file and return.
 
-	path, qualid, seped := strings.Cut(uri, "?id=")
-	filestr, local, err := readFileFromURI(path)
-	if err != nil {
-		return "", path, err
-	} else {
-		ret = filestr
-		if local {
-			lpath = path
-		}
-	}
+	path, ids := splitURIIntoPathAndIDs(uri)
 
-	if seped {
-		ids := strings.Split(qualid, "/")
+	if len(ids) == 0 {
+		filestr, err := readFileFromURI(path)
+		if err != nil {
+			return "", err
+		} else {
+			ret = filestr
+		}
+	} else {
+		// Sequentially load objects by local IDs.
+		curPath := path
 		for _, idstr := range ids {
-			if ostr, ouri, err := extractObjectByLocalID(filestr, idstr); err == nil {
-				if len(ouri) != 0 {
-					if newOstr, nlpath, err := readObjectFromURI(ouri); err == nil {
-						lpath = nlpath
+			filestr, err := readFileFromURI(curPath)
+			if err != nil {
+				return "", err
+			} else {
+				ret = filestr
+			}
+
+			if ostr, olink, oembed, err := extractObjectByLocalID(filestr, idstr); err == nil {
+				if len(oembed) != 0 {
+					// If a link was detected, load it also.
+					if newOstr, err := readObjectFromURI(oembed); err == nil {
 						ostr = newOstr
 					} else {
-						return "", path, err
+						return "", err
 					}
 				}
 				ret = ostr
+				curPath = olink
 			} else {
-				return "", path, err
+				return "", err
 			}
 		}
 	}
 
-	return ret, path, nil
+	return ret, nil
 }
 
 func LoadFromURI[T IFileObject, U IDiagnosablePtr[T]](uri string) (U, warning.Warnings, error) {
-	bs, lpath, err := readObjectFromURI(uri)
+	bs, err := readObjectFromURI(uri)
 	if err != nil {
 		warns := warning.Warnings{}
 		warns.Add("cannot read an object from URI.")
 		return nil, warns, err
 	} else {
 		var cwdpath string
+		lpath := getLocalPath(uri)
 		if lpath != "" {
 			if maybeCwdpath, err := os.Getwd(); err != nil {
 				cwdpath = maybeCwdpath
