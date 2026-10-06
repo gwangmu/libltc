@@ -32,27 +32,27 @@ func LoadFromString[T IFileObject, U IDiagnosablePtr[T]](ltcstr string) (U, warn
 	return out, warns, nil
 }
 
-func readFileFromURI(uri string) (string, error) {
+func readFileFromURI(uri string) (ret string, local bool, err error) {
 	protRe := regexp.MustCompile(`^https?://`)
 	if protRe.MatchString(uri) {
 		resp, err := http.Get(uri)
 		if err != nil {
-			return "", err
+			return "", false, err
 		} else {
 			defer resp.Body.Close()
 			bs, err := io.ReadAll(resp.Body)
 			if err != nil {
-				return "", err
+				return "", false, err
 			} else {
-				return string(bs), nil
+				return string(bs), false, nil
 			}
 		}
 	} else {
 		bs, err := os.ReadFile(uri)
 		if err != nil {
-			return "", err
+			return "", true, err
 		} else {
-			return string(bs), nil
+			return string(bs), true, nil
 		}
 	}
 }
@@ -67,21 +67,24 @@ func extractObjectByLocalID(filestr string, idstr string) (string, string, error
 
 	for i, fileline := range filelines {
 		fileline = strings.TrimSpace(fileline)
+		//fmt.Println(strconv.Itoa(i) + " : " + fileline)
 
 		if len(fileline) > 1 && fileline[0:1] == "[" {
 			idxObjEnd = i-1
-			idxObjHead = i+1
-			ouri = ""
 			if idxID != -1 {
 				break
 			}
+			idxObjHead = i+1
+			ouri = ""
 			continue
 		}
 
-		reID := regexp.MustCompile(`^ID\s*=\s*"` + idstr + `"`)
+		reID := regexp.MustCompile(`^ID\s*=\s*"([a-zA-Z0-9]*)"`)
 		if matches := reID.FindStringSubmatch(fileline); matches != nil {
-			idxID = i
-			continue
+			if matches[1] == idstr {
+				idxID = i
+				continue
+			}
 		}
 
 		reLink := regexp.MustCompile(`^(?:Link|EmbedChart|EmbedEvent)\s*=\s*"([.*])"`)
@@ -91,31 +94,36 @@ func extractObjectByLocalID(filestr string, idstr string) (string, string, error
 		}
 	}
 
+	if idxObjEnd == -1 {
+		idxObjEnd = len(filelines)
+	}
+
 	if idxID == -1 {
 		return "", "", errors.New("Object '" + idstr + "' not found.")
 	}
-	if idxObjHead == -1 {
+	if idxObjHead == -1 || idxObjHead > idxObjEnd {
+		//fmt.Println(idxID, idxObjHead, idxObjEnd)
 		return "", "", errors.New("Cannot find the enclosing object of ID '" + idstr + "'")
-	}
-	if idxObjEnd == -1 {
-		idxObjEnd = len(filelines)
 	}
 
 	ostr := strings.Join(filelines[idxObjHead:idxObjEnd], "\n")
 	return ostr, ouri, nil
 }
 
-func readObjectFromURI(uri string) (string, error) {
+func readObjectFromURI(uri string) (ret string, lpath string, err error) {
 	// If `uri` contains ".obj/", the trailing part should be considered 
 	// an object ID. Find that id from the preceding path. Otherwise, 
 	// simply read the file and return.
 
-	var ret string
 	path, qualid, seped := strings.Cut(uri, "?id=")
-	filestr, err := readFileFromURI(path)
-	ret = filestr
+	filestr, local, err := readFileFromURI(path)
 	if err != nil {
-		return "", err
+		return "", path, err
+	} else {
+		ret = filestr
+		if local {
+			lpath = path
+		}
 	}
 
 	if seped {
@@ -123,30 +131,42 @@ func readObjectFromURI(uri string) (string, error) {
 		for _, idstr := range ids {
 			if ostr, ouri, err := extractObjectByLocalID(filestr, idstr); err == nil {
 				if len(ouri) != 0 {
-					if newOstr, err := readObjectFromURI(ouri); err == nil {
+					if newOstr, nlpath, err := readObjectFromURI(ouri); err == nil {
+						lpath = nlpath
 						ostr = newOstr
 					} else {
-						return "", err
+						return "", path, err
 					}
 				}
 				ret = ostr
 			} else {
-				return "", err
+				return "", path, err
 			}
 		}
 	}
 
-	return ret, nil
+	return ret, path, nil
 }
 
 func LoadFromURI[T IFileObject, U IDiagnosablePtr[T]](uri string) (U, warning.Warnings, error) {
-	bs, err := readObjectFromURI(uri)
+	bs, lpath, err := readObjectFromURI(uri)
 	if err != nil {
 		warns := warning.Warnings{}
 		warns.Add("cannot read a local file.")
 		return nil, warns, err
 	} else {
-		return LoadFromString[T, U](string(bs))
+		var cwdpath string
+		if lpath != "" {
+			if maybeCwdpath, err := os.Getwd(); err != nil {
+				cwdpath = maybeCwdpath
+			} 
+			os.Chdir(lpath)
+		}
+		ret, warns, err := LoadFromString[T, U](string(bs))
+		if lpath != "" {
+			os.Chdir(cwdpath)
+		}
+		return ret, warns, err
 	}
 }
 
