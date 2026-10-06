@@ -84,8 +84,6 @@ func AssertNE[T comparable](got T, want T) {
 	Assert[NE](got, want)
 }
 
-func AssertContains(got string, wants ...string) {
-	for _, want := range wants {
-		Assert[Contains](got, want)
-	}
+func AssertContains(got string, want string) {
+	Assert[Contains](got, want)
 }
