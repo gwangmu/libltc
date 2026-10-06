@@ -19,7 +19,7 @@ func TestSingleEvent(t *testing.T) {
 
 	t.Log("Printing all warnings...")
 	for _, warn := range warns {
-		t.Log(warn.GetDesc())
+		t.Log(" - " + warn.GetDesc())
 	}
 
 	t.Log("Investigating loaded file...")
@@ -53,7 +53,7 @@ func TestSimpleEmbedEvent(t *testing.T) {
 
 	t.Log("Printing all warnings...")
 	for _, warn := range warns {
-		t.Log(warn.GetDesc())
+		t.Log(" - " + warn.GetDesc())
 	}
 
 	t.Log("Investigating loaded file...")
@@ -70,7 +70,7 @@ func TestSimpleEmbedEvent(t *testing.T) {
 
 	t.Log("Printing all warnings...")
 	for _, warn := range ewarns {
-		t.Log(warn.GetDesc())
+		t.Log(" - " + warn.GetDesc())
 	}
 
 	t.Log("Investigating loaded file...")
@@ -99,7 +99,7 @@ func TestNestedEmbedEvent(t *testing.T) {
 
 	t.Log("Printing all warnings...")
 	for _, warn := range warns {
-		t.Log(warn.GetDesc())
+		t.Log(" - " + warn.GetDesc())
 	}
 
 	t.Log("Investigating loaded file...")
@@ -116,7 +116,7 @@ func TestNestedEmbedEvent(t *testing.T) {
 
 	t.Log("Printing all warnings...")
 	for _, warn := range ewarns {
-		t.Log(warn.GetDesc())
+		t.Log(" - " + warn.GetDesc())
 	}
 
 	t.Log("Investigating loaded file...")
@@ -145,7 +145,7 @@ func TestNonexistentEmbedEvent(t *testing.T) {
 
 	t.Log("Printing all warnings...")
 	for _, warn := range warns {
-		t.Log(warn.GetDesc())
+		t.Log(" - " + warn.GetDesc())
 	}
 
 	t.Log("Investigating loaded file...")
@@ -162,7 +162,7 @@ func TestNonexistentEmbedEvent(t *testing.T) {
 
 	t.Log("Printing all warnings...")
 	for _, warn := range ewarns {
-		t.Log(warn.GetDesc())
+		t.Log(" - " + warn.GetDesc())
 	}
 
 	t.Log("Loading embedded event manually...")
@@ -173,7 +173,7 @@ func TestNonexistentEmbedEvent(t *testing.T) {
 
 	t.Log("Printing all warnings...")
 	for _, warn := range e2warns {
-		t.Log(warn.GetDesc())
+		t.Log(" - " + warn.GetDesc())
 	}
 
 	t.Log("End test.")
