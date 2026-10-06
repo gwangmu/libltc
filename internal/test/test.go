@@ -7,6 +7,13 @@ import (
 	"path/filepath"
 )
 
+var curT *testing.T
+
+func Initialize(t *testing.T, cwd string) {
+	curT = t
+	t.Chdir(cwd)
+}
+
 type IPredicate interface {
 	Test(any, any) bool
 	String() string
@@ -38,7 +45,7 @@ func (_ NE) String() string {
 	return "!="
 }
 
-func Assert[Pred IPredicate, T comparable](t *testing.T, got T, want T) {
+func Assert[Pred IPredicate, T comparable](got T, want T) {
 	_, fname, fno, ok := runtime.Caller(2)
 	if ok {
 		fname = filepath.Base(fname)
@@ -49,16 +56,16 @@ func Assert[Pred IPredicate, T comparable](t *testing.T, got T, want T) {
 
 	var pred Pred
 	if !pred.Test(got, want) {
-		t.Fatalf("Assertion failed: %v %s %v (%s:%d)", got, pred.String(), want, fname, fno)
+		curT.Fatalf("Assertion failed: %v %s %v (%s:%d)", got, pred.String(), want, fname, fno)
 	} else {
-		t.Logf("Assertion succeeded: %v %s %v (%s:%d)", got, pred.String(), want, fname, fno)
+		curT.Logf("Assertion succeeded: %v %s %v (%s:%d)", got, pred.String(), want, fname, fno)
 	}
 }
 
-func AssertEQ[T comparable](t *testing.T, got T, want T) {
-	Assert[EQ](t, got, want)
+func AssertEQ[T comparable](got T, want T) {
+	Assert[EQ](got, want)
 }
 
-func AssertNE[T comparable](t *testing.T, got T, want T) {
-	Assert[NE](t, got, want)
+func AssertNE[T comparable](got T, want T) {
+	Assert[NE](got, want)
 }
