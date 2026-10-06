@@ -158,9 +158,20 @@ func TestNonexistentEmbedEvent(t *testing.T) {
 	t.Log("Loading embedded event manually...")
 	_, ewarns, eerr := LoadFromURI[Event](*file.Event[1].EmbedEvent)
 	test.AssertNE(eerr, nil)
+	test.AssertContains(eerr.Error(), "no such file")
 
 	t.Log("Printing all warnings...")
 	for _, warn := range ewarns {
+		t.Log(warn.GetDesc())
+	}
+
+	t.Log("Loading embedded event manually...")
+	_, e2warns, e2err := LoadFromURI[Event](*file.Event[2].EmbedEvent)
+	test.AssertNE(e2err, nil)
+	test.AssertContains(e2err.Error(), "Object", "not found")
+
+	t.Log("Printing all warnings...")
+	for _, warn := range e2warns {
 		t.Log(warn.GetDesc())
 	}
 

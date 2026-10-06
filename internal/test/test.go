@@ -3,6 +3,7 @@ package test
 import (
 	"reflect"
 	"runtime"
+	"strings"
 	"testing"
 	"path/filepath"
 )
@@ -45,6 +46,19 @@ func (_ NE) String() string {
 	return "!="
 }
 
+type Contains struct {}
+func (_ Contains) Test(got any, want any) bool {
+	if sgot, ok := got.(string); ok {
+		if swant, ok := want.(string); ok {
+			return strings.Contains(sgot, swant)
+		}
+	}
+	return false
+}
+func (_ Contains) String() string {
+	return "⊇"
+}
+
 func Assert[Pred IPredicate, T comparable](got T, want T) {
 	_, fname, fno, ok := runtime.Caller(2)
 	if ok {
@@ -68,4 +82,10 @@ func AssertEQ[T comparable](got T, want T) {
 
 func AssertNE[T comparable](got T, want T) {
 	Assert[NE](got, want)
+}
+
+func AssertContains(got string, wants ...string) {
+	for _, want := range wants {
+		Assert[Contains](got, want)
+	}
 }
