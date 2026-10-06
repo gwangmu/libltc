@@ -109,12 +109,14 @@ func extractObjectByLocalID(filestr string, idstr string) (ostr string, olink st
 			}
 		}
 
+		// FIXME: register 'Link' only when it's in an import object.
 		reLink := regexp.MustCompile(`^(?:Link)\s*=\s*"(.*?)"`)
 		if matches := reLink.FindStringSubmatch(fileline); matches != nil {
 			olink = matches[1]
 			continue
 		}
 
+		// FIXME: register 'Embed*' only when it's in an event object.
 		reEmbed := regexp.MustCompile(`^(?:EmbedChart|EmbedEvent)\s*=\s*"(.*?)"`)
 		if matches := reEmbed.FindStringSubmatch(fileline); matches != nil {
 			oembed = matches[1]
