@@ -5,7 +5,7 @@ import (
 	"libltc/internal/test"
 )
 
-var TestAssetDirPath string = "../../test_asset"
+var TestAssetDirPath string = "../../assets"
 
 func TestSingleEvent(t *testing.T) {
 	test.Initialize(t, TestAssetDirPath)
