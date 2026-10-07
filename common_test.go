@@ -27,11 +27,12 @@ func TestNotes(t *testing.T) {
 	}
 
 	t.Log("Investigating loaded file...")
-	t.Log("Title: " + e0.Note.Title)
-	for _, snippet := range e0.Note.Snippets {
-		t.Log("Time: " + snippet.Time.String())
-		t.Logf("Text: %q\n", []rune(snippet.Text))
-	}
+	test.AssertEQ(e0.Note.Title, "")
+	test.AssertEQ(len(e0.Note.Snippets), 2)
+	test.AssertEQ(e0.Note.Snippets[0].Time.String(), "(unknown)")
+	test.AssertEQ(e0.Note.Snippets[0].Text, "aaa")
+	test.AssertEQ(e0.Note.Snippets[1].Time.String(), "2026-09-01 00:01:02 (UTC)")
+	test.AssertEQ(e0.Note.Snippets[1].Text, "bbb\nccc")
 
 	t.Log("End test.")
 }

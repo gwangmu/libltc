@@ -59,7 +59,7 @@ func (_ Contains) String() string {
 	return "⊇"
 }
 
-func Assert[Pred IPredicate, T comparable](got T, want T) {
+func Assert[Pred IPredicate](got any, want any) {
 	_, fname, fno, ok := runtime.Caller(2)
 	if ok {
 		fname = filepath.Base(fname)
@@ -68,11 +68,16 @@ func Assert[Pred IPredicate, T comparable](got T, want T) {
 		fno = 0
 	}
 
+	fc := "v"
+	if _, ok := got.(string); ok {
+		fc = "q"
+	}
+
 	var pred Pred
 	if !pred.Test(got, want) {
-		curT.Fatalf("Assertion failed: %v %s %v (%s:%d)", got, pred.String(), want, fname, fno)
+		curT.Fatalf("Assertion failed: %"+fc+" %s %"+fc+" (%s:%d)", got, pred.String(), want, fname, fno)
 	} else {
-		curT.Logf("Assertion succeeded: %v %s %v (%s:%d)", got, pred.String(), want, fname, fno)
+		curT.Logf("Assertion succeeded: %"+fc+" %s %"+fc+" (%s:%d)", got, pred.String(), want, fname, fno)
 	}
 }
 
