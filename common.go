@@ -144,10 +144,51 @@ func (this Time) IsUnknown() bool {
 //-- struct Time: methods (getters and setters)
 
 func (this *Time) GetGOTime() time.Time {
-	mc := min(max(this.GetMonth(), 1), 12)
-	dc := time.Date(0, time.Month(mc+1), 0, 0, 0, 0, 0, this.GetTimezone()).Day()
-	nc := 0
+	yc := this.GetYear()
 
+	mc := this.GetMonth() 
+	switch mc {
+	case TKValue_Max:
+		// FIXME: currently using the Gragorian calendar max.
+		mc = 12
+	case TKValue_Min:
+		mc = 1
+	}
+
+	dc := this.GetDay()
+	switch dc {
+	case TKValue_Max:
+		// FIXME: currently using the Gragorian calendar max.
+		dc = time.Date(0, time.Month(mc+1), 0, 0, 0, 0, 0, this.GetTimezone()).Day()
+	case TKValue_Min:
+		dc = 1
+	}
+
+	hc := this.GetHour()
+	switch hc {
+	case TKValue_Max:
+		hc = 23
+	case TKValue_Min:
+		hc = 0
+	}
+
+	mmc := this.GetMinute()
+	switch mmc {
+	case TKValue_Max:
+		mmc = 59
+	case TKValue_Min:
+		mmc = 0
+	}
+
+	sc := this.GetSecond()
+	switch sc {
+	case TKValue_Max:
+		sc = 59
+	case TKValue_Min:
+		sc = 0
+	}
+
+	nc := 0
 	switch this.usage {
 	case TUK_End: 
 		nc = 1
@@ -155,14 +196,7 @@ func (this *Time) GetGOTime() time.Time {
 		nc = -1
 	}
 
-	return time.Date(
-		min(max(this.GetYear(), 0), 9999),
-		time.Month(mc), dc,
-		min(max(this.GetHour(), 0), 23),
-		min(max(this.GetMinute(), 0), 59),
-		min(max(this.GetSecond(), 0), 59),
-		nc, this.GetTimezone(),
-	)
+	return time.Date(yc, time.Month(mc), dc, hc, mmc, sc, nc, this.GetTimezone())
 }
 
 func (this *Time) GetYear() int {
@@ -444,6 +478,7 @@ func (this Time) IsInfinitePast() bool {
 	return ok || (this.IsUnknown() && this.GetUsage() == TUK_Start)
 }
 
+// Return value is undefined if either of the times is unknown (non-inf) or ambiguous.
 func (this Time) IsAfter(that Time) bool {
 	if this.IsInfinitePast() || that.IsInfiniteFuture() {
 		return false 

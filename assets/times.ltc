@@ -4,13 +4,13 @@ FormatVersion = "26.09.1"
 ID = "e0"
 Title = "Well-specified dates"
 StartDate = { Year = 1991, Month = 3, Day = 29, Hour = 1, Minute = 2, Second = 3, Timezone = "CET" }
-EndDate = { Year = 1991, Month = 4, Day = 29, Hour = 1, Minute = 2, Timezone = "CEST" }
+EndDate = { Year = 1991, Month = 3, Day = 29, Hour = 1, Minute = 2, Second = 3, Timezone = "UTC" }
 
 [[Event]]
 ID = "e1"
 Title = "Less well-specified dates"
 StartDate = { Year = 1991, Month = 3, Day = 29, Hour = 1 }
-EndDate = { Year = 1991, Month = 4, Day = 29, Hour = 1 }
+EndDate = { Year = 1991, Month = 3, Day = 29, Hour = 1 }
 
 [[Event]]
 ID = "e2"
@@ -20,6 +20,18 @@ EndDate = { Day = 4 }
 
 [[Event]]
 ID = "e3"
-Title = "Unknown date"
+Title = "Unknown start date"
 StartDate = {}
-#EndDate = {}
+EndDate = { Year = 1991, Month = 3, Day = 29, Hour = 1, Minute = 2 }
+
+[[Event]]
+ID = "e4"
+Title = "Unknown end date"
+StartDate = { Year = 1991, Month = 3, Day = 29, Hour = 1, Minute = 2 }
+EndDate = {}
+
+[[Event]]
+ID = "e4"
+Title = "Non-Gregorian dates (by value)"
+StartDate = { Year = 1991, Month = 13, Day = 40 }
+EndDate = { Year = 1991, Month = 12, Day = 10 }
