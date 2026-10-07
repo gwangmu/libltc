@@ -21,7 +21,7 @@ type Warnings []*Warning
 //-- struct Warning: method (getters and setters)
 
 func (ltcw *Warning) GetDesc() string {
-	return ltcw.getSubstitutedString(ltcw.desc)
+	return toSentenceCase(ltcw.getSubstitutedString(ltcw.desc))
 }
 
 func (ltcw *Warning) getSubstitutedString(orgstr string) string {

@@ -1,0 +1,59 @@
+FormatVersion = "26.09.1"
+
+[[Event]]
+ID = "e0"
+Title = "Regular note"
+Note = """
+aaa
+
+<!-- Edit: 2026-09-01 00:01:02 (UTC) -->
+bbb
+ccc
+"""
+
+[[Event]]
+ID = "e1"
+Title = "Note starting with a time tag"
+Note = """
+<!-- Edit: 2026-09-01 00:01:02 (UTC) -->
+aaa
+
+<!-- Edit: 2026-09-02 03:04:05 (UTC) -->
+bbb
+ccc
+"""
+
+[[Event]]
+ID = "e2"
+Title = "Note starting with an unknown time tag"
+Note = """
+<!-- Edit: -->
+aaa
+<!-- Edit: 2026-09-02 11:22:33 (UTC) -->
+bbb
+ccc
+"""
+
+[[Event]]
+ID = "e3"
+Title = "Note ending with a time tag"
+Note = """
+aaa
+<!-- Edit: 2026-09-02 11:22:33 (UTC) -->
+bbb
+ccc
+<!-- Edit: 2026-09-02 44:55 -->
+"""
+
+[[Event]]
+ID = "e4"
+Title = "Note starting with a time tag with a title"
+Note = """
+<!-- Title: whatever -->
+<!-- Edit: 2026-09-01 00:01:02 (UTC) -->
+aaa
+
+<!-- Edit: 2026-09-01 00:01:02 (UTC) -->
+bbb
+ccc
+"""

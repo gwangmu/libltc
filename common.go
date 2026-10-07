@@ -1,6 +1,7 @@
 package ltc
 
 import (
+	"fmt"
 	"maps"
 	"regexp"
 	"slices"
@@ -96,6 +97,10 @@ type Time struct {
 //-- struct Time: interface IStringifiable
 
 func (this *Time) String() (ret string) {
+	if this.IsUnknown() {
+		return "(unknown)"
+	}
+
 	stime := []string{
 		this.GetYearString(),
 		this.GetMonthString(),
@@ -118,7 +123,7 @@ func (this *Time) String() (ret string) {
 		ret += " " + strings.Join(stime[3:6], ":")
 	}
 	if len(sextra) != 0 {
-		ret += " (" + strings.Join(sextra, ", ")
+		ret += " (" + strings.Join(sextra, ", ") + ")"
 	}
 
 	return
@@ -185,7 +190,7 @@ func (this *Time) GetYearString() string {
 	case TKValue_Unknown:
 		return "????"
 	default:
-		return strconv.Itoa(v)
+		return fmt.Sprintf("%04d", v)
 	}
 }
 
@@ -214,7 +219,7 @@ func (this *Time) GetMonthString() string {
 	case TKValue_Unknown:
 		return "??"
 	default:
-		return strconv.Itoa(v)
+		return fmt.Sprintf("%02d", v)
 	}
 }
 
@@ -243,7 +248,7 @@ func (this *Time) GetDayString() string {
 	case TKValue_Unknown:
 		return "??"
 	default:
-		return strconv.Itoa(v)
+		return fmt.Sprintf("%02d", v)
 	}
 }
 
@@ -272,7 +277,7 @@ func (this *Time) GetHourString() string {
 	case TKValue_Unknown:
 		return "??"
 	default:
-		return strconv.Itoa(v)
+		return fmt.Sprintf("%02d", v)
 	}
 }
 
@@ -301,7 +306,7 @@ func (this *Time) GetMinuteString() string {
 	case TKValue_Unknown:
 		return "??"
 	default:
-		return strconv.Itoa(v)
+		return fmt.Sprintf("%02d", v)
 	}
 }
 
@@ -330,7 +335,7 @@ func (this *Time) GetSecondString() string {
 	case TKValue_Unknown:
 		return "??"
 	default:
-		return strconv.Itoa(v)
+		return fmt.Sprintf("%02d", v)
 	}
 }
 
@@ -440,12 +445,10 @@ func (this Time) IsInfinitePast() bool {
 }
 
 func (this Time) IsAfter(that Time) bool {
-	if (this.IsInfiniteFuture() && !that.IsInfiniteFuture()) ||
-		(this.IsInfinitePast() && !that.IsInfinitePast()) {
+	if this.IsInfinitePast() || that.IsInfiniteFuture() {
+		return false 
+	} else if this.IsInfiniteFuture() || that.IsInfinitePast() {
 		return true
-	} else if (this.IsInfiniteFuture() && that.IsInfiniteFuture()) ||
-		(this.IsInfinitePast() && that.IsInfinitePast()) {
-		return false
 	} else {
 		that.SetUsage(TUK_General)
 		// The 'compare' using the 'time' package should be correct as long as
@@ -754,6 +757,7 @@ func CreateNoteFromString(notestr string) (Note, warning.Warnings) {
 			re := regexp.MustCompile(`^\s*<!--\s*Title:(.*)-->\s*$`)
 			if matches := re.FindStringSubmatch(line); matches != nil {
 				note.Title = strings.TrimSpace(matches[1])
+				continue
 			}
 		}
 
@@ -765,11 +769,15 @@ func CreateNoteFromString(notestr string) (Note, warning.Warnings) {
 			snippet = NoteSnippet{}
 			snippet.Time = CreateTimeFromTag(strings.TrimSpace(matches[1]))
 
-			if snippet.Time.IsUnknown() {
+			if i != 0 && snippet.Time.IsUnknown() {
 				warns.Add("Unknown time tag in @0@.", &note)
 			}
+			continue
 		}
+
+		snippet.Text += line + "\n"
 	}
+	snippet.Text = strings.TrimRight(snippet.Text, "\r\n")
 	note.Snippets = append(note.Snippets, snippet)
 
 	return note, warns
@@ -823,7 +831,7 @@ func convIDStringToInternal(id string) (MajorKind, NumberID) {
 }
 
 func convIDInternalToString(kind MajorKind, nid NumberID) string {
-	if prefix, err := kind.Prefix(); err != nil {
+	if prefix, err := kind.Prefix(); err == nil {
 		return prefix + strconv.FormatUint(uint64(nid), 10)
 	} else {
 		return "?"
