@@ -19,17 +19,17 @@ type IChart interface {
 	GetEventsInCategory(category string) []*Event
 	GetAnnexs() []*Annex
 	GetImports() []*Import
-	GetAllMainObjects(inclLoadedSubchartObjs bool) []IMainObj
+	GetAllMajors(inclLoadedSubchartObjs bool) []IMajor
 
-	GetObjectByAbsQualID(qualid string) IMainObj 
- 	GetObjectByRelQualID(iqualid string, baseChart *Chart) IMainObj 
-	GetObjectsByIntrinsicID(locid string) []IMainObj 
+	GetObjectByAbsQualID(qualid string) IMajor 
+ 	GetObjectByRelQualID(iqualid string, baseChart *Chart) IMajor 
+	GetObjectsByIntrinsicID(locid string) []IMajor 
 
-	getNextNumberID(kind MainObjKind) (NumberID, error) 
+	getNextNumberID(kind MajorKind) (NumberID, error) 
 
 	asChart() *Chart
-	resolveReferenceTo(IMainObj)
-	unresolveReferenceTo(IMainObj)
+	resolveReferenceTo(IMajor)
+	unresolveReferenceTo(IMajor)
 	changeEventStartDate(*Event)
 	changeEventCategory(*Event, string)
 }
@@ -64,7 +64,7 @@ func (this *Chart) asChart() *Chart {
 	return this
 }
 
-func (this *Chart) resolveReferenceTo(obj IMainObj) {
+func (this *Chart) resolveReferenceTo(obj IMajor) {
 	// Ensure it's the main object itself, not just the common part. 
 	obj = obj.GetEnclosingObject()
 
@@ -85,15 +85,15 @@ func (this *Chart) resolveReferenceTo(obj IMainObj) {
 	}
 }
 
-func (this *Chart) unresolveReferenceTo(obj IMainObj) {
+func (this *Chart) unresolveReferenceTo(obj IMajor) {
 	// Ensure it's the main object itself, not just the common part. 
 	obj = obj.GetEnclosingObject()
 
 	// If 'obj' points to an event, unresolve 'ContinuedFrom'.
 	if eobj, ok := obj.(*Event); ok {
 		if eobj.IsSubchartLoaded() {
-			subchart, _ := eobj.GetSubchart()
-			for _, scobj := range subchart.GetAllMainObjects(true) {
+			subchart, _ := eobj.GetSubchart(nil)
+			for _, scobj := range subchart.GetAllMajors(true) {
 				this.unresolveReferenceTo(scobj)
 			}
 		}
@@ -114,13 +114,13 @@ func (this *Chart) unresolveReferenceTo(obj IMainObj) {
 
 func (this *Chart) changeEventStartDate(eobj *Event) {
 	category := eobj.GetCategory()
-	tmpevs := removeMainObjectFromSlice[Event](this.events[category], eobj)
+	tmpevs := removeMajorFromSlice[Event](this.events[category], eobj)
 	this.events[category] = insertEventToSlice(tmpevs, eobj)
 }
 
 func (this *Chart) changeEventCategory(eobj *Event, oldc string) {
 	newc := eobj.GetCategory()
-	tmpevs := removeMainObjectFromSlice[Event](this.events[oldc], eobj)
+	tmpevs := removeMajorFromSlice[Event](this.events[oldc], eobj)
 	this.events[newc] = insertEventToSlice(tmpevs, eobj)
 }
 
@@ -142,8 +142,8 @@ func (this Chart) IsUnknown() bool {
 
 //-- method (main object association)
 
-func (this *Chart) getNextNumberID(kind MainObjKind) (NumberID, error) {
-	mainobjArr := []IMainObj{}
+func (this *Chart) getNextNumberID(kind MajorKind) (NumberID, error) {
+	mainobjArr := []IMajor{}
 
 	switch kind {
 	case MOK_Event:
@@ -195,7 +195,7 @@ func (this *Chart) setEmbeddingEvent(o *Event) {
 
 //-- method (main object manipulation)
 
-func (this *Chart) GetObjectByAbsQualID(absQualID string) IMainObj {
+func (this *Chart) GetObjectByAbsQualID(absQualID string) IMajor {
 	inChartQualIDs := splitIntoInChartQualIDs(absQualID)
 	curChart := this
 	for i, inChartQualID := range inChartQualIDs {
@@ -206,7 +206,7 @@ func (this *Chart) GetObjectByAbsQualID(absQualID string) IMainObj {
 				return curObj
 			} else if eobj, ok := curObj.(*Event); ok {
 				if eobj.IsChartEmbedding() {
-					curChart, _ = eobj.GetSubchart()
+					curChart, _ = eobj.GetSubchart(nil)
 					continue
 				} else {
 					break
@@ -217,8 +217,8 @@ func (this *Chart) GetObjectByAbsQualID(absQualID string) IMainObj {
 	return nil
 }
 
-func (this *Chart) GetObjectByRelQualID(relQualID string, baseChart *Chart) IMainObj {
-	objs := this.getObjectsWithIDGetter(relQualID, func (obj IMainObj) string {
+func (this *Chart) GetObjectByRelQualID(relQualID string, baseChart *Chart) IMajor {
+	objs := this.getObjectsWithIDGetter(relQualID, func (obj IMajor) string {
 		return obj.GetRelQualifiedID(baseChart)
 	}, true)
 
@@ -229,19 +229,19 @@ func (this *Chart) GetObjectByRelQualID(relQualID string, baseChart *Chart) IMai
 	}
 }
 
-func (this *Chart) GetObjectsByIntrinsicID(intrID string) []IMainObj {
-	return this.getObjectsWithIDGetter(intrID, func (obj IMainObj) string {
+func (this *Chart) GetObjectsByIntrinsicID(intrID string) []IMajor {
+	return this.getObjectsWithIDGetter(intrID, func (obj IMajor) string {
 		return obj.GetIntrinsicID()
 	}, false)
 }
 
-func (this *Chart) GetAllMainObjects(inclLoadedSubchartObjs bool) (ret []IMainObj) {
+func (this *Chart) GetAllMajors(inclLoadedSubchartObjs bool) (ret []IMajor) {
 	for _, evs := range this.events {
 		for _, eobj := range evs {
 			ret = append(ret, eobj)
 			if inclLoadedSubchartObjs && eobj.IsSubchartLoaded() {
-				schart, _ := eobj.GetSubchart()
-				for _, seobj := range schart.GetAllMainObjects(true) {
+				schart, _ := eobj.GetSubchart(nil)
+				for _, seobj := range schart.GetAllMajors(true) {
 					ret = append(ret, seobj)
 				}
 			}
@@ -298,7 +298,7 @@ func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end T
 	}
 }
 
-func (this *Chart) AddObject(obj IMainObj) error {
+func (this *Chart) AddObject(obj IMajor) error {
 	if obj == nil || obj.GetKind() == MOK_Unknown {
 		return errors.New("Bogus object. Cannot add to the chart.")
 	}
@@ -341,7 +341,7 @@ func (this *Chart) AddObject(obj IMainObj) error {
 		// Resolve references.
 		this.resolveReferenceTo(iobj)
 		iobj.resolveReferenceTo(this)
-		for _, imobj := range iobj.GetImportedMainObjects() {
+		for _, imobj := range iobj.GetImportedMajors() {
 			this.resolveReferenceTo(imobj)
 			// NOTE: Not the other way round. No back reference.
 		}
@@ -364,7 +364,7 @@ func (this *Chart) AddObject(obj IMainObj) error {
 	return nil
 }
 
-func (this *Chart) RemoveObject(obj IMainObj) {
+func (this *Chart) RemoveObject(obj IMajor) {
 	if obj == nil || obj.GetKind() == MOK_Unknown {
 		return
 	}
@@ -381,7 +381,7 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 
 		// Remove 'obj' from the slice.
 		category := eobj.GetCategory()
-		this.events[category] = removeMainObjectFromSlice[Event](this.events[category], eobj)
+		this.events[category] = removeMajorFromSlice[Event](this.events[category], eobj)
 
 		// Unresolve references.
 		this.unresolveReferenceTo(eobj)
@@ -390,7 +390,7 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 		aobj, _ := obj.(*Annex)
 
 		// Remove 'obj' from the slice.
-		this.annexs = removeMainObjectFromSlice[Annex](this.annexs, aobj)
+		this.annexs = removeMajorFromSlice[Annex](this.annexs, aobj)
 
 		// Unresolve references.
 		this.unresolveReferenceTo(aobj)
@@ -399,22 +399,22 @@ func (this *Chart) RemoveObject(obj IMainObj) {
 		iobj, _ := obj.(*Import)
 
 		// Remove 'obj' from the slice.
-		this.imports = removeMainObjectFromSlice[Import](this.imports, iobj)
+		this.imports = removeMajorFromSlice[Import](this.imports, iobj)
 		for _, ieobj := range iobj.GetImportedEvents() {
 			category := ieobj.GetCategory()
-			this.events[category] = removeMainObjectFromSlice[Event](this.events[category], ieobj)
+			this.events[category] = removeMajorFromSlice[Event](this.events[category], ieobj)
 		}
 		for _, iaobj := range iobj.GetImportedAnnexs() {
-			this.annexs = removeMainObjectFromSlice[Annex](this.annexs, iaobj)
+			this.annexs = removeMajorFromSlice[Annex](this.annexs, iaobj)
 		}
 		for _, iiobj := range iobj.GetImportedImports() {
-			this.imports = removeMainObjectFromSlice[Import](this.imports, iiobj)
+			this.imports = removeMajorFromSlice[Import](this.imports, iiobj)
 		}
 
 		// Unresolve references.
 		this.unresolveReferenceTo(iobj)
 		iobj.unresolveReferenceTo(this)
-		for _, imobj := range iobj.GetImportedMainObjects() {
+		for _, imobj := range iobj.GetImportedMajors() {
 			this.unresolveReferenceTo(imobj)
 			// NOTE: Not the other way round. No back reference.
 		}
@@ -442,6 +442,10 @@ func (this *Chart) RemoveEventCategory(category string) error {
 //-- method (creation)
 
 func createChartFromParsed(o *file.File) (*Chart, warning.Warnings) {
+	if o == nil {
+		return CreateEmptyChart(), warning.Warnings{}
+	}
+
 	chart := &Chart{}
 	warns := warning.Warnings{}
 
@@ -539,7 +543,7 @@ func CreateEmptyChart() *Chart {
 
 //-- method (util)
 
-func (this *Chart) getObjectsWithIDGetter(id string, idGetter func(IMainObj) string, onlyFirst bool) (ret []IMainObj) {
+func (this *Chart) getObjectsWithIDGetter(id string, idGetter func(IMajor) string, onlyFirst bool) (ret []IMajor) {
 	objKind := findObjectKindByID(id)
 	switch objKind {
 	case MOK_Event:
@@ -594,13 +598,13 @@ func splitIntoInChartQualIDs(absQualID string) (ret []string) {
 	return 
 }
 
-func findObjectKindByID(id string) MainObjKind {
+func findObjectKindByID(id string) MajorKind {
 	ids := strings.Split(id, "/")
 	if len(ids) != 0 {
 		lastid := ids[len(ids)-1]
 		re := regexp.MustCompile(`^([a-z])[0-9]+$`)
 		if match := re.FindStringSubmatch(lastid); match != nil {
-			kind, _ := GetMainObjKind(match[1])
+			kind, _ := GetMajorKind(match[1])
 			return kind
 		}
 	}
@@ -623,7 +627,7 @@ func insertEventToSlice(evs []*Event, eobj *Event) (ret []*Event) {
 	return
 }
 
-func removeMainObjectFromSlice[T any, TPtr IMainObjPtr[T]](objs []TPtr, obj TPtr) []TPtr {
+func removeMajorFromSlice[T any, TPtr IMajorPtr[T]](objs []TPtr, obj TPtr) []TPtr {
 	idx := slices.Index(objs, obj)
 	if idx != -1 {
 		return slices.Delete(objs, idx, idx+1)
@@ -763,4 +767,40 @@ func createSubjectFromParsed(o file.Subject) (Subject, warning.Warnings) {
 	warns := subject.DiagnoseLocal()
 
 	return subject, warns
+}
+
+//-- vvv Constants vvv
+
+//-- type Version
+
+type Version int 
+const (
+	VER_26_09_1 Version = iota
+)
+const VER_Unknown Version = -1
+
+//-- type Version: interface WarningObj
+
+func (ver Version) Summary() string {
+	switch ver {
+	case VER_26_09_1:
+		return "26.09.1"
+	default:
+		return "?"
+	}
+}
+
+func (ver Version) IsUnknown() bool {
+	return ver.Summary() == "?"
+}
+
+//-- type Version: method (creation)
+
+func GetVersion(reqverstr string) Version {
+	switch reqverstr {
+	case "26.09.1":
+		return VER_26_09_1
+	default:
+		return VER_Unknown
+	}
 }

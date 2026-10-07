@@ -6,7 +6,7 @@ import (
 )
 
 type Import struct {
-	MainObjCommon
+	MajorCommon
 
 	Note Note
 
@@ -100,7 +100,7 @@ func (this *Import) GetImportedImports() []*Import {
 	panic("Unimplemented")
 }
 
-func (this *Import) GetImportedMainObjects() []IMainObj {
+func (this *Import) GetImportedMajors() []IMajor {
 	// TODO
 	panic("Unimplemented")
 }
@@ -203,7 +203,7 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 
 func CreateEmptyImport() *Import {
 	cimport := &Import{
-		MainObjCommon: *CreateEmptyMainObjCommon(),
+		MajorCommon: *CreateEmptyMajorCommon(),
 
 		Note: Note{},
 

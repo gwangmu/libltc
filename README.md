@@ -30,7 +30,7 @@ The ["sample" directory](./sample) collects the sample LTC file for each version
 
 ### LTC Object Taxonomy
 
-The format consists of _LTC objects_ that specify a dedicated aspect of the chart. LTC objects are divided into four categories: common, preamble, main, and chart. Common objects represent chart-independent generic concepts embedded in other objects. Preamble objects represent introductory information about the chart. Main objects represent information that makes up the chart. Chart objects represent a chart itself. The default value of objects can be overridden depending on how they are used in the enclosing object.
+The format consists of _LTC objects_ that specify a dedicated aspect of the chart. LTC objects are divided into four categories: common, preamble, major, and chart. Common objects represent chart-independent generic concepts embedded in other objects. Preamble objects represent introductory information about the chart. Major objects represent information that makes up the chart. Chart objects represent a chart itself. The default value of objects can be overridden depending on how they are used in the enclosing object.
 
 Each LTC object type matches a specific TOML object type, but other equivalent TOML object types are also valid. For example, an LTC object corresponding to an inline TOML table _may_ be represented as a fully expanded TOML table, too.
 
@@ -45,7 +45,7 @@ An attribute list is an array of strings, each representing a colon-separated (`
 
 The same attribute key can appear multiple times in an attribute list. In this case, the duplicated attribute key's values are chained together under the same key.
 
-By default, the `Attrs` field of any main object is considered an attribute list of the enclosing object.
+By default, the `Attrs` field of any major object is considered an attribute list of the enclosing object.
 
 #### Time
 
@@ -152,9 +152,9 @@ Note on the _identified_ sex: Because the identified gender can change over time
 
 An unknown `EndDate` is considered _ongoing_.
 
-### Main Objects 
+### Major Objects 
 
-Main objects are divided into two _kinds_: chart-local and imported. Chart-local objects are those contained in the current LTC file. Imported objects are those imported from other LTC files via [import objects](#Import). 
+Major objects are divided into two _kinds_: chart-local and imported. Chart-local objects are those contained in the current LTC file. Imported objects are those imported from other LTC files via [import objects](#Import). 
 
 #### Event
 
@@ -246,7 +246,7 @@ Note: use [embedding event objects](#Event) to import individual event objects.
 
  - TOML object: the entire TOML file
 
-A chart object represents the entire chart described in an LTC file. A valid LTC file must have a file extension `ltc`. An _empty_ chart is defined as a chart with empty main objects.
+A chart object represents the entire chart described in an LTC file. A valid LTC file must have a file extension `ltc`. An _empty_ chart is defined as a chart with empty major objects.
 
 ### ID Qualification
 

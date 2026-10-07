@@ -1,14 +1,16 @@
 package ltc
 
 import (
+	"errors"
+	"math"
 	"slices"
 	"strings"
 )
 
-type IMainObj interface {
-	GetKind() MainObjKind
-	GetCommon() *MainObjCommon
-	GetEnclosingObject() IMainObj
+type IMajor interface {
+	GetKind() MajorKind
+	GetCommon() *MajorCommon
+	GetEnclosingObject() IMajor
 
 	GetChart() *Chart
 	setChart(c *Chart)
@@ -17,7 +19,7 @@ type IMainObj interface {
 	setNumberID(nid NumberID)
 
 	getUnresRelQualID() string
-	markUnresolved(unresRelQualID string, parent IMainObj)
+	markUnresolved(unresRelQualID string, parent IMajor)
 	unmarkUnresolved()
 	IsUnresolved() bool
 
@@ -25,8 +27,8 @@ type IMainObj interface {
 	GetRelQualifiedID(baseChart *Chart) string
 	GetAbsQualifiedID() string
 
-	GetParent() IMainObj
-	SetParent(p IMainObj)
+	GetParent() IMajor
+	SetParent(p IMajor)
 
 	IsImported() bool	// Imported by an import object?
 	IsEmbedded() bool	// Embedded in an event object? (incl. subchart objs)
@@ -47,16 +49,16 @@ type IMainObj interface {
 	initialize()
 }
 
-type IMainObjPtr[T any] interface {
+type IMajorPtr[T any] interface {
 	*T
-	IMainObj
+	IMajor
 }
 
-type MainObjCommon struct {
-	enclosing IMainObj			// Enclosing object of this common struct
+type MajorCommon struct {
+	enclosing IMajor			// Enclosing object of this common struct
 
 	chart IChart				// Associated chart
-	parent IMainObj				// Included by...
+	parent IMajor				// Included by...
 	numID NumberID 				// Numeric part of ID
 	unresRelQualID string		// **UNRESOLVED** local qualified ID
 
@@ -66,9 +68,9 @@ type MainObjCommon struct {
 	Attached EPSink[*Annex]		// Pointed by 'AttachTo'
 }
 
-//-- struct MainObjCommon: method
+//-- struct MajorCommon: method
 
-func (this *MainObjCommon) GetKind() MainObjKind {
+func (this *MajorCommon) GetKind() MajorKind {
 	switch this.enclosing.(type) {
 	case *Event:
 		return MOK_Event
@@ -81,11 +83,11 @@ func (this *MainObjCommon) GetKind() MainObjKind {
 	}
 }
 
-func (this *MainObjCommon) GetCommon() *MainObjCommon {
+func (this *MajorCommon) GetCommon() *MajorCommon {
 	return this
 }
 
-func (this *MainObjCommon) GetEnclosingObject() IMainObj {
+func (this *MajorCommon) GetEnclosingObject() IMajor {
 	return this.enclosing
 }
 
@@ -94,40 +96,40 @@ func (this *MainObjCommon) GetEnclosingObject() IMainObj {
 //  - Main object and main object: "parental"
 //  - Subchart and subchart event object: "embedding"
 
-func (this *MainObjCommon) GetChart() *Chart {
+func (this *MajorCommon) GetChart() *Chart {
 	return this.chart.asChart()
 }
 
-func (this *MainObjCommon) setChart(c *Chart) {
+func (this *MajorCommon) setChart(c *Chart) {
 	this.chart = c
 }
 
-func (this *MainObjCommon) getNumberID() NumberID {
+func (this *MajorCommon) getNumberID() NumberID {
 	return this.numID
 }
 
-func (this *MainObjCommon) setNumberID(nid NumberID) {
+func (this *MajorCommon) setNumberID(nid NumberID) {
 	this.numID = nid
 }
 
-func (this *MainObjCommon) getUnresRelQualID() string {
+func (this *MajorCommon) getUnresRelQualID() string {
 	return this.unresRelQualID
 }
 
-func (this *MainObjCommon) markUnresolved(unresRelQualID string, parent IMainObj) {
+func (this *MajorCommon) markUnresolved(unresRelQualID string, parent IMajor) {
 	this.unresRelQualID = unresRelQualID
 	this.parent = parent
 }
 
-func (this *MainObjCommon) unmarkUnresolved() {
+func (this *MajorCommon) unmarkUnresolved() {
 	this.unresRelQualID = ""
 }
 
-func (this MainObjCommon) IsUnresolved() bool {
+func (this MajorCommon) IsUnresolved() bool {
 	return this.unresRelQualID != ""
 }
 
-func (this *MainObjCommon) GetIntrinsicID() string {
+func (this *MajorCommon) GetIntrinsicID() string {
 	if this.GetKind() == MOK_Unknown {
 		unresRelQualID := this.unresRelQualID
 		lastidx := strings.LastIndex(unresRelQualID, "/")
@@ -144,7 +146,7 @@ func (this *MainObjCommon) GetIntrinsicID() string {
 	}
 }
 
-func (this *MainObjCommon) GetRelQualifiedID(baseChart *Chart) (ret string) {
+func (this *MajorCommon) GetRelQualifiedID(baseChart *Chart) (ret string) {
 	if this.IsUnresolved() {
 		if this.parent != nil {
 			absQualID := this.GetAbsQualifiedID()
@@ -163,7 +165,7 @@ func (this *MainObjCommon) GetRelQualifiedID(baseChart *Chart) (ret string) {
 	}
 }
 
-func (this *MainObjCommon) GetAbsQualifiedID() (ret string) {
+func (this *MajorCommon) GetAbsQualifiedID() (ret string) {
 	if this.IsUnresolved() {
 		unresRelQualID := this.unresRelQualID
 		prefixid := ""
@@ -180,15 +182,15 @@ func (this *MainObjCommon) GetAbsQualifiedID() (ret string) {
 	}
 }
 
-func (this *MainObjCommon) GetParent() IMainObj {
+func (this *MajorCommon) GetParent() IMajor {
 	return this.parent
 }
 
-func (this *MainObjCommon) SetParent(p IMainObj) {
+func (this *MajorCommon) SetParent(p IMajor) {
 	this.parent = p
 }
 
-func (this *MainObjCommon) IsImported() bool {
+func (this *MajorCommon) IsImported() bool {
 	if this.parent != nil {
 		if this.parent.GetKind() == MOK_Import {
 			return true
@@ -200,7 +202,7 @@ func (this *MainObjCommon) IsImported() bool {
 	}
 }
 
-func (this *MainObjCommon) IsEmbedded() bool {
+func (this *MajorCommon) IsEmbedded() bool {
 	if this.parent != nil {
 		if this.parent.GetKind() == MOK_Event {
 			return true
@@ -212,15 +214,15 @@ func (this *MainObjCommon) IsEmbedded() bool {
 	}
 }
 
-func (this *MainObjCommon) IsIncluded() bool {
+func (this *MajorCommon) IsIncluded() bool {
 	return this.IsImported() || this.IsEmbedded()
 }
 
-func (this *MainObjCommon) IsLocallyImported() bool {
+func (this *MajorCommon) IsLocallyImported() bool {
 	return this.parent != nil && this.parent.GetKind() == MOK_Import 
 }
 
-func (this *MainObjCommon) GetAttrs(key string) []string {
+func (this *MajorCommon) GetAttrs(key string) []string {
 	if attrlist, ok := this.attrs[key]; ok {
 		// `attrlist` CANNOT be an empty list. (at least [""])
 		return attrlist
@@ -229,7 +231,7 @@ func (this *MainObjCommon) GetAttrs(key string) []string {
 	}
 }
 
-func (this *MainObjCommon) HasAttr(key string, value string) bool {
+func (this *MajorCommon) HasAttr(key string, value string) bool {
 	if attrlist, ok := this.attrs[key]; ok {
 		return slices.Contains(attrlist, value)
 	}
@@ -239,14 +241,14 @@ func (this *MainObjCommon) HasAttr(key string, value string) bool {
 // `{Add,Remove}Attr` are passive methods; they don't update other
 // objects that may be referenced by the added/removed attribute.
 
-func (this *MainObjCommon) AddAttr(key string, value string) {
+func (this *MajorCommon) AddAttr(key string, value string) {
 	if _, ok := this.attrs[key]; !ok {
 		this.attrs[key] = []string{}
 	}
 	this.attrs[key] = append(this.attrs[key], value)
 }
 
-func (this *MainObjCommon) RemoveAttr(key string, value string) {
+func (this *MajorCommon) RemoveAttr(key string, value string) {
 	if attrlist, ok := this.attrs[key]; ok {
 		for i, elem := range attrlist {
 			if elem == value {
@@ -262,7 +264,7 @@ func (this *MainObjCommon) RemoveAttr(key string, value string) {
 	}
 }
 
-func (this *MainObjCommon) convIDRelToAbs(relid string) string {
+func (this *MajorCommon) convIDRelToAbs(relid string) string {
 	if this.parent != nil {
 		return this.parent.GetAbsQualifiedID() + "/" + relid
 	} else {
@@ -270,7 +272,7 @@ func (this *MainObjCommon) convIDRelToAbs(relid string) string {
 	}
 }
 
-func (this *MainObjCommon) convIDAbsToRel(absid string) string {
+func (this *MajorCommon) convIDAbsToRel(absid string) string {
 	if this.parent != nil {
 		return strings.TrimPrefix(absid, this.parent.GetAbsQualifiedID() + "/")
 	} else {
@@ -278,18 +280,18 @@ func (this *MainObjCommon) convIDAbsToRel(absid string) string {
 	}
 }
 
-func (this *MainObjCommon) resolveReferenceTo(c IChart) {
+func (this *MajorCommon) resolveReferenceTo(c IChart) {
 	// No EPSource. Nothing to do.
 	return
 }
 
-func (this *MainObjCommon) unresolveReferenceTo(c IChart) {
+func (this *MajorCommon) unresolveReferenceTo(c IChart) {
 	// No EPSource. Nothing to do.
 	return
 }
 
-func (this *MainObjCommon) initialize() {
-	*this = MainObjCommon{
+func (this *MajorCommon) initialize() {
+	*this = MajorCommon{
 		enclosing: this,
 
 		chart: nil,
@@ -305,8 +307,92 @@ func (this *MainObjCommon) initialize() {
 // `unresRelQualID` should be a "qualified" ID, meaning if an object was included,
 // the `unresRelQualID` here should prepend the qualified ID of the chart-embedding event object.
 
-func CreateEmptyMainObjCommon() *MainObjCommon {
-	obj := MainObjCommon{}
+func CreateEmptyMajorCommon() *MajorCommon {
+	obj := MajorCommon{}
 	obj.initialize()
 	return &obj
 }
+
+//-- vvv Constants vvv
+
+//-- type TimeKind
+
+type TimeKind int
+const (
+	TK_Year TimeKind = iota
+	TK_Month
+	TK_Day
+	TK_Hour
+	TK_Minute
+	TK_Second
+)
+
+const TKValue_Max int = math.MaxInt
+const TKValue_Min int = math.MinInt 
+const TKValue_Unknown int = -1 
+
+//-- type NumberID
+
+type NumberID uint64
+const NID_Max = math.MaxUint64 - 1
+const NID_Invalid = math.MaxUint64
+
+//-- type MajorKind
+
+type MajorKind int
+const (
+	MOK_Event MajorKind = iota
+	MOK_Annex
+	MOK_Import
+	MOK_Unknown
+)
+
+//-- type MajorKind: method (stringify)
+
+func (mok MajorKind) Prefix() (string, error) {
+	switch mok {
+	case MOK_Event:
+		return "e", nil
+	case MOK_Annex:
+		return "a", nil
+	case MOK_Import:
+		return "i", nil
+	default:
+		return "?", errors.New("Bogus main object kind")
+	}
+}
+
+//-- type MajorKind: method (creation)
+
+func GetMajorKind(prefix string) (MajorKind, error) {
+	switch prefix {
+	case "e":
+		return MOK_Event, nil
+	case "a":
+		return MOK_Annex, nil
+	case "i":
+		return MOK_Import, nil
+	default:
+		return MOK_Unknown, errors.New("Bogus main object prefix")
+	}
+}
+
+/*
+//-- type IntervalKind 
+
+// Let's say there is an "interval" (start ~ end) with respect to another
+// "interval" (estart ~ eend).
+//
+//   |-------|==========|--------|
+//   ^       ^          ^        ^
+// start   estart      eend     end
+//
+// Inclusive: include equals at the boundary. (start <= estart && eend <= end)
+// Extended: include stradding ones. (start <= eend || estart <= end)
+
+type IntervalKind int
+const (
+	IK_Inclusive IntervalKind = iota
+	IK_Extended
+)
+*/

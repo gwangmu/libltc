@@ -801,13 +801,13 @@ func convAttrsChartToFile(attrs map[string][]string) (fattrs []string) {
 	return
 }
 
-func convIDStringToInternal(id string) (MainObjKind, NumberID) {
+func convIDStringToInternal(id string) (MajorKind, NumberID) {
 	// According to the specification, the first letter should specify the kind.
 	if len(id) < 1 {
 		return MOK_Unknown, NID_Invalid
 	}
 
-	kind, err := GetMainObjKind(id[0:1])
+	kind, err := GetMajorKind(id[0:1])
 	if err != nil {
 		return MOK_Unknown, NID_Invalid
 	} else if len(id) < 2 {
@@ -822,7 +822,7 @@ func convIDStringToInternal(id string) (MainObjKind, NumberID) {
 	return kind, NumberID(nid)
 }
 
-func convIDInternalToString(kind MainObjKind, nid NumberID) string {
+func convIDInternalToString(kind MajorKind, nid NumberID) string {
 	if prefix, err := kind.Prefix(); err != nil {
 		return prefix + strconv.FormatUint(uint64(nid), 10)
 	} else {
@@ -830,7 +830,7 @@ func convIDInternalToString(kind MainObjKind, nid NumberID) string {
 	}
 }
 
-func CloneMainObject[T IMainObj](obj *T, preserveChart bool, preserveID bool) *T {
+func CloneMajor[T IMajor](obj *T, preserveChart bool, preserveID bool) *T {
 	newobj := *obj
 	if !preserveChart {
 		newobj.setChart(nil)

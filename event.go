@@ -8,7 +8,7 @@ import (
 )
 
 type Event struct {
-	MainObjCommon
+	MajorCommon
 
 	Note Note 
 
@@ -27,7 +27,9 @@ type Event struct {
     ContinuedTo EPSink[*Event]      // Pointed by 'ContinuedFrom'
 }
 
-//-- interface IMainObj
+type ChartLoader = func (*file.File) (*Chart, warning.Warnings)
+
+//-- interface IMajor
 
 func (this *Event) resolveReferenceTo(c IChart) {
 	for _, category := range c.GetEventCategories() {
@@ -47,7 +49,7 @@ func (this *Event) unresolveReferenceTo(c IChart) {
 
 func (this *Event) initialize() {
 	*this = Event{
-		MainObjCommon: *CreateEmptyMainObjCommon(),
+		MajorCommon: *CreateEmptyMajorCommon(),
 
 		Note: Note{},
 
@@ -219,12 +221,12 @@ func (this *Event) IsSubchartLoaded() bool {
 	return this.embeddedChart != nil
 }
 
-func (this *Event) GetSubchart() (*Chart, warning.Warnings) {
+func (this *Event) GetSubchart(cloader ChartLoader) (*Chart, warning.Warnings) {
 	warns := warning.Warnings{}
 
 	// Lazy-load `embeddedChart` if it's nil (but shouldn't).
 	if this.IsChartEmbedding() && this.embeddedChart == nil {
-		moreWarns := this.loadEmbeddedChart()
+		moreWarns := this.loadEmbeddedChart(cloader)
 		warns.Concat(moreWarns)
 	}
 
@@ -450,25 +452,32 @@ func (this *Event) unloadEmbeddedEvent() {
 	this.embeddedEvent = nil
 }
 
-func (this *Event) loadEmbeddedChart() (warns warning.Warnings) {
+func (this *Event) loadEmbeddedChart(cloader ChartLoader) (warns warning.Warnings) {
+	if cloader == nil {
+		warns.Add("!!!INTERNAL WARN!!! chart loader not provided")
+		return
+	}
+
 	if this.IsChartEmbedding() && this.embeddedChart != nil {
 		efile, moreWarns, err := file.LoadFromURI[file.File](*this.chartEmbedLink)
 		warns.Concat(moreWarns)
 		if err != nil {
 			warns.Add("@0@ cannot load an embedded chart.", this)
-			this.embeddedChart = CreateEmptyChart()
+			embeddedChart, moreWarns := cloader(nil)
+			warns.Concat(moreWarns)
+			this.embeddedChart = embeddedChart
 		} else {
-			echart, moreWarns := createChartFromParsed(efile)
+			echart, moreWarns := cloader(efile)
 			warns.Concat(moreWarns)
 			this.embeddedChart = echart
 
 			// Update 'parent's of all subchart objects.
-			for _, obj := range echart.GetAllMainObjects(false) {
+			for _, obj := range echart.GetAllMajors(false) {
 				obj.SetParent(this)
 			}
 
 			// Resolve possible unresolved references.
-			for _, obj := range echart.GetAllMainObjects(true) {
+			for _, obj := range echart.GetAllMajors(true) {
 				this.chart.resolveReferenceTo(obj)
 			}
 		}
@@ -479,7 +488,7 @@ func (this *Event) loadEmbeddedChart() (warns warning.Warnings) {
 func (this *Event) unloadEmbeddedChart() {
 	if this.embeddedChart != nil {
 		// unresolve references.
-		for _, obj := range this.embeddedChart.GetAllMainObjects(true) {
+		for _, obj := range this.embeddedChart.GetAllMajors(true) {
 			this.chart.unresolveReferenceTo(obj)
 		}
 	}

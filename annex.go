@@ -10,7 +10,7 @@ import (
 )
 
 type Annex struct {
-	MainObjCommon
+	MajorCommon
 
 	Note Note
 	Title string
@@ -21,21 +21,21 @@ type Annex struct {
 	encodedData string
 	isDecoded bool
 
-	AttachTo EPSource[*MainObjCommon]		// Specifying 'AttachTo'
-	ExtraNoteOf EPSource[*MainObjCommon]	// Specifying 'ExtraNoteOf'
+	AttachTo EPSource[*MajorCommon]		// Specifying 'AttachTo'
+	ExtraNoteOf EPSource[*MajorCommon]	// Specifying 'ExtraNoteOf'
 }
 
-//-- interface IMainObj
+//-- interface IMajor
 
 func (this *Annex) resolveReferenceTo(c IChart) {
-	for _, cobj := range c.GetAllMainObjects(true) {
+	for _, cobj := range c.GetAllMajors(true) {
 		ResolveLink[AttachTo](this, cobj.GetCommon())
 		ResolveLink[ExtraNoteOf](this, cobj.GetCommon())
 	}
 }
 
 func (this *Annex) unresolveReferenceTo(c IChart) {
-	for _, cobj := range c.GetAllMainObjects(true) {
+	for _, cobj := range c.GetAllMajors(true) {
 		UnresolveLink[AttachTo](this, cobj.GetCommon())
 		UnresolveLink[ExtraNoteOf](this, cobj.GetCommon())
 	}
@@ -43,7 +43,7 @@ func (this *Annex) unresolveReferenceTo(c IChart) {
 
 func (this *Annex) initialize() {
 	*this = Annex{
-		MainObjCommon: *CreateEmptyMainObjCommon(),
+		MajorCommon: *CreateEmptyMajorCommon(),
 
 		Note: Note{},
 		Title: "",
@@ -137,7 +137,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 	for akey, avals := range this.attrs {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
-				var objTo *MainObjCommon
+				var objTo *MajorCommon
 				for _, aobjIn := range this.AttachTo.Get() {
 					if aobjIn.GetRelQualifiedID(this.GetChart()) == aval {
 						objTo = aobjIn
@@ -156,7 +156,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
-				var objOf *MainObjCommon
+				var objOf *MajorCommon
 				for _, aobjIn := range this.ExtraNoteOf.Get() {
 					if aobjIn.GetRelQualifiedID(this.GetChart()) == aval {
 						objOf = aobjIn
@@ -255,12 +255,12 @@ func (this *Annex) SetAnnex(format string, encoding string, data []byte) error {
 }
 
 // Public wrapper of 'addExtraNoteOfObject'.
-func (this *Annex) SetExtraNoteOf(obj *MainObjCommon) {
+func (this *Annex) SetExtraNoteOf(obj *MajorCommon) {
 	CreateLink[ExtraNoteOf](this, obj)
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
-func (this *Annex) UnsetExtraNoteOf(obj *MainObjCommon) {
+func (this *Annex) UnsetExtraNoteOf(obj *MajorCommon) {
 	RemoveLink[ExtraNoteOf](this, obj.GetAbsQualifiedID())
 }
 
@@ -270,12 +270,12 @@ func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
 }
 
 // Public wrapper of 'addAttachToObject'.
-func (this *Annex) SetAttachTo(obj *MainObjCommon) {
+func (this *Annex) SetAttachTo(obj *MajorCommon) {
 	CreateLink[AttachTo](this, obj)
 }
 
 // Public wrapper of 'removeAttachToObject'.
-func (this *Annex) UnsetAttachTo(obj *MainObjCommon) {
+func (this *Annex) UnsetAttachTo(obj *MajorCommon) {
 	RemoveLink[AttachTo](this, obj.GetAbsQualifiedID())
 }
 
@@ -317,13 +317,13 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	for akey, avals := range annex.attrs {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
-				uobj := CreateEmptyMainObjCommon()
+				uobj := CreateEmptyMajorCommon()
 				uobj.markUnresolved(aval, annex)
 				annex.AttachTo.add(uobj)
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
-				uobj := CreateEmptyMainObjCommon()
+				uobj := CreateEmptyMajorCommon()
 				uobj.markUnresolved(aval, annex)
 				annex.ExtraNoteOf.add(uobj)
 			}

@@ -51,12 +51,12 @@ func (this *Endpoint[T]) remove(obj T) {
 // Links are dummy structs that provide the appropriate endpoints in the
 // source/sink objects. It should define the following methods.
 
-type ILinkBase[SrcT any, SinkT any, SrcTPtr IMainObjPtr[SrcT], SinkTPtr IMainObjPtr[SinkT]] interface {
+type ILinkBase[SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]] interface {
 	GetSourceEndpoint(SrcTPtr) *EPSource[SinkTPtr]
 	GetSinkEndpoint(SinkTPtr) *EPSink[SrcTPtr]
 }
 
-func CreateLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMainObjPtr[SrcT], SinkTPtr IMainObjPtr[SinkT]](
+func CreateLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
 		osrc SrcTPtr, osink SinkTPtr) {
 	var l LinkT
 	epSrc := l.GetSourceEndpoint(osrc)
@@ -70,7 +70,7 @@ func CreateLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT
     }
 }
 
-func ResolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMainObjPtr[SrcT], SinkTPtr IMainObjPtr[SinkT]](
+func ResolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
 		osrc SrcTPtr, osink SinkTPtr) bool {
 	var l LinkT
 	epSrc := l.GetSourceEndpoint(osrc)
@@ -93,7 +93,7 @@ func ResolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, Sink
     return false
 }
 
-func UnresolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMainObjPtr[SrcT], SinkTPtr IMainObjPtr[SinkT]](
+func UnresolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
 		osrc SrcTPtr, osink SinkTPtr) {
 	var l LinkT
 	epSrc := l.GetSourceEndpoint(osrc)
@@ -116,7 +116,7 @@ func UnresolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, Si
 	}
 }
 
-func RemoveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMainObjPtr[SrcT], SinkTPtr IMainObjPtr[SinkT]](
+func RemoveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
 		osrc SrcTPtr, absQualID string) {
 	var l LinkT
 	epSrc := l.GetSourceEndpoint(osrc)
@@ -136,18 +136,18 @@ func RemoveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT
 // Here are some specialized links.
 
 type AttachTo struct {}
-func (this AttachTo) GetSourceEndpoint(aobj *Annex) *EPSource[*MainObjCommon] {
+func (this AttachTo) GetSourceEndpoint(aobj *Annex) *EPSource[*MajorCommon] {
 	return &aobj.AttachTo
 }
-func (this AttachTo) GetSinkEndpoint(obj *MainObjCommon) *EPSink[*Annex] {
+func (this AttachTo) GetSinkEndpoint(obj *MajorCommon) *EPSink[*Annex] {
 	return &obj.Attached
 }
 
 type ExtraNoteOf struct {}
-func (this ExtraNoteOf) GetSourceEndpoint(aobj *Annex) *EPSource[*MainObjCommon] {
+func (this ExtraNoteOf) GetSourceEndpoint(aobj *Annex) *EPSource[*MajorCommon] {
 	return &aobj.ExtraNoteOf
 }
-func (this ExtraNoteOf) GetSinkEndpoint(obj *MainObjCommon) *EPSink[*Annex] {
+func (this ExtraNoteOf) GetSinkEndpoint(obj *MajorCommon) *EPSink[*Annex] {
 	return &obj.ExtraNote
 }
 
