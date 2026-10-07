@@ -119,7 +119,7 @@ func (this *Time) String() (ret string) {
 	}
 
 	ret += strings.Join(stime[0:3], "-")
-	if this.hour != nil || this.minute != nil || this.second == nil {
+	if this.hour != nil || this.minute != nil || this.second != nil {
 		ret += " " + strings.Join(stime[3:6], ":")
 	}
 	if len(sextra) != 0 {
@@ -567,48 +567,42 @@ func CreateEmptyTime(usage TimeUsageKind) (ret Time) {
 }
 
 func CreateTimeFromTag(tagstr string) (ret Time) {
-	re := regexp.MustCompile(`^([0-9*_?]{4})-([0-9*_?]{2})-([0-9*_)?]{2})(?:\s+([0-9*_?]{2}):([0-9*_?]{2})(?::([0-9*_?]{2}))?)?(?:\s*\((.*)\))?$`)
+	re := regexp.MustCompile(`^([0-9*_?]{4})(?:-([0-9*_?]{2}))?(?:-([0-9*_)?]{2}))?(?:\s+([0-9*_?]{2}):([0-9*_?]{2})(?::([0-9*_?]{2}))?)?(?:\s*\((.*)\))?`)
 	matches := re.FindStringSubmatch(tagstr)
+
+	if matches == nil {
+		matches = make([]string, 8)
+	}
 
 	if len(matches) < 8 {
 		panic("Time tag matching unexpectedly too short")
 	}
 
-	nyear, yerr := strconv.Atoi(matches[1])
-	nmonth, merr := strconv.Atoi(matches[2])
-	nday, derr := strconv.Atoi(matches[3])
-
-	if yerr == nil && merr == nil && derr == nil {
+	if nyear, yerr := strconv.Atoi(matches[1]); yerr == nil {
 		ret.SetYear(nyear)
-		ret.SetMonth(nmonth)
-		ret.SetDay(nday)
-	}
+		if nmonth, merr := strconv.Atoi(matches[2]); merr == nil {
+			ret.SetMonth(nmonth)
+			if nday, derr := strconv.Atoi(matches[3]); derr == nil {
+				ret.SetDay(nday)
+				if nhour, herr := strconv.Atoi(matches[4]); herr == nil {
+					ret.SetHour(nhour)
+					if nminute, mmerr := strconv.Atoi(matches[5]); mmerr == nil {
+						ret.SetMinute(nminute)
+						if nsecond, serr := strconv.Atoi(matches[6]); serr == nil {
+							ret.SetSecond(nsecond)
+						} else {
+							ret.SetSecond(0)
+						}
+					}
+				}
 
-	nhour, herr := strconv.Atoi(matches[4])
-	nminute, mmerr := strconv.Atoi(matches[5])
-	nsecond, serr := strconv.Atoi(matches[6])
-
-	if herr == nil && mmerr == nil {
-		ret.SetHour(nhour)
-		ret.SetMinute(nminute)
-
-		if serr == nil {
-			ret.SetSecond(nsecond)
-		} else {
-			ret.SetSecond(0)
-		}
-	}
-
-	loc, tzerr := time.LoadLocation(matches[7])
-
-	if tzerr == nil {
-		ret.timezone = loc
-	} else {
-		utcloc, tzerr := time.LoadLocation("UTC")
-		if tzerr == nil {
-			ret.timezone = utcloc
-		} else {
-			panic("UTC not loaded")
+				if matches[7] != "" {
+					// Use the timezone if it's available.
+					if loc, err := time.LoadLocation(matches[7]); err == nil {
+						ret.timezone = loc
+					}	
+				}
+			}
 		}
 	}
 
@@ -763,10 +757,14 @@ func CreateNoteFromString(notestr string) (Note, warning.Warnings) {
 
 		re := regexp.MustCompile(`^\s*<!--\s*Edit:(.*)-->\s*$`)
 		if matches := re.FindStringSubmatch(line); matches != nil {
-			snippet.Text = strings.TrimRight(snippet.Text, "\r\n")
-			note.Snippets = append(note.Snippets, snippet)
+			// Append new snippet. As a special case, if it's before the first 
+			// snippet, just update the time.
+			if len(note.Snippets) != 0 || len(snippet.Text) != 0 {
+				snippet.Text = strings.TrimRight(snippet.Text, "\r\n")
+				note.Snippets = append(note.Snippets, snippet)
+				snippet = NoteSnippet{}
+			}
 
-			snippet = NoteSnippet{}
 			snippet.Time = CreateTimeFromTag(strings.TrimSpace(matches[1]))
 
 			if i != 0 && snippet.Time.IsUnknown() {

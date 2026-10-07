@@ -36,13 +36,30 @@ ccc
 
 [[Event]]
 ID = "e3"
-Title = "Note ending with a time tag"
+Title = "Note starting with incomplete time tags"
 Note = """
 aaa
 <!-- Edit: 2026-09-02 11:22:33 (UTC) -->
 bbb
 ccc
-<!-- Edit: 2026-09-02 44:55 -->
+<!-- Edit: 2026-09-02 11:22 -->
+ddd
+eee
+<!-- Edit: 2026-09-02 (UTC) -->
+fff
+ggg
+<!-- Edit: 2026-09-02 -->
+hhh
+iii
+<!-- Edit: 2026-09 -->
+jjj
+kkk
+<!-- Edit: 2026-09 fecked:up:time -->
+lll
+mmm
+<!-- Edit: fecked up date (UTC) -->
+nnn
+ooo
 """
 
 [[Event]]
@@ -54,6 +71,20 @@ Note = """
 aaa
 
 <!-- Edit: 2026-09-01 00:01:02 (UTC) -->
+bbb
+ccc
+"""
+
+[[Event]]
+ID = "e5"
+Title = "Non-UTC timezone"
+Note = """
+<!-- Edit: 2026-09-01 00:01:02 (CET) -->
+aaa
+
+<!-- Edit: 2026-09-01 (Asia/Seoul) -->
+aaa
+<!-- Edit: 2026-09-01 00:01:02 (MyTZ) -->
 bbb
 ccc
 """

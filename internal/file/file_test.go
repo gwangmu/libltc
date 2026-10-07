@@ -15,11 +15,8 @@ func TestSingleEvent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 		return
-	}
-
-	t.Log("Printing all warnings...")
-	for _, warn := range warns {
-		t.Log(" - " + warn.GetDesc())
+	} else {
+		test.PrintAllWarnings(warns)
 	}
 
 	t.Log("Investigating loaded file...")
@@ -49,11 +46,8 @@ func TestSimpleEmbedEvent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 		return
-	}
-
-	t.Log("Printing all warnings...")
-	for _, warn := range warns {
-		t.Log(" - " + warn.GetDesc())
+	} else {
+		test.PrintAllWarnings(warns)
 	}
 
 	t.Log("Investigating loaded file...")
@@ -66,11 +60,8 @@ func TestSimpleEmbedEvent(t *testing.T) {
 	if eerr != nil {
 		t.Fatal(eerr)
 		return
-	}
-
-	t.Log("Printing all warnings...")
-	for _, warn := range ewarns {
-		t.Log(" - " + warn.GetDesc())
+	} else {
+		test.PrintAllWarnings(ewarns)
 	}
 
 	t.Log("Investigating loaded file...")
@@ -95,11 +86,8 @@ func TestNestedEmbedEvent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 		return
-	}
-
-	t.Log("Printing all warnings...")
-	for _, warn := range warns {
-		t.Log(" - " + warn.GetDesc())
+	} else {
+		test.PrintAllWarnings(warns)
 	}
 
 	t.Log("Investigating loaded file...")
@@ -112,11 +100,8 @@ func TestNestedEmbedEvent(t *testing.T) {
 	if eerr != nil {
 		t.Fatal(eerr)
 		return
-	}
-
-	t.Log("Printing all warnings...")
-	for _, warn := range ewarns {
-		t.Log(" - " + warn.GetDesc())
+	} else {
+		test.PrintAllWarnings(ewarns)
 	}
 
 	t.Log("Investigating loaded file...")
@@ -141,11 +126,8 @@ func TestNonexistentEmbedEvent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 		return
-	}
-
-	t.Log("Printing all warnings...")
-	for _, warn := range warns {
-		t.Log(" - " + warn.GetDesc())
+	} else {
+		test.PrintAllWarnings(warns)
 	}
 
 	t.Log("Investigating loaded file...")
@@ -160,7 +142,6 @@ func TestNonexistentEmbedEvent(t *testing.T) {
 	test.AssertNE(eerr, nil)
 	test.AssertContains(eerr.Error(), "no such file")
 
-	t.Log("Printing all warnings...")
 	for _, warn := range ewarns {
 		t.Log(" - " + warn.GetDesc())
 	}
@@ -171,7 +152,6 @@ func TestNonexistentEmbedEvent(t *testing.T) {
 	test.AssertContains(e2err.Error(), "Object")
 	test.AssertContains(e2err.Error(), "not found")
 
-	t.Log("Printing all warnings...")
 	for _, warn := range e2warns {
 		t.Log(" - " + warn.GetDesc())
 	}
@@ -187,11 +167,8 @@ func TestQualIDEmbedEvent(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 		return
-	}
-
-	t.Log("Printing all warnings...")
-	for _, warn := range warns {
-		t.Log(" - " + warn.GetDesc())
+	} else {
+		test.PrintAllWarnings(warns)
 	}
 
 	t.Log("Loading embedded event manually...")
@@ -199,11 +176,8 @@ func TestQualIDEmbedEvent(t *testing.T) {
 	if eerr != nil {
 		t.Fatal(eerr)
 		return
-	}
-
-	t.Log("Printing all warnings...")
-	for _, warn := range ewarns {
-		t.Log(" - " + warn.GetDesc())
+	} else {
+		test.PrintAllWarnings(ewarns)
 	}
 
 	t.Log("Investigating loaded file...")

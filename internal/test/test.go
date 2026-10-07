@@ -6,6 +6,8 @@ import (
 	"strings"
 	"testing"
 	"path/filepath"
+	
+	"libltc/warning"
 )
 
 var curT *testing.T
@@ -91,4 +93,10 @@ func AssertNE[T comparable](got T, want T) {
 
 func AssertContains(got string, want string) {
 	Assert[Contains](got, want)
+}
+
+func PrintAllWarnings(warns warning.Warnings) {
+	for _, w := range warns {
+		curT.Log(" - WARN: " + w.GetDesc())
+	}
 }

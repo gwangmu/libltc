@@ -107,7 +107,7 @@ A note can have a title with `<!-- Title: <title> -->` as the first line of the 
 
 Lines don't have to be sorted by time tags in the LTC file, but the front-end LTC tool may provide this functionality. If it does, it's recommended that lines with unknown time tags be in the same sorting unit as the closest preceding known time tag, and lines at the beginning with no time tag be fixed there.
 
-The note object is _sliced_ along time tag boundaries, meaning any formatting elements across multiple time tags are unsupported.
+The note object is _sliced_ along time tag boundaries, meaning any formatting elements across multiple time tags are unsupported. See [inside notes](#Inside-Notes) for referencing objects in notes. 
 
 ### Preamble Object
 
