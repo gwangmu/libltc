@@ -95,7 +95,7 @@ A note object is a specialized string with time-demarcation capability. A time t
  - `hh`: Hour (2 digits, 24-hour system, zero-padded)
  - `MM`: Minute (2 digits, zero-padded)
  - `ss`: Second (2 digits, zero-padded)
- - `tz`: Timezone (either "identifier" or "abbreviation" in the [IANA database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones))
+ - `tz`: Timezone ("identifier" in the [IANA database](https://en.wikipedia.org/wiki/List_of_tz_database_time_zones))
 
 The lines are regarded as created/edited at the preceding time tag (or at _unknown_ time if there is no preceding time tag). In time tags, the time portion (`hh:MM:ss`) can omit seconds (`:00` assumed) or entirely be omitted (`00:00:00` assumed). `tz` (Timezone) can also be omitted (`UTC` assumed). Unrecognized time tags are assumed to be _unknown_ and are reported to users. Times in time tags are always considered Gregorian.
 

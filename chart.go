@@ -126,7 +126,7 @@ func (this *Chart) changeEventCategory(eobj *Event, oldc string) {
 
 //-- interface IWarningObj
 
-func (this *Chart) Summary() (ret string) {
+func (this Chart) Summary() (ret string) {
 	ret = "the LTC chart"
 	if !this.Subject.IsUnknown() {
 		ret += " for " + this.Subject.Summary()
@@ -646,7 +646,7 @@ type Setting struct {
 
 //-- struct Setting: interface IWarningObj
 
-func (this *Setting) Summary() string {
+func (this Setting) Summary() string {
 	return warning.BuildSummaryString(
 		WSE{"calendar", this.CalendarSystem},
 		WSE{"note", this.NoteFormat},
@@ -717,7 +717,7 @@ type Subject struct {
 
 //-- struct Subject: interface IWarningObj
 
-func (this *Subject) Summary() (ret string) {
+func (this Subject) Summary() (ret string) {
 	ret = this.Name.Summary()
 	
 	extraStr := warning.BuildSummaryString(

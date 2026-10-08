@@ -38,7 +38,7 @@ type File struct {
 
 //-- struct File: interface IWarningObj
 
-func (this *File) Summary() (ret string) {
+func (this File) Summary() (ret string) {
 	ret = "the LTC file"
 	if this.Filepath != "" {
 		ret += " at '" + this.Filepath + "'"
@@ -48,7 +48,7 @@ func (this *File) Summary() (ret string) {
 	return
 }
 
-func (this *File) IsUnknown() bool {
+func (this File) IsUnknown() bool {
 	return this.Filepath == "" && this.Subject.IsUnknown()
 }
 
@@ -92,11 +92,11 @@ type Setting struct {
 
 //-- struct Setting: interface IWarningObj
 
-func (this *Setting) Summary() string {
+func (this Setting) Summary() string {
 	return "the LTC setting"
 }
 
-func (this *Setting) IsUnknown() bool {
+func (this Setting) IsUnknown() bool {
 	return false
 }
 
@@ -117,13 +117,13 @@ type Subject struct {
 
 //-- struct Subject: interface IWarningObj
 
-func (this *Subject) Summary() (ret string) {
+func (this Subject) Summary() (ret string) {
 	ret = this.Name.Summary()
 
 	extraStr := warning.BuildSummaryString(
 		WSE{"", this.Sex}, 
-		WSE{"started", this.StartDate},
-		WSE{"ended", this.EndDate},
+		WSE{"Started", this.StartDate},
+		WSE{"Ended", this.EndDate},
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
@@ -131,7 +131,7 @@ func (this *Subject) Summary() (ret string) {
 	return
 }
 
-func (this *Subject) IsUnknown() bool {
+func (this Subject) IsUnknown() bool {
 	return this.Name.IsUnknown() && this.Sex == "" && 
 		this.StartDate != nil && this.StartDate.IsUnknown() && 
 		this.EndDate != nil && this.EndDate.IsUnknown()
@@ -159,7 +159,7 @@ type Event struct {
 
 //-- struct Event: interface IWarningObj
 
-func (this *Event) Summary() (ret string) {
+func (this Event) Summary() (ret string) {
 	if this.Title != nil {
 		ret = "the event '" + *this.Title + "'"
 	} else {
@@ -170,16 +170,16 @@ func (this *Event) Summary() (ret string) {
 	if this.Title == nil {
 		extraStr = warning.BuildSummaryString(
 			WSE{"ID", this.ID},
-			WSE{"category", this.Category}, 
-			WSE{"embedding chart", this.EmbedChart},
-			WSE{"started", this.StartDate}, 
-			WSE{"ended", this.EndDate},
+			WSE{"Category", this.Category}, 
+			WSE{"Embedded-chart", this.EmbedChart},
+			WSE{"Started", this.StartDate}, 
+			WSE{"Ended", this.EndDate},
 		)
 	} else {
 		extraStr = warning.BuildSummaryString(
 			WSE{"ID", this.ID},
-			WSE{"category", this.Category},
-			WSE{"embedding chart", this.EmbedChart},
+			WSE{"Category", this.Category},
+			WSE{"Embedded-chart", this.EmbedChart},
 		)
 	}
 	if (len(extraStr) > 0) {
@@ -189,7 +189,7 @@ func (this *Event) Summary() (ret string) {
 	return
 }
 
-func (this *Event) IsUnknown() bool {
+func (this Event) IsUnknown() bool {
 	return this.ID == "" && this.Title == nil && 
 		this.Category == "" && this.EmbedChart == nil &&
 		(this.StartDate == nil || this.StartDate.IsUnknown()) &&
@@ -231,12 +231,12 @@ type Annex struct {
 
 //-- struct Annex: interface IWarningObj
 
-func (this *Annex) Summary() (ret string) {
+func (this Annex) Summary() (ret string) {
 	ret = "an annex"
 
 	extraStr := warning.BuildSummaryString(
 		WSE{"ID", this.ID},
-		WSE{"format", this.Format}, 
+		WSE{"Format", this.Format}, 
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
@@ -247,7 +247,7 @@ func (this *Annex) Summary() (ret string) {
 	return
 }
 
-func (this *Annex) IsUnknown() bool {
+func (this Annex) IsUnknown() bool {
 	return this.ID == "" && this.Format == ""
 }
 
@@ -281,14 +281,14 @@ type Import struct {
 
 //-- struct Import: interface IWarningObj
 
-func (this *Import) Summary() (ret string) {
+func (this Import) Summary() (ret string) {
 	ret = "an import"
 
 	extraStr := warning.BuildSummaryString(
 		WSE{"ID", this.ID},
-		WSE{"from", this.StartDate},
-		WSE{"to", this.EndDate},
-		WSE{"with offset", this.OffsetDate},
+		WSE{"From", this.StartDate},
+		WSE{"To", this.EndDate},
+		WSE{"Offset", this.OffsetDate},
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
@@ -297,7 +297,7 @@ func (this *Import) Summary() (ret string) {
 	return
 }
 
-func (this *Import) IsUnknown() bool {
+func (this Import) IsUnknown() bool {
 	return this.Link == "" && this.StartDate == nil &&
 			this.EndDate == nil && this.OffsetDate == nil
 }
@@ -326,7 +326,7 @@ type Name struct {
 
 //-- struct Name: interface IWarningObj
 
-func (this *Name) Summary() string {
+func (this Name) Summary() string {
 	names := []string{}
 	if this.First != "" {
 		names = append(names, this.First)
@@ -350,7 +350,7 @@ func (this *Name) Summary() string {
 	}
 }
 
-func (this *Name) IsUnknown() bool {
+func (this Name) IsUnknown() bool {
 	return this.First == "" && this.Middle == "" && this.Last == "" &&
 		len(this.Attrs) == 0
 }
@@ -376,7 +376,7 @@ type Time struct {
 
 //-- struct Time: interface IWarningObj
 
-func (this *Time) Summary() (ret string) {
+func (this Time) Summary() (ret string) {
 	if this.IsUnknown() {
 		return "an unknown time"
 	} else {
@@ -434,7 +434,7 @@ func (this *Time) Summary() (ret string) {
 	return
 }
 
-func (this *Time) IsUnknown() bool {
+func (this Time) IsUnknown() bool {
 	return this.Year == nil && this.Month == nil && this.Day == nil &&
 		this.Hour == nil && this.Minute == nil && this.Second == nil &&
 		this.Timezone == nil

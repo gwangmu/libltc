@@ -43,7 +43,7 @@ func (this *Name) String() string {
 
 //-- struct Name: interface WarningObj
 
-func (this *Name) Summary() string {
+func (this Name) Summary() string {
 	strname := this.String()
 	if len(this.Attrs) != 0 {
 		addname := strings.Join(convAttrsChartToFile(this.Attrs), ", ")
@@ -96,7 +96,7 @@ type Time struct {
 
 //-- struct Time: interface IStringifiable
 
-func (this *Time) String() (ret string) {
+func (this Time) String() (ret string) {
 	if this.IsUnknown() {
 		return "(unknown)"
 	}
@@ -131,7 +131,7 @@ func (this *Time) String() (ret string) {
 
 //-- struct Time: interface WarningObj
 
-func (this *Time) Summary() string {
+func (this Time) Summary() string {
 	return this.String()
 }
 
@@ -732,7 +732,7 @@ func (this *Note) String() (ret string) {
 
 //-- struct Note: interface IWarningObj
 
-func (this *Note) Summary() (ret string) {
+func (this Note) Summary() (ret string) {
 	if this.Title != "" {
 		ret = "a note titled '" + this.Title + "'"
 	} else {
@@ -819,6 +819,7 @@ func CreateNoteFromString(notestr string) (Note, warning.Warnings) {
 //-- method (utils)
 
 func convAttrsFileToChart(attrs []string) (cattrs map[string][]string) {
+	cattrs = map[string][]string{}
 	for _, attr := range attrs {
 		key, value, _ := strings.Cut(attr, ":")
 		if _, ok := cattrs[key]; !ok {

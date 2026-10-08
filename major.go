@@ -3,7 +3,6 @@ package ltc
 import (
 	"errors"
 	"math"
-	"slices"
 	"strings"
 )
 
@@ -12,19 +11,19 @@ type IMajor interface {
 	GetCommon() *MajorCommon
 	GetEnclosingObject() IMajor
 
-	GetChart() *Chart
-	setChart(c *Chart)
+	GetChart() IChart
+	setChart(c IChart)
 
 	getNumberID() NumberID 
 	setNumberID(nid NumberID)
 
 	getUnresRelQualID() string
-	markUnresolved(unresRelQualID string, parent IMajor)
+	markUnresolved(unresRelQualID string, refcer IMajor)
 	unmarkUnresolved()
 	IsUnresolved() bool
 
 	GetIntrinsicID() string 
-	GetRelQualifiedID(baseChart *Chart) string
+	GetRelQualifiedID(baseChart IChart) string
 	GetAbsQualifiedID() string
 
 	GetParent() IMajor
@@ -36,7 +35,7 @@ type IMajor interface {
 	IsLocallyImported() bool	// Imported within a subchart? 
 
 	GetAttrs(key string) []string
-	HasAttr(key string, value string) bool
+	HasAttrKey(key string) bool
 	AddAttr(key string, value string)
 	RemoveAttr(key string, value string)
 
@@ -60,7 +59,9 @@ type MajorCommon struct {
 	chart IChart				// Associated chart
 	parent IMajor				// Included by...
 	numID NumberID 				// Numeric part of ID
+
 	unresRelQualID string		// **UNRESOLVED** local qualified ID
+	unresRefcer IMajor 			// Referencer of **UNRESOLVED** obj (=this) 
 
 	attrs map[string][]string	// Attributes
 
@@ -96,11 +97,11 @@ func (this *MajorCommon) GetEnclosingObject() IMajor {
 //  - Main object and main object: "parental"
 //  - Subchart and subchart event object: "embedding"
 
-func (this *MajorCommon) GetChart() *Chart {
-	return this.chart.asChart()
+func (this *MajorCommon) GetChart() IChart {
+	return this.chart
 }
 
-func (this *MajorCommon) setChart(c *Chart) {
+func (this *MajorCommon) setChart(c IChart) {
 	this.chart = c
 }
 
@@ -116,9 +117,9 @@ func (this *MajorCommon) getUnresRelQualID() string {
 	return this.unresRelQualID
 }
 
-func (this *MajorCommon) markUnresolved(unresRelQualID string, parent IMajor) {
+func (this *MajorCommon) markUnresolved(unresRelQualID string, refcer IMajor) {
 	this.unresRelQualID = unresRelQualID
-	this.parent = parent
+	this.unresRefcer = refcer 
 }
 
 func (this *MajorCommon) unmarkUnresolved() {
@@ -130,14 +131,14 @@ func (this MajorCommon) IsUnresolved() bool {
 }
 
 func (this *MajorCommon) GetIntrinsicID() string {
-	if this.GetKind() == MOK_Unknown {
+	if this.IsUnresolved() {
 		unresRelQualID := this.unresRelQualID
 		lastidx := strings.LastIndex(unresRelQualID, "/")
 
 		if lastidx == -1 {
 			return unresRelQualID
 		} else if len(unresRelQualID) < lastidx + 1 {
-			return ""
+			return "?"
 		} else {
 			return unresRelQualID[lastidx+1:]
 		}
@@ -146,15 +147,17 @@ func (this *MajorCommon) GetIntrinsicID() string {
 	}
 }
 
-func (this *MajorCommon) GetRelQualifiedID(baseChart *Chart) (ret string) {
+func (this *MajorCommon) GetRelQualifiedID(baseChart IChart) (ret string) {
 	if this.IsUnresolved() {
-		if this.parent != nil {
-			absQualID := this.GetAbsQualifiedID()
-			return strings.TrimPrefix(this.parent.GetAbsQualifiedID(), absQualID)
-		} else {
-			// THIS SHOULDN'T HAPPEN.
-			return this.unresRelQualID
+		ret = this.GetAbsQualifiedID()
+		if this.unresRefcer != nil {
+			if c := this.unresRefcer.GetChart(); c != nil {
+				if eceobj := c.GetEmbeddingEvent(); eceobj != nil {
+					ret = strings.TrimPrefix(eceobj.GetAbsQualifiedID(), ret)
+				}
+			}
 		}
+		return
 	} else {
 		if this.parent != nil && (this.GetChart() != baseChart || 
 			this.parent.GetChart() == baseChart) {
@@ -169,8 +172,12 @@ func (this *MajorCommon) GetAbsQualifiedID() (ret string) {
 	if this.IsUnresolved() {
 		unresRelQualID := this.unresRelQualID
 		prefixid := ""
-		if this.parent != nil {
-			prefixid = this.parent.GetAbsQualifiedID() + "/"
+		if this.unresRefcer != nil {
+			if c := this.unresRefcer.GetChart(); c != nil {
+				if eceobj := c.GetEmbeddingEvent(); eceobj != nil {
+					prefixid = eceobj.GetAbsQualifiedID() + "/"
+				}
+			}
 		}
 		return prefixid + unresRelQualID
 	} else {
@@ -231,11 +238,9 @@ func (this *MajorCommon) GetAttrs(key string) []string {
 	}
 }
 
-func (this *MajorCommon) HasAttr(key string, value string) bool {
-	if attrlist, ok := this.attrs[key]; ok {
-		return slices.Contains(attrlist, value)
-	}
-	return false
+func (this *MajorCommon) HasAttrKey(key string) bool {
+	_, ok := this.attrs[key]
+	return ok 
 }
 	
 // `{Add,Remove}Attr` are passive methods; they don't update other

@@ -17,3 +17,11 @@ StartDate = { Year = 1991, Month = 3, Day = 29, Attrs = [ "Attr0" ] }
 EndDate = { Year = 1991, Month = 4, Attrs = [ "Attr1" ] }
 Attrs = [ "Attr2", "Attr3:", "Attr4:Val", "Attr5:Val0", "Attr5:Val1" ]
 Note = "Some note"
+
+[[Event]]
+ID = "e1"
+Title = "Wherever2"
+Category = "Residence"
+StartDate = { Year = 1991, Month = 4 }
+Attrs = [ "ContinuedFrom:e0" ]
+Note = "Some note2"

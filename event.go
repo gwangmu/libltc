@@ -68,20 +68,29 @@ func (this *Event) initialize() {
 //-- interface IWarningObj
 
 func (this *Event) Summary() (ret string) {
-	if this.GetTitle() != "" {
+	if this.IsUnresolved() {
+		ret = "an unresolved event"
+	} else if this.GetTitle() != "" {
 		ret = "an event '" + this.GetTitle() + "'"
 	} else {
 		ret = "a untitled event"
 	}
 
-	extraStr := warning.BuildSummaryString(
-		WSE{"ID", this.GetIntrinsicID()},
-		WSE{"category", this.GetCategory()},
-		WSE{"started", this.GetStartDate()}, 
-		WSE{"ended", this.GetEndDate()},
-		WSE{"embedding event", this.GetEmbedEventLink()},
-		WSE{"embedding chart", this.GetEmbedChartLink()},
-	)
+	extraStr := ""
+	if this.IsUnresolved() {
+		extraStr = warning.BuildSummaryString(
+			WSE{"ID", this.getUnresRelQualID()},
+		)
+	} else {
+		extraStr = warning.BuildSummaryString(
+			WSE{"ID", this.GetIntrinsicID()},
+			WSE{"Category", this.GetCategory()},
+			WSE{"Started", this.GetStartDate()}, 
+			WSE{"Ended", this.GetEndDate()},
+			WSE{"Embedded-event", this.GetEmbedEventLink()},
+			WSE{"Embedded-chart", this.GetEmbedChartLink()},
+		)
+	}
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
 	}

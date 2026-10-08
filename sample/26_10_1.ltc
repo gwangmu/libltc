@@ -1,0 +1,63 @@
+Version = "26.10.1"
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+ReservedCategories = [ 
+    "Personal & External Issue"
+]
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+EndDate = { Year = 9999 }
+Sex = "Male"
+
+[[Event]]
+ID = "lab1"                     # *Date: subchart's entity *Date (if exist)
+Title = "qwerqewrweqr"          # default: subchart's name
+Category = "Relationship"
+EmbedChart = "https://link_to_chart"
+Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
+Note = """
+"""
+
+[[Event]]
+ID = "lab2"
+Title = "asdfsdf"
+Category = "Residence"
+StartDate = { Year = 1991, Month = 3, Day = 29, Attrs = [ "Approx", "Untracked", "Emphasized" ] }
+EndDate = { Yeat = 1991, Month = 4, Attrs = [ "Approx", "Untracked", "Emphasized" ] }
+Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
+Note = """
+<!-- Edit: 2026-09-01 15:05:05 (UTC) -->
+asdfasdfdsaf
+asfasdfdsafsafdsaf
+asdfdasfasf
+"""
+
+[[Event]]
+ID = "lab3"                     # *Date: embedded event's entity *Date
+Title = "qwerqewrweqr"          # default: embedded event's title 
+Category = "Relationship"
+EmbedEvent = "https://link_to_chart?id=qual_event_id"
+Attrs = [ "ContinuedFrom:lab1", "AmbiguousPeriod" ]
+Note = """
+"""
+
+[[Annex]]
+ID = "idexample"
+Title = "My pretty picture"
+Format = "png"
+Encoding = "base64"
+Data = """
+"""
+
+# Not now.
+[[Import]]
+ID = "imp123"
+Link = "https://link_to_chart"
+StartDate = { Year = 0 }        # Optional (default: earliest)
+EndDate = { Year = 9999 }       # Optional (default: latest)
+Categories = [                  # Optional (default: all)
+    "asdfadsf"
+]
+Attrs = [ "ExcludeCategory:dsfdf" ]

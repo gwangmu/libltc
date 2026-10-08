@@ -110,7 +110,7 @@ func toSentenceCase(s string) string {
 func BuildSummaryString(args ...SummaryElement) string {
 	fields := []string{}
 	for _, arg := range args {
-		realprefix := arg.Prefix + " "
+		realprefix := arg.Prefix + ":"
 		if arg.Prefix == "" {
 			realprefix = ""
 		}
