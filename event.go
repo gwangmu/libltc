@@ -421,7 +421,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 			for _, aval := range avals {
 				ueobj := CreateEmptyEvent()
                 ueobj.markUnresolved(aval, event)
-				event.ContinuedFrom.add(ueobj)
+				CreateLink[ContinuedFrom](event, ueobj)
 			}
 		}
 	}

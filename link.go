@@ -62,6 +62,15 @@ func CreateLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT
 	epSrc := l.GetSourceEndpoint(osrc)
 	epSink := l.GetSinkEndpoint(osink)
 
+	// Don't add multiple unresolved objects poining to the same ID.
+	if osink.IsUnresolved() {
+		for _, elem := range epSrc.Get() {
+			if elem.GetAbsQualifiedID() == osink.GetAbsQualifiedID() {
+				return
+			}
+		}
+	}
+
     if !epSrc.Has(osink) {
         epSrc.add(osink)
         if !osink.IsUnresolved() {
