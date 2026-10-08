@@ -82,15 +82,24 @@ func CreateLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT
 	})
 
 	if idx != -1 {
-		// Swap an already registered object.
-		epSrc.swap(idx, osink)
+		oldOsink := epSrc.Get()[idx]
+
+		// Swap an already registered (different) object.
+		// Update sink endpoint(s).
+		if oldOsink != osink {
+			epSrc.swap(idx, osink)
+			BreakLink[LinkT](osrc, oldOsink)
+			if !osink.IsUnresolved() {
+				// Add 'osrc'.
+				epSink.add(osrc)
+			}
+		}
 	} else {
 		// Otherwise, add it.
 		epSrc.add(osink)
-	}
-
-	if !osink.IsUnresolved() {
-		epSink.add(osrc)
+		if !osink.IsUnresolved() {
+			epSink.add(osrc)
+		}
 	}
 
 	return idx != -1 
