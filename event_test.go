@@ -59,12 +59,16 @@ func TestContinuedEvent(t *testing.T) {
 	e1, w1 := createEventFromParsed(file.Event[1])
 	test.PrintAllWarnings(w1)
 
-	t.Logf("Linking events... (indirect)")
+	t.Logf("Linking events...")
+
+	// 'e0' should have been reserved at event creation.
 	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].GetIntrinsicID(), "e0")
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].GetAbsQualifiedID(), "e0")
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].IsUnresolved(), true)
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].getNumberID(), NID_Invalid)
+
+	// Creating and re-reserving the same object shouldn't change anything.
 	CreateLink[ContinuedFrom](e1, e0)
 	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
 	test.AssertEQ(len(e0.ContinuedTo.Get()), 1)
@@ -93,5 +97,76 @@ func TestContinuedEvent(t *testing.T) {
 	test.AssertEQ(len(e1.ContinuedFrom.Get()), 0)
 	test.AssertEQ(len(e0.ContinuedTo.Get()), 0)
 
+	// Re-creating should also be possible. 
+	CreateLink[ContinuedFrom](e1, e0)
+	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
+	test.AssertEQ(len(e0.ContinuedTo.Get()), 1)
+	test.AssertEQ(e1.ContinuedFrom.Has(e0), true)
+	test.AssertEQ(e0.ContinuedTo.Has(e1), true)
+	test.AssertEQ(e0.IsUnresolved(), false)
+	BreakLink[ContinuedFrom](e1, e0)
+	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
+	test.AssertEQ(len(e0.ContinuedTo.Get()), 0)
+	test.AssertEQ(e1.ContinuedFrom.Has(e0), false)
+	test.AssertEQ(e0.ContinuedTo.Has(e1), false)
+	test.AssertEQ(e0.IsUnresolved(), false)
+	CreateLink[ContinuedFrom](e1, e0)
+	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
+	test.AssertEQ(len(e0.ContinuedTo.Get()), 1)
+	test.AssertEQ(e1.ContinuedFrom.Has(e0), true)
+	test.AssertEQ(e0.ContinuedTo.Has(e1), true)
+	test.AssertEQ(e0.IsUnresolved(), false)
+
 	t.Log("End test.")
 }
+
+func TestEventEmbeddingEvent(t *testing.T) {
+	test.Initialize(t, TestAssetDirPath)
+
+	t.Logf("Loading 'event_embedding_event.ltc'...")
+	file, wf, err := file.LoadFromURI[file.File]("event_embedding_event.ltc")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	test.PrintAllWarnings(wf)
+
+	t.Logf("Loading event (all embed)...")
+	e2, w2 := createEventFromParsed(file.Event[2])
+	test.PrintAllWarnings(w2)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e2.IsEventEmbedding(), true)
+	test.AssertEQ(e2.GetTitle(), "Wherever")
+	test.AssertEQ(e2.GetStartDate().String(), "1991-03-29 (Attr0)")
+	test.AssertEQ(e2.GetEndDate().String(), "1991-04-** (Attr1)")
+	test.AssertEQ(e2.GetEmbeddedEvent().Note.Title, "")
+	test.AssertEQ(e2.GetEmbeddedEvent().Note.Snippets[0].Time.String(), "(unknown)")
+	test.AssertEQ(e2.GetEmbeddedEvent().Note.Snippets[0].Text, "Some note")
+
+	t.Logf("Loading event (partial overriding)...")
+	e3, w3 := createEventFromParsed(file.Event[3])
+	test.PrintAllWarnings(w3)
+	e4, w4 := createEventFromParsed(file.Event[4])
+	test.PrintAllWarnings(w4)
+	e5, w5 := createEventFromParsed(file.Event[5])
+	test.PrintAllWarnings(w5)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e3.GetTitle(), "Overridden title")
+	test.AssertEQ(e4.GetStartDate().String(), "0000-01-02")
+	test.AssertEQ(e5.GetEndDate().String(), "9999-01-02")
+
+	t.Log("End test.")
+}
+
+//func TestChartEmbeddingEvent(t *testing.T) {
+// TODO
+//}
+
+//func TestBrokenEvent(t *testing.T) {
+// TODO: broken ID event
+// TODO: both-embedding event
+// TODO: swapped dates event
+// TODO: empty 'ContinuedFrom' event
+//}

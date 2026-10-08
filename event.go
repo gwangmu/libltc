@@ -201,10 +201,14 @@ func (this *Event) GetTitle() string {
 	// Otherwise, use the title of `embeddedEvent` or `embeddedChart`.
 	if this.localTitle != nil {
 		return *this.localTitle
-	} else if this.embeddedEvent != nil {
+	} else if this.IsEventEmbedding() {
 		return this.embeddedEvent.GetTitle()
-	} else if this.embeddedChart != nil {
-		return this.embeddedChart.GetStringifiedSubjectName()
+	} else if this.IsChartEmbedding() {
+		if sc, _ := this.GetSubchart(nil); sc != nil {
+			return sc.GetStringifiedSubjectName()
+		} else {
+			return "(unloaded subchart name)"
+		}
 	} else {
 		return ""
 	}
@@ -436,7 +440,7 @@ func CreateEmptyEvent() *Event {
 //-- method (util)
 
 func (this *Event) loadEmbeddedEvent() (warns warning.Warnings) {
-	if this.IsEventEmbedding() && this.embeddedEvent != nil {
+	if this.IsEventEmbedding() && this.embeddedEvent == nil {
 		efevent, moreWarns, err := file.LoadFromURI[file.Event](*this.eventEmbedLink)
 		warns.Concat(moreWarns)
 		if err != nil {
@@ -519,7 +523,7 @@ func (this *Event) correctLocalStartEndDates() {
 			newStartDate.SetYear(newStartDate.GetYear() - 1)
 			newStartDate.SetMonth(12)
 		}
-		this.SetLocalStartDate(&newStartDate)
+		this.localStartDate = &newStartDate
 	} else if this.GetEndDate().IsAmbiguous() && !this.GetStartDate().IsAmbiguous() {
 		newEndDate := this.GetStartDate()
 		newEndDate.SetUsage(TUK_End)
@@ -528,7 +532,7 @@ func (this *Event) correctLocalStartEndDates() {
 			newEndDate.SetYear(newEndDate.GetYear() + 1)
 			newEndDate.SetMonth(1)
 		}
-		this.SetLocalEndDate(&newEndDate)
+		this.localEndDate = &newEndDate
 	}
 
 	// Correct order.
@@ -538,17 +542,17 @@ func (this *Event) correctLocalStartEndDates() {
 		
 		if hlsd && hled {
 			orgStartDate := this.GetLocalStartDate()
-			this.SetLocalStartDate(this.GetLocalEndDate())
-			this.SetLocalEndDate(orgStartDate)
+			this.localStartDate = this.GetLocalEndDate()
+			this.localEndDate = orgStartDate
 			this.GetLocalStartDate().SetUsage(TUK_Start)
 			this.GetLocalEndDate().SetUsage(TUK_End)
 		} else if hlsd && !hled {
-			this.SetLocalEndDate(this.GetLocalStartDate())
-			this.SetLocalStartDate(nil)
+			this.localEndDate = this.GetLocalStartDate()
+			this.localStartDate = nil
 			this.GetLocalEndDate().SetUsage(TUK_End)
 		} else if !hlsd && hled {
-			this.SetLocalStartDate(this.GetLocalEndDate())
-			this.SetLocalEndDate(nil)
+			this.localStartDate = this.GetLocalEndDate()
+			this.localEndDate = nil
 			this.GetLocalStartDate().SetUsage(TUK_Start)
 		} else { //if !hlsd && !hled 
             // This case shouldn't happen (unless the embedded event is broken),
@@ -557,8 +561,8 @@ func (this *Event) correctLocalStartEndDates() {
             newEndDate := this.GetStartDate()
             newStartDate.SetUsage(TUK_Start)
             newEndDate.SetUsage(TUK_End)
-            this.SetLocalStartDate(&newStartDate)
-            this.SetLocalEndDate(&newEndDate)
+            this.localStartDate = &newStartDate
+            this.localEndDate = &newEndDate
 		}
 	}
 

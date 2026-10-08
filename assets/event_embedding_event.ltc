@@ -1,0 +1,37 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+Sex = "Male"
+
+[[Event]]
+ID = "e0"
+Title = "Dummy0"
+
+[[Event]]
+ID = "e1"
+Title = "Dummy1"
+
+[[Event]]
+ID = "e2"
+EmbedEvent = "./single_event.ltc?id=e0"
+
+[[Event]]
+ID = "e3"
+Title = "Overridden title"
+EmbedEvent = "./single_event.ltc?id=e0"
+
+[[Event]]
+ID = "e4"
+StartDate = { Year = 0, Month = 1, Day = 2 }
+EmbedEvent = "./single_event.ltc?id=e0"
+
+[[Event]]
+ID = "e5"
+EndDate = { Year = 9999, Month = 1, Day = 2 }
+EmbedEvent = "./single_event.ltc?id=e0"
