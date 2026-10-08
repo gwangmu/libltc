@@ -27,25 +27,20 @@ func (this *Endpoint[T]) Has(obj T) bool {
 	return slices.Contains(this.objs, obj)
 }
 
+func (this *Endpoint[T]) find(pred func(T) bool) int {
+	return slices.IndexFunc(this.objs, pred)
+}
+
 func (this *Endpoint[T]) add(obj T) {
-	if !this.Has(obj) {
-		this.objs = append(this.objs, obj)
-	}
+	this.objs = append(this.objs, obj)
 }
 
-func (this *Endpoint[T]) swap(oldobj T, newobj T) {
-	if i := slices.Index(this.objs, oldobj); i != -1 {
-		this.objs[i] = newobj
-	}
+func (this *Endpoint[T]) swap(idx int, newobj T) {
+	this.objs[idx] = newobj
 }
 
-func (this *Endpoint[T]) remove(obj T) {
-	for i, elem := range this.objs {
-		if elem == obj {
-			this.objs = append(this.objs[:i], this.objs[i+1:]...) 
-			return
-		}
-	}
+func (this *Endpoint[T]) remove(idx int) {
+	this.objs = append(this.objs[:idx], this.objs[idx+1:]...) 
 }
 
 // Links are dummy structs that provide the appropriate endpoints in the
@@ -56,89 +51,95 @@ type ILinkBase[SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[
 	GetSinkEndpoint(SinkTPtr) *EPSink[SrcTPtr]
 }
 
-func CreateLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
-		osrc SrcTPtr, osink SinkTPtr) {
+func ReserveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
+		osrc SrcTPtr, relQualID string) {
 	var l LinkT
 	epSrc := l.GetSourceEndpoint(osrc)
-	epSink := l.GetSinkEndpoint(osink)
 
-	// Don't add multiple unresolved objects poining to the same ID.
-	if osink.IsUnresolved() {
-		for _, elem := range epSrc.Get() {
-			if elem.GetAbsQualifiedID() == osink.GetAbsQualifiedID() {
-				return
-			}
-		}
+	absQualID := osrc.convIDRelToAbs(relQualID)
+	idx := epSrc.find(func (elem SinkTPtr) bool {
+		return elem.GetAbsQualifiedID() == absQualID
+	})
+
+	// If the same ID was not reserved, add unresolved.
+	if idx == -1 {
+		var unresOsink SinkTPtr = new(SinkT)
+		unresOsink.initialize()
+		unresOsink.markUnresolved(relQualID, osrc)
+		CreateLink[LinkT](osrc, unresOsink)
 	}
-
-    if !epSrc.Has(osink) {
-        epSrc.add(osink)
-        if !osink.IsUnresolved() {
-            epSink.add(osrc)
-        }
-    }
 }
 
-func ResolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
+func CreateLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
 		osrc SrcTPtr, osink SinkTPtr) bool {
 	var l LinkT
 	epSrc := l.GetSourceEndpoint(osrc)
 	epSink := l.GetSinkEndpoint(osink)
 
-	if osink.IsUnresolved() {
-		return false
+    absQualID := osink.GetAbsQualifiedID() 
+	idx := epSrc.find(func (elem SinkTPtr) bool {
+		return elem.GetAbsQualifiedID() == absQualID
+	})
+
+	if idx != -1 {
+		// Swap an already registered object.
+		epSrc.swap(idx, osink)
+	} else {
+		// Otherwise, add it.
+		epSrc.add(osink)
 	}
 
-    absQualID := osink.GetAbsQualifiedID() 
-	for _, elem := range epSrc.Get() {
-		if elem.GetAbsQualifiedID() == absQualID {
-			if elem.IsUnresolved() {
-				epSrc.swap(elem, osink)
-				epSink.add(osrc)
-			}
-			return true
-		}
+	if !osink.IsUnresolved() {
+		epSink.add(osrc)
 	}
-    return false
+
+	return idx != -1 
 }
 
-func UnresolveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
+func BreakLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
 		osrc SrcTPtr, osink SinkTPtr) {
 	var l LinkT
 	epSrc := l.GetSourceEndpoint(osrc)
 	epSink := l.GetSinkEndpoint(osink)
 
-	absQualID := osink.GetAbsQualifiedID()
-	epSink.remove(osrc)
+    absQualID := osink.GetAbsQualifiedID() 
+	idx := epSrc.find(func (elem SinkTPtr) bool {
+		return elem == osink 
+	})
 
-	for _, elem := range epSrc.Get() {
-		if elem == osink {
-			if !elem.IsUnresolved() {
-				var unresOsink SinkTPtr = new(SinkT)
-				unresOsink.initialize()
-				unresOsink.markUnresolved(osrc.convIDAbsToRel(absQualID), osrc)
-				epSrc.swap(elem, unresOsink)
-				epSink.remove(osrc)
+	// Break the link between the two objects, if exist.
+	if idx != -1 {
+		var unresOsink SinkTPtr = new(SinkT)
+		unresOsink.initialize()
+		unresOsink.markUnresolved(osrc.convIDAbsToRel(absQualID), osrc)
+		epSrc.swap(idx, unresOsink)
+		if !osink.IsUnresolved() {
+			srcIdx := epSink.find(func (elem SrcTPtr) bool {
+				return elem == osrc
+			})
+			if srcIdx != -1 {
+				epSink.remove(srcIdx)
 			}
-			return
 		}
 	}
 }
 
-func RemoveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
+func UnreserveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, SinkT any, SrcTPtr IMajorPtr[SrcT], SinkTPtr IMajorPtr[SinkT]](
 		osrc SrcTPtr, absQualID string) {
 	var l LinkT
 	epSrc := l.GetSourceEndpoint(osrc)
 
-	for _, elem := range epSrc.Get() {
-		if elem.GetAbsQualifiedID() == absQualID {
-			if !elem.IsUnresolved() {
-				epSink := l.GetSinkEndpoint(elem)
-				epSink.remove(osrc)
-			}
-			epSrc.remove(elem)
-			return
+	idx := epSrc.find(func (elem SinkTPtr) bool {
+		return elem.GetAbsQualifiedID() == absQualID
+	})
+
+	// If the same ID was reserved, (break and) remove it.
+	if idx != -1 {
+		osink := epSrc.Get()[idx]
+		if !osink.IsUnresolved() {
+			BreakLink[LinkT](osrc, osink)
 		}
+		epSrc.remove(idx)
 	}
 }
 

@@ -34,7 +34,7 @@ type ChartLoader = func (*file.File) (*Chart, warning.Warnings)
 func (this *Event) resolveReferenceTo(c IChart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
-			ResolveLink[ContinuedFrom](this, eobj)			
+			CreateLink[ContinuedFrom](this, eobj)			
 		}
 	}
 }
@@ -42,7 +42,7 @@ func (this *Event) resolveReferenceTo(c IChart) {
 func (this *Event) unresolveReferenceTo(c IChart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
-			UnresolveLink[ContinuedFrom](this, eobj)			
+			BreakLink[ContinuedFrom](this, eobj)			
 		}
 	}
 }
@@ -185,7 +185,7 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 
 				if eobjFrom != nil && !eobjFrom.ContinuedTo.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'ContinuedFrom' to '%s', but it doesn't reference back. corrected.", this, aval)
-                    CreateLink[ContinuedFrom](this, eobjFrom)
+                    eobjFrom.ContinuedTo.add(this)
 				}
 			}
 		}
@@ -354,12 +354,12 @@ func (this *Event) SetContinuedFrom(eobj *Event) {
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
-	RemoveLink[ContinuedFrom](this, eobj.GetAbsQualifiedID())
+	UnreserveLink[ContinuedFrom](this, eobj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFromByID(absQualID string) {
-	RemoveLink[ContinuedFrom](this, absQualID)
+	UnreserveLink[ContinuedFrom](this, absQualID)
 }
 
 //-- method (creation)
@@ -419,9 +419,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	for akey, avals := range event.attrs {
 		if akey == "ContinuedFrom" {
 			for _, aval := range avals {
-				ueobj := CreateEmptyEvent()
-                ueobj.markUnresolved(aval, event)
-				CreateLink[ContinuedFrom](event, ueobj)
+				ReserveLink[ContinuedFrom](event, aval)
 			}
 		}
 	}

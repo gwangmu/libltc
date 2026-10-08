@@ -29,15 +29,15 @@ type Annex struct {
 
 func (this *Annex) resolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		ResolveLink[AttachTo](this, cobj.GetCommon())
-		ResolveLink[ExtraNoteOf](this, cobj.GetCommon())
+		CreateLink[AttachTo](this, cobj.GetCommon())
+		CreateLink[ExtraNoteOf](this, cobj.GetCommon())
 	}
 }
 
 func (this *Annex) unresolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		UnresolveLink[AttachTo](this, cobj.GetCommon())
-		UnresolveLink[ExtraNoteOf](this, cobj.GetCommon())
+		BreakLink[AttachTo](this, cobj.GetCommon())
+		BreakLink[ExtraNoteOf](this, cobj.GetCommon())
 	}
 }
 
@@ -151,7 +151,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 
 				if objTo != nil && !objTo.Attached.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'AttachTo' to '%s', but it doesn't reference back. corrected.", this, aval)
-					CreateLink[AttachTo](this, objTo)
+					objTo.Attached.add(this)
 				}
 			}
 		} else if akey == "ExtraNoteOf" {
@@ -170,7 +170,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 
 				if objOf != nil && !objOf.ExtraNote.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'ExtraNoteOf' to '%s', but it doesn't reference back. corrected.", this, aval)
-					CreateLink[ExtraNoteOf](this, objOf)
+					objOf.ExtraNote.add(this)
 				}
 			}
 		}
@@ -261,12 +261,12 @@ func (this *Annex) SetExtraNoteOf(obj *MajorCommon) {
 
 // Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOf(obj *MajorCommon) {
-	RemoveLink[ExtraNoteOf](this, obj.GetAbsQualifiedID())
+	UnreserveLink[ExtraNoteOf](this, obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
-	RemoveLink[ExtraNoteOf](this, absQualID)
+	UnreserveLink[ExtraNoteOf](this, absQualID)
 }
 
 // Public wrapper of 'addAttachToObject'.
@@ -276,12 +276,12 @@ func (this *Annex) SetAttachTo(obj *MajorCommon) {
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachTo(obj *MajorCommon) {
-	RemoveLink[AttachTo](this, obj.GetAbsQualifiedID())
+	UnreserveLink[AttachTo](this, obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachToByID(absQualID string) {
-	RemoveLink[AttachTo](this, absQualID)
+	UnreserveLink[AttachTo](this, absQualID)
 }
 
 //-- method (creation)
@@ -317,15 +317,11 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	for akey, avals := range annex.attrs {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
-				uobj := CreateEmptyMajorCommon()
-				uobj.markUnresolved(aval, annex)
-				annex.AttachTo.add(uobj)
+				ReserveLink[AttachTo](annex, aval)
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
-				uobj := CreateEmptyMajorCommon()
-				uobj.markUnresolved(aval, annex)
-				annex.ExtraNoteOf.add(uobj)
+				ReserveLink[ExtraNoteOf](annex, aval)
 			}
 		}
 	}

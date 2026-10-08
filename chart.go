@@ -72,7 +72,7 @@ func (this *Chart) resolveReferenceTo(obj IMajor) {
 	if eobj, ok := obj.(*Event); ok {
 		for _, evs := range this.events {
 			for _, ceobj := range evs {
-				ResolveLink[ContinuedFrom](ceobj, eobj)
+				CreateLink[ContinuedFrom](ceobj, eobj)
 			}
 		}
 		// NOTE: subchart objects should be resolved when it's loaded.
@@ -80,8 +80,8 @@ func (this *Chart) resolveReferenceTo(obj IMajor) {
 
 	// Resolve the references from existing annexs to 'obj'.
 	for _, caobj := range this.annexs {
-		ResolveLink[AttachTo](caobj, obj.GetCommon())
-		ResolveLink[ExtraNoteOf](caobj, obj.GetCommon())
+		CreateLink[AttachTo](caobj, obj.GetCommon())
+		CreateLink[ExtraNoteOf](caobj, obj.GetCommon())
 	}
 }
 
@@ -100,15 +100,15 @@ func (this *Chart) unresolveReferenceTo(obj IMajor) {
 
 		for _, evs := range this.events {
 			for _, event := range evs {
-				UnresolveLink[ContinuedFrom](event, eobj)
+				BreakLink[ContinuedFrom](event, eobj)
 			}
 		}
 	}
 
 	// Unresolve the references from existing annexs to 'obj'.
 	for _, annex := range this.annexs {
-		UnresolveLink[AttachTo](annex, obj.GetCommon())
-		UnresolveLink[ExtraNoteOf](annex, obj.GetCommon())
+		BreakLink[AttachTo](annex, obj.GetCommon())
+		BreakLink[ExtraNoteOf](annex, obj.GetCommon())
 	}
 }
 
