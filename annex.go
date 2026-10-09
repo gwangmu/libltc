@@ -18,8 +18,10 @@ type Annex struct {
 	format string
 	encoding string
 	rawData []byte
-	encodedData string
 	isDecoded bool
+
+	encodedData string
+	indirLink *string
 
 	AttachTo EPSource[*MajorCommon]		// Specifying 'AttachTo'
 	ExtraNoteOf EPSource[*MajorCommon]	// Specifying 'ExtraNoteOf'
@@ -88,6 +90,11 @@ func (this Annex) IsUnknown() bool {
 func (this *Annex) DiagnoseLocal() (warns warning.Warnings) {
 	if _, ok := coder.Decoders[this.encoding]; !ok {
 		warns.Add("@0@ specifies unsupported encoding '%s'", this, this.encoding)
+	}
+
+	if len(this.encodedData) != 0 && this.IsIndirect() {
+		warns.Add("@0@ attempted to specify both data itself and an indirect link. Favoring data...", this)
+		this.indirLink = nil
 	}
 
 	for akey, avals := range this.attrs {
@@ -206,6 +213,10 @@ func (this *Annex) GetEncodedData() string {
 	return this.encodedData
 }
 
+func (this *Annex) IsIndirect() bool {
+	return this.indirLink != nil
+}
+
 //-- method (setters)
 
 func (this *Annex) SetFormat(format string) {
@@ -306,6 +317,11 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 
 	annex.encodedData = o.Data
 	annex.isDecoded = false		// NOTE: lazy decode.
+
+	if o.Indirect != nil {
+		indirLink := *o.Indirect
+		annex.indirLink = &indirLink
+	}
 	
 	// Diagnose and partially auto-correct.
 	moreWarns = annex.DiagnoseLocal()

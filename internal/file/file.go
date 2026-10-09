@@ -227,7 +227,8 @@ type Annex struct {
 	Title string 			`toml:"Title,omitempty"`
 	Format string 			`toml:"Format,omitempty"`
 	Encoding string 		`toml:"Encoding,omitempty"`
-	Data string 			`toml:"Data"`
+	Data string 			`toml:"Data,omitempty"`
+	Indirect *string 		`toml:"Indirect,omitempty"`
 	Note string				`toml:"Note,omitempty"`
 	Attrs []string 			`toml:"Attrs,omitempty"`
 }
