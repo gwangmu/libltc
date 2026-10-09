@@ -108,11 +108,6 @@ func (this Event) IsUnknown() bool {
 //-- interface IDiagnosable
 
 func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
-	if this.numID == NID_Invalid {
-		this.numID = 0
-		warns.Add("@0@ has an invalid ID. auto-corrected to 'e0'.", this)
-	}
-	
 	if this.IsEventEmbedding() && this.IsChartEmbedding() {
 		warns.Add("@0@ attempted to embed both an event and a chart. Favoring event...", this)
 		this.embeddedChart = nil
@@ -150,19 +145,21 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 		return
 	}
 
+	// Check invalid ID.
 	if this.numID == NID_Invalid {
-		panic("call DiagnoseLocal() first.")
+		newNumID := this.chart.getNextNumberID(MOK_Event)
+		this.numID = newNumID
+		warns.Add("@0@ had an invalid ID. auto-corrected to 'e%d'.", newNumID)
 	}
 
+	// Check duplicate ID.
 	for _, category := range this.chart.GetEventCategories() {
 		for _, eobj := range this.chart.GetEventsInCategory(category) {
 			if eobj.numID == this.numID {
-				newNumID, err := this.chart.getNextNumberID(MOK_Event)
-				if err != nil {
-					panic("Cannot get new number ID.")
-				}
+				this.AddAttr("OldID", this.GetIntrinsicID())
+				newNumID := this.chart.getNextNumberID(MOK_Event)
 				this.numID = newNumID
-				warns.Add("@0@ has a duplicated ID. auto-corrected to 'e%d'.", newNumID)
+				warns.Add("@0@ had a duplicated ID. auto-corrected to 'e%d'.", newNumID)
 				break
 			}
 		}
@@ -376,8 +373,9 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
     event.numID = numID
 	event.attrs = convAttrsFileToChart(o.Attrs)
 
-	if kind != MOK_Event {
-		warns.Add("@0@ has a wrong kind prefix. Fixing...")
+	if kind != MOK_Event || numID == NID_Invalid {
+		event.numID = NID_Invalid
+		event.AddAttr("OldID", o.ID)
 	}
 
 	note, moreWarns := CreateNoteFromString(o.Note)
@@ -442,11 +440,11 @@ func CreateEmptyEvent() *Event {
 func (this *Event) loadEmbeddedEvent() (warns warning.Warnings) {
 	if this.IsEventEmbedding() && this.embeddedEvent == nil {
 		efevent, moreWarns, err := file.LoadFromURI[file.Event](*this.eventEmbedLink)
-		warns.Concat(moreWarns)
 		if err != nil {
 			warns.Add("@0@ cannot load an embedded event.", this)
 			this.embeddedEvent = CreateEmptyEvent()
 		} else {
+			warns.Concat(moreWarns)
 			ecevent, moreWarns := createEventFromParsed(*efevent)
 			warns.Concat(moreWarns)
 			this.embeddedEvent = ecevent

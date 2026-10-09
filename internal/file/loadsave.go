@@ -1,8 +1,6 @@
 package file
 
 import (
-	//"fmt"
-
 	"bytes"
 	"errors"
 	"io"

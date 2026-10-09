@@ -203,7 +203,10 @@ func (this *Event) Diagnose() warning.Warnings {
 
 	re := regexp.MustCompile(`^e[0-9]+$`)
 	if !re.MatchString(this.ID) {
-		warns.Add("@0@ has non-standard event ID (not 'e<number>').", this)
+		warns.Add("@0@ has non-standard event ID (not 'e<number>'). this will be auto-fixed.", this)
+		if len(this.ID) != 0 {
+			this.Attrs = append(this.Attrs, "OldID:" + this.ID)
+		}
 	}
 
 	if this.EmbedChart == nil && this.EmbedEvent == nil {

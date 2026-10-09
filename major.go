@@ -143,7 +143,11 @@ func (this *MajorCommon) GetIntrinsicID() string {
 			return unresRelQualID[lastidx+1:]
 		}
 	} else {
-		return convIDInternalToString(this.GetKind(), this.numID)
+		if this.numID == NID_Invalid {
+			return "?"
+		} else {
+			return convIDInternalToString(this.GetKind(), this.numID)
+		}
 	}
 }
 

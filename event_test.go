@@ -164,9 +164,40 @@ func TestEventEmbeddingEvent(t *testing.T) {
 // TODO
 //}
 
-//func TestBrokenEvent(t *testing.T) {
-// TODO: broken ID event
-// TODO: both-embedding event
-// TODO: swapped dates event
-// TODO: empty 'ContinuedFrom' event
-//}
+func TestBrokenEvent(t *testing.T) {
+	test.Initialize(t, TestAssetDirPath)
+
+	t.Logf("Loading 'broken_event.ltc'...")
+	file, wf, err := file.LoadFromURI[file.File]("broken_event.ltc")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	test.PrintAllWarnings(wf)
+
+	t.Logf("Investigating loaded file...")
+	test.AssertWarnContains(wf, "non-standard event ID")
+
+	t.Logf("Loading event '%s'...", *file.Event[0].Title)
+	e0, w0 := createEventFromParsed(file.Event[0])
+	test.PrintAllWarnings(w0)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e0.GetAttrs("OldID")[0], "borked")
+	test.AssertEQ(e0.GetIntrinsicID(), "?")
+	test.AssertEQ(e0.GetAbsQualifiedID(), "?")
+
+	t.Logf("Loading event '%s'...", *file.Event[1].Title)
+	e1, w1 := createEventFromParsed(file.Event[1])
+	test.PrintAllWarnings(w1)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(w1, "cannot load an embedded event")
+	test.AssertWarnContains(w1, "attempted to embed both")
+	test.AssertEQ(e1.GetEmbedEventLink(), "/borked/path")
+	test.AssertEQ(e1.GetEmbedChartLink(), "/borked/path")
+	test.AssertEQ(e1.IsEventEmbedding(), true)
+	test.AssertNE(e1.GetEmbeddedEvent(), nil)
+
+	t.Log("End test.")
+}

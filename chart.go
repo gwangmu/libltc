@@ -25,7 +25,7 @@ type IChart interface {
  	GetObjectByRelQualID(iqualid string, baseChart *Chart) IMajor 
 	GetObjectsByIntrinsicID(locid string) []IMajor 
 
-	getNextNumberID(kind MajorKind) (NumberID, error) 
+	getNextNumberID(kind MajorKind) NumberID 
 
 	asChart() *Chart
 	resolveReferenceTo(IMajor)
@@ -142,7 +142,7 @@ func (this Chart) IsUnknown() bool {
 
 //-- method (main object association)
 
-func (this *Chart) getNextNumberID(kind MajorKind) (NumberID, error) {
+func (this *Chart) getNextNumberID(kind MajorKind) NumberID {
 	mainobjArr := []IMajor{}
 
 	switch kind {
@@ -161,19 +161,19 @@ func (this *Chart) getNextNumberID(kind MajorKind) (NumberID, error) {
 			mainobjArr = append(mainobjArr, o)
 		}
 	default:
-		return NID_Invalid, errors.New("Unrecognized main object kind")
+		return NID_Invalid
 	}
 
 	// Next next ID = Max existing numID + 1
-	// FIX: error out if 'maxNumID' == UINT_MAX - 1. Unlikely, but still.
+	// FIXME: error out if 'maxNumID' == UINT_MAX - 1. Unlikely, but still.
 	var maxNumID NumberID = 0
 	for _, mainobj := range mainobjArr {
 		maxNumID = max(maxNumID, mainobj.getNumberID())
 	}
-	if (maxNumID == NID_Max) {
-		return 0, errors.New("Cannot get the next number ID")
+	if maxNumID == NID_Max {
+		panic("Cannot get new number ID.")
 	} else {
-		return maxNumID + 1, nil
+		return maxNumID + 1
 	}
 }
 
@@ -307,12 +307,9 @@ func (this *Chart) AddObject(obj IMajor) error {
 	objKind := obj.GetKind()
 
 	// Associate 'obj' to this chart.
-	if nnid, err := this.getNextNumberID(objKind); err != nil {
-		obj.setChart(this)
-		obj.setNumberID(nnid)
-	} else {
-		return err
-	}
+	nnid := this.getNextNumberID(objKind)
+	obj.setChart(this)
+	obj.setNumberID(nnid)
 
 	switch objKind {
 	case MOK_Event:

@@ -90,11 +90,6 @@ func (this *Annex) DiagnoseLocal() (warns warning.Warnings) {
 		warns.Add("@0@ specifies unsupported encoding '%s'", this, this.encoding)
 	}
 
-	if this.numID == NID_Invalid {
-		this.numID = 0
-		warns.Add("@0@ has an invalid ID. auto-corrected to 'e0'.", this)
-	}
-
 	for akey, avals := range this.attrs {
 		if akey == "AttachTo" || akey == "ExtraNoteOf" {
 			newAvals := []string{}
@@ -118,18 +113,20 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 		return
 	}
 
+	// Check invalid ID.
 	if this.numID == NID_Invalid {
-		panic("call DiagnoseLocal() first.")
+		newNumID := this.chart.getNextNumberID(MOK_Annex)
+		this.numID = newNumID
+		warns.Add("@0@ had an invalid ID. auto-corrected to 'e%d'.", newNumID)
 	}
 
+	// Check duplicate ID.
 	for _, aobj := range this.chart.GetAnnexs() {
 		if aobj.numID == this.numID {
-			newNumID, err := this.chart.getNextNumberID(MOK_Annex)
-			if err != nil {
-				panic("Cannot get new number ID.")
-			}
+			this.AddAttr("OldID", this.GetIntrinsicID())
+			newNumID := this.chart.getNextNumberID(MOK_Annex)
 			this.numID = newNumID
-			warns.Add("@0@ has a duplicated ID. auto-corrected to 'a%d'.", newNumID)
+			warns.Add("@0@ had a duplicated ID. auto-corrected to 'a%d'.", newNumID)
 			break
 		}
 	}
@@ -294,8 +291,9 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	annex.numID = numID
 	annex.attrs = convAttrsFileToChart(o.Attrs)
 
-	if kind != MOK_Annex {
-		warns.Add("@0@ has a wrong kind prefix. Fixing...")
+	if kind != MOK_Annex || numID == NID_Invalid {
+		annex.numID = NID_Invalid
+		annex.AddAttr("OldID", o.ID)
 	}
 
 	note, moreWarns := CreateNoteFromString(o.Note)

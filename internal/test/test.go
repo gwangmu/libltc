@@ -61,6 +61,26 @@ func (_ Contains) String() string {
 	return "⊇"
 }
 
+type WarnContains struct {}
+func (_ WarnContains) Test(got any, want any) bool {
+	if wgot, ok := got.(warning.Warnings); ok {
+		if swant, ok := want.(string); ok {
+			found := false
+			for _, w := range wgot {
+				if strings.Contains(w.GetDesc(), swant) {
+					found = true
+					break
+				}
+			}
+			return found
+		}
+	}
+	return false
+}
+func (_ WarnContains) String() string {
+	return "⊇"
+}
+
 func Assert[Pred IPredicate](got any, want any) {
 	_, fname, fno, ok := runtime.Caller(2)
 	if ok {
@@ -70,16 +90,21 @@ func Assert[Pred IPredicate](got any, want any) {
 		fno = 0
 	}
 
-	fc := "v"
+	fcg := "v"
 	if _, ok := got.(string); ok {
-		fc = "q"
+		fcg = "q"
+	}
+
+	fcw := "v"
+	if _, ok := want.(string); ok {
+		fcw = "q"
 	}
 
 	var pred Pred
 	if !pred.Test(got, want) {
-		curT.Fatalf("Assertion failed: %"+fc+" %s %"+fc+" (%s:%d)", got, pred.String(), want, fname, fno)
+		curT.Fatalf("Assertion failed: %"+fcg+" %s %"+fcw+" (%s:%d)", got, pred.String(), want, fname, fno)
 	} else {
-		curT.Logf("Assertion succeeded: %"+fc+" %s %"+fc+" (%s:%d)", got, pred.String(), want, fname, fno)
+		curT.Logf("Assertion succeeded: %"+fcg+" %s %"+fcw+" (%s:%d)", got, pred.String(), want, fname, fno)
 	}
 }
 
@@ -93,6 +118,10 @@ func AssertNE[T comparable](got T, want T) {
 
 func AssertContains(got string, want string) {
 	Assert[Contains](got, want)
+}
+
+func AssertWarnContains(gotw warning.Warnings, want string) {
+	Assert[WarnContains](gotw, want)
 }
 
 func PrintAllWarnings(warns warning.Warnings) {
