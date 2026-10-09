@@ -199,5 +199,78 @@ func TestBrokenEvent(t *testing.T) {
 	test.AssertEQ(e1.IsEventEmbedding(), true)
 	test.AssertNE(e1.GetEmbeddedEvent(), nil)
 
+	t.Logf("Loading event '%s'...", *file.Event[2].Title)
+	e2, w2 := createEventFromParsed(file.Event[2])
+	test.PrintAllWarnings(w2)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(w2, "inverted")
+	test.AssertEQ(e2.GetStartDate().String(), "0000-01-02")
+	test.AssertEQ(e2.GetEndDate().String(), "9999-01-02")
+
+	t.Logf("Loading event '%s'...", *file.Event[3].Title)
+	e3, w3 := createEventFromParsed(file.Event[3])
+	test.PrintAllWarnings(w3)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e3.GetEndDate().IsInfiniteFuture(), true)
+	test.AssertEQ(e3.GetEndDate().String(), "(inf)")
+
+	t.Logf("Loading event '%s'...", *file.Event[4].Title)
+	e4, w4 := createEventFromParsed(file.Event[4])
+	test.PrintAllWarnings(w4)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e4.GetStartDate().IsInfinitePast(), true)
+	test.AssertEQ(e4.GetStartDate().String(), "(-inf)")
+
+	t.Logf("Loading event '%s'...", *file.Event[5].Title)
+	e5, w5 := createEventFromParsed(file.Event[5])
+	test.PrintAllWarnings(w5)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e5.GetStartDate().String(), "9999-01-__")
+	test.AssertEQ(e5.GetEndDate().String(), "9999-02-**")
+
+	t.Logf("Loading event '%s'...", *file.Event[6].Title)
+	e6, w6 := createEventFromParsed(file.Event[6])
+	test.PrintAllWarnings(w6)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e6.GetStartDate().String(), "9999-01-__")
+	test.AssertEQ(e6.GetEndDate().String(), "9999-01-**")
+
+	t.Logf("Loading event '%s'...", *file.Event[7].Title)
+	e7, w7 := createEventFromParsed(file.Event[7])
+	test.PrintAllWarnings(w7)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e7.GetStartDate().String(), "9998-03-__")
+	test.AssertEQ(e7.GetEndDate().String(), "9999-02-**")
+
+	t.Logf("Loading event '%s'...", *file.Event[8].Title)
+	e8, w8 := createEventFromParsed(file.Event[8])
+	test.PrintAllWarnings(w8)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e8.GetStartDate().String(), "9999-02-00")
+	test.AssertEQ(e8.GetEndDate().String(), "9999-02-**")
+
+	t.Logf("Loading event '%s'...", *file.Event[9].Title)
+	e9, w9 := createEventFromParsed(file.Event[9])
+	test.PrintAllWarnings(w9)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e9.GetStartDate().String(), "9999-02-00")
+	test.AssertEQ(e9.GetEndDate().String(), "9999-02-08")
+
+	t.Logf("Loading event '%s'...", *file.Event[10].Title)
+	e10, w10 := createEventFromParsed(file.Event[10])
+	test.PrintAllWarnings(w10)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertEQ(e10.GetStartDate().String(), "(-inf)")
+	test.AssertEQ(e10.GetEndDate().String(), "0000-01-02")
+
 	t.Log("End test.")
 }

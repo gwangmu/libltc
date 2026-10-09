@@ -130,10 +130,13 @@ func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
 			this.attrs[akey] = newAvals
 		}
 	}
-
-    if this.GetStartDate().IsAfter(this.GetEndDate()) {
-        warns.Add("@0@ has an inverted start/end date pair. correcting...", this)
-        this.correctLocalStartEndDates()
+       
+	amb, inv := this.correctLocalStartEndDates()
+	if amb {
+        warns.Add("@0@ had an ambiguous date. corrected.", this)
+    }
+	if inv {
+        warns.Add("@0@ had an inverted start/end date pair. corrected.", this)
     }
 
 	return
@@ -508,29 +511,45 @@ func (this *Event) isEmbeddedChartLoaded() bool {
 	return this.embeddedChart != nil
 }
 
-func (this *Event) correctLocalStartEndDates() {
+func (this *Event) correctLocalStartEndDates() (ambiguous bool, inverted bool) {
     oldStartDate := this.GetStartDate()
 
 	// Correct ambiguity.
-	// Assume 12-month years. (Sorry non-Gregorian calendars)
-	if this.GetStartDate().IsAmbiguous() && !this.GetEndDate().IsAmbiguous() {
-		newStartDate := this.GetEndDate()
-		newStartDate.SetUsage(TUK_Start)
-		newStartDate.SetMonth(newStartDate.GetMonth() - 1)
-		if newStartDate.GetMonth() <= 0 {
-			newStartDate.SetYear(newStartDate.GetYear() - 1)
-			newStartDate.SetMonth(12)
+	if !this.GetStartDate().IsInfinite() && this.GetStartDate().IsAmbiguous() && !this.GetEndDate().IsAmbiguous() {
+		newStartDate := this.GetStartDate()
+		if this.GetStartDate().year == nil && this.GetStartDate().month == nil {
+			// Can still be inverted. To be treated below.
+			newStartDate.SetYear(this.GetEndDate().GetYear())
+			newStartDate.SetMonth(this.GetEndDate().GetMonth())
+		} else if this.GetStartDate().year == nil {
+			if this.GetEndDate().GetMonth() >= this.GetStartDate().GetMonth() {
+				newStartDate.SetYear(this.GetEndDate().GetYear())
+			} else {
+				newStartDate.SetYear(this.GetEndDate().GetYear() - 1)
+			}
+		} else /* if this.GetStartDate().month == nil */ {
+			newStartDate.SetMonth(this.GetEndDate().GetMonth())
 		}
+
 		this.localStartDate = &newStartDate
-	} else if this.GetEndDate().IsAmbiguous() && !this.GetStartDate().IsAmbiguous() {
-		newEndDate := this.GetStartDate()
-		newEndDate.SetUsage(TUK_End)
-		newEndDate.SetMonth(newEndDate.GetMonth() + 1)
-		if newEndDate.GetMonth() >= 12 {
-			newEndDate.SetYear(newEndDate.GetYear() + 1)
-			newEndDate.SetMonth(1)
+		ambiguous = true
+	} else if !this.GetEndDate().IsInfinite() && this.GetEndDate().IsAmbiguous() && !this.GetStartDate().IsAmbiguous() {
+		newEndDate := this.GetEndDate()
+		if this.GetEndDate().year == nil && this.GetEndDate().month == nil {
+			// Can still be inverted. To be treated below.
+			newEndDate.SetYear(this.GetStartDate().GetYear())
+			newEndDate.SetMonth(this.GetStartDate().GetMonth())
+		} else if this.GetEndDate().year == nil {
+			if this.GetEndDate().GetMonth() >= this.GetStartDate().GetMonth() {
+				newEndDate.SetYear(this.GetStartDate().GetYear())
+			} else {
+				newEndDate.SetYear(this.GetStartDate().GetYear() + 1)
+			}
+		} else /* if this.GetEndDate().month == nil */ {
+			newEndDate.SetMonth(this.GetStartDate().GetMonth())
 		}
 		this.localEndDate = &newEndDate
+		ambiguous = true
 	}
 
 	// Correct order.
@@ -562,10 +581,14 @@ func (this *Event) correctLocalStartEndDates() {
             this.localStartDate = &newStartDate
             this.localEndDate = &newEndDate
 		}
+
+		inverted = true
 	}
 
     // Notify chart if 'StartDate' was changed.
     if !oldStartDate.Equal(this.GetStartDate()) && this.chart != nil {
         this.chart.changeEventStartDate(this)
     }
+
+	return
 }

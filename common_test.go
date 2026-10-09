@@ -160,7 +160,7 @@ func TestTimes(t *testing.T) {
 	t3e := createTimeFromParsed(file.Event[3].EndDate, TUK_End)
 
 	t.Log("Investigating loaded file...")
-	test.AssertEQ(t3s.String(), "(unknown)")
+	test.AssertEQ(t3s.String(), "(-inf)")
 	test.AssertEQ(t3e.String(), "1991-03-29 01:02:**")
 	test.AssertEQ(t3s.IsUnknown(), true)
 	test.AssertEQ(t3e.IsUnknown(), false)
@@ -175,7 +175,7 @@ func TestTimes(t *testing.T) {
 
 	t.Log("Investigating loaded file...")
 	test.AssertEQ(t4s.String(), "1991-03-29 01:02:__")
-	test.AssertEQ(t4e.String(), "(unknown)")
+	test.AssertEQ(t4e.String(), "(inf)")
 	test.AssertEQ(t4s.IsUnknown(), false)
 	test.AssertEQ(t4e.IsUnknown(), true)
 	test.AssertEQ(t4s.IsAmbiguous(), false)

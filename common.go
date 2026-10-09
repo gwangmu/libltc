@@ -98,6 +98,11 @@ type Time struct {
 
 func (this Time) String() (ret string) {
 	if this.IsUnknown() {
+		if this.IsInfiniteFuture() {
+			return "(inf)"
+		} else if this.IsInfinitePast() {
+			return "(-inf)"
+		}
 		return "(unknown)"
 	}
 
@@ -143,7 +148,7 @@ func (this Time) IsUnknown() bool {
 
 //-- struct Time: methods (getters and setters)
 
-func (this *Time) GetGOTime() time.Time {
+func (this Time) GetGOTime() time.Time {
 	yc := this.GetYear()
 
 	mc := this.GetMonth() 
@@ -199,7 +204,7 @@ func (this *Time) GetGOTime() time.Time {
 	return time.Date(yc, time.Month(mc), dc, hc, mmc, sc, nc, this.GetTimezone())
 }
 
-func (this *Time) GetYear() int {
+func (this Time) GetYear() int {
 	if this.year == nil {
 		switch this.usage {
 		case TUK_End:
@@ -214,7 +219,7 @@ func (this *Time) GetYear() int {
 	}
 }
 
-func (this *Time) GetYearString() string {
+func (this Time) GetYearString() string {
 	v := this.GetYear() 
 	switch v {
 	case TKValue_Max:
@@ -228,7 +233,7 @@ func (this *Time) GetYearString() string {
 	}
 }
 
-func (this *Time) GetMonth() int {
+func (this Time) GetMonth() int {
 	if this.month == nil {
 		switch this.usage {
 		case TUK_End:
@@ -243,7 +248,7 @@ func (this *Time) GetMonth() int {
 	}
 }
 
-func (this *Time) GetMonthString() string {
+func (this Time) GetMonthString() string {
 	v := this.GetMonth() 
 	switch v {
 	case TKValue_Max:
@@ -257,7 +262,7 @@ func (this *Time) GetMonthString() string {
 	}
 }
 
-func (this *Time) GetDay() int {
+func (this Time) GetDay() int {
 	if this.day == nil {
 		switch this.usage {
 		case TUK_End:
@@ -272,7 +277,7 @@ func (this *Time) GetDay() int {
 	}
 }
 
-func (this *Time) GetDayString() string {
+func (this Time) GetDayString() string {
 	v := this.GetDay() 
 	switch v {
 	case TKValue_Max:
@@ -286,7 +291,7 @@ func (this *Time) GetDayString() string {
 	}
 }
 
-func (this *Time) GetHour() int {
+func (this Time) GetHour() int {
 	if this.hour == nil {
 		switch this.usage {
 		case TUK_End:
@@ -301,7 +306,7 @@ func (this *Time) GetHour() int {
 	}
 }
 
-func (this *Time) GetHourString() string {
+func (this Time) GetHourString() string {
 	v := this.GetHour()
 	switch v {
 	case TKValue_Max:
@@ -315,7 +320,7 @@ func (this *Time) GetHourString() string {
 	}
 }
 
-func (this *Time) GetMinute() int {
+func (this Time) GetMinute() int {
 	if this.minute == nil {
 		switch this.usage {
 		case TUK_End:
@@ -330,7 +335,7 @@ func (this *Time) GetMinute() int {
 	}
 }
 
-func (this *Time) GetMinuteString() string {
+func (this Time) GetMinuteString() string {
 	v := this.GetMinute()
 	switch v {
 	case TKValue_Max:
@@ -344,7 +349,7 @@ func (this *Time) GetMinuteString() string {
 	}
 }
 
-func (this *Time) GetSecond() int {
+func (this Time) GetSecond() int {
 	if this.second == nil {
 		switch this.usage {
 		case TUK_End:
@@ -359,7 +364,7 @@ func (this *Time) GetSecond() int {
 	}
 }
 
-func (this *Time) GetSecondString() string {
+func (this Time) GetSecondString() string {
 	v := this.GetSecond()
 	switch v {
 	case TKValue_Max:
@@ -373,7 +378,7 @@ func (this *Time) GetSecondString() string {
 	}
 }
 
-func (this *Time) GetTimezone() *time.Location {
+func (this Time) GetTimezone() *time.Location {
 	if this.timezone == nil {
 		utcloc, err := time.LoadLocation("UTC")
 		if err == nil {
@@ -386,7 +391,7 @@ func (this *Time) GetTimezone() *time.Location {
 	}
 }
 
-func (this *Time) GetUsage() TimeUsageKind {
+func (this Time) GetUsage() TimeUsageKind {
 	return this.usage
 }
 
@@ -469,13 +474,17 @@ func (this *Time) SetUsage(v TimeUsageKind) {
 //-- struct Time: method (util)
 
 func (this Time) IsInfiniteFuture() bool {
-	_, ok := this.Attrs["InfinitePast"]
-	return ok || (this.IsUnknown() && this.GetUsage() == TUK_End)
+	_, ok := this.Attrs["Infinite"]
+	return (ok || this.IsUnknown()) && this.GetUsage() == TUK_End
 }
 
 func (this Time) IsInfinitePast() bool {
-	_, ok := this.Attrs["InfiniteFuture"]
-	return ok || (this.IsUnknown() && this.GetUsage() == TUK_Start)
+	_, ok := this.Attrs["Infinite"]
+	return (ok || this.IsUnknown()) && this.GetUsage() == TUK_Start
+}
+
+func (this Time) IsInfinite() bool {
+	return this.IsInfiniteFuture() || this.IsInfinitePast()
 }
 
 // Return value is undefined if either of the times is unknown (non-inf) or ambiguous.
@@ -485,7 +494,10 @@ func (this Time) IsAfter(that Time) bool {
 	} else if this.IsInfiniteFuture() || that.IsInfinitePast() {
 		return true
 	} else {
-		that.SetUsage(TUK_General)
+		if this.usage == that.usage {
+			// Give 'this' a little more edge.
+			that.SetUsage(TUK_General)
+		}
 		// The 'compare' using the 'time' package should be correct as long as
 		// the calendar system is "monotonic", meaing bigger higher units mean
 		// later in time. Assume that the concept of "timezone" is the same in
@@ -520,6 +532,8 @@ func (this Time) Equal(that Time) bool {
 	return hasSameAttrs && this.IsSimultaneous(that)
 }
 
+// NOTE: infinite times are both unknown and ambiguous.
+
 func (this Time) IsAmbiguous() bool {
 	return this.year == nil || this.month == nil
 }
@@ -545,47 +559,49 @@ func createTimeFromParsed(optr *file.Time, usage TimeUsageKind) (ret Time) {
 	
 	o := *optr
 
-	if o.Year != nil {
-		nyear := *o.Year
-		ret.year = &nyear
-	}
+	if !slices.Contains(o.Attrs, "Infinite") {
+		if o.Year != nil {
+			nyear := *o.Year
+			ret.year = &nyear
+		}
 
-	if o.Month != nil {
-		nmonth := *o.Month
-		ret.month = &nmonth
-	}
-	
-	if o.Day != nil {
-		nday := *o.Day
-		ret.day = &nday
-	}
-	
-	if o.Hour != nil {
-		nhour := *o.Hour
-		ret.hour = &nhour
-	}
-	
-	if o.Minute != nil {
-		nminute := *o.Minute
-		ret.minute = &nminute
-	}
-	
-	if o.Second != nil {
-		nsecond := *o.Second
-		ret.second = &nsecond
-	}
+		if o.Month != nil {
+			nmonth := *o.Month
+			ret.month = &nmonth
+		}
+		
+		if o.Day != nil {
+			nday := *o.Day
+			ret.day = &nday
+		}
+		
+		if o.Hour != nil {
+			nhour := *o.Hour
+			ret.hour = &nhour
+		}
+		
+		if o.Minute != nil {
+			nminute := *o.Minute
+			ret.minute = &nminute
+		}
+		
+		if o.Second != nil {
+			nsecond := *o.Second
+			ret.second = &nsecond
+		}
 
-	if o.Timezone != nil {
-		loc, tzerr := time.LoadLocation(*o.Timezone)
+		if o.Timezone != nil {
+			loc, tzerr := time.LoadLocation(*o.Timezone)
 
-		if tzerr == nil {
-			ret.timezone = loc
-		} else {
-			utcloc, tzerr := time.LoadLocation("UTC")
 			if tzerr == nil {
-				ret.timezone = utcloc
+				ret.timezone = loc
 			} else {
-				panic("UTC not loaded")
+				utcloc, tzerr := time.LoadLocation("UTC")
+				if tzerr == nil {
+					ret.timezone = utcloc
+				} else {
+					panic("UTC not loaded")
+				}
 			}
 		}
 	}

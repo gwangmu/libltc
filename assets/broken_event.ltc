@@ -21,7 +21,7 @@ EmbedChart = "/borked/path"
 
 [[Event]]
 ID = "e1"
-Title = "Swapped dates"
+Title = "Swapped dates (1)"
 StartDate = { Year = 9999, Month = 1, Day = 2 }
 EndDate = { Year = 0, Month = 1, Day = 2 }
 
@@ -31,29 +31,47 @@ Title = "Infinite future date"
 StartDate = { Year = 9999, Month = 1, Day = 2 }
 
 [[Event]]
-ID = "e2"
+ID = "e1"
 Title = "Infinite past date"
 EndDate = { Year = 9999, Month = 1, Day = 2 }
 
 [[Event]]
-ID = "e3"
+ID = "e1"
 Title = "Ambiguous date correction (1)"
 StartDate = { Year = 9999, Month = 1 }
 EndDate = { Month = 2 }
 
 [[Event]]
-ID = "e4"
+ID = "e1"
 Title = "Ambiguous date correction (2)"
 StartDate = { Year = 9999 }
+EndDate = { Year = 9999, Month = 1 }
+
+[[Event]]
+ID = "e1"
+Title = "Ambiguous date correction (3)"
+StartDate = { Year = 9998, Month = 3 }
+EndDate = { Month = 2 }
+
+[[Event]]
+ID = "e1"
+Title = "Broken date (1)"
+StartDate = { Day = 0 }
 EndDate = { Year = 9999, Month = 2 }
 
 [[Event]]
-ID = "e5"
-Title = "Broken date"
-StartDate = { Day = 0}
-EndDate = { Year = 9999, Month = 2 }
+ID = "e1"
+Title = "Broken date (2)"
+StartDate = { Day = 8 }
+EndDate = { Year = 9999, Month = 2, Day = 0 }
 
 [[Event]]
-ID = "e6"
+ID = "e1"
+Title = "Explicit infinite"
+StartDate = { Day = 15, Attrs = [ "Infinite" ] }
+EndDate = { Year = 0, Month = 1, Day = 2 }
+
+[[Event]]
+ID = "e1"
 Title = "Empty 'ContinuedFrom' attribute"
 Attrs = [ "ContinuedFrom", "ContinuedFrom:" ]
