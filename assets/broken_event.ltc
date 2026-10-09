@@ -74,4 +74,4 @@ EndDate = { Year = 0, Month = 1, Day = 2 }
 [[Event]]
 ID = "e1"
 Title = "Empty 'ContinuedFrom' attribute"
-Attrs = [ "ContinuedFrom", "ContinuedFrom:" ]
+Attrs = [ "ContinuedFrom" ]

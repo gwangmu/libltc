@@ -272,5 +272,13 @@ func TestBrokenEvent(t *testing.T) {
 	test.AssertEQ(e10.GetStartDate().String(), "(-inf)")
 	test.AssertEQ(e10.GetEndDate().String(), "0000-01-02")
 
+	t.Logf("Loading event '%s'...", *file.Event[11].Title)
+	_, w11 := createEventFromParsed(file.Event[11])
+	test.PrintAllWarnings(w11)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(w11, "'ContinuedFrom' attribute")
+	test.AssertWarnContains(w11, "empty.")
+
 	t.Log("End test.")
 }
