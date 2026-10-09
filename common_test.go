@@ -6,10 +6,8 @@ import (
 	"libltc/internal/test"
 )
 
-var TestAssetDirPath string = "assets"
-
-func TestNotes(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestNotes_Common(t *testing.T) {
+	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'notes.ltc'...")
 	file, _, err := file.LoadFromURI[file.File]("notes.ltc")
@@ -107,8 +105,8 @@ func TestNotes(t *testing.T) {
 	t.Log("End test.")
 }
 
-func TestTimes(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestTimes_Common(t *testing.T) {
+	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'times.ltc'...")
 	file, _, err := file.LoadFromURI[file.File]("times.ltc")

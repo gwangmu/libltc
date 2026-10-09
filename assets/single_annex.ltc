@@ -1,0 +1,18 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+Sex = "Male"
+
+[[Annex]]
+ID = "a0"
+Title = "Whatever"
+Format = "txt"
+Data = "hello, world"
+Attrs = [ "Attr2", "Attr3:", "Attr4:Val", "Attr5:Val0", "Attr5:Val1" ]
+Note = "Some note"

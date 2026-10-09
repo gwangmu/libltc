@@ -5,10 +5,8 @@ import (
 	"libltc/internal/test"
 )
 
-var TestAssetDirPath string = "../../assets"
-
-func TestSingleEvent(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestSingleEvent_File(t *testing.T) {
+	test.Initialize_File(t, "../../assets")
 
 	t.Log("Loading 'single_event.ltc'...")
 	file, warns, err := LoadFromURI[File]("single_event.ltc")
@@ -38,8 +36,8 @@ func TestSingleEvent(t *testing.T) {
 	t.Log("End test.")
 }
 
-func TestSimpleEmbedEvent(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestSimpleEmbedEvent_File(t *testing.T) {
+	test.Initialize_File(t, "../../assets")
 
 	t.Log("Loading 'simple_embed_event.ltc'...")
 	file, warns, err := LoadFromURI[File]("simple_embed_event.ltc")
@@ -78,8 +76,8 @@ func TestSimpleEmbedEvent(t *testing.T) {
 	t.Log("End test.")
 }
 
-func TestNestedEmbedEvent(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestNestedEmbedEvent_File(t *testing.T) {
+	test.Initialize_File(t, "../../assets")
 
 	t.Log("Loading 'nested_embed_event.ltc'...")
 	file, warns, err := LoadFromURI[File]("nested_embed_event.ltc")
@@ -118,8 +116,8 @@ func TestNestedEmbedEvent(t *testing.T) {
 	t.Log("End test.")
 }
 
-func TestNonexistentEmbedEvent(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestNonexistentEmbedEvent_File(t *testing.T) {
+	test.Initialize_File(t, "../../assets")
 
 	t.Log("Loading 'nonexistent_embed_event.ltc'...")
 	file, warns, err := LoadFromURI[File]("nonexistent_embed_event.ltc")
@@ -159,8 +157,8 @@ func TestNonexistentEmbedEvent(t *testing.T) {
 	t.Log("End test.")
 }
 
-func TestQualIDEmbedEvent(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestQualIDEmbedEvent_File(t *testing.T) {
+	test.Initialize_File(t, "../../assets")
 
 	t.Log("Loading 'qualid_embed_event_2.ltc'...")
 	file, warns, err := LoadFromURI[File]("qualid_embed_event_2.ltc")
@@ -194,8 +192,8 @@ func TestQualIDEmbedEvent(t *testing.T) {
 	t.Log("End test.")
 }
 
-func TestReadFile(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestReadFile_File(t *testing.T) {
+	test.Initialize_File(t, "../../assets")
 
 	t.Log("Loading 'binary.bin'...")
 	bs, err := ReadFileFromURI("binary.bin")

@@ -6,8 +6,8 @@ import (
 	"libltc/internal/test"
 )
 
-func TestSingleEvent(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestSingleEvent_Event(t *testing.T) {
+	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'single_event.ltc'...")
 	file, wf, err := file.LoadFromURI[file.File]("single_event.ltc")
@@ -42,8 +42,8 @@ func TestSingleEvent(t *testing.T) {
 	t.Log("End test.")
 }
 
-func TestContinuedEvent(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestContinuedEvent_Event(t *testing.T) {
+	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'cont_events.ltc'...")
 	file, wf, err := file.LoadFromURI[file.File]("cont_events.ltc")
@@ -120,8 +120,8 @@ func TestContinuedEvent(t *testing.T) {
 	t.Log("End test.")
 }
 
-func TestEventEmbeddingEvent(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestEventEmbeddingEvent_Event(t *testing.T) {
+	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'event_embedding_event.ltc'...")
 	file, wf, err := file.LoadFromURI[file.File]("event_embedding_event.ltc")
@@ -160,12 +160,12 @@ func TestEventEmbeddingEvent(t *testing.T) {
 	t.Log("End test.")
 }
 
-//func TestChartEmbeddingEvent(t *testing.T) {
+//func TestChartEmbeddingEvent_Event(t *testing.T) {
 // TODO
 //}
 
-func TestBrokenEvent(t *testing.T) {
-	test.Initialize(t, TestAssetDirPath)
+func TestBrokenEvent_Event(t *testing.T) {
+	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'broken_event.ltc'...")
 	file, wf, err := file.LoadFromURI[file.File]("broken_event.ltc")
