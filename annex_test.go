@@ -133,7 +133,7 @@ func TestAttachedAnnex_Annex(t *testing.T) {
 	test.PrintAllWarnings(wf)
 
 	t.Logf("Loading event/annex...")
-	createEventFromParsed(file.Event[0])
+	e0, _ := createEventFromParsed(file.Event[0])
 	a0, w0 := createAnnexFromParsed(file.Annex[0])
 	a1, w1 := createAnnexFromParsed(file.Annex[1])
 	test.PrintAllWarnings(w0)
@@ -154,6 +154,14 @@ func TestAttachedAnnex_Annex(t *testing.T) {
 	test.AssertEQ(a1.ExtraNoteOf.Get()[0].GetAbsQualifiedID(), "e0")
 	test.AssertEQ(a1.ExtraNoteOf.Get()[0].IsUnresolved(), true)
 	test.AssertEQ(a1.ExtraNoteOf.Get()[0].getNumberID(), NID_Invalid)
+
+	// Creating and re-reserving the same object shouldn't change anything.
+	CreateLink[AttachTo](a0, e0.GetCommon())
+	test.AssertEQ(len(a0.AttachTo.Get()), 1)
+	test.AssertEQ(len(e0.Attached.Get()), 1)
+	test.AssertEQ(a0.AttachTo.Has(e0.GetCommon()), true)
+	test.AssertEQ(e0.Attached.Has(a0), true)
+	test.AssertEQ(e0.IsUnresolved(), false)
 
 	t.Log("End test.")
 }
