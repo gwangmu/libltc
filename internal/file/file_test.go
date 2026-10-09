@@ -26,13 +26,13 @@ func TestSingleEvent(t *testing.T) {
 
 	test.AssertEQ(len(file.Event), 1)
 	test.AssertEQ(file.Event[0].ID, "e0")
-	test.AssertEQ(len(file.Event[0].Attrs), 1)
-	test.AssertEQ(file.Event[0].Attrs[0], "AmbiguousPeriod")
+	test.AssertEQ(len(file.Event[0].Attrs), 5)
+	test.AssertEQ(file.Event[0].Attrs[0], "Attr2")
 	test.AssertEQ(*file.Event[0].StartDate.Year, 1991)
 	test.AssertEQ(*file.Event[0].StartDate.Month, 3)
 	test.AssertEQ(*file.Event[0].StartDate.Day, 29)
-	test.AssertEQ(file.Event[0].StartDate.Attrs[0], "Approx")
-	test.AssertEQ(file.Event[0].EndDate.Attrs[0], "Approx")
+	test.AssertEQ(file.Event[0].StartDate.Attrs[0], "Attr0")
+	test.AssertEQ(file.Event[0].EndDate.Attrs[0], "Attr1")
 	test.AssertEQ(file.Event[0].EndDate.Day, nil)
 
 	t.Log("End test.")
@@ -182,14 +182,42 @@ func TestQualIDEmbedEvent(t *testing.T) {
 
 	t.Log("Investigating loaded file...")
 	test.AssertEQ(event.ID, "e0")
-	test.AssertEQ(len(event.Attrs), 1)
-	test.AssertEQ(event.Attrs[0], "AmbiguousPeriod")
+	test.AssertEQ(len(event.Attrs), 5)
+	test.AssertEQ(event.Attrs[0], "Attr2")
 	test.AssertEQ(*event.StartDate.Year, 1991)
 	test.AssertEQ(*event.StartDate.Month, 3)
 	test.AssertEQ(*event.StartDate.Day, 29)
-	test.AssertEQ(event.StartDate.Attrs[0], "Approx")
-	test.AssertEQ(event.EndDate.Attrs[0], "Approx")
+	test.AssertEQ(event.StartDate.Attrs[0], "Attr0")
+	test.AssertEQ(event.EndDate.Attrs[0], "Attr1")
 	test.AssertEQ(event.EndDate.Day, nil)
 
 	t.Log("End test.")
 }
+
+func TestReadFile(t *testing.T) {
+	test.Initialize(t, TestAssetDirPath)
+
+	t.Log("Loading 'binary.bin'...")
+	bs, err := ReadFileFromURI("binary.bin")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	t.Log("Investigating loaded binary...")
+	test.AssertEQ(bs[0], 0x00)
+	test.AssertEQ(bs[1], 0x31)
+	test.AssertEQ(bs[2], 0xf8)
+	test.AssertEQ(bs[3], 0xe4)
+
+	t.Log("Loading 'hello.txt'...")
+	bs2, err2 := ReadFileFromURI("hello.txt")
+	if err2 != nil {
+		t.Fatal(err2)
+	}
+
+	t.Log("Investigating loaded text...")
+	test.AssertEQ(string(bs2), "hello, world")
+
+	t.Log("End test.")
+}
+
