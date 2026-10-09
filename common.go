@@ -888,6 +888,7 @@ func convIDInternalToString(kind MajorKind, nid NumberID) string {
 	}
 }
 
+/*
 func CloneMajor[T IMajor](obj *T, preserveChart bool, preserveID bool) *T {
 	newobj := *obj
 	if !preserveChart {
@@ -899,3 +900,4 @@ func CloneMajor[T IMajor](obj *T, preserveChart bool, preserveID bool) *T {
 	}
 	return &newobj
 }
+*/

@@ -53,26 +53,26 @@ func getLocalPath(uri string) string {
 	}
 }
 
-func readFileFromURI(uri string) (ret string, err error) {
+func ReadFileFromURI(uri string) (ret []byte, err error) {
 	if getLocalPath(uri) == "" {
 		resp, err := http.Get(uri)
 		if err != nil {
-			return "", err
+			return []byte{}, err
 		} else {
 			defer resp.Body.Close()
 			bs, err := io.ReadAll(resp.Body)
 			if err != nil {
-				return "", err
+				return []byte{}, err
 			} else {
-				return string(bs), nil
+				return bs, nil
 			}
 		}
 	} else {
 		bs, err := os.ReadFile(uri)
 		if err != nil {
-			return "", err
+			return []byte{}, err
 		} else {
-			return string(bs), nil
+			return bs, nil
 		}
 	}
 }
@@ -148,7 +148,8 @@ func readObjectFromURI(uri string) (ret string, err error) {
 	path, ids := splitURIIntoPathAndIDs(uri)
 
 	if len(ids) == 0 {
-		filestr, err := readFileFromURI(path)
+		filebs, err := ReadFileFromURI(path)
+		filestr := string(filebs)
 		if err != nil {
 			return "", err
 		} else {
@@ -158,7 +159,8 @@ func readObjectFromURI(uri string) (ret string, err error) {
 		// Sequentially load objects by local IDs.
 		curPath := path
 		for _, idstr := range ids {
-			filestr, err := readFileFromURI(curPath)
+			filebs, err := ReadFileFromURI(curPath)
+			filestr := string(filebs)
 			if err != nil {
 				return "", err
 			} else {

@@ -195,22 +195,35 @@ func (this *Annex) GetEncoding() string {
 
 func (this *Annex) GetRawData() ([]byte, error) {
 	if !this.isDecoded {
-		if decoder, ok := coder.Decoders[this.encoding]; !ok {
-			return []byte{}, errors.New("No decoder for 'Encoding'.")
-		} else {
-			if rawData, err := decoder(this.encodedData); err != nil {
-				return []byte{}, errors.New("Failed to decode data.")
+		if this.IsIndirect() {
+			if loadedData, err := file.ReadFileFromURI(*this.indirLink); err != nil {
+				return []byte{}, errors.New("Failed to load indirect link")
 			} else {
-				this.rawData = rawData
+				this.rawData = loadedData
 				this.isDecoded = true
+			}
+		} else {
+			if decoder, ok := coder.Decoders[this.encoding]; !ok {
+				return []byte{}, errors.New("No decoder for 'Encoding'")
+			} else {
+				if rawData, err := decoder(this.encodedData); err != nil {
+					return []byte{}, errors.New("Failed to decode data")
+				} else {
+					this.rawData = rawData
+					this.isDecoded = true
+				}
 			}
 		}
 	}
 	return this.rawData, nil
 }
 
-func (this *Annex) GetEncodedData() string {
-	return this.encodedData
+func (this *Annex) GetEncodedData() (string, error) {
+	if this.IsIndirect() {
+		return "", errors.New("Cannot return encoded data for indirect annex")
+	} else {
+		return this.encodedData, nil
+	}
 }
 
 func (this *Annex) IsIndirect() bool {

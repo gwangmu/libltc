@@ -172,7 +172,7 @@ Event objects have three _types_: plain and embedding. Plain event objects have 
  - `EmbedEvent`: (string) The URI to an embed-target event. See [referencing](#Referencing) for a valid URI. (default: empty)
  - `Note`: (note object) The note of the event. (default: note object default)
 
-An event object is _embedding-typed_ with a non-empty `Embed*` field or _plain-typed_ otherwise. The `EmbedChart` and `EmbedEvent` fields are mutually exclusive; if they both exist, the front-end LTC tool arbitrarily takes one of them and reports that the other was ignored. `EmbedChart`s can reference the current LTC file, and `EmbedEvent`s can reference an event in the current LTC file. See [referencing](#Referencing) for nested references.
+An event object is _embedding-typed_ with a non-empty `Embed*` field or _plain-typed_ otherwise. The `EmbedChart` and `EmbedEvent` fields are mutually exclusive; if they both exist, `EmbedEvent` is preferred, and the front-end LTC tool should report that the other was ignored. `EmbedChart`s can reference the current LTC file, and `EmbedEvent`s can reference an event in the current LTC file. See [referencing](#Referencing) for nested references.
 
 For event-embedding event objects, specifying `StartDate`, `EndDate`, and `Title` will override the embedded event's `StartDate`, `EndDate`, and `Title`, respectively. For chart-embedding event objects, specifying `Title` will override the subchart subject's stringified `Name`. `Note` is valid for all event object types.
 
@@ -200,9 +200,12 @@ An annex object represents data attached to the LTC file: photos, text snippets,
  - `Format`: (string) The data Format of the annex. (default: "txt")
  - `Encoding`: (string) The data encoding of the annex. (default: "none")
  - `Data`: (string) The encoded data of the annex. (default: empty)
+ - `Indirect`: (string) The URI to external data. (default: empty)
  - `Note`: (note object) The note of the annex. (default: note object default)
 
 The `none` encoding performs no encoding. Since the LTC format is text-based, any binary data should be encoded into a text representation before being included in an LTC file. If `Data` is still binary before saving to an LTC file, it should be encoded in base64, add the old non-empty `Encoding` to the attribute list as the key `OrgEncoding`, and replace `Encoding` with `base64`. 
+
+The `Data` and `Indirect` fields are mutually exclusive; if they both exist, `Data` is preferred, and the front-end LTC tool should report that the other was ignored. If `Indirect` is set, `Format` and `Encoding` are unused.
 
 By default, `Format` is specific to the front-end LTC tool, except `txt` for text data and `png` for PNG image data. The front-end LTC tool should assume unrecognized `Format`s (including an empty `Format`) as `txt` and report it to users. Recognized attributes below:
 
