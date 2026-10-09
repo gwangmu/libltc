@@ -11,6 +11,13 @@ Sex = "Male"
 
 [[Annex]]
 ID = "a0"
-Title = "Whatever"
-Format = "txt"
-Data = "hello, world"
+Indirect = "./hello.txt"
+
+[[Annex]]
+ID = "a0"
+Data = "hi, globe"
+Indirect = "./hello.txt"
+
+[[Annex]]
+ID = "a0"
+Indirect = "./binary.bin"

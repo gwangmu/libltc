@@ -9,8 +9,14 @@ Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
 StartDate = { Year = 1991, Month = 3, Day = 29 }
 Sex = "Male"
 
+[[Event]]
+ID = "e0"
+
 [[Annex]]
 ID = "a0"
-Title = "Whatever"
-Format = "txt"
-Data = "hello, world"
+Attrs = [ "AttachTo:e0" ]
+
+[[Annex]]
+ID = "a1"
+Attrs = [ "ExtraNoteOf:e0" ]
+Note = "Something"

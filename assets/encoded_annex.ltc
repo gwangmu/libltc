@@ -11,6 +11,5 @@ Sex = "Male"
 
 [[Annex]]
 ID = "a0"
-Title = "Whatever"
-Format = "txt"
-Data = "hello, world"
+Encoding = "base64"
+Data = "aGVsbG8="

@@ -2,6 +2,7 @@ package warning
 
 import (
 	"fmt"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -129,7 +130,11 @@ func BuildSummaryString(args ...SummaryElement) string {
 				fields = append(fields, realprefix + strconv.Itoa(*carg))
 			}
 		case IWarningObj:
-			if carg != nil && !carg.IsUnknown() {
+			// A short rant. GO is not even providing a way to tell if an
+			// interface is holding a nil pointer WITHOUT USING A DAMN
+			// REFLECTION. When such a basic language feature resorts to
+			// reflection, you know the language design is a little fecked up.
+			if carg != nil && !reflect.ValueOf(carg).IsNil() && !carg.IsUnknown() {
 				fields = append(fields, realprefix + carg.Summary())
 			}
 		}

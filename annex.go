@@ -204,7 +204,7 @@ func (this *Annex) GetRawData() ([]byte, error) {
 			}
 		} else {
 			if decoder, ok := coder.Decoders[this.encoding]; !ok {
-				return []byte{}, errors.New("No decoder for 'Encoding'")
+				return []byte{}, errors.New("No decoder for encoding '" + this.encoding + "'")
 			} else {
 				if rawData, err := decoder(this.encodedData); err != nil {
 					return []byte{}, errors.New("Failed to decode data")
@@ -334,6 +334,14 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	if o.Indirect != nil {
 		indirLink := *o.Indirect
 		annex.indirLink = &indirLink
+	}
+
+	if annex.format == "" {
+		annex.format = "txt"
+	}
+
+	if annex.encoding == "" {
+		annex.encoding = "none"
 	}
 	
 	// Diagnose and partially auto-correct.
