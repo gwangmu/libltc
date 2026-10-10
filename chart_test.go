@@ -142,6 +142,9 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.AssertEQ(chart.GetObjectByAbsQualID("a0").(*Annex).AttachTo.Get()[0].(*Event).GetTitle(), "Event0")
 	test.AssertEQ(len(chart.GetObjectByAbsQualID("a1").(*Annex).ExtraNoteOf.Get()), 1)
 	test.AssertEQ(chart.GetObjectByAbsQualID("a1").(*Annex).ExtraNoteOf.Get()[0].(*Event).GetTitle(), "Event0")
+	test.AssertEQ(len(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()), 1)
+	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].IsUnresolved(), true) 
+	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].GetAbsQualifiedID(), "e999") 
 
 	t.Logf("End test.")
 }
