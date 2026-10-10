@@ -69,7 +69,7 @@ func (this *Annex) initialize() {
 
 func (this *Annex) Summary() (ret string) {
 	if this.Title != "" {
-		ret = "an annex '" + this.Title + "'"
+		ret = "the annex '" + this.Title + "'"
 	} else {
 		ret = "a untitled annex"
 	}

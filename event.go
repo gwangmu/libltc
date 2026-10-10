@@ -76,7 +76,7 @@ func (this *Event) Summary() (ret string) {
 	if this.IsUnresolved() {
 		ret = "an unresolved event"
 	} else if this.GetTitle() != "" {
-		ret = "an event '" + this.GetTitle() + "'"
+		ret = "the event '" + this.GetTitle() + "'"
 	} else {
 		ret = "a untitled event"
 	}

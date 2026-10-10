@@ -2,7 +2,6 @@ package ltc
 
 import (
 	"testing"
-	"libltc/internal/file"
 	"libltc/internal/test"
 )
 
@@ -10,15 +9,7 @@ func TestSingleEvent_Chart(t *testing.T) {
 	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'single_event.ltc'...")
-	ltcf, wf, err := file.LoadFromURI[file.File]("single_event.ltc")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	test.PrintAllWarnings(wf)
-
-	t.Logf("Loading chart...")
-	chart, wc := createChartFromParsed(ltcf)
+	chart, wc := CreateChart("single_event.ltc")
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Investigating loaded event...")
@@ -50,16 +41,8 @@ func TestSingleEvent_Chart(t *testing.T) {
 func TestDuplicateIDEvents_Chart(t *testing.T) {
 	test.Initialize(t, "assets")
 
-	t.Logf("Loading 'dup_id_event.ltc'...")
-	ltcf, wf, err := file.LoadFromURI[file.File]("dup_id_events.ltc")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	test.PrintAllWarnings(wf)
-
-	t.Logf("Loading chart...")
-	chart, wc := createChartFromParsed(ltcf)
+	t.Logf("Loading 'dup_id_events.ltc'...")
+	chart, wc := CreateChart("dup_id_events.ltc")
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Investigating loaded event...")
@@ -80,18 +63,17 @@ func TestBrokenEvents_Chart(t *testing.T) {
 	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'broken_event.ltc'...")
-	ltcf, wf, err := file.LoadFromURI[file.File]("broken_event.ltc")
-	if err != nil {
-		t.Fatal(err)
-		return
-	}
-	test.PrintAllWarnings(wf)
-
-	t.Logf("Loading chart...")
-	_, wc := createChartFromParsed(ltcf)
+	_, wc:= CreateChart("broken_event.ltc")
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Investigating loaded event...")
+	// TODO: check duplicate warnings.
+	// TODO: check duplicate ID.
+	// TODO: check 'EmbedChart' is nil.
+	// TODO: check date orders.
 
 	t.Logf("End test.")
 }
+
+// TODO: check loading annex.
+// TODO: check auto-resolving on load (+ new links).
