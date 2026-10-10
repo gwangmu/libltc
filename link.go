@@ -1,21 +1,17 @@
 package ltc 
 
-import (
-	"slices"
-)
-
 // Endpoints are the "endpoints" of links. Each main object should include it
 // with an appropriate field name.
 
-type Endpoint[T comparable] struct {
+type Endpoint[T IMajor] struct {
 	objs []T
 }
 
-type EPSource[T comparable] struct {
+type EPSource[T IMajor] struct {
 	Endpoint[T]
 }
 
-type EPSink[T comparable] struct {
+type EPSink[T IMajor] struct {
 	Endpoint[T]
 }
 
@@ -24,11 +20,21 @@ func (this *Endpoint[T]) Get() []T {
 }
 
 func (this *Endpoint[T]) Has(obj T) bool {
-	return slices.Contains(this.objs, obj)
+	for _, o := range this.objs {
+		if o.Equal(obj) {
+			return true
+		}
+	}
+	return false
 }
 
 func (this *Endpoint[T]) find(pred func(T) bool) int {
-	return slices.IndexFunc(this.objs, pred)
+	for i, o := range this.objs {
+		if pred(o) {
+			return i
+		}
+	}
+	return -1
 }
 
 func (this *Endpoint[T]) add(obj T) {
@@ -152,28 +158,149 @@ func UnreserveLink[LinkT ILinkBase[SrcT, SinkT, SrcTPtr, SinkTPtr], SrcT any, Si
 	}
 }
 
+///////////
+
+func reserveLinkImpl[SrcT IMajor, SinkT IMajor](
+		osrc SrcT, getEPSource func(SrcT) *EPSource[SinkT], relQualID string, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) {
+	epSrc := getEPSource(osrc)
+
+	absQualID := osrc.convIDRelToAbs(relQualID)
+	idx := epSrc.find(func (elem SinkT) bool {
+		return elem.GetAbsQualifiedID() == absQualID
+	})
+
+	// If the same ID was not reserved, add unresolved.
+	if idx == -1 {
+		unresOsink := createUnres(relQualID, osrc)
+		createLinkImpl[SrcT, SinkT](osrc, getEPSource, unresOsink, getEPSink, createUnres)
+	}
+}
+
+func createLinkImpl[SrcT IMajor, SinkT IMajor](
+		osrc SrcT, getEPSource func(SrcT) *EPSource[SinkT], osink SinkT, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) bool {
+	epSrc := getEPSource(osrc)
+	epSink := getEPSink(osink)
+
+    absQualID := osink.GetAbsQualifiedID() 
+	idx := epSrc.find(func (elem SinkT) bool {
+		return elem.GetAbsQualifiedID() == absQualID
+	})
+
+	if idx != -1 {
+		oldOsink := epSrc.Get()[idx]
+
+		// Swap an already registered (different) object.
+		// Update sink endpoint(s).
+		if !oldOsink.Equal(osink) {
+			epSrc.swap(idx, osink)
+			breakLinkImpl[SrcT, SinkT](osrc, getEPSource, osink, getEPSink, createUnres)
+			if !osink.IsUnresolved() {
+				// Add 'osrc'.
+				epSink.add(osrc)
+			}
+		}
+	} else {
+		// Otherwise, add it.
+		epSrc.add(osink)
+		if !osink.IsUnresolved() {
+			epSink.add(osrc)
+		}
+	}
+
+	return idx != -1 
+}
+
+func breakLinkImpl[SrcT IMajor, SinkT IMajor](
+		osrc SrcT, getEPSource func(SrcT) *EPSource[SinkT], osink SinkT, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) {
+	epSrc := getEPSource(osrc)
+	epSink := getEPSink(osink)
+
+    absQualID := osink.GetAbsQualifiedID() 
+	idx := epSrc.find(func (elem SinkT) bool {
+		return elem.Equal(osink)
+	})
+
+	// Break the link between the two objects, if exist.
+	if idx != -1 {
+		unresOsink := createUnres(osrc.convIDAbsToRel(absQualID), osrc)
+		epSrc.swap(idx, unresOsink)
+		if !osink.IsUnresolved() {
+			srcIdx := epSink.find(func (elem SrcT) bool {
+				return elem.Equal(osrc)
+			})
+			if srcIdx != -1 {
+				epSink.remove(srcIdx)
+			}
+		}
+	}
+}
+
+func unreserveLinkImpl[SrcT IMajor, SinkT IMajor](
+		osrc SrcT, getEPSource func(SrcT) *EPSource[SinkT], absQualID string, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) {
+	epSrc := getEPSource(osrc)
+
+	idx := epSrc.find(func (elem SinkT) bool {
+		return elem.GetAbsQualifiedID() == absQualID
+	})
+
+	// If the same ID was reserved, (break and) remove it.
+	if idx != -1 {
+		osink := epSrc.Get()[idx]
+		if !osink.IsUnresolved() {
+			breakLinkImpl[SrcT, SinkT](osrc, getEPSource, osink, getEPSink, createUnres)
+		}
+		epSrc.remove(idx)
+	}
+}
+
+/////////////
+
 // Here are some specialized links.
 
-type AttachTo struct {}
-func (this AttachTo) GetSourceEndpoint(aobj *Annex) *EPSource[*MajorCommon] {
+type AttachToLink struct {}
+var AttachTo AttachToLink
+func (AttachToLink) GetSourceEndpoint(aobj *Annex) *EPSource[*MajorCommon] {
 	return &aobj.AttachTo
 }
-func (this AttachTo) GetSinkEndpoint(obj *MajorCommon) *EPSink[*Annex] {
+func (AttachToLink) GetSinkEndpoint(obj *MajorCommon) *EPSink[*Annex] {
 	return &obj.Attached
+}
+func (this AttachToLink) ReserveLink(aobj *Annex, absQualID string) {
+	reserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+}
+func (this AttachToLink) CreateLink(aobj *Annex, obj IMajor) {
+	createLinkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+}
+func (this AttachToLink) BreakLink(aobj *Annex, obj IMajor) {
+	breakLinkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+}
+func (this AttachToLink) UnreserveLink(aobj *Annex, absQualID string) {
+	unreserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+}
+func (AttachToLink) getEPSource(aobj *Annex) *EPSource[IMajor] {
+	return &aobj.AttachToTest
+}
+func (AttachToLink) getEPSink(obj IMajor) *EPSink[*Annex] {
+	return &obj.GetCommon().Attached
+}
+func (AttachToLink) createUnresolvedSink(relQualID string, refcer *Annex) IMajor {
+	ret := CreateEmptyMajorCommon()
+	ret.markUnresolved(relQualID, refcer)
+	return ret
 }
 
 type ExtraNoteOf struct {}
-func (this ExtraNoteOf) GetSourceEndpoint(aobj *Annex) *EPSource[*MajorCommon] {
+func (ExtraNoteOf) GetSourceEndpoint(aobj *Annex) *EPSource[*MajorCommon] {
 	return &aobj.ExtraNoteOf
 }
-func (this ExtraNoteOf) GetSinkEndpoint(obj *MajorCommon) *EPSink[*Annex] {
+func (ExtraNoteOf) GetSinkEndpoint(obj *MajorCommon) *EPSink[*Annex] {
 	return &obj.ExtraNote
 }
 
 type ContinuedFrom struct {}
-func (this ContinuedFrom) GetSourceEndpoint(aobj *Event) *EPSource[*Event] {
+func (ContinuedFrom) GetSourceEndpoint(aobj *Event) *EPSource[*Event] {
 	return &aobj.ContinuedFrom
 }
-func (this ContinuedFrom) GetSinkEndpoint(obj *Event) *EPSink[*Event] {
+func (ContinuedFrom) GetSinkEndpoint(obj *Event) *EPSink[*Event] {
 	return &obj.ContinuedTo
 }

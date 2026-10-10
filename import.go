@@ -24,6 +24,10 @@ type Import struct {
 	preOffsetEvents []*Event
 }
 
+func (this *Import) Equal(that IMajor) bool {
+	return this.GetCommon() == that.GetCommon()
+}
+
 //-- interface IWarningObj
 
 func (this *Import) Summary() string {

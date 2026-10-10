@@ -156,7 +156,7 @@ func TestAttachedAnnex_Annex(t *testing.T) {
 	test.AssertEQ(a1.ExtraNoteOf.Get()[0].getNumberID(), NID_Invalid)
 
 	// Creating and re-reserving the same object shouldn't change anything.
-	CreateLink[AttachTo](a0, e0.GetCommon())
+	CreateLink[AttachToLink](a0, e0.GetCommon())
 	test.AssertEQ(len(a0.AttachTo.Get()), 1)
 	test.AssertEQ(len(e0.Attached.Get()), 1)
 	test.AssertEQ(a0.AttachTo.Has(e0.GetCommon()), true)

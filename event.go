@@ -29,6 +29,10 @@ type Event struct {
 
 type ChartLoader = func (*file.File) (*Chart, warning.Warnings)
 
+func (this *Event) Equal(that IMajor) bool {
+	return this.GetCommon() == that.GetCommon()
+}
+
 //-- interface IMajor
 
 func (this *Event) resolveReferenceTo(c IChart) {

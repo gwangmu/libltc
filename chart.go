@@ -80,7 +80,7 @@ func (this *Chart) resolveReferenceTo(obj IMajor) {
 
 	// Resolve the references from existing annexs to 'obj'.
 	for _, caobj := range this.annexs {
-		CreateLink[AttachTo](caobj, obj.GetCommon())
+		CreateLink[AttachToLink](caobj, obj.GetCommon())
 		CreateLink[ExtraNoteOf](caobj, obj.GetCommon())
 	}
 }
@@ -107,7 +107,7 @@ func (this *Chart) unresolveReferenceTo(obj IMajor) {
 
 	// Unresolve the references from existing annexs to 'obj'.
 	for _, annex := range this.annexs {
-		BreakLink[AttachTo](annex, obj.GetCommon())
+		BreakLink[AttachToLink](annex, obj.GetCommon())
 		BreakLink[ExtraNoteOf](annex, obj.GetCommon())
 	}
 }

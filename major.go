@@ -7,6 +7,8 @@ import (
 )
 
 type IMajor interface {
+	Equal(IMajor) bool
+
 	GetKind() MajorKind
 	GetCommon() *MajorCommon
 	GetEnclosingObject() IMajor
@@ -67,6 +69,10 @@ type MajorCommon struct {
 
 	ExtraNote EPSink[*Annex]	// Pointed by 'ExtraNoteOf' 
 	Attached EPSink[*Annex]		// Pointed by 'AttachTo'
+}
+
+func (this *MajorCommon) Equal(that IMajor) bool {
+	return this == that.GetCommon()
 }
 
 //-- struct MajorCommon: method

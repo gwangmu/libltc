@@ -25,20 +25,26 @@ type Annex struct {
 
 	AttachTo EPSource[*MajorCommon]		// Specifying 'AttachTo'
 	ExtraNoteOf EPSource[*MajorCommon]	// Specifying 'ExtraNoteOf'
+
+	AttachToTest EPSource[IMajor]
+}
+
+func (this *Annex) Equal(that IMajor) bool {
+	return this.GetCommon() == that.GetCommon()
 }
 
 //-- interface IMajor
 
 func (this *Annex) resolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		CreateLink[AttachTo](this, cobj.GetCommon())
+		CreateLink[AttachToLink](this, cobj.GetCommon())
 		CreateLink[ExtraNoteOf](this, cobj.GetCommon())
 	}
 }
 
 func (this *Annex) unresolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		BreakLink[AttachTo](this, cobj.GetCommon())
+		BreakLink[AttachToLink](this, cobj.GetCommon())
 		BreakLink[ExtraNoteOf](this, cobj.GetCommon())
 	}
 }
@@ -292,17 +298,17 @@ func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
 
 // Public wrapper of 'addAttachToObject'.
 func (this *Annex) SetAttachTo(obj *MajorCommon) {
-	CreateLink[AttachTo](this, obj)
+	CreateLink[AttachToLink](this, obj)
 }
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachTo(obj *MajorCommon) {
-	UnreserveLink[AttachTo](this, obj.GetAbsQualifiedID())
+	UnreserveLink[AttachToLink](this, obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachToByID(absQualID string) {
-	UnreserveLink[AttachTo](this, absQualID)
+	UnreserveLink[AttachToLink](this, absQualID)
 }
 
 //-- method (creation)
@@ -352,7 +358,7 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	for akey, avals := range annex.attrs {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
-				ReserveLink[AttachTo](annex, aval)
+				ReserveLink[AttachToLink](annex, aval)
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
