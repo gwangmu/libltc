@@ -69,11 +69,9 @@ func TestContinuedEvent_Event(t *testing.T) {
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].getNumberID(), NID_Invalid)
 
 	// Creating and re-reserving the same object shouldn't change anything.
-	t.Logf("%v %p\n", e1.ContinuedFrom.objs[0], e0)
 	e1.ContinuedFrom.Link(e0)
 	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
 	test.AssertEQ(len(e0.ContinuedTo.Get()), 1)
-	t.Logf("%v %p\n", e1.ContinuedFrom.objs[0], e0)
 	test.AssertEQ(e1.ContinuedFrom.Has(e0), true)
 	test.AssertEQ(e0.ContinuedTo.Has(e1), true)
 	test.AssertEQ(e0.IsUnresolved(), false)
