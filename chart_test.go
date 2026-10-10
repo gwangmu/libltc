@@ -138,6 +138,10 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).Attached.Get()[0].Title, "Annex0")
 	test.AssertEQ(len(chart.GetObjectByAbsQualID("e0").(*Event).ExtraNote.Get()), 1)
 	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).ExtraNote.Get()[0].Title, "Annex1")
+	test.AssertEQ(len(chart.GetObjectByAbsQualID("a0").(*Annex).AttachTo.Get()), 1)
+	test.AssertEQ(chart.GetObjectByAbsQualID("a0").(*Annex).AttachTo.Get()[0].(*Event).GetTitle(), "Event0")
+	test.AssertEQ(len(chart.GetObjectByAbsQualID("a1").(*Annex).ExtraNoteOf.Get()), 1)
+	test.AssertEQ(chart.GetObjectByAbsQualID("a1").(*Annex).ExtraNoteOf.Get()[0].(*Event).GetTitle(), "Event0")
 
 	t.Logf("End test.")
 }
