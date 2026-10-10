@@ -67,8 +67,8 @@ type MajorCommon struct {
 
 	attrs map[string][]string	// Attributes
 
-	ExtraNote EPSink[*Annex]	// Pointed by 'ExtraNoteOf' 
-	Attached EPSink[*Annex]		// Pointed by 'AttachTo'
+	ExtraNote	// Pointed by 'ExtraNoteOf' 
+	Attached 	// Pointed by 'AttachTo'
 }
 
 func (this *MajorCommon) Equal(that IMajor) bool {

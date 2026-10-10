@@ -23,8 +23,8 @@ type Annex struct {
 	encodedData string
 	indirLink *string
 
-	AttachTo EPSource[IMajor] 		// Specifying 'AttachTo'
-	ExtraNoteOf EPSource[IMajor]	// Specifying 'ExtraNoteOf'
+	AttachTo	// Specifying 'AttachTo'
+	ExtraNoteOf	// Specifying 'ExtraNoteOf'
 }
 
 func (this *Annex) Equal(that IMajor) bool {
@@ -35,15 +35,15 @@ func (this *Annex) Equal(that IMajor) bool {
 
 func (this *Annex) resolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		AttachTo.CreateLink(this, cobj)
-		ExtraNoteOf.CreateLink(this, cobj)
+		this.AttachTo.Create(cobj)
+		this.ExtraNoteOf.Create(cobj)
 	}
 }
 
 func (this *Annex) unresolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		AttachTo.BreakLink(this, cobj)
-		ExtraNoteOf.BreakLink(this, cobj)
+		this.AttachTo.Break(cobj)
+		this.ExtraNoteOf.Break(cobj)
 	}
 }
 
@@ -61,6 +61,8 @@ func (this *Annex) initialize() {
 		isDecoded: true,
 	}
 	this.enclosing = this
+	this.AttachTo.initialize(this)
+	this.ExtraNoteOf.initialize(this)
 }
 
 //-- interface IWarningObj
@@ -281,32 +283,32 @@ func (this *Annex) SetAnnex(format string, encoding string, data []byte) error {
 
 // Public wrapper of 'addExtraNoteOfObject'.
 func (this *Annex) SetExtraNoteOf(obj *MajorCommon) {
-	ExtraNoteOf.CreateLink(this, obj)
+	this.ExtraNoteOf.Create(obj)
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOf(obj *MajorCommon) {
-	ExtraNoteOf.UnreserveLink(this, obj.GetAbsQualifiedID())
+	this.ExtraNoteOf.Unreserve(obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
-	ExtraNoteOf.UnreserveLink(this, absQualID)
+	this.ExtraNoteOf.Unreserve(absQualID)
 }
 
 // Public wrapper of 'addAttachToObject'.
 func (this *Annex) SetAttachTo(obj *MajorCommon) {
-	AttachTo.CreateLink(this, obj)
+	this.AttachTo.Create(obj)
 }
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachTo(obj *MajorCommon) {
-	AttachTo.UnreserveLink(this, obj.GetAbsQualifiedID())
+	this.AttachTo.Unreserve(obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachToByID(absQualID string) {
-	AttachTo.UnreserveLink(this, absQualID)
+	this.AttachTo.Unreserve(absQualID)
 }
 
 //-- method (creation)
@@ -356,11 +358,11 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	for akey, avals := range annex.attrs {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
-				AttachTo.ReserveLink(annex, aval)
+				annex.AttachTo.Reserve(aval)
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
-				ExtraNoteOf.ReserveLink(annex, aval)
+				annex.ExtraNoteOf.Reserve(aval)
 			}
 		}
 	}

@@ -7,12 +7,13 @@ type Endpoint[T IMajor] struct {
 	objs []T
 }
 
-type EPSource[T IMajor] struct {
-	Endpoint[T]
+type EPSink[SrcT IMajor] struct {
+	Endpoint[SrcT]
 }
 
-type EPSink[T IMajor] struct {
-	Endpoint[T]
+type EPSource[SrcT IMajor, SinkT IMajor] struct {
+	Endpoint[SinkT]
+	base SrcT
 }
 
 func (this *Endpoint[T]) Get() []T {
@@ -49,10 +50,14 @@ func (this *Endpoint[T]) remove(idx int) {
 	this.objs = append(this.objs[:idx], this.objs[idx+1:]...) 
 }
 
+func (this *EPSource[SrcT, _]) initialize(base SrcT) {
+	this.base = base
+}
+
 ////
 
 func reserveLinkImpl[SrcT IMajor, SinkT IMajor](
-		osrc SrcT, getEPSource func(SrcT) *EPSource[SinkT], relQualID string, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) {
+		osrc SrcT, getEPSource func(SrcT) *EPSource[SrcT, SinkT], relQualID string, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) {
 	epSrc := getEPSource(osrc)
 
 	absQualID := osrc.convIDRelToAbs(relQualID)
@@ -68,7 +73,7 @@ func reserveLinkImpl[SrcT IMajor, SinkT IMajor](
 }
 
 func createLinkImpl[SrcT IMajor, SinkT IMajor](
-		osrc SrcT, getEPSource func(SrcT) *EPSource[SinkT], osink SinkT, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) bool {
+		osrc SrcT, getEPSource func(SrcT) *EPSource[SrcT, SinkT], osink SinkT, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) bool {
 	epSrc := getEPSource(osrc)
 	epSink := getEPSink(osink)
 
@@ -102,7 +107,7 @@ func createLinkImpl[SrcT IMajor, SinkT IMajor](
 }
 
 func breakLinkImpl[SrcT IMajor, SinkT IMajor](
-		osrc SrcT, getEPSource func(SrcT) *EPSource[SinkT], osink SinkT, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) {
+		osrc SrcT, getEPSource func(SrcT) *EPSource[SrcT, SinkT], osink SinkT, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) {
 	epSrc := getEPSource(osrc)
 	epSink := getEPSink(osink)
 
@@ -127,7 +132,7 @@ func breakLinkImpl[SrcT IMajor, SinkT IMajor](
 }
 
 func unreserveLinkImpl[SrcT IMajor, SinkT IMajor](
-		osrc SrcT, getEPSource func(SrcT) *EPSource[SinkT], absQualID string, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) {
+		osrc SrcT, getEPSource func(SrcT) *EPSource[SrcT, SinkT], absQualID string, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) {
 	epSrc := getEPSource(osrc)
 
 	idx := epSrc.find(func (elem SinkT) bool {
@@ -146,85 +151,109 @@ func unreserveLinkImpl[SrcT IMajor, SinkT IMajor](
 
 // Here are some specialized links.
 
-type AttachToLink struct{}
-var AttachTo AttachToLink
+type AttachTo struct { EPSource[*Annex, IMajor] }
+type Attached struct { EPSink[*Annex] }
 
-func (this AttachToLink) ReserveLink(aobj *Annex, absQualID string) {
-	reserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+func (this AttachTo) Reserve(absQualID string) {
+	if aobj := this.base; aobj != nil {
+		reserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+	}
 }
-func (this AttachToLink) CreateLink(aobj *Annex, obj IMajor) {
-	createLinkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+func (this AttachTo) Create(obj IMajor) {
+	if aobj := this.base; aobj != nil {
+		createLinkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+	}
 }
-func (this AttachToLink) BreakLink(aobj *Annex, obj IMajor) {
-	breakLinkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+func (this AttachTo) Break(obj IMajor) {
+	if aobj := this.base; aobj != nil {
+		breakLinkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+	}
 }
-func (this AttachToLink) UnreserveLink(aobj *Annex, absQualID string) {
-	unreserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+func (this AttachTo) Unreserve(absQualID string) {
+	if aobj := this.base; aobj != nil {
+		unreserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+	}
 }
 
-func (AttachToLink) getEPSource(aobj *Annex) *EPSource[IMajor] {
-	return &aobj.AttachTo
+func (AttachTo) getEPSource(aobj *Annex) *EPSource[*Annex, IMajor] {
+	return &aobj.AttachTo.EPSource
 }
-func (AttachToLink) getEPSink(obj IMajor) *EPSink[*Annex] {
-	return &obj.GetCommon().Attached
+func (AttachTo) getEPSink(obj IMajor) *EPSink[*Annex] {
+	return &obj.GetCommon().Attached.EPSink
 }
-func (AttachToLink) createUnresolvedSink(relQualID string, refcer *Annex) IMajor {
+func (AttachTo) createUnresolvedSink(relQualID string, refcer *Annex) IMajor {
 	ret := CreateEmptyMajorCommon()
 	ret.markUnresolved(relQualID, refcer)
 	return ret
 }
 
-type ExtraNoteOfLink struct{}
-var ExtraNoteOf ExtraNoteOfLink
+type ExtraNoteOf struct { EPSource[*Annex, IMajor] }
+type ExtraNote struct { EPSink[*Annex] }
 
-func (this ExtraNoteOfLink) ReserveLink(aobj *Annex, absQualID string) {
-	reserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+func (this ExtraNoteOf) Reserve(absQualID string) {
+	if aobj := this.base; aobj != nil {
+		reserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+	}
 }
-func (this ExtraNoteOfLink) CreateLink(aobj *Annex, obj IMajor) {
-	createLinkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+func (this ExtraNoteOf) Create(obj IMajor) {
+	if aobj := this.base; aobj != nil {
+		createLinkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+	}
 }
-func (this ExtraNoteOfLink) BreakLink(aobj *Annex, obj IMajor) {
-	breakLinkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+func (this ExtraNoteOf) Break(obj IMajor) {
+	if aobj := this.base; aobj != nil {
+		breakLinkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+	}
 }
-func (this ExtraNoteOfLink) UnreserveLink(aobj *Annex, absQualID string) {
-	unreserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+func (this ExtraNoteOf) Unreserve(absQualID string) {
+	if aobj := this.base; aobj != nil {
+		unreserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+	}
 }
 
-func (ExtraNoteOfLink) getEPSource(aobj *Annex) *EPSource[IMajor] {
-	return &aobj.ExtraNoteOf
+func (ExtraNoteOf) getEPSource(aobj *Annex) *EPSource[*Annex, IMajor] {
+	return &aobj.ExtraNoteOf.EPSource
 }
-func (ExtraNoteOfLink) getEPSink(obj IMajor) *EPSink[*Annex] {
-	return &obj.GetCommon().ExtraNote
+func (ExtraNoteOf) getEPSink(obj IMajor) *EPSink[*Annex] {
+	return &obj.GetCommon().ExtraNote.EPSink
 }
-func (ExtraNoteOfLink) createUnresolvedSink(relQualID string, refcer *Annex) IMajor {
+func (ExtraNoteOf) createUnresolvedSink(relQualID string, refcer *Annex) IMajor {
 	ret := CreateEmptyMajorCommon()
 	ret.markUnresolved(relQualID, refcer)
 	return ret
 }
 
-type ContinuedFromLink struct{}
-var ContinuedFrom ContinuedFromLink
+type ContinuedFrom struct { EPSource[*Event, *Event] }
+type ContinuedTo struct { EPSink[*Event] }
 
-func (this ContinuedFromLink) ReserveLink(aobj *Event, absQualID string) {
-	reserveLinkImpl[*Event, *Event](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+func (this ContinuedFrom) Reserve(absQualID string) {
+	if aobj := this.base; aobj != nil {
+		reserveLinkImpl[*Event, *Event](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+	}
 }
-func (this ContinuedFromLink) CreateLink(aobj *Event, obj *Event) {
-	createLinkImpl[*Event, *Event](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+func (this ContinuedFrom) Create(obj *Event) {
+	if aobj := this.base; aobj != nil {
+		createLinkImpl[*Event, *Event](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+	}
 }
-func (this ContinuedFromLink) BreakLink(aobj *Event, obj *Event) {
-	breakLinkImpl[*Event, *Event](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+func (this ContinuedFrom) Break(obj *Event) {
+	if aobj := this.base; aobj != nil {
+		breakLinkImpl[*Event, *Event](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+	}
 }
-func (this ContinuedFromLink) UnreserveLink(aobj *Event, absQualID string) {
-	unreserveLinkImpl[*Event, *Event](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+func (this ContinuedFrom) Unreserve(absQualID string) {
+	if aobj := this.base; aobj != nil {
+		unreserveLinkImpl[*Event, *Event](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
+	}
 }
 
-func (ContinuedFromLink) getEPSource(obj *Event) *EPSource[*Event] {
-	return &obj.ContinuedFrom
+func (ContinuedFrom) getEPSource(eobj *Event) *EPSource[*Event, *Event] {
+	return &eobj.ContinuedFrom.EPSource
 }
-func (ContinuedFromLink) getEPSink(obj *Event) *EPSink[*Event] {
-	return &obj.ContinuedTo
+func (ContinuedFrom) getEPSink(eobj *Event) *EPSink[*Event] {
+	return &eobj.ContinuedTo.EPSink
 }
-func (ContinuedFromLink) createUnresolvedSink(relQualID string, refcer *Event) *Event {
+func (ContinuedFrom) createUnresolvedSink(relQualID string, refcer *Event) *Event {
 	ret := CreateEmptyEvent()
 	ret.markUnresolved(relQualID, refcer)
 	return ret

@@ -23,8 +23,8 @@ type Event struct {
 	eventEmbedLink *string
 	embeddedEvent *Event
 
-    ContinuedFrom EPSource[*Event]  // Specifying 'ContinuedFrom'
-    ContinuedTo EPSink[*Event]      // Pointed by 'ContinuedFrom'
+    ContinuedFrom	// Specifying 'ContinuedFrom'
+    ContinuedTo		// Pointed by 'ContinuedFrom'
 }
 
 type ChartLoader = func (*file.File) (*Chart, warning.Warnings)
@@ -38,7 +38,7 @@ func (this *Event) Equal(that IMajor) bool {
 func (this *Event) resolveReferenceTo(c IChart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
-			ContinuedFrom.CreateLink(this, eobj)			
+			this.ContinuedFrom.Create(eobj)			
 		}
 	}
 }
@@ -46,7 +46,7 @@ func (this *Event) resolveReferenceTo(c IChart) {
 func (this *Event) unresolveReferenceTo(c IChart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
-			ContinuedFrom.BreakLink(this, eobj)			
+			this.ContinuedFrom.Break(eobj)			
 		}
 	}
 }
@@ -67,6 +67,7 @@ func (this *Event) initialize() {
 		embeddedEvent: nil,
 	} 
     this.enclosing = this
+	this.ContinuedFrom.initialize(this)
 }
 
 //-- interface IWarningObj
@@ -357,17 +358,17 @@ func (this *Event) SetCategory(c string) error {
 
 // Public wrapper of 'addContinuedFromEvent'.
 func (this *Event) SetContinuedFrom(eobj *Event) {
-    ContinuedFrom.CreateLink(this, eobj)
+    this.ContinuedFrom.Create(eobj)
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
-	ContinuedFrom.UnreserveLink(this, eobj.GetAbsQualifiedID())
+	this.ContinuedFrom.Unreserve(eobj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFromByID(absQualID string) {
-	ContinuedFrom.UnreserveLink(this, absQualID)
+	this.ContinuedFrom.Unreserve(absQualID)
 }
 
 //-- method (creation)
@@ -428,7 +429,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	for akey, avals := range event.attrs {
 		if akey == "ContinuedFrom" {
 			for _, aval := range avals {
-				ContinuedFrom.ReserveLink(event, aval)
+				event.ContinuedFrom.Reserve(aval)
 			}
 		}
 	}
