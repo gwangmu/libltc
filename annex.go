@@ -23,10 +23,8 @@ type Annex struct {
 	encodedData string
 	indirLink *string
 
-	AttachTo EPSource[*MajorCommon]		// Specifying 'AttachTo'
-	ExtraNoteOf EPSource[*MajorCommon]	// Specifying 'ExtraNoteOf'
-
-	AttachToTest EPSource[IMajor]
+	AttachTo EPSource[IMajor] 		// Specifying 'AttachTo'
+	ExtraNoteOf EPSource[IMajor]	// Specifying 'ExtraNoteOf'
 }
 
 func (this *Annex) Equal(that IMajor) bool {
@@ -37,15 +35,15 @@ func (this *Annex) Equal(that IMajor) bool {
 
 func (this *Annex) resolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		CreateLink[AttachToLink](this, cobj.GetCommon())
-		CreateLink[ExtraNoteOf](this, cobj.GetCommon())
+		AttachTo.CreateLink(this, cobj)
+		ExtraNoteOf.CreateLink(this, cobj)
 	}
 }
 
 func (this *Annex) unresolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		BreakLink[AttachToLink](this, cobj.GetCommon())
-		BreakLink[ExtraNoteOf](this, cobj.GetCommon())
+		AttachTo.BreakLink(this, cobj)
+		ExtraNoteOf.BreakLink(this, cobj)
 	}
 }
 
@@ -147,7 +145,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 	for akey, avals := range this.attrs {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
-				var objTo *MajorCommon
+				var objTo IMajor
 				for _, aobjIn := range this.AttachTo.Get() {
 					if aobjIn.GetRelQualifiedID(this.GetChart()) == aval {
 						objTo = aobjIn
@@ -159,14 +157,14 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 					warns.Add("@0@ has a dangling 'AttachTo' to '%s'.", this, aval)
 				} 
 
-				if objTo != nil && !objTo.Attached.Has(this) {
+				if objTo != nil && !objTo.GetCommon().Attached.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'AttachTo' to '%s', but it doesn't reference back. corrected.", this, aval)
-					objTo.Attached.add(this)
+					objTo.GetCommon().Attached.add(this)
 				}
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
-				var objOf *MajorCommon
+				var objOf IMajor
 				for _, aobjIn := range this.ExtraNoteOf.Get() {
 					if aobjIn.GetRelQualifiedID(this.GetChart()) == aval {
 						objOf = aobjIn
@@ -178,9 +176,9 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 					warns.Add("@0@ has a dangling 'ExtraNoteOf' to '%s'.", this, aval)
 				} 
 
-				if objOf != nil && !objOf.ExtraNote.Has(this) {
+				if objOf != nil && !objOf.GetCommon().ExtraNote.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'ExtraNoteOf' to '%s', but it doesn't reference back. corrected.", this, aval)
-					objOf.ExtraNote.add(this)
+					objOf.GetCommon().ExtraNote.add(this)
 				}
 			}
 		}
@@ -283,32 +281,32 @@ func (this *Annex) SetAnnex(format string, encoding string, data []byte) error {
 
 // Public wrapper of 'addExtraNoteOfObject'.
 func (this *Annex) SetExtraNoteOf(obj *MajorCommon) {
-	CreateLink[ExtraNoteOf](this, obj)
+	ExtraNoteOf.CreateLink(this, obj)
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOf(obj *MajorCommon) {
-	UnreserveLink[ExtraNoteOf](this, obj.GetAbsQualifiedID())
+	ExtraNoteOf.UnreserveLink(this, obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
 func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
-	UnreserveLink[ExtraNoteOf](this, absQualID)
+	ExtraNoteOf.UnreserveLink(this, absQualID)
 }
 
 // Public wrapper of 'addAttachToObject'.
 func (this *Annex) SetAttachTo(obj *MajorCommon) {
-	CreateLink[AttachToLink](this, obj)
+	AttachTo.CreateLink(this, obj)
 }
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachTo(obj *MajorCommon) {
-	UnreserveLink[AttachToLink](this, obj.GetAbsQualifiedID())
+	AttachTo.UnreserveLink(this, obj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeAttachToObject'.
 func (this *Annex) UnsetAttachToByID(absQualID string) {
-	UnreserveLink[AttachToLink](this, absQualID)
+	AttachTo.UnreserveLink(this, absQualID)
 }
 
 //-- method (creation)
@@ -358,11 +356,11 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	for akey, avals := range annex.attrs {
 		if akey == "AttachTo" {
 			for _, aval := range avals {
-				ReserveLink[AttachToLink](annex, aval)
+				AttachTo.ReserveLink(annex, aval)
 			}
 		} else if akey == "ExtraNoteOf" {
 			for _, aval := range avals {
-				ReserveLink[ExtraNoteOf](annex, aval)
+				ExtraNoteOf.ReserveLink(annex, aval)
 			}
 		}
 	}

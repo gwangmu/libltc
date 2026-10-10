@@ -6,7 +6,7 @@ import (
 )
 
 func TestSingleEvent_File(t *testing.T) {
-	test.Initialize_File(t, "../../assets")
+	test.Initialize(t, "../../assets")
 
 	t.Log("Loading 'single_event.ltc'...")
 	file, warns, err := LoadFromURI[File]("single_event.ltc")
@@ -37,7 +37,7 @@ func TestSingleEvent_File(t *testing.T) {
 }
 
 func TestSimpleEmbedEvent_File(t *testing.T) {
-	test.Initialize_File(t, "../../assets")
+	test.Initialize(t, "../../assets")
 
 	t.Log("Loading 'simple_embed_event.ltc'...")
 	file, warns, err := LoadFromURI[File]("simple_embed_event.ltc")
@@ -77,7 +77,7 @@ func TestSimpleEmbedEvent_File(t *testing.T) {
 }
 
 func TestNestedEmbedEvent_File(t *testing.T) {
-	test.Initialize_File(t, "../../assets")
+	test.Initialize(t, "../../assets")
 
 	t.Log("Loading 'nested_embed_event.ltc'...")
 	file, warns, err := LoadFromURI[File]("nested_embed_event.ltc")
@@ -117,7 +117,7 @@ func TestNestedEmbedEvent_File(t *testing.T) {
 }
 
 func TestNonexistentEmbedEvent_File(t *testing.T) {
-	test.Initialize_File(t, "../../assets")
+	test.Initialize(t, "../../assets")
 
 	t.Log("Loading 'nonexistent_embed_event.ltc'...")
 	file, warns, err := LoadFromURI[File]("nonexistent_embed_event.ltc")
@@ -158,7 +158,7 @@ func TestNonexistentEmbedEvent_File(t *testing.T) {
 }
 
 func TestQualIDEmbedEvent_File(t *testing.T) {
-	test.Initialize_File(t, "../../assets")
+	test.Initialize(t, "../../assets")
 
 	t.Log("Loading 'qualid_embed_event_2.ltc'...")
 	file, warns, err := LoadFromURI[File]("qualid_embed_event_2.ltc")
@@ -193,7 +193,7 @@ func TestQualIDEmbedEvent_File(t *testing.T) {
 }
 
 func TestReadFile_File(t *testing.T) {
-	test.Initialize_File(t, "../../assets")
+	test.Initialize(t, "../../assets")
 
 	t.Log("Loading 'binary.bin'...")
 	bs, err := ReadFileFromURI("binary.bin")

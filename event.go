@@ -38,7 +38,7 @@ func (this *Event) Equal(that IMajor) bool {
 func (this *Event) resolveReferenceTo(c IChart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
-			CreateLink[ContinuedFrom](this, eobj)			
+			ContinuedFrom.CreateLink(this, eobj)			
 		}
 	}
 }
@@ -46,7 +46,7 @@ func (this *Event) resolveReferenceTo(c IChart) {
 func (this *Event) unresolveReferenceTo(c IChart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
-			BreakLink[ContinuedFrom](this, eobj)			
+			ContinuedFrom.BreakLink(this, eobj)			
 		}
 	}
 }
@@ -357,17 +357,17 @@ func (this *Event) SetCategory(c string) error {
 
 // Public wrapper of 'addContinuedFromEvent'.
 func (this *Event) SetContinuedFrom(eobj *Event) {
-    CreateLink[ContinuedFrom](this, eobj)
+    ContinuedFrom.CreateLink(this, eobj)
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFrom(eobj *Event) {
-	UnreserveLink[ContinuedFrom](this, eobj.GetAbsQualifiedID())
+	ContinuedFrom.UnreserveLink(this, eobj.GetAbsQualifiedID())
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.
 func (this *Event) UnsetContinuedFromByID(absQualID string) {
-	UnreserveLink[ContinuedFrom](this, absQualID)
+	ContinuedFrom.UnreserveLink(this, absQualID)
 }
 
 //-- method (creation)
@@ -428,7 +428,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	for akey, avals := range event.attrs {
 		if akey == "ContinuedFrom" {
 			for _, aval := range avals {
-				ReserveLink[ContinuedFrom](event, aval)
+				ContinuedFrom.ReserveLink(event, aval)
 			}
 		}
 	}

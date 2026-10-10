@@ -134,7 +134,7 @@ func BuildSummaryString(args ...SummaryElement) string {
 			// interface is holding a nil pointer WITHOUT USING A DAMN
 			// REFLECTION. When such a basic language feature resorts to
 			// reflection, you know the language design is a little fecked up.
-			if carg != nil && !reflect.ValueOf(carg).IsNil() && !carg.IsUnknown() {
+			if carg != nil && !reflect.ValueOf(carg).IsZero() && !carg.IsUnknown() {
 				fields = append(fields, realprefix + carg.Summary())
 			}
 		}
