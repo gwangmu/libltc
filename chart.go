@@ -1,7 +1,6 @@
 package ltc
 
 import (
-	"fmt"
 	"errors"
 	"slices"
 	"strings"
@@ -169,8 +168,10 @@ func (this *Chart) getNextNumberID(kind MajorKind) NumberID {
 	// FIXME: error out if 'maxNumID' == UINT_MAX - 1. Unlikely, but still.
 	var maxNumID NumberID = 0
 	for _, mainobj := range mainobjArr {
+		if mainobj.getNumberID() == NID_Invalid {
+			continue
+		}
 		maxNumID = max(maxNumID, mainobj.getNumberID())
-		fmt.Printf("%v\n", mainobj)
 	}
 	if maxNumID == NID_Max {
 		panic("Cannot get new number ID.")
@@ -310,7 +311,7 @@ func (this *Chart) AddObject(obj IMajor) error {
 
 	// Associate 'obj' to this chart.
 	obj.setChart(this)
-	if obj.getNumberID() == NID_Invalid {
+	if obj.getNumberID() == NID_Unassigned {
 		nnid := this.getNextNumberID(objKind)
 		obj.setNumberID(nnid)
 	}

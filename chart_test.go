@@ -46,3 +46,52 @@ func TestSingleEvent_Chart(t *testing.T) {
 
 	t.Logf("End test.")
 }
+
+func TestDuplicateIDEvents_Chart(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'dup_id_event.ltc'...")
+	ltcf, wf, err := file.LoadFromURI[file.File]("dup_id_events.ltc")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	test.PrintAllWarnings(wf)
+
+	t.Logf("Loading chart...")
+	chart, wc := createChartFromParsed(ltcf)
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(wc, "duplicate")
+	test.AssertEQ(chart.GetEventsInCategory("")[0].GetTitle(), "Event0")
+	test.AssertEQ(chart.GetEventsInCategory("")[0].GetIntrinsicID(), "e1")
+	test.AssertEQ(chart.GetEventsInCategory("")[0].GetAttrs("OldID")[0], "e0")
+	test.AssertEQ(chart.GetEventsInCategory("")[1].GetTitle(), "Event1")
+	test.AssertEQ(chart.GetEventsInCategory("")[1].GetIntrinsicID(), "e2")
+	test.AssertEQ(chart.GetEventsInCategory("")[1].GetAttrs("OldID")[0], "e0")
+	test.AssertEQ(chart.GetEventsInCategory("")[2].GetTitle(), "Event2")
+	test.AssertEQ(chart.GetEventsInCategory("")[2].GetIntrinsicID(), "e0")
+
+	t.Logf("End test.")
+}
+
+func TestBrokenEvents_Chart(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'broken_event.ltc'...")
+	ltcf, wf, err := file.LoadFromURI[file.File]("broken_event.ltc")
+	if err != nil {
+		t.Fatal(err)
+		return
+	}
+	test.PrintAllWarnings(wf)
+
+	t.Logf("Loading chart...")
+	_, wc := createChartFromParsed(ltcf)
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Investigating loaded event...")
+
+	t.Logf("End test.")
+}

@@ -1,0 +1,22 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+Sex = "Male"
+
+[[Event]]
+ID = "e0"
+Title = "Event0"
+
+[[Event]]
+ID = "e0"
+Title = "Event1"
+
+[[Event]]
+ID = "e0"
+Title = "Event2"

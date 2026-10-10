@@ -149,7 +149,7 @@ func (this *MajorCommon) GetIntrinsicID() string {
 			return unresRelQualID[lastidx+1:]
 		}
 	} else {
-		if this.numID == NID_Invalid {
+		if this.numID == NID_Invalid || this.numID == NID_Unassigned {
 			return "?"
 		} else {
 			return convIDInternalToString(this.GetKind(), this.numID)
@@ -311,7 +311,7 @@ func (this *MajorCommon) initialize() {
 
 		chart: nil,
 		parent: nil,
-		numID: NID_Invalid,
+		numID: NID_Unassigned,
 		unresRelQualID: "",
 
 		attrs: map[string][]string{},
@@ -349,7 +349,8 @@ const TKValue_Unknown int = -1
 //-- type NumberID
 
 type NumberID uint64
-const NID_Max = math.MaxUint64 - 1
+const NID_Max = math.MaxUint64 - 2 
+const NID_Unassigned = math.MaxUint64 -1
 const NID_Invalid = math.MaxUint64
 
 //-- type MajorKind

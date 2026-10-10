@@ -74,8 +74,14 @@ func (this *Annex) Summary() (ret string) {
 		ret = "a untitled annex"
 	}
 
+	maybeOldID := ""
+	if this.HasAttrKey("OldID") && len(this.GetAttrs("OldID")) > 0 {
+		maybeOldID = this.GetAttrs("OldID")[0]
+	}
+
 	extraStr := warning.BuildSummaryString(
 		WSE{"ID", this.GetIntrinsicID()},
+		WSE{"OldID", maybeOldID},
 		WSE{"format", this.format}, 
 		WSE{"encoding", this.encoding},
 	)

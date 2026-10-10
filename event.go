@@ -81,14 +81,21 @@ func (this *Event) Summary() (ret string) {
 		ret = "a untitled event"
 	}
 
+	maybeOldID := ""
+	if this.HasAttrKey("OldID") && len(this.GetAttrs("OldID")) > 0 {
+		maybeOldID = this.GetAttrs("OldID")[0]
+	}
+
 	extraStr := ""
 	if this.IsUnresolved() {
 		extraStr = warning.BuildSummaryString(
 			WSE{"ID", this.getUnresRelQualID()},
+			WSE{"OldID", maybeOldID},
 		)
 	} else {
 		extraStr = warning.BuildSummaryString(
 			WSE{"ID", this.GetIntrinsicID()},
+			WSE{"OldID", maybeOldID},
 			WSE{"Category", this.GetCategory()},
 			WSE{"Started", this.GetStartDate()}, 
 			WSE{"Ended", this.GetEndDate()},
