@@ -93,11 +93,15 @@ func Assert[Pred IPredicate](got any, want any) {
 	fcg := "v"
 	if _, ok := got.(string); ok {
 		fcg = "q"
+	} else if reflect.ValueOf(got).Kind() == reflect.Ptr {
+		fcg = "p"
 	}
 
 	fcw := "v"
 	if _, ok := want.(string); ok {
 		fcw = "q"
+	} else if reflect.ValueOf(want).Kind() == reflect.Ptr {
+		fcw = "p"
 	}
 
 	var pred Pred

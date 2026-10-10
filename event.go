@@ -157,17 +157,17 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 	if this.numID == NID_Invalid {
 		newNumID := this.chart.getNextNumberID(MOK_Event)
 		this.numID = newNumID
-		warns.Add("@0@ had an invalid ID. auto-corrected to 'e%d'.", newNumID)
+		warns.Add("@0@ had an invalid ID. auto-corrected to 'e%d'.", this, newNumID)
 	}
 
 	// Check duplicate ID.
 	for _, category := range this.chart.GetEventCategories() {
 		for _, eobj := range this.chart.GetEventsInCategory(category) {
-			if eobj.numID == this.numID {
+			if eobj != this && eobj.numID == this.numID {
 				this.AddAttr("OldID", this.GetIntrinsicID())
 				newNumID := this.chart.getNextNumberID(MOK_Event)
 				this.numID = newNumID
-				warns.Add("@0@ had a duplicated ID. auto-corrected to 'e%d'.", newNumID)
+				warns.Add("@0@ had a duplicated ID. auto-corrected to 'e%d'.", this, newNumID)
 				break
 			}
 		}

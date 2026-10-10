@@ -356,10 +356,10 @@ const NID_Invalid = math.MaxUint64
 
 type MajorKind int
 const (
-	MOK_Event MajorKind = iota
+	MOK_Unknown MajorKind = iota
+	MOK_Event
 	MOK_Annex
 	MOK_Import
-	MOK_Unknown
 )
 
 //-- type MajorKind: method (stringify)

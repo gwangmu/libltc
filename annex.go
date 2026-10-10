@@ -135,7 +135,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 
 	// Check duplicate ID.
 	for _, aobj := range this.chart.GetAnnexs() {
-		if aobj.numID == this.numID {
+		if aobj != this && aobj.numID == this.numID {
 			this.AddAttr("OldID", this.GetIntrinsicID())
 			newNumID := this.chart.getNextNumberID(MOK_Annex)
 			this.numID = newNumID

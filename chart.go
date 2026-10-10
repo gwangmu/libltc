@@ -1,6 +1,7 @@
 package ltc
 
 import (
+	"fmt"
 	"errors"
 	"slices"
 	"strings"
@@ -169,6 +170,7 @@ func (this *Chart) getNextNumberID(kind MajorKind) NumberID {
 	var maxNumID NumberID = 0
 	for _, mainobj := range mainobjArr {
 		maxNumID = max(maxNumID, mainobj.getNumberID())
+		fmt.Printf("%v\n", mainobj)
 	}
 	if maxNumID == NID_Max {
 		panic("Cannot get new number ID.")
@@ -307,9 +309,11 @@ func (this *Chart) AddObject(obj IMajor) error {
 	objKind := obj.GetKind()
 
 	// Associate 'obj' to this chart.
-	nnid := this.getNextNumberID(objKind)
 	obj.setChart(this)
-	obj.setNumberID(nnid)
+	if obj.getNumberID() == NID_Invalid {
+		nnid := this.getNextNumberID(objKind)
+		obj.setNumberID(nnid)
+	}
 
 	switch objKind {
 	case MOK_Event:
@@ -443,7 +447,7 @@ func createChartFromParsed(o *file.File) (*Chart, warning.Warnings) {
 		return CreateEmptyChart(), warning.Warnings{}
 	}
 
-	chart := &Chart{}
+	chart := CreateEmptyChart()
 	warns := warning.Warnings{}
 
 	// Load small preamble objects.
