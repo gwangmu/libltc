@@ -203,7 +203,7 @@ func (this *Event) Diagnose() warning.Warnings {
 
 	re := regexp.MustCompile(`^e[0-9]+$`)
 	if !re.MatchString(this.ID) {
-		warns.Add("@0@ has non-standard event ID (not 'e<number>'). this will be auto-fixed.", this)
+		warns.Add("@0@ has a non-standard event ID (not 'e<number>'). this will be auto-fixed.", this)
 	}
 
 	if this.EmbedChart == nil && this.EmbedEvent == nil {
@@ -233,7 +233,11 @@ type Annex struct {
 //-- struct Annex: interface IWarningObj
 
 func (this Annex) Summary() (ret string) {
-	ret = "an annex"
+	if this.Title != "" {
+		ret = "the annex '" + this.Title + "'"
+	} else {
+		ret = "the untitled annex"
+	}
 
 	extraStr := warning.BuildSummaryString(
 		WSE{"ID", this.ID},
@@ -259,7 +263,7 @@ func (this *Annex) Diagnose() warning.Warnings {
 
 	re := regexp.MustCompile(`^a[0-9]+$`)
 	if !re.MatchString(this.ID) {
-		warns.Add("@0@ has non-standard annex ID (not 'a<number>').", this)
+		warns.Add("@0@ has a non-standard annex ID (not 'a<number>').", this)
 	}
 
 	// NOTE: default format and encoding --> chart side.
@@ -310,7 +314,7 @@ func (this *Import) Diagnose() warning.Warnings {
 
 	re := regexp.MustCompile(`^i[0-9]+$`)
 	if !re.MatchString(this.ID) {
-		warns.Add("@0@ has non-standard import ID (not 'i<number>').", this)
+		warns.Add("@0@ has a non-standard import ID (not 'i<number>').", this)
 	}
 
 	return warns

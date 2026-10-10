@@ -19,6 +19,10 @@ type Warning struct {
 
 type Warnings []*Warning
 
+func (this Warnings) GoString() string {
+	return fmt.Sprintf("(warnings)")
+}
+
 //-- struct Warning: method (getters and setters)
 
 func (ltcw *Warning) GetDesc() string {

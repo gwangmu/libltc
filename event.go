@@ -38,7 +38,7 @@ func (this *Event) Equal(that IMajor) bool {
 func (this *Event) resolveReferenceTo(c IChart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
-			this.ContinuedFrom.Link(eobj)			
+			this.ContinuedFrom.Link(eobj, false)	
 		}
 	}
 }
@@ -122,6 +122,7 @@ func (this Event) IsUnknown() bool {
 func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
 	if this.IsEventEmbedding() && this.IsChartEmbedding() {
 		warns.Add("@0@ attempted to embed both an event and a chart. Favoring event...", this)
+		this.chartEmbedLink = nil
 		this.embeddedChart = nil
 	}
 
@@ -195,7 +196,7 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 					warns.Add("@0@ has a dangling 'ContinuedFrom' to '%s'.", this, aval)
 				} 
 
-				if eobjFrom != nil && !eobjFrom.ContinuedTo.Has(this) {
+				if eobjFrom != nil && !eobjFrom.IsUnresolved() && !eobjFrom.ContinuedTo.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'ContinuedFrom' to '%s', but it doesn't reference back. corrected.", this, aval)
                     eobjFrom.ContinuedTo.add(this)
 				}
@@ -365,7 +366,7 @@ func (this *Event) SetCategory(c string) error {
 
 // Public wrapper of 'addContinuedFromEvent'.
 func (this *Event) SetContinuedFrom(eobj *Event) {
-    this.ContinuedFrom.Link(eobj)
+    this.ContinuedFrom.Link(eobj, true)
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.

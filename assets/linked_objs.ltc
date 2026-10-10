@@ -1,0 +1,30 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+Sex = "Male"
+
+[[Event]]
+ID = "e0"
+Title = "Event0"
+Attrs = [ "ContinuedFrom:e1" ]
+
+[[Event]]
+ID = "e1"
+Title = "Event1"
+Attrs = [ "ContinuedFrom:e999" ]
+
+[[Annex]]
+ID = "a0"
+Title = "Annex0"
+Attrs = [ "AttachTo:e0" ]
+
+[[Annex]]
+ID = "a1"
+Title = "Annex1"
+Attrs = [ "ExtraNoteOf:e0" ]

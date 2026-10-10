@@ -1,6 +1,7 @@
 package ltc 
 
 import (
+	"slices"
 	"testing"
 	"libltc/internal/test"
 )
@@ -63,17 +64,83 @@ func TestBrokenEvents_Chart(t *testing.T) {
 	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'broken_event.ltc'...")
-	_, wc:= CreateChart("broken_event.ltc")
+	chart, wc:= CreateChart("broken_event.ltc")
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Investigating loaded event...")
-	// TODO: check duplicate warnings.
-	// TODO: check duplicate ID.
-	// TODO: check 'EmbedChart' is nil.
-	// TODO: check date orders.
+	test.AssertWarnContains(wc, "Broken ID.*non-standard.*ID")
+	test.AssertWarnContains(wc, "Broken ID.*OldID:borked.*corrected")
+	test.AssertWarnContains(wc, "Infinite past date.*OldID:e1.*corrected")
+	test.AssertWarnContains(wc, "Infinite future date.*OldID:e1.*corrected")
+	test.AssertWarnContains(wc, "Explicit infinite.*OldID:e1.*corrected")
+	test.AssertWarnContains(wc, "Empty 'ContinuedFrom'.*OldID:e1.*corrected")
+	test.AssertWarnContains(wc, "Swapped dates \\(1\\).*OldID:e1.*corrected")
+	test.AssertWarnContains(wc, "Ambiguous.*\\(1\\).*OldID:e1.*corrected")
+	test.AssertWarnContains(wc, "Ambiguous.*\\(2\\).*OldID:e1.*corrected")
+	test.AssertWarnContains(wc, "Ambiguous.*\\(3\\).*OldID:e1.*corrected")
+	test.AssertWarnContains(wc, "Broken date \\(2\\).*OldID:e1.*corrected")
+	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).IsChartEmbedding(), false)
+
+	// Ensure no duplicate IDs.
+	aevIDs := []string{}
+	for _, ev := range chart.GetEventsInCategory("") {
+		aevIDs = append(aevIDs, ev.GetIntrinsicID())
+	}
+	slices.Sort(aevIDs)
+	naevIDs := slices.Compact(aevIDs)
+	test.AssertEQ(len(aevIDs), len(naevIDs))
 
 	t.Logf("End test.")
 }
 
-// TODO: check loading annex.
-// TODO: check auto-resolving on load (+ new links).
+func TestBrokenIDAnnex_Chart(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'broken_id_annex.ltc'...")
+	chart, wc:= CreateChart("broken_id_annex.ltc")
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(wc, "Broken ID.*non-standard.*ID")
+	test.AssertWarnContains(wc, "Broken ID.*OldID:borked.*corrected")
+	test.AssertWarnContains(wc, "Wrong ID.*non-standard.*ID")
+	test.AssertWarnContains(wc, "Wrong ID.*OldID:e0.*corrected")
+	test.AssertWarnContains(wc, "Annex1.*OldID:a1.*corrected")
+	test.AssertWarnContains(wc, "Annex2.*OldID:a1.*corrected")
+	test.AssertWarnContains(wc, "Annex3.*OldID:a1.*corrected")
+
+	// Ensure no duplicate IDs.
+	aaIDs := []string{}
+	for _, a := range chart.GetAnnexs() {
+		aaIDs = append(aaIDs, a.GetIntrinsicID())
+	}
+	slices.Sort(aaIDs)
+	naaIDs := slices.Compact(aaIDs)
+	test.AssertEQ(len(aaIDs), len(naaIDs))
+
+	t.Logf("End test.")
+}
+
+func TestLinkedObjects_Chart(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'linked_objs.ltc'...")
+	chart, wc:= CreateChart("linked_objs.ltc")
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(wc, "Event1.*dangling 'ContinuedFrom'")
+	test.AssertEQ(len(chart.GetObjectByAbsQualID("e0").(*Event).ContinuedFrom.Get()), 1)
+	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).ContinuedFrom.Get()[0].GetTitle(), "Event1")
+	test.AssertEQ(len(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedTo.Get()), 1)
+	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedTo.Get()[0].GetTitle(), "Event0")
+	test.AssertEQ(len(chart.GetObjectByAbsQualID("e0").(*Event).Attached.Get()), 1)
+	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).Attached.Get()[0].Title, "Annex0")
+	test.AssertEQ(len(chart.GetObjectByAbsQualID("e0").(*Event).ExtraNote.Get()), 1)
+	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).ExtraNote.Get()[0].Title, "Annex1")
+
+	t.Logf("End test.")
+}
+
+// TODO: mimic runtime chart manipulation (add event/annex, create/remove links, change dates, ...)
+// TODO: check subchart functionality (load, change link, reference inside)

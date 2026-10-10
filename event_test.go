@@ -66,16 +66,16 @@ func TestContinuedEvent_Event(t *testing.T) {
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].GetIntrinsicID(), "e0")
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].GetAbsQualifiedID(), "e0")
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].IsUnresolved(), true)
-	test.AssertEQ(e1.ContinuedFrom.Get()[0].getNumberID(), NID_Invalid)
+	test.AssertEQ(e1.ContinuedFrom.Get()[0].getNumberID(), NID_Unassigned)
 
 	// Creating and re-reserving the same object shouldn't change anything.
-	e1.ContinuedFrom.Link(e0)
+	e1.ContinuedFrom.Link(e0, true)
 	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
 	test.AssertEQ(len(e0.ContinuedTo.Get()), 1)
 	test.AssertEQ(e1.ContinuedFrom.Has(e0), true)
 	test.AssertEQ(e0.ContinuedTo.Has(e1), true)
 	test.AssertEQ(e0.IsUnresolved(), false)
-	e1.ContinuedFrom.Link(e0)
+	e1.ContinuedFrom.Link(e0, true)
 	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
 	test.AssertEQ(len(e0.ContinuedTo.Get()), 1)
 	test.AssertEQ(e1.ContinuedFrom.Has(e0), true)
@@ -98,7 +98,7 @@ func TestContinuedEvent_Event(t *testing.T) {
 	test.AssertEQ(len(e0.ContinuedTo.Get()), 0)
 
 	// Re-creating should also be possible. 
-	e1.ContinuedFrom.Link(e0)
+	e1.ContinuedFrom.Link(e0, true)
 	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
 	test.AssertEQ(len(e0.ContinuedTo.Get()), 1)
 	test.AssertEQ(e1.ContinuedFrom.Has(e0), true)
@@ -110,7 +110,7 @@ func TestContinuedEvent_Event(t *testing.T) {
 	test.AssertEQ(e1.ContinuedFrom.Has(e0), false)
 	test.AssertEQ(e0.ContinuedTo.Has(e1), false)
 	test.AssertEQ(e0.IsUnresolved(), false)
-	e1.ContinuedFrom.Link(e0)
+	e1.ContinuedFrom.Link(e0, true)
 	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
 	test.AssertEQ(len(e0.ContinuedTo.Get()), 1)
 	test.AssertEQ(e1.ContinuedFrom.Has(e0), true)
@@ -195,9 +195,9 @@ func TestBrokenEvent_Event(t *testing.T) {
 	test.AssertWarnContains(w1, "cannot load an embedded event")
 	test.AssertWarnContains(w1, "attempted to embed both")
 	test.AssertEQ(e1.GetEmbedEventLink(), "/borked/path")
-	test.AssertEQ(e1.GetEmbedChartLink(), "/borked/path")
+	test.AssertEQ(e1.GetEmbedChartLink(), "")
 	test.AssertEQ(e1.IsEventEmbedding(), true)
-	test.AssertNE(e1.GetEmbeddedEvent(), nil)
+	test.AssertEQ(e1.IsChartEmbedding(), false)
 
 	t.Logf("Loading event '%s'...", *file.Event[2].Title)
 	e2, w2 := createEventFromParsed(file.Event[2])
@@ -277,8 +277,7 @@ func TestBrokenEvent_Event(t *testing.T) {
 	test.PrintAllWarnings(w11)
 
 	t.Logf("Investigating loaded event...")
-	test.AssertWarnContains(w11, "'ContinuedFrom' attribute")
-	test.AssertWarnContains(w11, "empty.")
+	test.AssertWarnContains(w11, "'ContinuedFrom' attribute.*empty.")
 
 	t.Log("End test.")
 }

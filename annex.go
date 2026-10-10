@@ -35,8 +35,8 @@ func (this *Annex) Equal(that IMajor) bool {
 
 func (this *Annex) resolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		this.AttachTo.Link(cobj)
-		this.ExtraNoteOf.Link(cobj)
+		this.AttachTo.Link(cobj, false)
+		this.ExtraNoteOf.Link(cobj, false)
 	}
 }
 
@@ -136,7 +136,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 	if this.numID == NID_Invalid {
 		newNumID := this.chart.getNextNumberID(MOK_Annex)
 		this.numID = newNumID
-		warns.Add("@0@ had an invalid ID. auto-corrected to 'e%d'.", newNumID)
+		warns.Add("@0@ had an invalid ID. auto-corrected to 'e%d'.", this, newNumID)
 	}
 
 	// Check duplicate ID.
@@ -145,7 +145,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 			this.AddAttr("OldID", this.GetIntrinsicID())
 			newNumID := this.chart.getNextNumberID(MOK_Annex)
 			this.numID = newNumID
-			warns.Add("@0@ had a duplicated ID. auto-corrected to 'a%d'.", newNumID)
+			warns.Add("@0@ had a duplicated ID. auto-corrected to 'a%d'.", this, newNumID)
 			break
 		}
 	}
@@ -165,7 +165,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 					warns.Add("@0@ has a dangling 'AttachTo' to '%s'.", this, aval)
 				} 
 
-				if objTo != nil && !objTo.GetCommon().Attached.Has(this) {
+				if objTo != nil && !objTo.IsUnresolved() && !objTo.GetCommon().Attached.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'AttachTo' to '%s', but it doesn't reference back. corrected.", this, aval)
 					objTo.GetCommon().Attached.add(this)
 				}
@@ -184,7 +184,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 					warns.Add("@0@ has a dangling 'ExtraNoteOf' to '%s'.", this, aval)
 				} 
 
-				if objOf != nil && !objOf.GetCommon().ExtraNote.Has(this) {
+				if objOf != nil && !objOf.IsUnresolved() && !objOf.GetCommon().ExtraNote.Has(this) {
 					warns.Add("!!!INTERNAL WARN!!! @0@ has 'ExtraNoteOf' to '%s', but it doesn't reference back. corrected.", this, aval)
 					objOf.GetCommon().ExtraNote.add(this)
 				}
@@ -289,7 +289,7 @@ func (this *Annex) SetAnnex(format string, encoding string, data []byte) error {
 
 // Public wrapper of 'addExtraNoteOfObject'.
 func (this *Annex) SetExtraNoteOf(obj *MajorCommon) {
-	this.ExtraNoteOf.Link(obj)
+	this.ExtraNoteOf.Link(obj, true)
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
@@ -304,7 +304,7 @@ func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
 
 // Public wrapper of 'addAttachToObject'.
 func (this *Annex) SetAttachTo(obj *MajorCommon) {
-	this.AttachTo.Link(obj)
+	this.AttachTo.Link(obj, true)
 }
 
 // Public wrapper of 'removeAttachToObject'.

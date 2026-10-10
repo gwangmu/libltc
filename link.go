@@ -68,12 +68,13 @@ func reserveLinkImpl[SrcT IMajor, SinkT IMajor](
 	// If the same ID was not reserved, add unresolved.
 	if idx == -1 {
 		unresOsink := createUnres(relQualID, osrc)
-		linkImpl[SrcT, SinkT](osrc, getEPSource, unresOsink, getEPSink, createUnres)
+		linkImpl[SrcT, SinkT](osrc, getEPSource, unresOsink, getEPSink, createUnres, true)
 	}
 }
 
+// force: create if not found (prev. reserved or linked)
 func linkImpl[SrcT IMajor, SinkT IMajor](
-		osrc SrcT, getEPSource func(SrcT) *EPSource[SrcT, SinkT], osink SinkT, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT) bool {
+		osrc SrcT, getEPSource func(SrcT) *EPSource[SrcT, SinkT], osink SinkT, getEPSink func(SinkT) *EPSink[SrcT], createUnres func(string, SrcT) SinkT, force bool) bool {
 	epSrc := getEPSource(osrc)
 	epSink := getEPSink(osink)
 
@@ -95,7 +96,7 @@ func linkImpl[SrcT IMajor, SinkT IMajor](
 				epSink.add(osrc)
 			}
 		}
-	} else {
+	} else if force {
 		// Otherwise, add it.
 		epSrc.add(osink)
 		if !osink.IsUnresolved() {
@@ -159,9 +160,9 @@ func (this AttachTo) Reserve(absQualID string) {
 		reserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
 	}
 }
-func (this AttachTo) Link(obj IMajor) {
+func (this AttachTo) Link(obj IMajor, force bool) {
 	if aobj := this.base; aobj != nil {
-		linkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+		linkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink, force)
 	}
 }
 func (this AttachTo) Unlink(obj IMajor) {
@@ -195,9 +196,9 @@ func (this ExtraNoteOf) Reserve(absQualID string) {
 		reserveLinkImpl[*Annex, IMajor](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
 	}
 }
-func (this ExtraNoteOf) Link(obj IMajor) {
+func (this ExtraNoteOf) Link(obj IMajor, force bool) {
 	if aobj := this.base; aobj != nil {
-		linkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+		linkImpl[*Annex, IMajor](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink, force)
 	}
 }
 func (this ExtraNoteOf) Unlink(obj IMajor) {
@@ -231,9 +232,9 @@ func (this ContinuedFrom) Reserve(absQualID string) {
 		reserveLinkImpl[*Event, *Event](aobj, this.getEPSource, absQualID, this.getEPSink, this.createUnresolvedSink)
 	}
 }
-func (this ContinuedFrom) Link(obj *Event) {
+func (this ContinuedFrom) Link(obj *Event, force bool) {
 	if aobj := this.base; aobj != nil {
-		linkImpl[*Event, *Event](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink)
+		linkImpl[*Event, *Event](aobj, this.getEPSource, obj, this.getEPSink, this.createUnresolvedSink, force)
 	}
 }
 func (this ContinuedFrom) Unlink(obj *Event) {

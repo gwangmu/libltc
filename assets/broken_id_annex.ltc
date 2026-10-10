@@ -1,0 +1,38 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+Sex = "Male"
+
+[[Annex]]
+ID = "borked"
+Title = "Broken ID"
+
+[[Annex]]
+ID = "a0"
+Title = "Annex0"
+
+[[Annex]]
+ID = "a1"
+Title = "Annex1"
+
+[[Annex]]
+ID = "a1"
+Title = "Annex2"
+
+[[Annex]]
+ID = "a1"
+Title = "Annex3"
+
+[[Annex]]
+ID = "e0"
+Title = "Wrong ID"
+
+[[Annex]]
+ID = "a1"
+Title = "Annex4"
