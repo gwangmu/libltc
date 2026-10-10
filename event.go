@@ -38,7 +38,7 @@ func (this *Event) Equal(that IMajor) bool {
 func (this *Event) resolveReferenceTo(c IChart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
-			this.ContinuedFrom.Create(eobj)			
+			this.ContinuedFrom.Link(eobj)			
 		}
 	}
 }
@@ -46,7 +46,7 @@ func (this *Event) resolveReferenceTo(c IChart) {
 func (this *Event) unresolveReferenceTo(c IChart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
-			this.ContinuedFrom.Break(eobj)			
+			this.ContinuedFrom.Unlink(eobj)			
 		}
 	}
 }
@@ -358,7 +358,7 @@ func (this *Event) SetCategory(c string) error {
 
 // Public wrapper of 'addContinuedFromEvent'.
 func (this *Event) SetContinuedFrom(eobj *Event) {
-    this.ContinuedFrom.Create(eobj)
+    this.ContinuedFrom.Link(eobj)
 }
 
 // Public wrapper of 'removeContinuedFromEvent'.

@@ -35,15 +35,15 @@ func (this *Annex) Equal(that IMajor) bool {
 
 func (this *Annex) resolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		this.AttachTo.Create(cobj)
-		this.ExtraNoteOf.Create(cobj)
+		this.AttachTo.Link(cobj)
+		this.ExtraNoteOf.Link(cobj)
 	}
 }
 
 func (this *Annex) unresolveReferenceTo(c IChart) {
 	for _, cobj := range c.GetAllMajors(true) {
-		this.AttachTo.Break(cobj)
-		this.ExtraNoteOf.Break(cobj)
+		this.AttachTo.Unlink(cobj)
+		this.ExtraNoteOf.Unlink(cobj)
 	}
 }
 
@@ -283,7 +283,7 @@ func (this *Annex) SetAnnex(format string, encoding string, data []byte) error {
 
 // Public wrapper of 'addExtraNoteOfObject'.
 func (this *Annex) SetExtraNoteOf(obj *MajorCommon) {
-	this.ExtraNoteOf.Create(obj)
+	this.ExtraNoteOf.Link(obj)
 }
 
 // Public wrapper of 'removeExtraNoteOfObject'.
@@ -298,7 +298,7 @@ func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
 
 // Public wrapper of 'addAttachToObject'.
 func (this *Annex) SetAttachTo(obj *MajorCommon) {
-	this.AttachTo.Create(obj)
+	this.AttachTo.Link(obj)
 }
 
 // Public wrapper of 'removeAttachToObject'.
