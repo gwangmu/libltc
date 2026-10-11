@@ -177,10 +177,18 @@ func (this AttachTo) Unreserve(absQualID string) {
 }
 
 func (AttachTo) getepSource(aobj *Annex) *epSource[*Annex, IMajor] {
-	return &aobj.AttachTo.epSource
+	if aobj != nil {
+		return &aobj.AttachTo.epSource
+	} else {
+		return nil
+	}
 }
 func (AttachTo) getepSink(obj IMajor) *epSink[*Annex] {
-	return &obj.GetCommon().Attached.epSink
+	if obj != nil {
+		return &obj.GetCommon().Attached.epSink
+	} else {
+		return nil
+	}
 }
 func (AttachTo) createUnresolvedSink(relQualID string, refcer *Annex) IMajor {
 	ret := CreateEmptyMajorCommon()
@@ -213,10 +221,18 @@ func (this ExtraNoteOf) Unreserve(absQualID string) {
 }
 
 func (ExtraNoteOf) getepSource(aobj *Annex) *epSource[*Annex, IMajor] {
-	return &aobj.ExtraNoteOf.epSource
+	if aobj != nil {
+		return &aobj.ExtraNoteOf.epSource
+	} else {
+		return nil
+	}
 }
 func (ExtraNoteOf) getepSink(obj IMajor) *epSink[*Annex] {
-	return &obj.GetCommon().ExtraNote.epSink
+	if obj != nil {
+		return &obj.GetCommon().ExtraNote.epSink
+	} else {
+		return nil
+	}
 }
 func (ExtraNoteOf) createUnresolvedSink(relQualID string, refcer *Annex) IMajor {
 	ret := CreateEmptyMajorCommon()
@@ -249,10 +265,18 @@ func (this ContinuedFrom) Unreserve(absQualID string) {
 }
 
 func (ContinuedFrom) getepSource(eobj *Event) *epSource[*Event, *Event] {
-	return &eobj.ContinuedFrom.epSource
+	if eobj != nil {
+		return &eobj.ContinuedFrom.epSource
+	} else {
+		return nil
+	}
 }
 func (ContinuedFrom) getepSink(eobj *Event) *epSink[*Event] {
-	return &eobj.ContinuedTo.epSink
+	if eobj != nil {
+		return &eobj.ContinuedTo.epSink
+	} else {
+		return nil
+	}
 }
 func (ContinuedFrom) createUnresolvedSink(relQualID string, refcer *Event) *Event {
 	ret := CreateEmptyEvent()
