@@ -1,8 +1,8 @@
 package libltc
 
 import (
-	"libltc/warning"
-	"libltc/internal/file"
+	"github.com/gwangmu/libltc/warning"
+	"github.com/gwangmu/libltc/internal/file"
 )
 
 type Import struct {
@@ -229,11 +229,11 @@ func CreateEmptyImport() *Import {
 }
 
 func (this *Import) resolveReferenceTo(c IChart) {
-	// No EPSource. Nothing to do.
+	// No epSource. Nothing to do.
 	return
 }
 
 func (this *Import) unresolveReferenceTo(c IChart) {
-	// No EPSource. Nothing to do.
+	// No epSource. Nothing to do.
 	return
 }

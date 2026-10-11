@@ -8,7 +8,7 @@ import (
 	"testing"
 	"path/filepath"
 	
-	"libltc/warning"
+	"github.com/gwangmu/libltc/warning"
 )
 
 var curT *testing.T

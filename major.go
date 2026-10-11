@@ -50,11 +50,6 @@ type IMajor interface {
 	initialize()
 }
 
-type IMajorPtr[T any] interface {
-	*T
-	IMajor
-}
-
 type MajorCommon struct {
 	enclosing IMajor			// Enclosing object of this common struct
 
@@ -296,12 +291,12 @@ func (this *MajorCommon) convIDAbsToRel(absid string) string {
 }
 
 func (this *MajorCommon) resolveReferenceTo(c IChart) {
-	// No EPSource. Nothing to do.
+	// No epSource. Nothing to do.
 	return
 }
 
 func (this *MajorCommon) unresolveReferenceTo(c IChart) {
-	// No EPSource. Nothing to do.
+	// No epSource. Nothing to do.
 	return
 }
 

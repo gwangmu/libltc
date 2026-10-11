@@ -4,9 +4,9 @@ import (
 	"errors"
 	"fmt"
 
-	"libltc/warning"
-	"libltc/internal/coder"
-	"libltc/internal/file"
+	"github.com/gwangmu/libltc/warning"
+	"github.com/gwangmu/libltc/internal/coder"
+	"github.com/gwangmu/libltc/internal/file"
 )
 
 type Annex struct {

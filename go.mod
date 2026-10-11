@@ -1,4 +1,4 @@
-module libltc
+module github.com/gwangmu/libltc
 
 go 1.25.0
 

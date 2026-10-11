@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	"libltc/warning"
+	"github.com/gwangmu/libltc/warning"
 )
 
 type wse = warning.SummaryElement

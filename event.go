@@ -3,8 +3,8 @@ package libltc
 import (
 	"regexp"
 
-	"libltc/warning"
-	"libltc/internal/file"
+	"github.com/gwangmu/libltc/warning"
+	"github.com/gwangmu/libltc/internal/file"
 )
 
 type Event struct {
@@ -27,7 +27,7 @@ type Event struct {
     ContinuedTo		// Pointed by 'ContinuedFrom'
 }
 
-type ChartLoader = func (*file.File) (*Chart, warning.Warnings)
+type chartLoader = func (*file.File) (*Chart, warning.Warnings)
 
 func (this *Event) Equal(that IMajor) bool {
 	return this.GetCommon() == that.GetCommon()
@@ -247,7 +247,7 @@ func (this *Event) IsSubchartLoaded() bool {
 	return this.embeddedChart != nil
 }
 
-func (this *Event) GetSubchart(cloader ChartLoader) (*Chart, warning.Warnings) {
+func (this *Event) GetSubchart(cloader chartLoader) (*Chart, warning.Warnings) {
 	warns := warning.Warnings{}
 
 	// Lazy-load `embeddedChart` if it's nil (but shouldn't).
@@ -477,7 +477,7 @@ func (this *Event) unloadEmbeddedEvent() {
 	this.embeddedEvent = nil
 }
 
-func (this *Event) loadEmbeddedChart(cloader ChartLoader) (warns warning.Warnings) {
+func (this *Event) loadEmbeddedChart(cloader chartLoader) (warns warning.Warnings) {
 	if cloader == nil {
 		warns.Add("!!!INTERNAL WARN!!! chart loader not provided")
 		return

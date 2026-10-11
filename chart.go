@@ -7,8 +7,8 @@ import (
 	"maps"
 	"regexp"
 
-	"libltc/warning"
-	"libltc/internal/file"
+	"github.com/gwangmu/libltc/warning"
+	"github.com/gwangmu/libltc/internal/file"
 )
 
 type IChart interface {
@@ -629,7 +629,12 @@ func insertEventToSlice(evs []*Event, eobj *Event) (ret []*Event) {
 	return
 }
 
-func removeMajorFromSlice[T any, TPtr IMajorPtr[T]](objs []TPtr, obj TPtr) []TPtr {
+type iMajorPtr[T any] interface {
+	*T
+	IMajor
+}
+
+func removeMajorFromSlice[T any, TPtr iMajorPtr[T]](objs []TPtr, obj TPtr) []TPtr {
 	idx := slices.Index(objs, obj)
 	if idx != -1 {
 		return slices.Delete(objs, idx, idx+1)

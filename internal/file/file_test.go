@@ -2,7 +2,7 @@ package file
 
 import (
 	"testing"
-	"libltc/internal/test"
+	"github.com/gwangmu/libltc/internal/test"
 )
 
 func TestSingleEvent_File(t *testing.T) {

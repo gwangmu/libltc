@@ -10,7 +10,7 @@ import (
 	"net/http"
 
 	"github.com/BurntSushi/toml"
-	"libltc/warning"
+	"github.com/gwangmu/libltc/warning"
 )
 
 func LoadFromString[T IFileObject, U IDiagnosablePtr[T]](ltcstr string) (U, warning.Warnings, error) {

@@ -2,8 +2,8 @@ package libltc
 
 import (
 	"testing"
-	"libltc/internal/file"
-	"libltc/internal/test"
+	"github.com/gwangmu/libltc/internal/file"
+	"github.com/gwangmu/libltc/internal/test"
 )
 
 func TestNotes_Common(t *testing.T) {

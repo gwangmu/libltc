@@ -3,7 +3,7 @@ package libltc
 import (
 	"slices"
 	"testing"
-	"libltc/internal/test"
+	"github.com/gwangmu/libltc/internal/test"
 )
 
 func TestSingleEvent_Chart(t *testing.T) {

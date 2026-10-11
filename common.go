@@ -9,8 +9,8 @@ import (
 	"strings"
 	"time"
 
-	"libltc/warning"
-	"libltc/internal/file"
+	"github.com/gwangmu/libltc/warning"
+	"github.com/gwangmu/libltc/internal/file"
 )
 
 type wse = warning.SummaryElement
