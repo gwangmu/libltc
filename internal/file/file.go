@@ -8,7 +8,7 @@ import (
 	"libltc/warning"
 )
 
-type WSE = warning.SummaryElement
+type wse = warning.SummaryElement
 
 type IFileObject interface {
 	File | Setting | Subject | Event | Annex | Import | Name | Time
@@ -121,9 +121,9 @@ func (this Subject) Summary() (ret string) {
 	ret = this.Name.Summary()
 
 	extraStr := warning.BuildSummaryString(
-		WSE{"", this.Sex}, 
-		WSE{"Started", this.StartDate},
-		WSE{"Ended", this.EndDate},
+		wse{"", this.Sex}, 
+		wse{"Started", this.StartDate},
+		wse{"Ended", this.EndDate},
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
@@ -169,17 +169,17 @@ func (this Event) Summary() (ret string) {
 	extraStr := ""
 	if this.Title == nil {
 		extraStr = warning.BuildSummaryString(
-			WSE{"ID", this.ID},
-			WSE{"Category", this.Category}, 
-			WSE{"Embedded-chart", this.EmbedChart},
-			WSE{"Started", this.StartDate}, 
-			WSE{"Ended", this.EndDate},
+			wse{"ID", this.ID},
+			wse{"Category", this.Category}, 
+			wse{"Embedded-chart", this.EmbedChart},
+			wse{"Started", this.StartDate}, 
+			wse{"Ended", this.EndDate},
 		)
 	} else {
 		extraStr = warning.BuildSummaryString(
-			WSE{"ID", this.ID},
-			WSE{"Category", this.Category},
-			WSE{"Embedded-chart", this.EmbedChart},
+			wse{"ID", this.ID},
+			wse{"Category", this.Category},
+			wse{"Embedded-chart", this.EmbedChart},
 		)
 	}
 	if (len(extraStr) > 0) {
@@ -240,8 +240,8 @@ func (this Annex) Summary() (ret string) {
 	}
 
 	extraStr := warning.BuildSummaryString(
-		WSE{"ID", this.ID},
-		WSE{"Format", this.Format}, 
+		wse{"ID", this.ID},
+		wse{"Format", this.Format}, 
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
@@ -290,10 +290,10 @@ func (this Import) Summary() (ret string) {
 	ret = "an import"
 
 	extraStr := warning.BuildSummaryString(
-		WSE{"ID", this.ID},
-		WSE{"From", this.StartDate},
-		WSE{"To", this.EndDate},
-		WSE{"Offset", this.OffsetDate},
+		wse{"ID", this.ID},
+		wse{"From", this.StartDate},
+		wse{"To", this.EndDate},
+		wse{"Offset", this.OffsetDate},
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"

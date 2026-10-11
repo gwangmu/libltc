@@ -1,4 +1,4 @@
-package ltc
+package libltc
 
 import (
 	"errors"

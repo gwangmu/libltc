@@ -1,4 +1,4 @@
-package ltc
+package libltc
 
 import (
 	"errors"
@@ -80,10 +80,10 @@ func (this *Annex) Summary() (ret string) {
 	}
 
 	extraStr := warning.BuildSummaryString(
-		WSE{"ID", this.GetIntrinsicID()},
-		WSE{"OldID", maybeOldID},
-		WSE{"format", this.format}, 
-		WSE{"encoding", this.encoding},
+		wse{"ID", this.GetIntrinsicID()},
+		wse{"OldID", maybeOldID},
+		wse{"format", this.format}, 
+		wse{"encoding", this.encoding},
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"

@@ -1,4 +1,4 @@
-package ltc
+package libltc
 
 import (
 	"fmt"
@@ -13,7 +13,7 @@ import (
 	"libltc/internal/file"
 )
 
-type WSE = warning.SummaryElement
+type wse = warning.SummaryElement
 
 //-- struct Name
 

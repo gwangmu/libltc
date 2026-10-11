@@ -1,4 +1,4 @@
-package ltc
+package libltc
 
 import (
 	"errors"
@@ -650,8 +650,8 @@ type Setting struct {
 
 func (this Setting) Summary() string {
 	return warning.BuildSummaryString(
-		WSE{"calendar", this.CalendarSystem},
-		WSE{"note", this.NoteFormat},
+		wse{"calendar", this.CalendarSystem},
+		wse{"note", this.NoteFormat},
 	)
 }
 
@@ -723,9 +723,9 @@ func (this Subject) Summary() (ret string) {
 	ret = this.Name.Summary()
 	
 	extraStr := warning.BuildSummaryString(
-		WSE{"", this.Sex}, 
-		WSE{"started", this.StartDate},
-		WSE{"ended", this.EndDate},
+		wse{"", this.Sex}, 
+		wse{"started", this.StartDate},
+		wse{"ended", this.EndDate},
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"

@@ -1,4 +1,4 @@
-package ltc
+package libltc
 
 import (
 	"regexp"
@@ -89,18 +89,18 @@ func (this *Event) Summary() (ret string) {
 	extraStr := ""
 	if this.IsUnresolved() {
 		extraStr = warning.BuildSummaryString(
-			WSE{"ID", this.getUnresRelQualID()},
-			WSE{"OldID", maybeOldID},
+			wse{"ID", this.getUnresRelQualID()},
+			wse{"OldID", maybeOldID},
 		)
 	} else {
 		extraStr = warning.BuildSummaryString(
-			WSE{"ID", this.GetIntrinsicID()},
-			WSE{"OldID", maybeOldID},
-			WSE{"Category", this.GetCategory()},
-			WSE{"Started", this.GetStartDate()}, 
-			WSE{"Ended", this.GetEndDate()},
-			WSE{"Embedded-event", this.GetEmbedEventLink()},
-			WSE{"Embedded-chart", this.GetEmbedChartLink()},
+			wse{"ID", this.GetIntrinsicID()},
+			wse{"OldID", maybeOldID},
+			wse{"Category", this.GetCategory()},
+			wse{"Started", this.GetStartDate()}, 
+			wse{"Ended", this.GetEndDate()},
+			wse{"Embedded-event", this.GetEmbedEventLink()},
+			wse{"Embedded-chart", this.GetEmbedChartLink()},
 		)
 	}
 	if (len(extraStr) > 0) {
