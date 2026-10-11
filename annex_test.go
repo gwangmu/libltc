@@ -144,7 +144,7 @@ func TestAttachedAnnex_Annex(t *testing.T) {
 	test.AssertEQ(a0.AttachTo.Get()[0].GetIntrinsicID(), "e0")
 	test.AssertEQ(a0.AttachTo.Get()[0].GetAbsQualifiedID(), "e0")
 	test.AssertEQ(a0.AttachTo.Get()[0].IsUnresolved(), true)
-	test.AssertEQ(a0.AttachTo.Get()[0].getNumberID(), NID_Unassigned)
+	test.AssertEQ(a0.AttachTo.Get()[0].getmNumberID(), mNID_Unassigned)
 
 	// Creating and re-reserving the same object shouldn't change anything.
 	a0.AttachTo.Link(e0, true)
@@ -206,7 +206,7 @@ func TestAttachedAnnex_Annex(t *testing.T) {
 	test.AssertEQ(a1.ExtraNoteOf.Get()[0].GetIntrinsicID(), "e0")
 	test.AssertEQ(a1.ExtraNoteOf.Get()[0].GetAbsQualifiedID(), "e0")
 	test.AssertEQ(a1.ExtraNoteOf.Get()[0].IsUnresolved(), true)
-	test.AssertEQ(a1.ExtraNoteOf.Get()[0].getNumberID(), NID_Unassigned)
+	test.AssertEQ(a1.ExtraNoteOf.Get()[0].getmNumberID(), mNID_Unassigned)
 
 	// Creating and re-reserving the same object shouldn't change anything.
 	a1.ExtraNoteOf.Link(e0, true)

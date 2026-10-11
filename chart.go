@@ -119,7 +119,7 @@ func (this Chart) IsUnknown() bool {
 
 //-- method (main object association)
 
-func (this *Chart) getNextNumberID(kind MajorKind) NumberID {
+func (this *Chart) getNextmNumberID(kind MajorKind) mNumberID {
 	mainobjArr := []IMajor{}
 
 	switch kind {
@@ -138,19 +138,19 @@ func (this *Chart) getNextNumberID(kind MajorKind) NumberID {
 			mainobjArr = append(mainobjArr, o)
 		}
 	default:
-		return NID_Invalid
+		return mNID_Invalid
 	}
 
 	// Next next ID = Max existing numID + 1
 	// FIXME: error out if 'maxNumID' == UINT_MAX - 1. Unlikely, but still.
-	var maxNumID NumberID = 0
+	var maxNumID mNumberID = 0
 	for _, mainobj := range mainobjArr {
-		if mainobj.getNumberID() == NID_Invalid {
+		if mainobj.getmNumberID() == mNID_Invalid {
 			continue
 		}
-		maxNumID = max(maxNumID, mainobj.getNumberID())
+		maxNumID = max(maxNumID, mainobj.getmNumberID())
 	}
-	if maxNumID == NID_Max {
+	if maxNumID == mNID_Max {
 		panic("Cannot get new number ID.")
 	} else {
 		return maxNumID + 1
@@ -288,9 +288,9 @@ func (this *Chart) AddObject(obj IMajor) error {
 
 	// Associate 'obj' to this chart.
 	obj.setChart(this)
-	if obj.getNumberID() == NID_Unassigned {
-		nnid := this.getNextNumberID(objKind)
-		obj.setNumberID(nnid)
+	if obj.getmNumberID() == mNID_Unassigned {
+		nnid := this.getNextmNumberID(objKind)
+		obj.setmNumberID(nnid)
 	}
 
 	switch objKind {
@@ -352,7 +352,7 @@ func (this *Chart) RemoveObject(obj IMajor) {
 
 	// Dissociate 'obj' to this chart.
 	obj.setChart(nil)
-	obj.setNumberID(NID_Invalid)
+	obj.setmNumberID(mNID_Invalid)
 
 	switch objKind {
 	case MOK_Event:

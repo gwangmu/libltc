@@ -133,8 +133,8 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 	}
 
 	// Check invalid ID.
-	if this.numID == NID_Invalid {
-		newNumID := this.chart.getNextNumberID(MOK_Annex)
+	if this.numID == mNID_Invalid {
+		newNumID := this.chart.getNextmNumberID(MOK_Annex)
 		this.numID = newNumID
 		warns.Add("@0@ had an invalid ID. auto-corrected to 'e%d'.", this, newNumID)
 	}
@@ -143,7 +143,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 	for _, aobj := range this.chart.GetAnnexs() {
 		if aobj != this && aobj.numID == this.numID {
 			this.AddAttr("OldID", this.GetIntrinsicID())
-			newNumID := this.chart.getNextNumberID(MOK_Annex)
+			newNumID := this.chart.getNextmNumberID(MOK_Annex)
 			this.numID = newNumID
 			warns.Add("@0@ had a duplicated ID. auto-corrected to 'a%d'.", this, newNumID)
 			break
@@ -287,36 +287,6 @@ func (this *Annex) SetAnnex(format string, encoding string, data []byte) error {
 	}
 }
 
-// Public wrapper of 'addExtraNoteOfObject'.
-func (this *Annex) SetExtraNoteOf(obj *MajorCommon) {
-	this.ExtraNoteOf.Link(obj, true)
-}
-
-// Public wrapper of 'removeExtraNoteOfObject'.
-func (this *Annex) UnsetExtraNoteOf(obj *MajorCommon) {
-	this.ExtraNoteOf.Unreserve(obj.GetAbsQualifiedID())
-}
-
-// Public wrapper of 'removeExtraNoteOfObject'.
-func (this *Annex) UnsetExtraNoteOfByID(absQualID string) {
-	this.ExtraNoteOf.Unreserve(absQualID)
-}
-
-// Public wrapper of 'addAttachToObject'.
-func (this *Annex) SetAttachTo(obj *MajorCommon) {
-	this.AttachTo.Link(obj, true)
-}
-
-// Public wrapper of 'removeAttachToObject'.
-func (this *Annex) UnsetAttachTo(obj *MajorCommon) {
-	this.AttachTo.Unreserve(obj.GetAbsQualifiedID())
-}
-
-// Public wrapper of 'removeAttachToObject'.
-func (this *Annex) UnsetAttachToByID(absQualID string) {
-	this.AttachTo.Unreserve(absQualID)
-}
-
 //-- method (creation)
 
 func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
@@ -327,8 +297,8 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	annex.numID = numID
 	annex.attrs = convAttrsFileToChart(o.Attrs)
 
-	if kind != MOK_Annex || numID == NID_Invalid {
-		annex.numID = NID_Invalid
+	if kind != MOK_Annex || numID == mNID_Invalid {
+		annex.numID = mNID_Invalid
 		annex.AddAttr("OldID", o.ID)
 	}
 

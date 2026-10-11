@@ -16,8 +16,8 @@ type IMajor interface {
 	GetChart() *Chart
 	setChart(c *Chart)
 
-	getNumberID() NumberID 
-	setNumberID(nid NumberID)
+	getmNumberID() mNumberID 
+	setmNumberID(nid mNumberID)
 
 	getUnresRelQualID() string
 	markUnresolved(unresRelQualID string, refcer IMajor)
@@ -55,7 +55,7 @@ type MajorCommon struct {
 
 	chart *Chart				// Associated chart
 	parent IMajor				// Included by...
-	numID NumberID 				// Numeric part of ID
+	numID mNumberID 				// Numeric part of ID
 
 	unresRelQualID string		// **UNRESOLVED** local qualified ID
 	unresRefcer IMajor 			// Referencer of **UNRESOLVED** obj (=this) 
@@ -106,11 +106,11 @@ func (this *MajorCommon) setChart(c *Chart) {
 	this.chart = c
 }
 
-func (this *MajorCommon) getNumberID() NumberID {
+func (this *MajorCommon) getmNumberID() mNumberID {
 	return this.numID
 }
 
-func (this *MajorCommon) setNumberID(nid NumberID) {
+func (this *MajorCommon) setmNumberID(nid mNumberID) {
 	this.numID = nid
 }
 
@@ -144,7 +144,7 @@ func (this *MajorCommon) GetIntrinsicID() string {
 			return unresRelQualID[lastidx+1:]
 		}
 	} else {
-		if this.numID == NID_Invalid || this.numID == NID_Unassigned {
+		if this.numID == mNID_Invalid || this.numID == mNID_Unassigned {
 			return "?"
 		} else {
 			return convIDInternalToString(this.GetKind(), this.numID)
@@ -306,7 +306,7 @@ func (this *MajorCommon) initialize() {
 
 		chart: nil,
 		parent: nil,
-		numID: NID_Unassigned,
+		numID: mNID_Unassigned,
 		unresRelQualID: "",
 
 		attrs: map[string][]string{},
@@ -325,28 +325,28 @@ func CreateEmptyMajorCommon() *MajorCommon {
 
 //-- vvv Constants vvv
 
-//-- type TimeKind
+//-- type mTimeKind
 
-type TimeKind int
+type mTimeKind int
 const (
-	TK_Year TimeKind = iota
-	TK_Month
-	TK_Day
-	TK_Hour
-	TK_Minute
-	TK_Second
+	mTK_Year mTimeKind = iota
+	mTK_Month
+	mTK_Day
+	mTK_Hour
+	mTK_Minute
+	mTK_Second
 )
 
-const TKValue_Max int = math.MaxInt
-const TKValue_Min int = math.MinInt 
-const TKValue_Unknown int = -1 
+const mTKValue_Max int = math.MaxInt
+const mTKValue_Min int = math.MinInt 
+const mTKValue_Unknown int = -1 
 
-//-- type NumberID
+//-- type mNumberID
 
-type NumberID uint64
-const NID_Max = math.MaxUint64 - 2 
-const NID_Unassigned = math.MaxUint64 -1
-const NID_Invalid = math.MaxUint64
+type mNumberID uint64
+const mNID_Max = math.MaxUint64 - 2 
+const mNID_Unassigned = math.MaxUint64 -1
+const mNID_Invalid = math.MaxUint64
 
 //-- type MajorKind
 

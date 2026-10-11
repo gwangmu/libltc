@@ -66,7 +66,7 @@ func TestContinuedEvent_Event(t *testing.T) {
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].GetIntrinsicID(), "e0")
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].GetAbsQualifiedID(), "e0")
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].IsUnresolved(), true)
-	test.AssertEQ(e1.ContinuedFrom.Get()[0].getNumberID(), NID_Unassigned)
+	test.AssertEQ(e1.ContinuedFrom.Get()[0].getmNumberID(), mNID_Unassigned)
 
 	// Creating and re-reserving the same object shouldn't change anything.
 	e1.ContinuedFrom.Link(e0, true)

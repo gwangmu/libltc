@@ -162,8 +162,8 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 	}
 
 	// Check invalid ID.
-	if this.numID == NID_Invalid {
-		newNumID := this.chart.getNextNumberID(MOK_Event)
+	if this.numID == mNID_Invalid {
+		newNumID := this.chart.getNextmNumberID(MOK_Event)
 		this.numID = newNumID
 		warns.Add("@0@ had an invalid ID. auto-corrected to 'e%d'.", this, newNumID)
 	}
@@ -173,7 +173,7 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 		for _, eobj := range this.chart.GetEventsInCategory(category) {
 			if eobj != this && eobj.numID == this.numID {
 				this.AddAttr("OldID", this.GetIntrinsicID())
-				newNumID := this.chart.getNextNumberID(MOK_Event)
+				newNumID := this.chart.getNextmNumberID(MOK_Event)
 				this.numID = newNumID
 				warns.Add("@0@ had a duplicated ID. auto-corrected to 'e%d'.", this, newNumID)
 				break
@@ -362,23 +362,6 @@ func (this *Event) SetCategory(c string) error {
 	return nil
 }
 
-//-- method (high-level operation)
-
-// Public wrapper of 'addContinuedFromEvent'.
-func (this *Event) SetContinuedFrom(eobj *Event) {
-    this.ContinuedFrom.Link(eobj, true)
-}
-
-// Public wrapper of 'removeContinuedFromEvent'.
-func (this *Event) UnsetContinuedFrom(eobj *Event) {
-	this.ContinuedFrom.Unreserve(eobj.GetAbsQualifiedID())
-}
-
-// Public wrapper of 'removeContinuedFromEvent'.
-func (this *Event) UnsetContinuedFromByID(absQualID string) {
-	this.ContinuedFrom.Unreserve(absQualID)
-}
-
 //-- method (creation)
 
 func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
@@ -389,8 +372,8 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
     event.numID = numID
 	event.attrs = convAttrsFileToChart(o.Attrs)
 
-	if kind != MOK_Event || numID == NID_Invalid {
-		event.numID = NID_Invalid
+	if kind != MOK_Event || numID == mNID_Invalid {
+		event.numID = mNID_Invalid
 		event.AddAttr("OldID", o.ID)
 	}
 

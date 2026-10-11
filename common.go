@@ -153,43 +153,43 @@ func (this Time) GetGOTime() time.Time {
 
 	mc := this.GetMonth() 
 	switch mc {
-	case TKValue_Max:
+	case mTKValue_Max:
 		// FIXME: currently using the Gragorian calendar max.
 		mc = 12
-	case TKValue_Min:
+	case mTKValue_Min:
 		mc = 1
 	}
 
 	dc := this.GetDay()
 	switch dc {
-	case TKValue_Max:
+	case mTKValue_Max:
 		// FIXME: currently using the Gragorian calendar max.
 		dc = time.Date(0, time.Month(mc+1), 0, 0, 0, 0, 0, this.GetTimezone()).Day()
-	case TKValue_Min:
+	case mTKValue_Min:
 		dc = 1
 	}
 
 	hc := this.GetHour()
 	switch hc {
-	case TKValue_Max:
+	case mTKValue_Max:
 		hc = 23
-	case TKValue_Min:
+	case mTKValue_Min:
 		hc = 0
 	}
 
 	mmc := this.GetMinute()
 	switch mmc {
-	case TKValue_Max:
+	case mTKValue_Max:
 		mmc = 59
-	case TKValue_Min:
+	case mTKValue_Min:
 		mmc = 0
 	}
 
 	sc := this.GetSecond()
 	switch sc {
-	case TKValue_Max:
+	case mTKValue_Max:
 		sc = 59
-	case TKValue_Min:
+	case mTKValue_Min:
 		sc = 0
 	}
 
@@ -208,11 +208,11 @@ func (this Time) GetYear() int {
 	if this.year == nil {
 		switch this.usage {
 		case TUK_End:
-			return TKValue_Max
+			return mTKValue_Max
 		case TUK_Start:
-			return TKValue_Min 
+			return mTKValue_Min 
 		default:
-			return TKValue_Unknown
+			return mTKValue_Unknown
 		}
 	} else {
 		return *this.year
@@ -222,11 +222,11 @@ func (this Time) GetYear() int {
 func (this Time) GetYearString() string {
 	v := this.GetYear() 
 	switch v {
-	case TKValue_Max:
+	case mTKValue_Max:
 		return "****"
-	case TKValue_Min:
+	case mTKValue_Min:
 		return "____"
-	case TKValue_Unknown:
+	case mTKValue_Unknown:
 		return "????"
 	default:
 		return fmt.Sprintf("%04d", v)
@@ -237,11 +237,11 @@ func (this Time) GetMonth() int {
 	if this.month == nil {
 		switch this.usage {
 		case TUK_End:
-			return TKValue_Max
+			return mTKValue_Max
 		case TUK_Start:
-			return TKValue_Min 
+			return mTKValue_Min 
 		default:
-			return TKValue_Unknown
+			return mTKValue_Unknown
 		}
 	} else {
 		return *this.month
@@ -251,11 +251,11 @@ func (this Time) GetMonth() int {
 func (this Time) GetMonthString() string {
 	v := this.GetMonth() 
 	switch v {
-	case TKValue_Max:
+	case mTKValue_Max:
 		return "**"
-	case TKValue_Min:
+	case mTKValue_Min:
 		return "__"
-	case TKValue_Unknown:
+	case mTKValue_Unknown:
 		return "??"
 	default:
 		return fmt.Sprintf("%02d", v)
@@ -266,11 +266,11 @@ func (this Time) GetDay() int {
 	if this.day == nil {
 		switch this.usage {
 		case TUK_End:
-			return TKValue_Max
+			return mTKValue_Max
 		case TUK_Start:
-			return TKValue_Min 
+			return mTKValue_Min 
 		default:
-			return TKValue_Unknown
+			return mTKValue_Unknown
 		}
 	} else {
 		return *this.day
@@ -280,11 +280,11 @@ func (this Time) GetDay() int {
 func (this Time) GetDayString() string {
 	v := this.GetDay() 
 	switch v {
-	case TKValue_Max:
+	case mTKValue_Max:
 		return "**"
-	case TKValue_Min:
+	case mTKValue_Min:
 		return "__"
-	case TKValue_Unknown:
+	case mTKValue_Unknown:
 		return "??"
 	default:
 		return fmt.Sprintf("%02d", v)
@@ -295,11 +295,11 @@ func (this Time) GetHour() int {
 	if this.hour == nil {
 		switch this.usage {
 		case TUK_End:
-			return TKValue_Max
+			return mTKValue_Max
 		case TUK_Start:
-			return TKValue_Min 
+			return mTKValue_Min 
 		default:
-			return TKValue_Unknown
+			return mTKValue_Unknown
 		}
 	} else {
 		return *this.hour
@@ -309,11 +309,11 @@ func (this Time) GetHour() int {
 func (this Time) GetHourString() string {
 	v := this.GetHour()
 	switch v {
-	case TKValue_Max:
+	case mTKValue_Max:
 		return "**"
-	case TKValue_Min:
+	case mTKValue_Min:
 		return "__"
-	case TKValue_Unknown:
+	case mTKValue_Unknown:
 		return "??"
 	default:
 		return fmt.Sprintf("%02d", v)
@@ -324,11 +324,11 @@ func (this Time) GetMinute() int {
 	if this.minute == nil {
 		switch this.usage {
 		case TUK_End:
-			return TKValue_Max
+			return mTKValue_Max
 		case TUK_Start:
-			return TKValue_Min 
+			return mTKValue_Min 
 		default:
-			return TKValue_Unknown
+			return mTKValue_Unknown
 		}
 	} else {
 		return *this.minute
@@ -338,11 +338,11 @@ func (this Time) GetMinute() int {
 func (this Time) GetMinuteString() string {
 	v := this.GetMinute()
 	switch v {
-	case TKValue_Max:
+	case mTKValue_Max:
 		return "**"
-	case TKValue_Min:
+	case mTKValue_Min:
 		return "__"
-	case TKValue_Unknown:
+	case mTKValue_Unknown:
 		return "??"
 	default:
 		return fmt.Sprintf("%02d", v)
@@ -353,11 +353,11 @@ func (this Time) GetSecond() int {
 	if this.second == nil {
 		switch this.usage {
 		case TUK_End:
-			return TKValue_Max
+			return mTKValue_Max
 		case TUK_Start:
-			return TKValue_Min 
+			return mTKValue_Min 
 		default:
-			return TKValue_Unknown
+			return mTKValue_Unknown
 		}
 	} else {
 		return *this.second
@@ -367,11 +367,11 @@ func (this Time) GetSecond() int {
 func (this Time) GetSecondString() string {
 	v := this.GetSecond()
 	switch v {
-	case TKValue_Max:
+	case mTKValue_Max:
 		return "**"
-	case TKValue_Min:
+	case mTKValue_Min:
 		return "__"
-	case TKValue_Unknown:
+	case mTKValue_Unknown:
 		return "??"
 	default:
 		return fmt.Sprintf("%02d", v)
@@ -859,28 +859,28 @@ func convAttrsChartToFile(attrs map[string][]string) (fattrs []string) {
 	return
 }
 
-func convIDStringToInternal(id string) (MajorKind, NumberID) {
+func convIDStringToInternal(id string) (MajorKind, mNumberID) {
 	// According to the specification, the first letter should specify the kind.
 	if len(id) < 1 {
-		return MOK_Unknown, NID_Invalid
+		return MOK_Unknown, mNID_Invalid
 	}
 
 	kind, err := GetMajorKind(id[0:1])
 	if err != nil {
-		return MOK_Unknown, NID_Invalid
+		return MOK_Unknown, mNID_Invalid
 	} else if len(id) < 2 {
-		return kind, NID_Invalid
+		return kind, mNID_Invalid
 	}
 
 	nid, err := strconv.ParseUint(id[1:], 10, 64)
 	if err != nil {
-		return kind, NID_Invalid
+		return kind, mNID_Invalid
 	}
 
-	return kind, NumberID(nid)
+	return kind, mNumberID(nid)
 }
 
-func convIDInternalToString(kind MajorKind, nid NumberID) string {
+func convIDInternalToString(kind MajorKind, nid mNumberID) string {
 	if prefix, err := kind.Prefix(); err == nil {
 		return prefix + strconv.FormatUint(uint64(nid), 10)
 	} else {
@@ -895,7 +895,7 @@ func CloneMajor[T IMajor](obj *T, preserveChart bool, preserveID bool) *T {
 		newobj.setChart(nil)
 	}
 	if !preserveID {
-		newobj.setNumberID(NID_Invalid)
+		newobj.setmNumberID(mNID_Invalid)
 		newobj.unmarkUnresolved()
 	}
 	return &newobj
