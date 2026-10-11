@@ -13,8 +13,8 @@ type IMajor interface {
 	GetCommon() *MajorCommon
 	GetEnclosingObject() IMajor
 
-	GetChart() IChart
-	setChart(c IChart)
+	GetChart() *Chart
+	setChart(c *Chart)
 
 	getNumberID() NumberID 
 	setNumberID(nid NumberID)
@@ -25,7 +25,7 @@ type IMajor interface {
 	IsUnresolved() bool
 
 	GetIntrinsicID() string 
-	GetRelQualifiedID(baseChart IChart) string
+	GetRelQualifiedID(baseChart *Chart) string
 	GetAbsQualifiedID() string
 
 	GetParent() IMajor
@@ -44,8 +44,8 @@ type IMajor interface {
 	convIDRelToAbs(relid string) string
 	convIDAbsToRel(absid string) string
 
-	resolveReferenceTo(c IChart)
-	unresolveReferenceTo(c IChart)
+	resolveReferenceTo(c *Chart)
+	unresolveReferenceTo(c *Chart)
 
 	initialize()
 }
@@ -53,7 +53,7 @@ type IMajor interface {
 type MajorCommon struct {
 	enclosing IMajor			// Enclosing object of this common struct
 
-	chart IChart				// Associated chart
+	chart *Chart				// Associated chart
 	parent IMajor				// Included by...
 	numID NumberID 				// Numeric part of ID
 
@@ -98,11 +98,11 @@ func (this *MajorCommon) GetEnclosingObject() IMajor {
 //  - Main object and main object: "parental"
 //  - Subchart and subchart event object: "embedding"
 
-func (this *MajorCommon) GetChart() IChart {
+func (this *MajorCommon) GetChart() *Chart {
 	return this.chart
 }
 
-func (this *MajorCommon) setChart(c IChart) {
+func (this *MajorCommon) setChart(c *Chart) {
 	this.chart = c
 }
 
@@ -152,7 +152,7 @@ func (this *MajorCommon) GetIntrinsicID() string {
 	}
 }
 
-func (this *MajorCommon) GetRelQualifiedID(baseChart IChart) (ret string) {
+func (this *MajorCommon) GetRelQualifiedID(baseChart *Chart) (ret string) {
 	if this.IsUnresolved() {
 		ret = this.GetAbsQualifiedID()
 		if this.unresRefcer != nil {
@@ -290,12 +290,12 @@ func (this *MajorCommon) convIDAbsToRel(absid string) string {
 	}
 }
 
-func (this *MajorCommon) resolveReferenceTo(c IChart) {
+func (this *MajorCommon) resolveReferenceTo(c *Chart) {
 	// No epSource. Nothing to do.
 	return
 }
 
-func (this *MajorCommon) unresolveReferenceTo(c IChart) {
+func (this *MajorCommon) unresolveReferenceTo(c *Chart) {
 	// No epSource. Nothing to do.
 	return
 }

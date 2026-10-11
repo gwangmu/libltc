@@ -19,7 +19,7 @@ type Event struct {
 	category string
 
 	chartEmbedLink *string
-	embeddedChart IChart
+	embeddedChart *Chart
 	eventEmbedLink *string
 	embeddedEvent *Event
 
@@ -35,7 +35,7 @@ func (this *Event) Equal(that IMajor) bool {
 
 //-- interface IMajor
 
-func (this *Event) resolveReferenceTo(c IChart) {
+func (this *Event) resolveReferenceTo(c *Chart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
 			this.ContinuedFrom.Link(eobj, false)	
@@ -43,7 +43,7 @@ func (this *Event) resolveReferenceTo(c IChart) {
 	}
 }
 
-func (this *Event) unresolveReferenceTo(c IChart) {
+func (this *Event) unresolveReferenceTo(c *Chart) {
 	for _, category := range c.GetEventCategories() {
 		for _, eobj := range c.GetEventsInCategory(category) {
 			this.ContinuedFrom.Unlink(eobj)			

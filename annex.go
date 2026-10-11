@@ -33,14 +33,14 @@ func (this *Annex) Equal(that IMajor) bool {
 
 //-- interface IMajor
 
-func (this *Annex) resolveReferenceTo(c IChart) {
+func (this *Annex) resolveReferenceTo(c *Chart) {
 	for _, cobj := range c.GetAllMajors(true) {
 		this.AttachTo.Link(cobj, false)
 		this.ExtraNoteOf.Link(cobj, false)
 	}
 }
 
-func (this *Annex) unresolveReferenceTo(c IChart) {
+func (this *Annex) unresolveReferenceTo(c *Chart) {
 	for _, cobj := range c.GetAllMajors(true) {
 		this.AttachTo.Unlink(cobj)
 		this.ExtraNoteOf.Unlink(cobj)

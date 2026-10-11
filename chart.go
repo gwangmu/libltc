@@ -11,29 +11,6 @@ import (
 	"github.com/gwangmu/libltc/internal/file"
 )
 
-type IChart interface {
-	GetEmbeddingEvent() *Event
-	GetStringifiedSubjectName() string
-
-	GetEventCategories() []string
-	GetEventsInCategory(category string) []*Event
-	GetAnnexs() []*Annex
-	GetImports() []*Import
-	GetAllMajors(inclLoadedSubchartObjs bool) []IMajor
-
-	GetObjectByAbsQualID(qualid string) IMajor 
- 	GetObjectByRelQualID(iqualid string, baseChart *Chart) IMajor 
-	GetObjectsByIntrinsicID(locid string) []IMajor 
-
-	getNextNumberID(kind MajorKind) NumberID 
-
-	asChart() *Chart
-	resolveReferenceTo(IMajor)
-	unresolveReferenceTo(IMajor)
-	changeEventStartDate(*Event)
-	changeEventCategory(*Event, string)
-}
-
 type Chart struct {
 	Filepath string
 	Version Version

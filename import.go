@@ -228,12 +228,12 @@ func CreateEmptyImport() *Import {
 	return cimport
 }
 
-func (this *Import) resolveReferenceTo(c IChart) {
+func (this *Import) resolveReferenceTo(c *Chart) {
 	// No epSource. Nothing to do.
 	return
 }
 
-func (this *Import) unresolveReferenceTo(c IChart) {
+func (this *Import) unresolveReferenceTo(c *Chart) {
 	// No epSource. Nothing to do.
 	return
 }
