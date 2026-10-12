@@ -222,6 +222,7 @@ func (this *Event) Diagnose() warning.Warnings {
 type Annex struct {
 	ID string 				`toml:"ID"`
 	Title string 			`toml:"Title,omitempty"`
+	CreateDate *Time		`toml:"CreateDate,omitempty"`
 	Format string 			`toml:"Format,omitempty"`
 	Encoding string 		`toml:"Encoding,omitempty"`
 	Data string 			`toml:"Data,omitempty"`
@@ -242,6 +243,7 @@ func (this Annex) Summary() (ret string) {
 	extraStr := warning.BuildSummaryString(
 		wse{"ID", this.ID},
 		wse{"Format", this.Format}, 
+		wse{"Created", this.CreateDate}, 
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"

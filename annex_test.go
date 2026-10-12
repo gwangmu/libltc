@@ -24,6 +24,9 @@ func TestSingleAnnex_Annex(t *testing.T) {
 	t.Logf("Investigating loaded annex...")
 	test.AssertEQ(annex.GetIntrinsicID(), "a0")
 	test.AssertEQ(annex.Title, "Whatever")
+	test.AssertEQ(annex.CreateDate.GetYear(), 2026)
+	test.AssertEQ(annex.CreateDate.IsUnknown(), false)
+	test.AssertEQ(annex.CreateDate.IsAmbiguous(), true)
 	test.AssertEQ(annex.GetFormat(), "txt")
 
 	rawData, derr := annex.GetRawData()

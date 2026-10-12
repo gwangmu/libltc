@@ -14,6 +14,7 @@ type Annex struct {
 
 	Note Note
 	Title string
+	CreateDate Time
 
 	format string
 	encoding string
@@ -53,6 +54,7 @@ func (this *Annex) initialize() {
 
 		Note: Note{},
 		Title: "",
+		CreateDate: CreateEmptyTime(TUK_General),
 
 		format: "",
 		encoding: "",
@@ -82,8 +84,9 @@ func (this *Annex) Summary() (ret string) {
 	extraStr := warning.BuildSummaryString(
 		wse{"ID", this.GetIntrinsicID()},
 		wse{"OldID", maybeOldID},
-		wse{"format", this.format}, 
-		wse{"encoding", this.encoding},
+		wse{"Created", this.CreateDate}, 
+		wse{"Format", this.format}, 
+		wse{"Encoding", this.encoding},
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
@@ -308,8 +311,12 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 
 	annex.Title = o.Title
 	annex.format = o.Format
-	annex.encoding = o.Encoding
 
+	if o.CreateDate != nil {
+		annex.CreateDate = createTimeFromParsed(o.CreateDate, TUK_General)
+	}
+
+	annex.encoding = o.Encoding
 	annex.encodedData = o.Data
 	annex.isDecoded = false		// NOTE: lazy decode.
 
