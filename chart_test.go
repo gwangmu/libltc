@@ -205,6 +205,22 @@ func TestLinkedObjects_Chart(t *testing.T) {
 		test.AssertEQ(eobj.GetIntrinsicID(), eidsC2[i])
 	}
 
+	nev.SetEndDate(InfinitePast)
+	eidsCx := []string{"e2", "e0", "e1"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eidsCx[i])
+	}
+	test.AssertEQ(nev.GetStartDate().String(), "(-inf)")
+	test.AssertEQ(nev.GetEndDate().String(), "(inf)")
+
+	nev.SetStartDate(TimeFrom(2026, 1, 11))
+	eidsCy := []string{"e0", "e2", "e1"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eidsCy[i])
+	}
+	test.AssertEQ(nev.GetStartDate().String(), "2026-01-11")
+	test.AssertEQ(nev.GetEndDate().String(), "(inf)")
+
 	nev.SetStartDate(InfinitePast)
 	eidsC3 := []string{"e2", "e0", "e1"}
 	for i, eobj := range chart.GetEventsInCategory("") {
