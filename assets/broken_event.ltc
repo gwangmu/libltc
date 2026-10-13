@@ -68,7 +68,7 @@ EndDate = { Year = 9999, Month = 2, Day = 0 }
 [[Event]]
 ID = "e1"
 Title = "Explicit infinite"
-StartDate = { Day = 15, Attrs = [ "Infinite" ] }
+StartDate = { Day = 15, Attrs = [ "InfinitePast" ] }
 EndDate = { Year = 0, Month = 1, Day = 2 }
 
 [[Event]]

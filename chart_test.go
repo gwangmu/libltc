@@ -245,6 +245,8 @@ func TestLinkedObjects_Chart(t *testing.T) {
 		test.AssertEQ(eobj.GetIntrinsicID(), eidsC3[i])
 	}
 
+	// Event starting from infinite future.
+
 	t.Logf("End test.")
 }
 

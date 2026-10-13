@@ -89,6 +89,11 @@ func (this *Chart) unresolveReferenceTo(obj IMajor) {
 	}
 }
 
+func (this *Chart) changeAnnexCreateDate(aobj *Annex) {
+	tmpans := removeMajorFromSlice[Annex](this.annexs, aobj)
+	this.annexs = insertAnnexToSlice(tmpans, aobj)
+}
+
 func (this *Chart) changeEventStartDate(eobj *Event) {
 	category := eobj.GetCategory()
 	tmpevs := removeMajorFromSlice[Event](this.events[category], eobj)
@@ -280,42 +285,73 @@ func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end T
 
 func (this *Chart) AddObject(obj IMajor) error {
 	if obj == nil || obj.GetKind() == MOK_Unknown {
-		return errors.New("Bogus object. Cannot add to the chart.")
+		return errors.New("Bogus object. Cannot add to the chart")
 	}
 
 	obj = obj.GetEnclosingObject()
 	objKind := obj.GetKind()
 
-	// Associate 'obj' to this chart.
-	obj.setChart(this)
-	if obj.getmNumberID() == mNID_Unassigned {
-		nnid := this.getNextmNumberID(objKind)
-		obj.setNumberID(nnid)
-	}
-
 	switch objKind {
 	case MOK_Event:
 		eobj, _ := obj.(*Event)
+
+		// Skip if already added.
+		category := eobj.GetCategory()
+		if evs, ok := this.events[category]; ok {
+			if slices.Contains(evs, eobj) {
+				return errors.New("Object already exist")
+			}
+		}
+
+		// Associate 'obj' to this chart.
+		obj.setChart(this)
+		if obj.getmNumberID() == mNID_Unassigned {
+			nnid := this.getNextmNumberID(objKind)
+			obj.setNumberID(nnid)
+		}
 
 		// Resolve references.
 		this.resolveReferenceTo(eobj)
 		eobj.resolveReferenceTo(this)
 
 		// Insert 'obj' to the slice.
-		category := eobj.GetCategory()
 		this.ReserveEventCategory(category)
 		this.events[category] = insertEventToSlice(this.events[category], eobj)
 	case MOK_Annex:
 		aobj, _ := obj.(*Annex)
+
+		// Skip if already added.
+		if slices.Contains(this.annexs, aobj) {
+			return errors.New("Object already exist")
+		}
+
+		// Associate 'obj' to this chart.
+		obj.setChart(this)
+		if obj.getmNumberID() == mNID_Unassigned {
+			nnid := this.getNextmNumberID(objKind)
+			obj.setNumberID(nnid)
+		}
 
 		// Resolve references.
 		this.resolveReferenceTo(aobj)
 		aobj.resolveReferenceTo(this)
 
 		// Insert 'obj' to the slice.
-		this.annexs = append(this.annexs, aobj)
+		this.annexs = insertAnnexToSlice(this.annexs, aobj)
 	case MOK_Import:
 		iobj, _ := obj.(*Import)
+
+		// Skip if already added.
+		if slices.Contains(this.imports, iobj) {
+			return errors.New("Object already exist")
+		}
+
+		// Associate 'obj' to this chart.
+		obj.setChart(this)
+		if obj.getmNumberID() == mNID_Unassigned {
+			nnid := this.getNextmNumberID(objKind)
+			obj.setNumberID(nnid)
+		}
 
 		// Resolve references.
 		this.resolveReferenceTo(iobj)
@@ -333,7 +369,7 @@ func (this *Chart) AddObject(obj IMajor) error {
 			this.events[category] = insertEventToSlice(this.events[category], ieobj)
 		}
 		for _, iaobj := range iobj.GetImportedAnnexs() {
-			this.annexs = append(this.annexs, iaobj)
+			this.annexs = insertAnnexToSlice(this.annexs, iaobj)
 		}
 		for _, iiobj := range iobj.GetImportedImports() {
 			this.imports = append(this.imports, iiobj)
@@ -602,6 +638,22 @@ func insertEventToSlice(evs []*Event, eobj *Event) (ret []*Event) {
 	}
 	if !inserted {
 		ret = append(evs, eobj)
+	}
+	return
+}
+
+func insertAnnexToSlice(ans []*Annex, aobj *Annex) (ret []*Annex) {
+	// Annexs are inserted by its creation date (ascending).
+	inserted := false
+	for i, oaobj := range ans {
+		if oaobj.GetCreateDate().IsAfter(aobj.GetCreateDate()) {
+			ret = slices.Insert(ans, i, aobj)
+			inserted = true
+			break
+		}
+	}
+	if !inserted {
+		ret = append(ans, aobj)
 	}
 	return
 }

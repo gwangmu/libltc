@@ -14,7 +14,8 @@ type Annex struct {
 
 	Note Note
 	Title string
-	CreateDate Time
+
+	createDate Time
 
 	format string
 	encoding string
@@ -54,7 +55,8 @@ func (this *Annex) initialize() {
 
 		Note: Note{},
 		Title: "",
-		CreateDate: CreateEmptyTime(TUK_General),
+
+		createDate: CreateEmptyTime(TUK_General),
 
 		format: "",
 		encoding: "",
@@ -84,7 +86,7 @@ func (this *Annex) Summary() (ret string) {
 	extraStr := warning.BuildSummaryString(
 		wse{"ID", this.GetIntrinsicID()},
 		wse{"OldID", maybeOldID},
-		wse{"Created", this.CreateDate}, 
+		wse{"Created", this.createDate}, 
 		wse{"Format", this.format}, 
 		wse{"Encoding", this.encoding},
 	)
@@ -200,6 +202,10 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 
 //-- method (getters)
 
+func (this *Annex) GetCreateDate() Time {
+	return this.createDate
+}
+
 func (this *Annex) GetFormat() string {
 	return this.format
 }
@@ -246,6 +252,14 @@ func (this *Annex) IsIndirect() bool {
 }
 
 //-- method (setters)
+
+func (this *Annex) SetCreateDate(t Time) {
+	oldCreateDate := this.createDate
+	this.createDate = t
+	if !oldCreateDate.Equal(t) && this.chart != nil {
+		this.chart.changeAnnexCreateDate(this)
+	}
+}
 
 func (this *Annex) SetFormat(format string) {
 	this.format = format
@@ -313,7 +327,7 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 	annex.format = o.Format
 
 	if o.CreateDate != nil {
-		annex.CreateDate = createTimeFromParsed(o.CreateDate, TUK_General)
+		annex.createDate = createTimeFromParsed(o.CreateDate, TUK_General)
 	}
 
 	annex.encoding = o.Encoding

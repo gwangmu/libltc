@@ -158,13 +158,13 @@ func TestTimes_Common(t *testing.T) {
 	t3e := createTimeFromParsed(file.Event[3].EndDate, TUK_End)
 
 	t.Log("Investigating loaded file...")
-	test.AssertEQ(t3s.String(), "(-inf)")
+	test.AssertEQ(t3s.String(), "(unknown)")
 	test.AssertEQ(t3e.String(), "1991-03-29 01:02:**")
 	test.AssertEQ(t3s.IsUnknown(), true)
 	test.AssertEQ(t3e.IsUnknown(), false)
 	test.AssertEQ(t3s.IsAmbiguous(), true)
 	test.AssertEQ(t3e.IsAmbiguous(), false)
-	test.AssertEQ(t3s.IsInfinitePast(), true)
+	test.AssertEQ(t3s.IsInfinitePast(), false)
 	test.AssertEQ(t3e.IsAfter(t3s), true)
 
 	t.Logf("Loading the note '%s'...", *file.Event[4].Title)
@@ -173,13 +173,13 @@ func TestTimes_Common(t *testing.T) {
 
 	t.Log("Investigating loaded file...")
 	test.AssertEQ(t4s.String(), "1991-03-29 01:02:__")
-	test.AssertEQ(t4e.String(), "(inf)")
+	test.AssertEQ(t4e.String(), "(unknown)")
 	test.AssertEQ(t4s.IsUnknown(), false)
 	test.AssertEQ(t4e.IsUnknown(), true)
 	test.AssertEQ(t4s.IsAmbiguous(), false)
 	test.AssertEQ(t4e.IsAmbiguous(), true)
-	test.AssertEQ(t4e.IsInfiniteFuture(), true)
-	test.AssertEQ(t4e.IsAfter(t4s), true)
+	test.AssertEQ(t4e.IsInfiniteFuture(), false)
+	test.AssertEQ(t4e.IsAfter(t4s), false)
 
 	t.Logf("Loading the note '%s'...", *file.Event[5].Title)
 	t5s := createTimeFromParsed(file.Event[5].StartDate, TUK_Start)
