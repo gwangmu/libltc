@@ -341,26 +341,32 @@ func (this *Event) SetEmbedChartLink(uri string) {
 	this.embeddedChart = nil
 }
 
-func (this *Event) SetLocalStartDate(t *Time) {
+func (this *Event) UnsetLocalStartDate() {
 	oldStartDate := this.GetStartDate()
-    this.localStartDate = t
+	this.localStartDate = nil
     this.correctLocalStartEndDates(oldStartDate)
 }
 
-func (this *Event) SetLocalEndDate(t *Time) {
+func (this *Event) UnsetLocalEndDate() {
 	oldStartDate := this.GetStartDate()
-    this.localEndDate = t
+	this.localEndDate = nil
     this.correctLocalStartEndDates(oldStartDate)
 }
 
 // Convenience wrapper to 'SetLocalStartDate'.
 func (this *Event) SetStartDate(t Time) {
-	this.SetLocalStartDate(&t)
+	oldStartDate := this.GetStartDate()
+	t.SetUsage(TUK_Start)
+    this.localStartDate = &t
+	this.correctLocalStartEndDates(oldStartDate)
 }
 
 // Convenience wrapper to 'SetLocalEndDate'.
 func (this *Event) SetEndDate(t Time) {
-	this.SetLocalEndDate(&t)
+	oldStartDate := this.GetStartDate()
+	t.SetUsage(TUK_End)
+    this.localEndDate = &t
+    this.correctLocalStartEndDates(oldStartDate)
 }
 
 func (this *Event) SetCategory(c string) error {
@@ -404,6 +410,24 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 	if o.EndDate != nil {
 		endDate := createTimeFromParsed(o.EndDate, TUK_End)
 		event.localEndDate = &endDate
+	}
+
+	if event.GetStartDate().IsUnknown() && !event.GetEndDate().IsUnknown() {
+		infPast := event.GetStartDate()
+		if infPast.Attrs == nil {
+			infPast.Attrs = map[string][]string{ "InfinitePast": []string{""} }
+		} else if _, ok := infPast.Attrs["InfinitePast"]; !ok {
+			infPast.Attrs["InfinitePast"] = []string{""}
+		}
+		event.SetStartDate(infPast)
+	} else if !event.GetStartDate().IsUnknown() && event.GetEndDate().IsUnknown() {
+		infFuture := event.GetEndDate()
+		if infFuture.Attrs == nil {
+			infFuture.Attrs = map[string][]string{ "InfiniteFuture": []string{""} }
+		} else if _, ok := infFuture.Attrs["InfiniteFuture"]; !ok {
+			infFuture.Attrs["InfiniteFuture"] = []string{""}
+		}
+		event.SetEndDate(infFuture)
 	}
 
 	event.category = o.Category
@@ -519,7 +543,7 @@ func (this *Event) isEmbeddedChartLoaded() bool {
 
 func (this *Event) correctLocalStartEndDates(oldStartDate Time) (ambiguous bool, inverted bool) {
 	// Correct ambiguity.
-	if !this.GetStartDate().IsInfinite() && this.GetStartDate().IsAmbiguous() && !this.GetEndDate().IsAmbiguous() {
+	if !this.GetStartDate().isFloating() && !this.GetStartDate().IsInfinite() && this.GetStartDate().IsAmbiguous() && !this.GetEndDate().IsAmbiguous() {
 		newStartDate := this.GetStartDate()
 		if this.GetStartDate().year == nil && this.GetStartDate().month == nil {
 			// Can still be inverted. To be treated below.
@@ -537,7 +561,7 @@ func (this *Event) correctLocalStartEndDates(oldStartDate Time) (ambiguous bool,
 
 		this.localStartDate = &newStartDate
 		ambiguous = true
-	} else if !this.GetEndDate().IsInfinite() && this.GetEndDate().IsAmbiguous() && !this.GetStartDate().IsAmbiguous() {
+	} else if !this.GetEndDate().isFloating() && !this.GetEndDate().IsInfinite() && this.GetEndDate().IsAmbiguous() && !this.GetStartDate().IsAmbiguous() {
 		newEndDate := this.GetEndDate()
 		if this.GetEndDate().year == nil && this.GetEndDate().month == nil {
 			// Can still be inverted. To be treated below.
@@ -557,36 +581,38 @@ func (this *Event) correctLocalStartEndDates(oldStartDate Time) (ambiguous bool,
 	}
 
 	// Correct order.
-	if this.GetStartDate().IsAfter(this.GetEndDate()) {
-		hlsd := this.HasLocalStartDate()
-		hled := this.HasLocalEndDate()
-		
-		if hlsd && hled {
-			orgStartDate := this.GetLocalStartDate()
-			this.localStartDate = this.GetLocalEndDate()
-			this.localEndDate = orgStartDate
-			this.GetLocalStartDate().SetUsage(TUK_Start)
-			this.GetLocalEndDate().SetUsage(TUK_End)
-		} else if hlsd && !hled {
-			this.localEndDate = this.GetLocalStartDate()
-			this.localStartDate = nil
-			this.GetLocalEndDate().SetUsage(TUK_End)
-		} else if !hlsd && hled {
-			this.localStartDate = this.GetLocalEndDate()
-			this.localEndDate = nil
-			this.GetLocalStartDate().SetUsage(TUK_Start)
-		} else { //if !hlsd && !hled 
-            // This case shouldn't happen (unless the embedded event is broken),
-            // but if it does, create local dates to "overshadow" the problem.
-            newStartDate := this.GetEndDate()
-            newEndDate := this.GetStartDate()
-            newStartDate.SetUsage(TUK_Start)
-            newEndDate.SetUsage(TUK_End)
-            this.localStartDate = &newStartDate
-            this.localEndDate = &newEndDate
-		}
+	if !this.GetStartDate().isFloating() && !this.GetEndDate().isFloating() {
+		if this.GetStartDate().IsAfter(this.GetEndDate()) {
+			hlsd := this.HasLocalStartDate()
+			hled := this.HasLocalEndDate()
+			
+			if hlsd && hled {
+				orgStartDate := this.GetLocalStartDate()
+				this.localStartDate = this.GetLocalEndDate()
+				this.localEndDate = orgStartDate
+				this.GetLocalStartDate().SetUsage(TUK_Start)
+				this.GetLocalEndDate().SetUsage(TUK_End)
+			} else if hlsd && !hled {
+				this.localEndDate = this.GetLocalStartDate()
+				this.localStartDate = nil
+				this.GetLocalEndDate().SetUsage(TUK_End)
+			} else if !hlsd && hled {
+				this.localStartDate = this.GetLocalEndDate()
+				this.localEndDate = nil
+				this.GetLocalStartDate().SetUsage(TUK_Start)
+			} else { //if !hlsd && !hled 
+				// This case shouldn't happen (unless the embedded event is broken),
+				// but if it does, create local dates to "overshadow" the problem.
+				newStartDate := this.GetEndDate()
+				newEndDate := this.GetStartDate()
+				newStartDate.SetUsage(TUK_Start)
+				newEndDate.SetUsage(TUK_End)
+				this.localStartDate = &newStartDate
+				this.localEndDate = &newEndDate
+			}
 
-		inverted = true
+			inverted = true
+		}
 	}
 
     // Notify chart if 'StartDate' was changed.

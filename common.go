@@ -474,17 +474,21 @@ func (this *Time) SetUsage(v TimeUsageKind) {
 //-- struct Time: method (util)
 
 func (this Time) IsInfiniteFuture() bool {
-	_, ok := this.Attrs["Infinite"]
-	return (ok || this.IsUnknown()) && this.GetUsage() == TUK_End
+	_, ok := this.Attrs["InfiniteFuture"]
+	return ok && this.IsUnknown()
 }
 
 func (this Time) IsInfinitePast() bool {
-	_, ok := this.Attrs["Infinite"]
-	return (ok || this.IsUnknown()) && this.GetUsage() == TUK_Start
+	_, ok := this.Attrs["InfinitePast"]
+	return ok && this.IsUnknown()
 }
 
 func (this Time) IsInfinite() bool {
 	return this.IsInfiniteFuture() || this.IsInfinitePast()
+}
+
+func (this Time) isFloating() bool {
+	return this.IsUnknown() && !this.IsInfinite()
 }
 
 // Return value is undefined if either of the times is unknown (non-inf) or ambiguous.
@@ -559,7 +563,8 @@ func createTimeFromParsed(optr *file.Time, usage TimeUsageKind) (ret Time) {
 	
 	o := *optr
 
-	if !slices.Contains(o.Attrs, "Infinite") {
+	if !slices.Contains(o.Attrs, "InfiniteFuture") &&
+		!slices.Contains(o.Attrs, "InfinitePast") {
 		if o.Year != nil {
 			nyear := *o.Year
 			ret.year = &nyear
@@ -617,7 +622,8 @@ func CreateEmptyTime(usage TimeUsageKind) (ret Time) {
 	return
 }
 
-func CreateTimeFromTag(tagstr string) (ret Time) {
+func CreateTimeFromTag(tagstr string) Time {
+	ret := CreateEmptyTime(TUK_General)
 	re := regexp.MustCompile(`^([0-9*_?]{4})(?:-([0-9*_?]{2}))?(?:-([0-9*_)?]{2}))?(?:\s+([0-9*_?]{2}):([0-9*_?]{2})(?::([0-9*_?]{2}))?)?(?:\s*\((.*)\))?`)
 	matches := re.FindStringSubmatch(tagstr)
 
@@ -657,12 +663,12 @@ func CreateTimeFromTag(tagstr string) (ret Time) {
 		}
 	}
 
-	return
+	return ret
 }
 
-var InfinitePast Time = Time{ usage: TUK_Start }
-var InfiniteFuture Time = Time{ usage: TUK_End }
-var UnknownTime Time = Time{ usage: TUK_General }
+var InfinitePast Time = Time{ Attrs: map[string][]string{ "InfinitePast": []string{""} } }
+var InfiniteFuture Time = Time{ Attrs: map[string][]string{ "InfiniteFuture": []string{""} } }
+var UnknownTime Time = Time{} 
 
 func createTime(usage TimeUsageKind, vs ...int) Time {
 	t := CreateEmptyTime(usage)
