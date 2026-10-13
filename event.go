@@ -321,7 +321,7 @@ func (this *Event) GetCategory() string{
 
 //-- method (setters)
 
-func (this *Event) SetLocalTitle(t string) {
+func (this *Event) SetTitle(t string) {
 	this.localTitle = &t
 }
 

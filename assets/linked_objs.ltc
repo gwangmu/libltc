@@ -21,7 +21,7 @@ ID = "e1"
 Title = "Event1"
 StartDate = { Year = 2026, Month = 1, Day = 12 }
 EndDate = { Year = 2026, Month = 1, Day = 13 }
-Attrs = [ "ContinuedFrom:e999" ]
+Attrs = [ "ContinuedFrom:e4" ]
 
 [[Annex]]
 ID = "a0"

@@ -144,7 +144,7 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.AssertEQ(chart.GetObjectByAbsQualID("a1").(*Annex).ExtraNoteOf.Get()[0].(*Event).GetTitle(), "Event0")
 	test.AssertEQ(len(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()), 1)
 	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].IsUnresolved(), true) 
-	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].GetAbsQualifiedID(), "e999") 
+	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].GetAbsQualifiedID(), "e4") 
 
 	// Mimic runtime chart manipulation
 	// E.g., add event/annex, create/remove links, change dates, ...
@@ -160,7 +160,7 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.AssertEQ(nev.GetIntrinsicID(), "e2")
 
 	// Setting a new title
-	nev.SetLocalTitle("New event")
+	nev.SetTitle("New event")
 	test.AssertEQ(nev.GetTitle(), "New event")
 
 	// Removing and (re-)adding the event.
@@ -286,6 +286,50 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	for i, eobj := range chart.GetEventsInCategory("") {
 		test.AssertEQ(eobj.GetIntrinsicID(), eids4[i])
 	}
+
+	e1.SetCategory("Another Category")
+	eids5 := []string{"e2", "e0", "e3"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eids5[i])
+	}
+
+	// Create ContinuedFrom.
+	nev3 := CreateEmptyEvent()
+	nev3.SetTitle("New event 2")
+	if err := chart.AddObject(nev3); err != nil {
+		t.Fatal(err)
+		return
+	}
+	test.AssertEQ(nev3.GetIntrinsicID(), "e4")
+	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].GetTitle(), "New event 2")
+	test.AssertEQ(nev3.ContinuedTo.Get()[0].GetTitle(), "Event1")
+
+	e0 := chart.GetObjectByAbsQualID("e0").(*Event)
+	nev3.ContinuedFrom.Link(e0, true)
+	test.AssertEQ(nev3.ContinuedFrom.Get()[0].GetTitle(), "Event0")
+	test.AssertEQ(e0.ContinuedTo.Get()[0].GetTitle(), "New event 2")
+
+	e1.ContinuedFrom.Unlink(nev3)
+	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
+	test.AssertEQ(len(nev3.ContinuedTo.Get()), 0)
+	test.AssertEQ(e1.ContinuedFrom.Get()[0].IsUnresolved(), true)
+
+	e1.ContinuedFrom.Link(e0, false)
+	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
+	test.AssertEQ(len(nev3.ContinuedTo.Get()), 0)
+	test.AssertEQ(e1.ContinuedFrom.Get()[0].IsUnresolved(), true)
+
+	e1.ContinuedFrom.Link(nev3, false)
+	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
+	test.AssertEQ(len(nev3.ContinuedTo.Get()), 1)
+	test.AssertEQ(e1.ContinuedFrom.Get()[0].GetTitle(), "New event 2")
+
+	e1.ContinuedFrom.Unreserve("e4")
+	test.AssertEQ(len(e1.ContinuedFrom.Get()), 0)
+	test.AssertEQ(len(nev3.ContinuedTo.Get()), 0)
+
+	// Create AttachTo.
+
 
 	t.Logf("End test.")
 }
