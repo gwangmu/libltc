@@ -246,6 +246,14 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	}
 
 	// Event starting from infinite future.
+	nev2 := CreateEmptyEvent()
+	nev2.SetStartDate(InfiniteFuture)
+	if err := chart.AddObject(nev2); err != nil {
+		t.Fatal(err)
+		return
+	}
+	test.AssertEQ(nev2.GetStartDate().String(), "(inf)")
+	test.AssertEQ(nev2.GetEndDate().String(), "(unknown)")
 
 	t.Logf("End test.")
 }

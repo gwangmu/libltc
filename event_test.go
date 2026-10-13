@@ -279,5 +279,32 @@ func TestBrokenEvent_Event(t *testing.T) {
 	t.Logf("Investigating loaded event...")
 	test.AssertWarnContains(w11, "'ContinuedFrom' attribute.*empty.")
 
+	t.Logf("Loading event '%s'...", *file.Event[12].Title)
+	e12, w12 := createEventFromParsed(file.Event[12])
+	test.PrintAllWarnings(w12)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(w12, "end date after.*infinite")
+	test.AssertEQ(e12.GetStartDate().String(), "(inf)")
+	test.AssertEQ(e12.GetEndDate().String(), "(unknown)")
+
+	t.Logf("Loading event '%s'...", *file.Event[13].Title)
+	e13, w13 := createEventFromParsed(file.Event[13])
+	test.PrintAllWarnings(w13)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(w13, "start date before.*infinite")
+	test.AssertEQ(e13.GetStartDate().String(), "(unknown)")
+	test.AssertEQ(e13.GetEndDate().String(), "(-inf)")
+
+	t.Logf("Loading event '%s'...", *file.Event[14].Title)
+	e14, w14 := createEventFromParsed(file.Event[14])
+	test.PrintAllWarnings(w14)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(w14, "inverted")
+	test.AssertEQ(e14.GetStartDate().String(), "(-inf)")
+	test.AssertEQ(e14.GetEndDate().String(), "(inf)")
+
 	t.Log("End test.")
 }

@@ -75,3 +75,21 @@ EndDate = { Year = 0, Month = 1, Day = 2 }
 ID = "e1"
 Title = "Empty 'ContinuedFrom' attribute"
 Attrs = [ "ContinuedFrom" ]
+
+[[Event]]
+ID = "e1"
+Title = "Start at infinite future"
+StartDate = { Attrs = [ "InfiniteFuture" ] }
+EndDate = { Year = 1991 }
+
+[[Event]]
+ID = "e1"
+Title = "End at infinite past"
+StartDate = { Year = 1991 }
+EndDate = { Attrs = [ "InfinitePast" ] }
+
+[[Event]]
+ID = "e1"
+Title = "Inverted infinite"
+StartDate = { Attrs = [ "InfiniteFuture" ] }
+EndDate = { Attrs = [ "InfinitePast" ] }

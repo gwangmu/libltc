@@ -143,6 +143,14 @@ func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
 			this.attrs[akey] = newAvals
 		}
 	}
+
+	if this.GetStartDate().IsInfiniteFuture() && !this.GetEndDate().IsUnknown() {
+		this.SetEndDate(UnknownTime)
+        warns.Add("@0@ had an end date after the infinite future. corrected.", this)
+	} else if this.GetEndDate().IsInfinitePast() && !this.GetStartDate().IsUnknown() {
+		this.SetStartDate(UnknownTime)
+        warns.Add("@0@ had a start date before the infinite past. corrected.", this)
+	}
        
 	amb, inv := this.correctLocalStartEndDates(this.GetStartDate())
 	if amb {
@@ -412,7 +420,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 		event.localEndDate = &endDate
 	}
 
-	if event.GetStartDate().IsUnknown() && !event.GetEndDate().IsUnknown() {
+	if event.GetStartDate().isFloating() && !event.GetEndDate().isFloating() {
 		infPast := event.GetStartDate()
 		if infPast.Attrs == nil {
 			infPast.Attrs = map[string][]string{ "InfinitePast": []string{""} }
@@ -420,7 +428,7 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 			infPast.Attrs["InfinitePast"] = []string{""}
 		}
 		event.SetStartDate(infPast)
-	} else if !event.GetStartDate().IsUnknown() && event.GetEndDate().IsUnknown() {
+	} else if !event.GetStartDate().isFloating() && event.GetEndDate().isFloating() {
 		infFuture := event.GetEndDate()
 		if infFuture.Attrs == nil {
 			infFuture.Attrs = map[string][]string{ "InfiniteFuture": []string{""} }
