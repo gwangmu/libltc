@@ -144,7 +144,7 @@ func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
 		}
 	}
        
-	amb, inv := this.correctLocalStartEndDates()
+	amb, inv := this.correctLocalStartEndDates(this.GetStartDate())
 	if amb {
         warns.Add("@0@ had an ambiguous date. corrected.", this)
     }
@@ -313,6 +313,14 @@ func (this *Event) GetCategory() string{
 
 //-- method (setters)
 
+func (this *Event) SetLocalTitle(t string) {
+	this.localTitle = &t
+}
+
+func (this *Event) UnsetLocalTitle() {
+	this.localTitle = nil
+}
+
 func (this *Event) SetEmbedEventLink(uri string) (warns warning.Warnings) {
 	this.eventEmbedLink = &uri
 
@@ -334,13 +342,15 @@ func (this *Event) SetEmbedChartLink(uri string) {
 }
 
 func (this *Event) SetLocalStartDate(t *Time) {
+	oldStartDate := this.GetStartDate()
     this.localStartDate = t
-    this.correctLocalStartEndDates()
+    this.correctLocalStartEndDates(oldStartDate)
 }
 
 func (this *Event) SetLocalEndDate(t *Time) {
+	oldStartDate := this.GetStartDate()
     this.localEndDate = t
-    this.correctLocalStartEndDates()
+    this.correctLocalStartEndDates(oldStartDate)
 }
 
 // Convenience wrapper to 'SetLocalStartDate'.
@@ -507,9 +517,7 @@ func (this *Event) isEmbeddedChartLoaded() bool {
 	return this.embeddedChart != nil
 }
 
-func (this *Event) correctLocalStartEndDates() (ambiguous bool, inverted bool) {
-    oldStartDate := this.GetStartDate()
-
+func (this *Event) correctLocalStartEndDates(oldStartDate Time) (ambiguous bool, inverted bool) {
 	// Correct ambiguity.
 	if !this.GetStartDate().IsInfinite() && this.GetStartDate().IsAmbiguous() && !this.GetEndDate().IsAmbiguous() {
 		newStartDate := this.GetStartDate()

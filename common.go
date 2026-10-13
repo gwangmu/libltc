@@ -662,9 +662,10 @@ func CreateTimeFromTag(tagstr string) (ret Time) {
 
 var InfinitePast Time = Time{ usage: TUK_Start }
 var InfiniteFuture Time = Time{ usage: TUK_End }
+var UnknownTime Time = Time{ usage: TUK_General }
 
-func TimeFrom(vs ...int) Time {
-	t := CreateEmptyTime(TUK_Start)
+func createTime(usage TimeUsageKind, vs ...int) Time {
+	t := CreateEmptyTime(usage)
 	for i, v := range vs {
 		switch i {
 		case 0:
@@ -684,25 +685,16 @@ func TimeFrom(vs ...int) Time {
 	return t
 }
 
+func TimeFrom(vs ...int) Time {
+	return createTime(TUK_Start, vs...)
+}
+
 func TimeTo(vs ...int) Time {
-	t := CreateEmptyTime(TUK_End)
-	for i, v := range vs {
-		switch i {
-		case 0:
-			t.SetYear(v)
-		case 1:
-			t.SetMonth(v)
-		case 2:
-			t.SetDay(v)
-		case 3:
-			t.SetHour(v)
-		case 4:
-			t.SetMinute(v)
-		case 5:
-			t.SetSecond(v)
-		}
-	}
-	return t
+	return createTime(TUK_End, vs...)
+}
+
+func TimePoint(vs ...int) Time {
+	return createTime(TUK_General, vs...)
 }
 
 //-- struct NoteSnippet
@@ -895,7 +887,7 @@ func CloneMajor[T IMajor](obj *T, preserveChart bool, preserveID bool) *T {
 		newobj.setChart(nil)
 	}
 	if !preserveID {
-		newobj.setmNumberID(mNID_Invalid)
+		newobj.setNumberID(mNID_Invalid)
 		newobj.unmarkUnresolved()
 	}
 	return &newobj

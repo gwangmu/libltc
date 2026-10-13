@@ -17,7 +17,7 @@ type IMajor interface {
 	setChart(c *Chart)
 
 	getmNumberID() mNumberID 
-	setmNumberID(nid mNumberID)
+	setNumberID(nid mNumberID)
 
 	getUnresRelQualID() string
 	markUnresolved(unresRelQualID string, refcer IMajor)
@@ -110,7 +110,7 @@ func (this *MajorCommon) getmNumberID() mNumberID {
 	return this.numID
 }
 
-func (this *MajorCommon) setmNumberID(nid mNumberID) {
+func (this *MajorCommon) setNumberID(nid mNumberID) {
 	this.numID = nid
 }
 

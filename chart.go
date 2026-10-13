@@ -290,7 +290,7 @@ func (this *Chart) AddObject(obj IMajor) error {
 	obj.setChart(this)
 	if obj.getmNumberID() == mNID_Unassigned {
 		nnid := this.getNextmNumberID(objKind)
-		obj.setmNumberID(nnid)
+		obj.setNumberID(nnid)
 	}
 
 	switch objKind {
@@ -352,7 +352,7 @@ func (this *Chart) RemoveObject(obj IMajor) {
 
 	// Dissociate 'obj' to this chart.
 	obj.setChart(nil)
-	obj.setmNumberID(mNID_Invalid)
+	obj.setNumberID(mNID_Unassigned)
 
 	switch objKind {
 	case MOK_Event:

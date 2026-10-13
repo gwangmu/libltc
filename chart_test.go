@@ -125,7 +125,7 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'linked_objs.ltc'...")
-	chart, wc:= CreateChart("linked_objs.ltc")
+	chart, wc := CreateChart("linked_objs.ltc")
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Investigating loaded event...")
@@ -146,8 +146,72 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].IsUnresolved(), true) 
 	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].GetAbsQualifiedID(), "e999") 
 
+	// Mimic runtime chart manipulation
+	// E.g., add event/annex, create/remove links, change dates, ...
+	t.Logf("Mimicking runtime chart manipulation...")
+	nev := CreateEmptyEvent()
+	test.AssertEQ(nev.GetIntrinsicID(), "?")
+
+	// After adding it to the chart, it should assign the ID.
+	if err := chart.AddObject(nev); err != nil {
+		t.Fatal(err)
+		return
+	}
+	test.AssertEQ(nev.GetIntrinsicID(), "e2")
+
+	// Setting a new title
+	nev.SetLocalTitle("New event")
+	test.AssertEQ(nev.GetTitle(), "New event")
+
+	// Removing and (re-)adding the event.
+	chart.RemoveObject(nev)
+	test.AssertEQ(nev.GetIntrinsicID(), "?")
+	test.AssertEQ(nev.GetTitle(), "New event")
+	if err := chart.AddObject(nev); err != nil {
+		t.Fatal(err)
+		return
+	}
+	test.AssertEQ(nev.GetIntrinsicID(), "e2")
+	test.AssertEQ(nev.GetTitle(), "New event")
+
+	// Assigning a start date.
+	chart.RemoveObject(nev)
+	nev.SetStartDate(TimeFrom(2026, 1, 11))
+	if err := chart.AddObject(nev); err != nil {
+		t.Fatal(err)
+		return
+	}
+	eidsInit := []string{"e0", "e2", "e1"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eidsInit[i])
+	}
+
+	// Changing a start date.
+	nev.SetStartDate(TimeFrom(2026, 1, 14))
+	eidsC0 := []string{"e0", "e1", "e2"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eidsC0[i])
+	}
+
+	nev.SetStartDate(UnknownTime)
+	eidsC1 := []string{"e2", "e0", "e1"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eidsC1[i])
+	}
+
+	nev.SetStartDate(InfiniteFuture)
+	eidsC2 := []string{"e0", "e1", "e2"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eidsC2[i])
+	}
+
+	nev.SetStartDate(InfinitePast)
+	eidsC3 := []string{"e2", "e0", "e1"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eidsC3[i])
+	}
+
 	t.Logf("End test.")
 }
 
-// TODO: mimic runtime chart manipulation (add event/annex, create/remove links, change dates, ...)
 // TODO: check subchart functionality (load, change link, reference inside)

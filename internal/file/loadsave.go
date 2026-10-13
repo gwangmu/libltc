@@ -18,6 +18,7 @@ func LoadFromString[T IFileObject, U IDiagnosablePtr[T]](ltcstr string) (U, warn
 	warns := warning.Warnings{}
 
 	if meta, err := toml.Decode(ltcstr, out); err != nil {
+		warns.Add(err.Error())
 		warns.Add("cannot decode TOML format.")
 		return nil, warns, err
 	} else {
