@@ -255,6 +255,38 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.AssertEQ(nev2.GetStartDate().String(), "(inf)")
 	test.AssertEQ(nev2.GetEndDate().String(), "(unknown)")
 
+	eids2 := []string{"e2", "e0", "e1", "e3"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eids2[i])
+	}
+
+	// Move category.
+	e1 := chart.GetObjectByAbsQualID("e1").(*Event)
+	e1.SetCategory("Some Category")
+	eids3 := []string{"e2", "e0", "e3"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eids3[i])
+	}
+	test.AssertEQ(chart.GetEventsInCategory("Some Category")[0].GetTitle(), "Event1")
+
+	chart.AddObject(e1)
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eids3[i])
+	}
+	test.AssertEQ(chart.GetEventsInCategory("Some Category")[0].GetTitle(), "Event1")
+
+	e1.SetStartDate(TimeFrom(2026, 1, 5))
+	e1.SetCategory("")
+	eids4 := []string{"e2", "e1", "e0", "e3"}
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eids4[i])
+	}
+
+	chart.AddObject(e1)
+	for i, eobj := range chart.GetEventsInCategory("") {
+		test.AssertEQ(eobj.GetIntrinsicID(), eids4[i])
+	}
+
 	t.Logf("End test.")
 }
 

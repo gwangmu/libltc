@@ -102,8 +102,9 @@ func (this *Chart) changeEventStartDate(eobj *Event) {
 
 func (this *Chart) changeEventCategory(eobj *Event, oldc string) {
 	newc := eobj.GetCategory()
-	tmpevs := removeMajorFromSlice[Event](this.events[oldc], eobj)
-	this.events[newc] = insertEventToSlice(tmpevs, eobj)
+	this.events[oldc] = removeMajorFromSlice[Event](this.events[oldc], eobj)
+	this.ReserveEventCategory(newc)
+	this.events[newc] = insertEventToSlice(this.events[newc], eobj)
 }
 
 //-- interface IWarningObj
