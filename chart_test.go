@@ -140,7 +140,7 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).ExtraNote.Get()[0].Title, "Annex1")
 	test.AssertEQ(len(chart.GetObjectByAbsQualID("a0").(*Annex).AttachTo.Get()), 1)
 	test.AssertEQ(chart.GetObjectByAbsQualID("a0").(*Annex).AttachTo.Get()[0].(*Event).GetTitle(), "Event0")
-	test.AssertEQ(len(chart.GetObjectByAbsQualID("a1").(*Annex).ExtraNoteOf.Get()), 1)
+	test.AssertEQ(len(chart.GetObjectByAbsQualID("a1").(*Annex).ExtraNoteOf.Get()), 2)
 	test.AssertEQ(chart.GetObjectByAbsQualID("a1").(*Annex).ExtraNoteOf.Get()[0].(*Event).GetTitle(), "Event0")
 	test.AssertEQ(len(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()), 1)
 	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].IsUnresolved(), true) 
@@ -329,7 +329,34 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.AssertEQ(len(nev3.ContinuedTo.Get()), 0)
 
 	// Create AttachTo.
+	a0 := chart.GetObjectByAbsQualID("a0").(*Annex)
+	a0.AttachTo.Link(nev3, true)
+	test.AssertEQ(len(a0.AttachTo.Get()), 2)
+	test.AssertEQ(len(nev3.Attached.Get()), 1)
+	test.AssertEQ(nev3.Attached.Get()[0].Title, "Annex0")
+	test.AssertEQ(a0.AttachTo.Get()[1].(*Event).GetTitle(), "New event 2")
 
+	a0.AttachTo.Unreserve("e0")
+	test.AssertEQ(len(a0.AttachTo.Get()), 1)
+	test.AssertEQ(len(e0.Attached.Get()), 0)
+
+	// Create ExtraNoteOf.
+	a1 := chart.GetObjectByAbsQualID("a1").(*Annex)
+	nax1 := CreateEmptyAnnex()
+	nax1.Title = "New annex"
+	if err := chart.AddObject(nax1); err != nil {
+		t.Fatal(err)
+		return
+	}
+	test.AssertEQ(nax1.GetIntrinsicID(), "a2")
+	test.AssertEQ(len(a1.ExtraNoteOf.Get()), 2)
+	test.AssertEQ(e0.ExtraNote.Get()[0].Title, "Annex1")
+	test.AssertEQ(a1.ExtraNoteOf.Get()[0].(*Event).GetTitle(), "Event0")
+	test.AssertEQ(a1.ExtraNoteOf.Get()[1].(*Annex).Title, "New annex")
+	test.AssertEQ(nax1.ExtraNote.Get()[0].Title, "Annex1")
+
+	chart.RemoveObject(nax1)
+	test.AssertEQ(a1.ExtraNoteOf.Get()[1].IsUnresolved(), true)
 
 	t.Logf("End test.")
 }
