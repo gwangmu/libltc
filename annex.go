@@ -49,26 +49,6 @@ func (this *Annex) unresolveReferenceTo(c *Chart) {
 	}
 }
 
-func (this *Annex) initialize() {
-	*this = Annex{
-		MajorCommon: *CreateEmptyMajorCommon(),
-
-		Note: Note{},
-		Title: "",
-
-		createDate: CreateEmptyTime(TUK_General),
-
-		format: "",
-		encoding: "",
-		rawData: []byte{},
-		encodedData: "",
-		isDecoded: true,
-	}
-	this.enclosing = this
-	this.AttachTo.initialize(this)
-	this.ExtraNoteOf.initialize(this)
-}
-
 //-- interface IWarningObj
 
 func (this *Annex) Summary() (ret string) {
@@ -368,9 +348,24 @@ func createAnnexFromParsed(o file.Annex) (*Annex, warning.Warnings) {
 }
 
 func CreateEmptyAnnex() *Annex {
-	aobj := Annex{}
-	aobj.initialize()
-	return &aobj
+	aobj := &Annex{
+		MajorCommon: *CreateEmptyMajorCommon(),
+
+		Note: Note{},
+		Title: "",
+
+		createDate: CreateEmptyTime(TUK_General),
+
+		format: "",
+		encoding: "",
+		rawData: []byte{},
+		encodedData: "",
+		isDecoded: true,
+	}
+	aobj.enclosing = aobj
+	aobj.AttachTo.initialize(aobj)
+	aobj.ExtraNoteOf.initialize(aobj)
+	return aobj
 }
 
 //-- method (private)

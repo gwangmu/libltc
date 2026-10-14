@@ -49,25 +49,6 @@ func (this *Event) unresolveReferenceTo(c *Chart) {
 	}
 }
 
-func (this *Event) initialize() {
-	*this = Event{
-		MajorCommon: *CreateEmptyMajorCommon(),
-
-		Note: Note{},
-
-		localTitle: nil, 
-		localStartDate: nil,
-		localEndDate: nil,
-
-		chartEmbedLink: nil,
-		embeddedChart: nil,
-		eventEmbedLink: nil,
-		embeddedEvent: nil,
-	} 
-    this.enclosing = this
-	this.ContinuedFrom.initialize(this)
-}
-
 //-- interface IWarningObj
 
 func (this *Event) Summary() (ret string) {
@@ -469,9 +450,23 @@ func createEventFromParsed(o file.Event) (*Event, warning.Warnings) {
 }
 
 func CreateEmptyEvent() *Event {
-    eobj := Event{}
-    eobj.initialize()
-    return &eobj
+	eobj := &Event{
+		MajorCommon: *CreateEmptyMajorCommon(),
+
+		Note: Note{},
+
+		localTitle: nil, 
+		localStartDate: nil,
+		localEndDate: nil,
+
+		chartEmbedLink: nil,
+		embeddedChart: nil,
+		eventEmbedLink: nil,
+		embeddedEvent: nil,
+	} 
+    eobj.enclosing = eobj
+	eobj.ContinuedFrom.initialize(eobj)
+    return eobj
 }
 
 //-- method (util)

@@ -46,8 +46,6 @@ type IMajor interface {
 
 	resolveReferenceTo(c *Chart)
 	unresolveReferenceTo(c *Chart)
-
-	initialize()
 }
 
 type MajorCommon struct {
@@ -300,10 +298,12 @@ func (this *MajorCommon) unresolveReferenceTo(c *Chart) {
 	return
 }
 
-func (this *MajorCommon) initialize() {
-	*this = MajorCommon{
-		enclosing: this,
+// Unresolved = non-empty `unresRelQualID`
+// `unresRelQualID` should be a "qualified" ID, meaning if an object was included,
+// the `unresRelQualID` here should prepend the qualified ID of the chart-embedding event object.
 
+func CreateEmptyMajorCommon() *MajorCommon {
+	obj := &MajorCommon{
 		chart: nil,
 		parent: nil,
 		numID: mNID_Unassigned,
@@ -311,16 +311,8 @@ func (this *MajorCommon) initialize() {
 
 		attrs: map[string][]string{},
 	}
-}
-
-// Unresolved = non-empty `unresRelQualID`
-// `unresRelQualID` should be a "qualified" ID, meaning if an object was included,
-// the `unresRelQualID` here should prepend the qualified ID of the chart-embedding event object.
-
-func CreateEmptyMajorCommon() *MajorCommon {
-	obj := MajorCommon{}
-	obj.initialize()
-	return &obj
+	obj.enclosing = obj
+	return obj
 }
 
 //-- vvv Constants vvv
