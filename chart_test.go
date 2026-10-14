@@ -14,7 +14,7 @@ func TestSingleEvent_Chart(t *testing.T) {
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Investigating loaded event...")
-	event := chart.GetObjectsByIntrinsicID("e0")[0].(*Event)
+	event := chart.GetObjectByIntrinsicID("e0").(*Event)
 	test.AssertEQ(event, chart.GetObjectByAbsQualID("e0").(*Event))
 	test.AssertEQ(event, chart.GetObjectByRelQualID("e0", chart).(*Event))
 	test.AssertEQ(event, chart.GetObjectByRelQualID("e0", nil).(*Event))
@@ -361,4 +361,20 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	t.Logf("End test.")
 }
 
-// TODO: check subchart functionality (load, change link, reference inside)
+func TestSimpleSubchartEmbedding_Chart(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'subchart_embed_simple.ltc'...")
+	chart, wc := CreateChart("subchart_embed_simple.ltc")
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Loading single_event subchart...")
+	sc1, wsc1 := chart.GetObjectByAbsQualID("e2").(*Event).GetSubchart()
+	test.PrintAllWarnings(wsc1)
+
+	t.Logf("Investigating loaded subchart...")
+	test.AssertEQ(sc1.GetObjectByIntrinsicID("e0").(*Event).GetTitle(), "Wherever")
+	test.AssertEQ(chart.GetObjectByAbsQualID("e2/e0").(*Event).GetTitle(), "Wherever")
+
+	t.Logf("End test.")
+}

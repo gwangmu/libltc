@@ -27,8 +27,6 @@ type Event struct {
     ContinuedTo		// Pointed by 'ContinuedFrom'
 }
 
-type chartLoader = func (*file.File) (*Chart, warning.Warnings)
-
 func (this *Event) Equal(that IMajor) bool {
 	return this.GetCommon() == that.GetCommon()
 }
@@ -225,7 +223,7 @@ func (this *Event) GetTitle() string {
 	} else if this.IsEventEmbedding() {
 		return this.embeddedEvent.GetTitle()
 	} else if this.IsChartEmbedding() {
-		if sc, _ := this.GetSubchart(nil); sc != nil {
+		if sc, _ := this.GetSubchart(); sc != nil {
 			return sc.GetStringifiedSubjectName()
 		} else {
 			return "(unloaded subchart name)"
@@ -255,16 +253,16 @@ func (this *Event) IsSubchartLoaded() bool {
 	return this.embeddedChart != nil
 }
 
-func (this *Event) GetSubchart(cloader chartLoader) (*Chart, warning.Warnings) {
+func (this *Event) GetSubchart() (*Chart, warning.Warnings) {
 	warns := warning.Warnings{}
 
 	// Lazy-load `embeddedChart` if it's nil (but shouldn't).
 	if this.IsChartEmbedding() && this.embeddedChart == nil {
-		moreWarns := this.loadEmbeddedChart(cloader)
+		moreWarns := this.loadEmbeddedChart()
 		warns.Concat(moreWarns)
 	}
 
-	return this.embeddedChart.asChart(), warns
+	return this.embeddedChart, warns
 }
 
 func (this *Event) GetEmbedChartLink() string {
@@ -502,22 +500,17 @@ func (this *Event) unloadEmbeddedEvent() {
 	this.embeddedEvent = nil
 }
 
-func (this *Event) loadEmbeddedChart(cloader chartLoader) (warns warning.Warnings) {
-	if cloader == nil {
-		warns.Add("!!!INTERNAL WARN!!! chart loader not provided")
-		return
-	}
-
-	if this.IsChartEmbedding() && this.embeddedChart != nil {
+func (this *Event) loadEmbeddedChart() (warns warning.Warnings) {
+	if this.IsChartEmbedding() && this.embeddedChart == nil {
 		efile, moreWarns, err := file.LoadFromURI[file.File](*this.chartEmbedLink)
 		warns.Concat(moreWarns)
 		if err != nil {
 			warns.Add("@0@ cannot load an embedded chart.", this)
-			embeddedChart, moreWarns := cloader(nil)
+			embeddedChart, moreWarns := createChartFromParsed(nil)
 			warns.Concat(moreWarns)
 			this.embeddedChart = embeddedChart
 		} else {
-			echart, moreWarns := cloader(efile)
+			echart, moreWarns := createChartFromParsed(efile)
 			warns.Concat(moreWarns)
 			this.embeddedChart = echart
 

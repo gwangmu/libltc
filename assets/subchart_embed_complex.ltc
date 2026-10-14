@@ -1,0 +1,20 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+Sex = "Male"
+
+[[Event]]
+ID = "e0"
+Title = "Chart-embedding (linked_obj)"
+EmbedChart = "./linked_objs.ltc"
+
+[[Annex]]
+ID = "a0"
+Title = "Some annex"
+Attrs = [ "AttachTo:e0/e1" ]

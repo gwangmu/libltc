@@ -1,0 +1,28 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+Sex = "Male"
+
+[[Event]]
+ID = "e0"
+Title = "Dummy0"
+
+[[Event]]
+ID = "e1"
+Title = "Dummy1"
+
+[[Event]]
+ID = "e2"
+Title = "Chart-embedding (single_event)"
+EmbedChart = "./single_event.ltc"
+
+[[Event]]
+ID = "e3"
+Title = "Chart-embedding (single_annex)"
+EmbedChart = "./single_annex.ltc"

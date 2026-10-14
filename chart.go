@@ -37,10 +37,6 @@ func (this *Chart) GetStringifiedSubjectName() string {
 	return this.Subject.Name.String()
 }
 
-func (this *Chart) asChart() *Chart {
-	return this
-}
-
 func (this *Chart) resolveReferenceTo(obj IMajor) {
 	// Ensure it's the main object itself, not just the common part. 
 	obj = obj.GetEnclosingObject()
@@ -68,8 +64,8 @@ func (this *Chart) unresolveReferenceTo(obj IMajor) {
 
 	// If 'obj' points to an event, unresolve 'ContinuedFrom'.
 	if eobj, ok := obj.(*Event); ok {
-		if eobj.IsSubchartLoaded() {
-			subchart, _ := eobj.GetSubchart(nil)
+		if eobj.IsChartEmbedding() && eobj.IsSubchartLoaded() {
+			subchart, _ := eobj.GetSubchart()
 			for _, scobj := range subchart.GetAllMajors(true) {
 				this.unresolveReferenceTo(scobj)
 			}
@@ -191,8 +187,8 @@ func (this *Chart) GetObjectByAbsQualID(absQualID string) IMajor {
 			if i == len(inChartQualIDs) - 1 {
 				return curObj
 			} else if eobj, ok := curObj.(*Event); ok {
-				if eobj.IsChartEmbedding() {
-					curChart, _ = eobj.GetSubchart(nil)
+				if eobj.IsChartEmbedding() && eobj.IsSubchartLoaded() {
+					curChart, _ = eobj.GetSubchart()
 					continue
 				} else {
 					break
@@ -215,7 +211,19 @@ func (this *Chart) GetObjectByRelQualID(relQualID string, baseChart *Chart) IMaj
 	}
 }
 
-func (this *Chart) GetObjectsByIntrinsicID(intrID string) []IMajor {
+func (this *Chart) GetObjectByIntrinsicID(intrID string) IMajor {
+	objs := this.getObjectsWithIDGetter(intrID, func (obj IMajor) string {
+		return obj.GetIntrinsicID()
+	}, true)
+
+	if len(objs) > 0 {
+		return objs[0]
+	} else {
+		return nil
+	}
+}
+
+func (this *Chart) GetAllObjectsByIntrinsicID(intrID string) []IMajor {
 	return this.getObjectsWithIDGetter(intrID, func (obj IMajor) string {
 		return obj.GetIntrinsicID()
 	}, false)
@@ -225,8 +233,8 @@ func (this *Chart) GetAllMajors(inclLoadedSubchartObjs bool) (ret []IMajor) {
 	for _, evs := range this.events {
 		for _, eobj := range evs {
 			ret = append(ret, eobj)
-			if inclLoadedSubchartObjs && eobj.IsSubchartLoaded() {
-				schart, _ := eobj.GetSubchart(nil)
+			if inclLoadedSubchartObjs && eobj.IsChartEmbedding() && eobj.IsSubchartLoaded() {
+				schart, _ := eobj.GetSubchart()
 				for _, seobj := range schart.GetAllMajors(true) {
 					ret = append(ret, seobj)
 				}
