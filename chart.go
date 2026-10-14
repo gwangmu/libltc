@@ -335,22 +335,22 @@ func (this *Chart) AddObject(obj IMajor) error {
 		// Resolve references.
 		this.resolveReferenceTo(iobj)
 		iobj.resolveReferenceTo(this)
-		for _, imobj := range iobj.GetImportedMajors() {
+		for _, imobj := range iobj.GetAllImportedObjects() {
 			this.resolveReferenceTo(imobj)
 			// NOTE: Not the other way round. No back reference.
 		}
 
 		// Insert 'obj' to the slice.
 		this.imports = append(this.imports, iobj)
-		for _, ieobj := range iobj.GetImportedEvents() {
+		for _, ieobj := range iobj.GetAllImportedEvents() {
 			category := ieobj.GetCategory()
 			this.ReserveEventCategory(category)
 			this.events[category] = insertEventToSlice(this.events[category], ieobj)
 		}
-		for _, iaobj := range iobj.GetImportedAnnexs() {
+		for _, iaobj := range iobj.GetAllImportedAnnexs() {
 			this.annexs = insertAnnexToSlice(this.annexs, iaobj)
 		}
-		for _, iiobj := range iobj.GetImportedImports() {
+		for _, iiobj := range iobj.GetAllImportedImports() {
 			this.imports = append(this.imports, iiobj)
 		}
 	}
@@ -394,21 +394,21 @@ func (this *Chart) RemoveObject(obj IMajor) {
 
 		// Remove 'obj' from the slice.
 		this.imports = removeMajorFromSlice[Import](this.imports, iobj)
-		for _, ieobj := range iobj.GetImportedEvents() {
+		for _, ieobj := range iobj.GetAllImportedEvents() {
 			category := ieobj.GetCategory()
 			this.events[category] = removeMajorFromSlice[Event](this.events[category], ieobj)
 		}
-		for _, iaobj := range iobj.GetImportedAnnexs() {
+		for _, iaobj := range iobj.GetAllImportedAnnexs() {
 			this.annexs = removeMajorFromSlice[Annex](this.annexs, iaobj)
 		}
-		for _, iiobj := range iobj.GetImportedImports() {
+		for _, iiobj := range iobj.GetAllImportedImports() {
 			this.imports = removeMajorFromSlice[Import](this.imports, iiobj)
 		}
 
 		// Unresolve references.
 		this.unresolveReferenceTo(iobj)
 		iobj.unresolveReferenceTo(this)
-		for _, imobj := range iobj.GetImportedMajors() {
+		for _, imobj := range iobj.GetAllImportedObjects() {
 			this.unresolveReferenceTo(imobj)
 			// NOTE: Not the other way round. No back reference.
 		}

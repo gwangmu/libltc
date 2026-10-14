@@ -14,37 +14,106 @@ type Import struct {
 	startDate *Time
 	endDate *Time
 	offsetDate *Time
-	categories []string		// nil: any categories
+	categories *[]string		// nil: any categories
 	
 	loadedChart *Chart
-	importedEvents []*Event
-	importedAnnexs []*Annex
-	importedImports []*Import
+	cache importCache
+}
 
+type importCache struct {
+	events []*Event
+	annexs []*Annex
+	imports []*Import
 	preOffsetEvents []*Event
+	initialWarns warning.Warnings
 }
 
 func (this *Import) Equal(that IMajor) bool {
 	return this.GetCommon() == that.GetCommon()
 }
 
+//-- interface IMajor
+
+func (this *Import) resolveReferenceTo(c *Chart) {
+	// No back- or cross-reference. So, nothing.
+	return
+}
+
+func (this *Import) unresolveReferenceTo(c *Chart) {
+	// No back- or cross-reference. So, nothing.
+	return
+}
+
 //-- interface IWarningObj
 
-func (this *Import) Summary() string {
-	// TODO
-	panic("Unimplemented")
+func (this *Import) Summary() (ret string) {
+	if this.IsUnresolved() {
+		ret = "an unresolved import"
+	} else {
+		ret = "an import"
+	}
+
+	maybeOldID := ""
+	if this.HasAttrKey("OldID") && len(this.GetAttrs("OldID")) > 0 {
+		maybeOldID = this.GetAttrs("OldID")[0]
+	}
+
+	extraStr := ""
+	if this.IsUnresolved() {
+		extraStr = warning.BuildSummaryString(
+			wse{"ID", this.getUnresRelQualID()},
+			wse{"OldID", maybeOldID},
+		)
+	} else {
+		extraStr = warning.BuildSummaryString(
+			wse{"ID", this.GetIntrinsicID()},
+			wse{"OldID", maybeOldID},
+			wse{"Link", this.GetLink()},
+			wse{"Started", this.GetStartDate()}, 
+			wse{"Ended", this.GetEndDate()},
+			wse{"Offset", this.GetOffsetDate()},
+		)
+	}
+	if (len(extraStr) > 0) {
+		ret += " (" + extraStr + ")"
+	}
+	
+	return
 }
 
 func (this Import) IsUnknown() bool {
-	// TODO
-	panic("Unimplemented")
+	return this.GetIntrinsicID() == "" && this.GetStartDate().IsUnknown() &&
+		this.GetEndDate().IsUnknown() && this.GetOffsetDate().IsUnknown() &&
+		this.GetLink() == ""
 }
 
 //-- interface IDiagnosable
 
 func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
-	// TODO: recursive to 'loadedChart'
-	panic("Unimplemented")
+	if this.IsLoaded() {
+		warns.Concat(this.cache.initialWarns)
+	} else {
+		warns.Add("@0@ cannot load the linked chart.", this)
+	}
+
+	if this.GetStartDate().IsInfiniteFuture() && !this.GetEndDate().IsUnknown() {
+		this.SetEndDate(UnknownTime)
+        warns.Add("@0@ had an end date after the infinite future. corrected.", this)
+	} else if this.GetEndDate().IsInfinitePast() && !this.GetStartDate().IsUnknown() {
+		this.SetStartDate(UnknownTime)
+        warns.Add("@0@ had a start date before the infinite past. corrected.", this)
+	}
+       
+	// TODO: move 'correct...' to 'common.go:utils'.
+	amb, inv := this.correctLocalStartEndDates(this.GetStartDate())
+	if amb {
+        warns.Add("@0@ had an ambiguous date. corrected.", this)
+    }
+	if inv {
+        warns.Add("@0@ had an inverted start/end date pair. corrected.", this)
+    }
+
+	return
 }
 
 func (this *Import) DiagnoseNonLocal() (warns warning.Warnings) {
@@ -53,60 +122,95 @@ func (this *Import) DiagnoseNonLocal() (warns warning.Warnings) {
 		return
 	}
 
-	// TODO: check duplicate ID between 'this' and other chart objs.
-	panic("Unimplemented")
+	// TODO: move this to MajorCommon
+	// Check invalid ID.
+	if this.numID == mNID_Invalid {
+		newNumID := this.chart.getNextmNumberID(MOK_Import)
+		this.numID = newNumID
+		warns.Add("@0@ had an invalid ID. auto-corrected to 'i%d'.", this, newNumID)
+	}
+
+	// TODO: move this to MajorCommon
+	// Check duplicate ID.
+	for _, iobj := range this.chart.GetImports() {
+		if iobj != this && iobj.numID == this.numID {
+			this.AddAttr("OldID", this.GetIntrinsicID())
+			newNumID := this.chart.getNextmNumberID(MOK_Import)
+			this.numID = newNumID
+			warns.Add("@0@ had a duplicated ID. auto-corrected to 'i%d'.", this, newNumID)
+			break
+		}
+	}
+
+	return
 }
 
 //-- method (getters)
 
 func (this *Import) GetLink() string {
-	// TODO
-	panic("Unimplemented")
+	return this.link
 }
 
-func (this *Import) GetStartDate() *Time {
-	// TODO
-	panic("Unimplemented")
+func (this *Import) GetStartDate() Time {
+	if this.startDate != nil {
+		return *this.startDate
+	} else {
+		return CreateEmptyTime(TUK_Start) 
+	}
 }
 
-func (this *Import) GetEndDate() *Time {
-	// TODO
-	panic("Unimplemented")
+func (this *Import) GetEndDate() Time {
+	if this.endDate != nil {
+		return *this.endDate
+	} else {
+		return CreateEmptyTime(TUK_End) 
+	}
 }
 
-func (this *Import) GetOffsetDate() *Time {
-	// TODO
-	panic("Unimplemented")
-}
-
-func (this *Import) GetCategories() []string {
-	// TODO
-	panic("Unimplemented")
+func (this *Import) GetOffsetDate() Time {
+	if this.offsetDate != nil {
+		return *this.offsetDate
+	} else {
+		return CreateEmptyTime(TUK_General) 
+	}
 }
 
 func (this *Import) GetImportedChart() *Chart {
-	// TODO
-	panic("Unimplemented")
+	return this.loadedChart
 }
 
-func (this *Import) GetImportedEvents() []*Event {
-	// TODO
-	panic("Unimplemented")
+func (this *Import) GetCategories() *[]string {
+	return this.categories
 }
 
-func (this *Import) GetImportedAnnexs() []*Annex {
-	// TODO
-	panic("Unimplemented")
+func (this *Import) GetAllImportedEvents() []*Event {
+	return this.cache.events
 }
 
-func (this *Import) GetImportedImports() []*Import {
-	// TODO
-	panic("Unimplemented")
+func (this *Import) GetAllImportedAnnexs() []*Annex {
+	return this.cache.annexs
 }
 
-func (this *Import) GetImportedMajors() []IMajor {
-	// TODO
-	panic("Unimplemented")
+func (this *Import) GetAllImportedImports() []*Import {
+	return this.cache.imports
+}
+
+func (this *Import) GetAllImportedObjects() []IMajor {
+	ret := []IMajor{}
+	for _, obj := range this.cache.events {
+		ret = append(ret, obj)
+	}
+	for _, obj := range this.cache.annexs {
+		ret = append(ret, obj)
+	}
+	for _, obj := range this.cache.imports {
+		ret = append(ret, obj)
+	}
+	return ret
+}
+
+func (this *Import) IsLoaded() bool {
+	return this.loadedChart != nil
 }
 
 //-- method (setters)
@@ -124,7 +228,7 @@ func (this *Import) SetLink(v string) {
 	panic("Unimplemented")
 }
 
-func (this *Import) SetStartDate(v *Time) {
+func (this *Import) SetStartDate(v Time) {
 	// TODO: unresolveReferenceTo all imported objects.
 	// TODO: clone main objects (ID preserved)
 	// TODO: set parents of cloned objects to `this` 
@@ -135,7 +239,7 @@ func (this *Import) SetStartDate(v *Time) {
 	panic("Unimplemented")
 }
 
-func (this *Import) SetEndDate(v *Time) {
+func (this *Import) SetEndDate(v Time) {
 	// TODO: unresolveReferenceTo all existing objects.
 	// TODO: clone main objects (ID preserved)
 	// TODO: set parents of cloned objects to `this` 
@@ -146,7 +250,7 @@ func (this *Import) SetEndDate(v *Time) {
 	panic("Unimplemented")
 }
 
-func (this *Import) SetOffsetDate(v *Time) {
+func (this *Import) SetOffsetDate(v Time) {
 	// TODO: clone `cachedEvents`, mask categories, apply offsetDate
 	panic("Unimplemented")
 }
@@ -155,6 +259,26 @@ func (this *Import) SetCategories(v []string) {
 	// TODO: unresolveReferenceTo all imported objects.
 	// TODO: clone `cachedEvents`, mask categories, apply offsetDate
 	// TODO: resolveReferenceTo all imported objects.
+	panic("Unimplemented")
+}
+
+func (this *Import) UnsetStartDate() {
+	// TODO: read above
+	panic("Unimplemented")
+}
+
+func (this *Import) UnsetEndDate() {
+	// TODO: read above
+	panic("Unimplemented")
+}
+
+func (this *Import) UnsetOffsetDate() {
+	// TODO: read above
+	panic("Unimplemented")
+}
+
+func (this *Import) UnsetCategories() {
+	// TODO: read above
 	panic("Unimplemented")
 }
 
@@ -177,8 +301,6 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	cimport.Note = note
 
 	cimport.link = o.Link
-	// TODO: eagerly load imported objects. warn if it failed.
-	panic("Unimplemented")
 
 	if o.StartDate != nil {
 		startDate := createTimeFromParsed(o.StartDate, TUK_Start)
@@ -196,8 +318,13 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	}
 
 	if o.Categories != nil {
-		cimport.categories = append([]string{}, o.Categories...)
+		tmpcats := *o.Categories
+		cimport.categories = &tmpcats
 	}
+
+	// TODO: eagerly load imported objects. warn if it failed.
+	// TODO: exclude 'ExcludeCategory' categories.
+	panic("Unimplemented")
 
 	moreWarns = cimport.DiagnoseLocal()
 	warns.Concat(moreWarns)
@@ -218,22 +345,8 @@ func CreateEmptyImport() *Import {
 		categories: nil,
 
 		loadedChart: nil,
-		importedEvents: []*Event{},
-		importedAnnexs: []*Annex{},
-		importedImports: []*Import{},
-
-		preOffsetEvents: []*Event{},
+		cache: importCache{},
 	}
 	cimport.enclosing = cimport
 	return cimport
-}
-
-func (this *Import) resolveReferenceTo(c *Chart) {
-	// No epSource. Nothing to do.
-	return
-}
-
-func (this *Import) unresolveReferenceTo(c *Chart) {
-	// No epSource. Nothing to do.
-	return
 }
