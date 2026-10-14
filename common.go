@@ -934,17 +934,3 @@ func correctStartEndDatePair(ts Time, te Time) (nts Time, nte Time, ambiguous bo
 
 	return
 }
-
-/*
-func CloneMajor[T IMajor](obj *T, preserveChart bool, preserveID bool) *T {
-	newobj := *obj
-	if !preserveChart {
-		newobj.setChart(nil)
-	}
-	if !preserveID {
-		newobj.setNumberID(mNID_Invalid)
-		newobj.unmarkUnresolved()
-	}
-	return &newobj
-}
-*/
