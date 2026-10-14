@@ -48,6 +48,11 @@ type IMajor interface {
 	unresolveReferenceTo(c *Chart)
 }
 
+type iMajorPtr[T any] interface {
+	*T
+	IMajor
+}
+
 type MajorCommon struct {
 	enclosing IMajor			// Enclosing object of this common struct
 

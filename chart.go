@@ -686,11 +686,6 @@ func insertAnnexToSlice(ans []*Annex, aobj *Annex) (ret []*Annex) {
 	return
 }
 
-type iMajorPtr[T any] interface {
-	*T
-	IMajor
-}
-
 func removeMajorFromSlice[T any, TPtr iMajorPtr[T]](objs []TPtr, obj TPtr) []TPtr {
 	idx := slices.Index(objs, obj)
 	if idx != -1 {
