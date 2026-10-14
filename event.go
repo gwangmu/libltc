@@ -123,12 +123,10 @@ func (this *Event) DiagnoseLocal() (warns warning.Warnings) {
 		}
 	}
 
-	if this.GetStartDate().IsInfiniteFuture() && !this.GetEndDate().IsUnknown() {
-		this.SetEndDate(UnknownTime)
-        warns.Add("@0@ had an end date after the infinite future. corrected.", this)
-	} else if this.GetEndDate().IsInfinitePast() && !this.GetStartDate().IsUnknown() {
-		this.SetStartDate(UnknownTime)
-        warns.Add("@0@ had a start date before the infinite past. corrected.", this)
+	if this.GetStartDate().IsInfiniteFuture() && this.GetEndDate().isFloating() {
+		this.SetEndDate(InfiniteFuture)
+	} else if this.GetEndDate().IsInfinitePast() && this.GetStartDate().isFloating() {
+		this.SetStartDate(InfinitePast)
 	}
        
 	amb, inv := this.correctLocalStartEndDates(this.GetStartDate())

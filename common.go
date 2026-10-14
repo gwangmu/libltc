@@ -492,11 +492,12 @@ func (this Time) isFloating() bool {
 }
 
 // Return value is undefined if either of the times is unknown (non-inf) or ambiguous.
+// Infinite futures are after themselves. Same for infinite pasts.
 func (this Time) IsAfter(that Time) bool {
-	if this.IsInfinitePast() || that.IsInfiniteFuture() {
-		return false 
-	} else if this.IsInfiniteFuture() || that.IsInfinitePast() {
+	if this.IsInfiniteFuture() || that.IsInfinitePast() {
 		return true
+	} else if this.IsInfinitePast() || that.IsInfiniteFuture() {
+		return false 
 	} else {
 		if this.usage == that.usage {
 			// Give 'this' a little more edge.
@@ -670,8 +671,8 @@ var InfinitePast Time = Time{ Attrs: map[string][]string{ "InfinitePast": []stri
 var InfiniteFuture Time = Time{ Attrs: map[string][]string{ "InfiniteFuture": []string{""} } }
 var UnknownTime Time = Time{} 
 
-func createTime(usage TimeUsageKind, vs ...int) Time {
-	t := CreateEmptyTime(usage)
+func TimeAt(vs ...int) Time {
+	t := CreateEmptyTime(TUK_General)
 	for i, v := range vs {
 		switch i {
 		case 0:
@@ -689,18 +690,6 @@ func createTime(usage TimeUsageKind, vs ...int) Time {
 		}
 	}
 	return t
-}
-
-func TimeFrom(vs ...int) Time {
-	return createTime(TUK_Start, vs...)
-}
-
-func TimeTo(vs ...int) Time {
-	return createTime(TUK_End, vs...)
-}
-
-func TimePoint(vs ...int) Time {
-	return createTime(TUK_General, vs...)
 }
 
 //-- struct NoteSnippet

@@ -96,12 +96,16 @@ func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
 		warns.Add("@0@ cannot load the linked chart.", this)
 	}
 
-	if this.GetStartDate().IsInfiniteFuture() && !this.GetEndDate().IsUnknown() {
-		this.SetEndDate(UnknownTime)
-        warns.Add("@0@ had an end date after the infinite future. corrected.", this)
-	} else if this.GetEndDate().IsInfinitePast() && !this.GetStartDate().IsUnknown() {
-		this.SetStartDate(UnknownTime)
-        warns.Add("@0@ had a start date before the infinite past. corrected.", this)
+	if this.GetStartDate().IsInfiniteFuture() && !this.GetEndDate().IsInfiniteFuture() {
+		if !this.GetEndDate().IsUnknown() {
+			warns.Add("@0@ had an end date after the infinite future. corrected.", this)
+		}
+		this.SetEndDate(InfiniteFuture)
+	} else if this.GetEndDate().IsInfinitePast() && !this.GetStartDate().IsInfinitePast() {
+		if !this.GetStartDate().IsUnknown() {
+			warns.Add("@0@ had a start date before the infinite past. corrected.", this)
+		}
+		this.SetStartDate(InfinitePast)
 	}
        
 	amb, inv := this.correctStartEndDates(this.GetStartDate())

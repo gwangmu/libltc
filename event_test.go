@@ -160,10 +160,6 @@ func TestEventEmbeddingEvent_Event(t *testing.T) {
 	t.Log("End test.")
 }
 
-//func TestChartEmbeddingEvent_Event(t *testing.T) {
-// TODO
-//}
-
 func TestBrokenEvent_Event(t *testing.T) {
 	test.Initialize(t, "assets")
 
@@ -271,6 +267,9 @@ func TestBrokenEvent_Event(t *testing.T) {
 	t.Logf("Investigating loaded event...")
 	test.AssertEQ(e10.GetStartDate().String(), "(-inf)")
 	test.AssertEQ(e10.GetEndDate().String(), "0000-01-02")
+	e10.SetStartDate(InfiniteFuture)
+	test.AssertEQ(e10.GetStartDate().String(), "0000-01-02")
+	test.AssertEQ(e10.GetEndDate().String(), "(inf)")
 
 	t.Logf("Loading event '%s'...", *file.Event[11].Title)
 	_, w11 := createEventFromParsed(file.Event[11])
@@ -284,17 +283,15 @@ func TestBrokenEvent_Event(t *testing.T) {
 	test.PrintAllWarnings(w12)
 
 	t.Logf("Investigating loaded event...")
-	test.AssertWarnContains(w12, "end date after.*infinite")
 	test.AssertEQ(e12.GetStartDate().String(), "(inf)")
-	test.AssertEQ(e12.GetEndDate().String(), "(unknown)")
+	test.AssertEQ(e12.GetEndDate().String(), "(inf)")
 
 	t.Logf("Loading event '%s'...", *file.Event[13].Title)
 	e13, w13 := createEventFromParsed(file.Event[13])
 	test.PrintAllWarnings(w13)
 
 	t.Logf("Investigating loaded event...")
-	test.AssertWarnContains(w13, "start date before.*infinite")
-	test.AssertEQ(e13.GetStartDate().String(), "(unknown)")
+	test.AssertEQ(e13.GetStartDate().String(), "(-inf)")
 	test.AssertEQ(e13.GetEndDate().String(), "(-inf)")
 
 	t.Logf("Loading event '%s'...", *file.Event[14].Title)
@@ -305,6 +302,24 @@ func TestBrokenEvent_Event(t *testing.T) {
 	test.AssertWarnContains(w14, "inverted")
 	test.AssertEQ(e14.GetStartDate().String(), "(-inf)")
 	test.AssertEQ(e14.GetEndDate().String(), "(inf)")
+
+	t.Logf("Loading event '%s'...", *file.Event[15].Title)
+	e15, w15 := createEventFromParsed(file.Event[15])
+	test.PrintAllWarnings(w15)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(w15, "inverted")
+	test.AssertEQ(e15.GetStartDate().String(), "1991-__-__")
+	test.AssertEQ(e15.GetEndDate().String(), "(inf)")
+
+	t.Logf("Loading event '%s'...", *file.Event[16].Title)
+	e16, w16 := createEventFromParsed(file.Event[16])
+	test.PrintAllWarnings(w16)
+
+	t.Logf("Investigating loaded event...")
+	test.AssertWarnContains(w16, "inverted")
+	test.AssertEQ(e16.GetStartDate().String(), "(-inf)")
+	test.AssertEQ(e16.GetEndDate().String(), "1991-**-**")
 
 	t.Log("End test.")
 }
