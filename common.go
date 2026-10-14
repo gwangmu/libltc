@@ -886,6 +886,66 @@ func convIDInternalToString(kind MajorKind, nid mNumberID) string {
 	}
 }
 
+// Only outcome: none, ambiguous, inverted, or ambigous AND THEN inverted.
+func correctStartEndDatePair(ts Time, te Time) (nts Time, nte Time, ambiguous bool, inverted bool) {
+	nts = ts
+	nte = te
+
+	// Correct ambiguity.
+	if !ts.isFloating() && !ts.IsInfinite() && ts.IsAmbiguous() && !te.IsAmbiguous() {
+		newStartDate := ts
+		if ts.year == nil && ts.month == nil {
+			// Can still be inverted. To be treated below.
+			newStartDate.SetYear(te.GetYear())
+			newStartDate.SetMonth(te.GetMonth())
+		} else if ts.year == nil {
+			if te.GetMonth() >= ts.GetMonth() {
+				newStartDate.SetYear(te.GetYear())
+			} else {
+				newStartDate.SetYear(te.GetYear() - 1)
+			}
+		} else /* if ts.month == nil */ {
+			newStartDate.SetMonth(te.GetMonth())
+		}
+
+		nts = newStartDate
+		ambiguous = true
+	} else if !te.isFloating() && !te.IsInfinite() && te.IsAmbiguous() && !ts.IsAmbiguous() {
+		newEndDate := te
+		if te.year == nil && te.month == nil {
+			// Can still be inverted. To be treated below.
+			newEndDate.SetYear(ts.GetYear())
+			newEndDate.SetMonth(ts.GetMonth())
+		} else if te.year == nil {
+			if te.GetMonth() >= ts.GetMonth() {
+				newEndDate.SetYear(ts.GetYear())
+			} else {
+				newEndDate.SetYear(ts.GetYear() + 1)
+			}
+		} else /* if te.month == nil */ {
+			newEndDate.SetMonth(ts.GetMonth())
+		}
+		nte = newEndDate
+		ambiguous = true
+	}
+
+	// Correct order.
+	if !nts.isFloating() && !nte.isFloating() {
+		if nts.IsAfter(nte) {
+			tmpt := nts
+			tmpsu := nts.GetUsage()
+			tmpeu := nte.GetUsage()
+			nts = nte
+			nte = tmpt
+			nts.SetUsage(tmpsu)
+			nte.SetUsage(tmpeu)
+			inverted = true
+		}
+	}
+
+	return
+}
+
 /*
 func CloneMajor[T IMajor](obj *T, preserveChart bool, preserveID bool) *T {
 	newobj := *obj

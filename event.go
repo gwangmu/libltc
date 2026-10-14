@@ -538,6 +538,30 @@ func (this *Event) isEmbeddedChartLoaded() bool {
 }
 
 func (this *Event) correctLocalStartEndDates(oldStartDate Time) (ambiguous bool, inverted bool) {
+	nts, nte, amb, inv := correctStartEndDatePair(this.GetStartDate(), this.GetEndDate())
+
+	// Reflect corrected results.
+	if !this.GetStartDate().Equal(nts) {
+		this.localStartDate = &nts
+	}
+
+	if !this.GetEndDate().Equal(nte) {
+		this.localEndDate = &nte
+	}
+
+	ambiguous = amb
+	inverted = inv
+
+    // Notify chart if 'StartDate' was changed.
+    if !oldStartDate.Equal(this.GetStartDate()) && this.chart != nil {
+        this.chart.changeEventStartDate(this)
+    }
+
+	return
+}
+
+/*
+func (this *Event) correctLocalStartEndDates(oldStartDate Time) (ambiguous bool, inverted bool) {
 	// Correct ambiguity.
 	if !this.GetStartDate().isFloating() && !this.GetStartDate().IsInfinite() && this.GetStartDate().IsAmbiguous() && !this.GetEndDate().IsAmbiguous() {
 		newStartDate := this.GetStartDate()
@@ -551,7 +575,7 @@ func (this *Event) correctLocalStartEndDates(oldStartDate Time) (ambiguous bool,
 			} else {
 				newStartDate.SetYear(this.GetEndDate().GetYear() - 1)
 			}
-		} else /* if this.GetStartDate().month == nil */ {
+		} else { // if this.GetStartDate().month == nil
 			newStartDate.SetMonth(this.GetEndDate().GetMonth())
 		}
 
@@ -569,7 +593,7 @@ func (this *Event) correctLocalStartEndDates(oldStartDate Time) (ambiguous bool,
 			} else {
 				newEndDate.SetYear(this.GetStartDate().GetYear() + 1)
 			}
-		} else /* if this.GetEndDate().month == nil */ {
+		} else { // if this.GetEndDate().month == nil
 			newEndDate.SetMonth(this.GetStartDate().GetMonth())
 		}
 		this.localEndDate = &newEndDate
@@ -618,3 +642,4 @@ func (this *Event) correctLocalStartEndDates(oldStartDate Time) (ambiguous bool,
 
 	return
 }
+*/

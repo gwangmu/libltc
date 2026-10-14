@@ -104,6 +104,7 @@ func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
         warns.Add("@0@ had a start date before the infinite past. corrected.", this)
 	}
        
+	/*
 	// TODO: move 'correct...' to 'common.go:utils'.
 	amb, inv := this.correctLocalStartEndDates(this.GetStartDate())
 	if amb {
@@ -112,6 +113,7 @@ func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
 	if inv {
         warns.Add("@0@ had an inverted start/end date pair. corrected.", this)
     }
+	*/
 
 	return
 }
