@@ -121,7 +121,7 @@ func (this Chart) IsUnknown() bool {
 
 //-- method (main object association)
 
-func (this *Chart) getNextmNumberID(kind MajorKind) mNumberID {
+func (this *Chart) getNextNumberID(kind MajorKind) mNumberID {
 	mainobjArr := []IMajor{}
 
 	switch kind {
@@ -296,7 +296,7 @@ func (this *Chart) AddObject(obj IMajor) error {
 		// Associate 'obj' to this chart.
 		obj.setChart(this)
 		if obj.getmNumberID() == mNID_Unassigned {
-			nnid := this.getNextmNumberID(objKind)
+			nnid := this.getNextNumberID(objKind)
 			obj.setNumberID(nnid)
 		}
 
@@ -318,7 +318,7 @@ func (this *Chart) AddObject(obj IMajor) error {
 		// Associate 'obj' to this chart.
 		obj.setChart(this)
 		if obj.getmNumberID() == mNID_Unassigned {
-			nnid := this.getNextmNumberID(objKind)
+			nnid := this.getNextNumberID(objKind)
 			obj.setNumberID(nnid)
 		}
 
@@ -339,7 +339,7 @@ func (this *Chart) AddObject(obj IMajor) error {
 		// Associate 'obj' to this chart.
 		obj.setChart(this)
 		if obj.getmNumberID() == mNID_Unassigned {
-			nnid := this.getNextmNumberID(objKind)
+			nnid := this.getNextNumberID(objKind)
 			obj.setNumberID(nnid)
 		}
 

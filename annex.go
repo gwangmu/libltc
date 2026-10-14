@@ -119,7 +119,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 
 	// Check invalid ID.
 	if this.numID == mNID_Invalid {
-		newNumID := this.chart.getNextmNumberID(MOK_Annex)
+		newNumID := this.chart.getNextNumberID(MOK_Annex)
 		this.numID = newNumID
 		warns.Add("@0@ had an invalid ID. auto-corrected to 'a%d'.", this, newNumID)
 	}
@@ -128,7 +128,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 	for _, aobj := range this.chart.GetAnnexs() {
 		if aobj != this && aobj.numID == this.numID {
 			this.AddAttr("OldID", this.GetIntrinsicID())
-			newNumID := this.chart.getNextmNumberID(MOK_Annex)
+			newNumID := this.chart.getNextNumberID(MOK_Annex)
 			this.numID = newNumID
 			warns.Add("@0@ had a duplicated ID. auto-corrected to 'a%d'.", this, newNumID)
 			break
