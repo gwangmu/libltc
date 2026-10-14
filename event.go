@@ -256,6 +256,7 @@ func (this *Event) IsChartEmbedding() bool {
 	return this.chartEmbedLink != nil
 }
 
+// NOTE: 'Get{Start,End}Date' should be either both floating or both non-floating.
 func (this *Event) GetStartDate() Time {
 	if this.localStartDate != nil {
 		return *this.localStartDate
@@ -266,6 +267,7 @@ func (this *Event) GetStartDate() Time {
 	}
 }
 
+// NOTE: 'Get{Start,End}Date' should be either both floating or both non-floating.
 func (this *Event) GetEndDate() Time {
 	if this.localEndDate != nil {
 		return *this.localEndDate
@@ -338,6 +340,12 @@ func (this *Event) UnsetLocalEndDate() {
     this.correctLocalStartEndDates(oldStartDate)
 }
 
+// Combination of 'UnsetLocalStartDate' and 'UnsetLocalEndDate'.
+func (this *Event) UnsetLocalDate() {
+	this.UnsetLocalStartDate()
+	this.UnsetLocalEndDate()
+}
+
 // Convenience wrapper to 'SetLocalStartDate'.
 func (this *Event) SetStartDate(t Time) {
 	oldStartDate := this.GetStartDate()
@@ -370,6 +378,12 @@ func (this *Event) SetEndDate(t Time) {
 		this.localStartDate = &ts
 	}
     this.correctLocalStartEndDates(oldStartDate)
+}
+
+// Combination of 'SetStartDate' and 'SetEndDate'.
+func (this *Event) SetDate(t Time) {
+	this.SetStartDate(t)
+	this.SetEndDate(t)
 }
 
 func (this *Event) SetCategory(c string) error {

@@ -510,8 +510,7 @@ func TestGetEventsBetween_Chart(t *testing.T) {
 
 	// Setting just one date, while the other date is unknown, makes the other date
 	// "floating," meaning the event has only one specific date. 
-	nev.SetStartDate(TimeAt(2026, 1, 11))
-	nev.SetEndDate(TimeAt(2026, 1, 11))
+	nev.SetDate(TimeAt(2026, 1, 11))
 	if err := chart.AddObject(nev); err != nil {
 		t.Fatal(err)
 		return
@@ -554,8 +553,14 @@ func TestGetEventsBetween_Chart(t *testing.T) {
 		}
 	}
 
+	// This should be the same as 'UnsetLocalDate' or 'SetDate(UnknownTime)'.
 	nev.SetEndDate(UnknownTime)
+	test.AssertEQ(nev.GetStartDate().String(), "(unknown)")
+	test.AssertEQ(nev.GetEndDate().String(), "(unknown)")
+
 	nev.SetStartDate(TimeAt(2026, 1, 11))
+	test.AssertEQ(nev.GetStartDate().String(), "2026-01-11")
+	test.AssertEQ(nev.GetEndDate().String(), "(inf)")
 
 	{
 		evs := chart.GetEventsInCategoryBetween("", TimeAt(2026, 1, 10, 12), TimeAt(2026, 1, 12, 12))
