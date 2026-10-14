@@ -251,7 +251,7 @@ func TestLinkedObjects_Chart(t *testing.T) {
 		return
 	}
 	test.AssertEQ(nev2.GetStartDate().String(), "(inf)")
-	test.AssertEQ(nev2.GetEndDate().String(), "(unknown)")
+	test.AssertEQ(nev2.GetEndDate().String(), "(inf)")
 
 	eids2 := []string{"e2", "e0", "e1", "e3"}
 	for i, eobj := range chart.GetEventsInCategory("") {
@@ -494,6 +494,73 @@ func TestComplexSubchartEmbedding_Chart(t *testing.T) {
 
 	test.AssertEQ(len(nax1.AttachTo.Get()), 1)
 	test.AssertEQ(len(e1e1.Attached.Get()), 0)
+
+	t.Logf("End test.")
+}
+
+func TestGetEventsBetween_Chart(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'linked_objs.ltc'...")
+	chart, wc := CreateChart("linked_objs.ltc")
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Investigating loaded event...")
+	nev := CreateEmptyEvent()
+
+	// Setting just one date, while the other date is unknown, makes the other date
+	// "floating," meaning the event has only one specific date. 
+	nev.SetStartDate(TimeAt(2026, 1, 11))
+	nev.SetEndDate(TimeAt(2026, 1, 11))
+	if err := chart.AddObject(nev); err != nil {
+		t.Fatal(err)
+		return
+	}
+	test.AssertEQ(nev.GetIntrinsicID(), "e2")
+
+	{
+		evs := chart.GetEventsInCategoryBetween("", TimeAt(2026, 1, 8), TimeAt(2026, 1, 14))
+		eids := []string{"e0", "e2", "e1"}
+		test.AssertEQ(len(evs), len(eids))
+		for i, eobj := range evs {
+			test.AssertEQ(eobj.GetIntrinsicID(), eids[i])
+		}
+	}
+
+	{
+		evs := chart.GetEventsInCategoryBetween("", TimeAt(2026, 1, 10), TimeAt(2026, 1, 14))
+		eids := []string{"e0", "e2", "e1"}
+		test.AssertEQ(len(evs), len(eids))
+		for i, eobj := range evs {
+			test.AssertEQ(eobj.GetIntrinsicID(), eids[i])
+		}
+	}
+
+	{
+		evs := chart.GetEventsInCategoryBetween("", TimeAt(2026, 1, 10), TimeAt(2026, 1, 12, 12))
+		eids := []string{"e0", "e2"}
+		test.AssertEQ(len(evs), len(eids))
+		for i, eobj := range evs {
+			test.AssertEQ(eobj.GetIntrinsicID(), eids[i])
+		}
+	}
+
+	{
+		evs := chart.GetEventsInCategoryBetween("", TimeAt(2026, 1, 10, 12), TimeAt(2026, 1, 12, 12))
+		eids := []string{"e2"}
+		test.AssertEQ(len(evs), len(eids))
+		for i, eobj := range evs {
+			test.AssertEQ(eobj.GetIntrinsicID(), eids[i])
+		}
+	}
+
+	nev.SetEndDate(UnknownTime)
+	nev.SetStartDate(TimeAt(2026, 1, 11))
+
+	{
+		evs := chart.GetEventsInCategoryBetween("", TimeAt(2026, 1, 10, 12), TimeAt(2026, 1, 12, 12))
+		test.AssertEQ(len(evs), 0)
+	}
 
 	t.Logf("End test.")
 }

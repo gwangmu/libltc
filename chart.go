@@ -161,6 +161,14 @@ func (this *Chart) getNextmNumberID(kind MajorKind) mNumberID {
 
 //-- method (getters)
 
+func (this *Chart) GetEvents() []*Event {
+	ret := []*Event{}
+	for _, evs := range this.events {
+		ret = append(ret, evs...)
+	}
+	return ret
+}
+
 func (this *Chart) GetAnnexs() []*Annex {
 	return this.annexs
 }
@@ -234,6 +242,9 @@ func (this *Chart) GetEventsInCategory(category string) []*Event {
 
 // start, end: all inclusive.
 func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end Time) (ret []*Event) {
+	start.SetUsage(TUK_General)
+	end.SetUsage(TUK_End)
+
 	if evs, ok := this.events[category]; !ok {
 		return
 	} else {

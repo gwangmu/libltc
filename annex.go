@@ -121,7 +121,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 	if this.numID == mNID_Invalid {
 		newNumID := this.chart.getNextmNumberID(MOK_Annex)
 		this.numID = newNumID
-		warns.Add("@0@ had an invalid ID. auto-corrected to 'e%d'.", this, newNumID)
+		warns.Add("@0@ had an invalid ID. auto-corrected to 'a%d'.", this, newNumID)
 	}
 
 	// Check duplicate ID.

@@ -343,6 +343,15 @@ func (this *Event) SetStartDate(t Time) {
 	oldStartDate := this.GetStartDate()
 	t.SetUsage(TUK_Start)
     this.localStartDate = &t
+	if this.GetStartDate().isFloating() {
+		te := UnknownTime
+		te.SetUsage(TUK_End)
+		this.localEndDate = &te
+	} else if this.GetEndDate().isFloating() {
+		te := InfiniteFuture
+		te.SetUsage(TUK_End)
+		this.localEndDate = &te
+	}
 	this.correctLocalStartEndDates(oldStartDate)
 }
 
@@ -351,6 +360,15 @@ func (this *Event) SetEndDate(t Time) {
 	oldStartDate := this.GetStartDate()
 	t.SetUsage(TUK_End)
     this.localEndDate = &t
+	if this.GetEndDate().isFloating() {
+		ts := UnknownTime
+		ts.SetUsage(TUK_Start)
+		this.localStartDate = &ts
+	} else if this.GetStartDate().isFloating() {
+		ts := InfinitePast
+		ts.SetUsage(TUK_Start)
+		this.localStartDate = &ts
+	}
     this.correctLocalStartEndDates(oldStartDate)
 }
 
