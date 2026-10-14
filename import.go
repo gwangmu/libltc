@@ -96,15 +96,9 @@ func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
 		warns.Add("@0@ cannot load the linked chart.", this)
 	}
 
-	if this.GetStartDate().IsInfiniteFuture() && !this.GetEndDate().IsInfiniteFuture() {
-		if !this.GetEndDate().IsUnknown() {
-			warns.Add("@0@ had an end date after the infinite future. corrected.", this)
-		}
+	if this.GetStartDate().IsInfiniteFuture() && this.GetEndDate().isFloating() {
 		this.SetEndDate(InfiniteFuture)
-	} else if this.GetEndDate().IsInfinitePast() && !this.GetStartDate().IsInfinitePast() {
-		if !this.GetStartDate().IsUnknown() {
-			warns.Add("@0@ had a start date before the infinite past. corrected.", this)
-		}
+	} else if this.GetEndDate().IsInfinitePast() && this.GetStartDate().isFloating() {
 		this.SetStartDate(InfinitePast)
 	}
        
