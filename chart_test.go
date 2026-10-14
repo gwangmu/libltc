@@ -15,9 +15,7 @@ func TestSingleEvent_Chart(t *testing.T) {
 
 	t.Logf("Investigating loaded event...")
 	event := chart.GetObjectByIntrinsicID("e0").(*Event)
-	test.AssertEQ(event, chart.GetObjectByAbsQualID("e0").(*Event))
-	test.AssertEQ(event, chart.GetObjectByRelQualID("e0", chart).(*Event))
-	test.AssertEQ(event, chart.GetObjectByRelQualID("e0", nil).(*Event))
+	test.AssertEQ(event, chart.GetObjectByQualifiedID("e0").(*Event))
 
 	test.AssertEQ(event.GetTitle(), "Wherever")
 	test.AssertEQ(event.GetCategory(), "Residence")
@@ -79,7 +77,7 @@ func TestBrokenEvents_Chart(t *testing.T) {
 	test.AssertWarnContains(wc, "Ambiguous.*\\(2\\).*OldID:e1.*corrected")
 	test.AssertWarnContains(wc, "Ambiguous.*\\(3\\).*OldID:e1.*corrected")
 	test.AssertWarnContains(wc, "Broken date \\(2\\).*OldID:e1.*corrected")
-	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).IsChartEmbedding(), false)
+	test.AssertEQ(chart.GetObjectByQualifiedID("e0").(*Event).IsChartEmbedding(), false)
 
 	// Ensure no duplicate IDs.
 	aevIDs := []string{}
@@ -130,21 +128,21 @@ func TestLinkedObjects_Chart(t *testing.T) {
 
 	t.Logf("Investigating loaded event...")
 	test.AssertWarnContains(wc, "Event1.*dangling 'ContinuedFrom'")
-	test.AssertEQ(len(chart.GetObjectByAbsQualID("e0").(*Event).ContinuedFrom.Get()), 1)
-	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).ContinuedFrom.Get()[0].GetTitle(), "Event1")
-	test.AssertEQ(len(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedTo.Get()), 1)
-	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedTo.Get()[0].GetTitle(), "Event0")
-	test.AssertEQ(len(chart.GetObjectByAbsQualID("e0").(*Event).Attached.Get()), 1)
-	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).Attached.Get()[0].Title, "Annex0")
-	test.AssertEQ(len(chart.GetObjectByAbsQualID("e0").(*Event).ExtraNote.Get()), 1)
-	test.AssertEQ(chart.GetObjectByAbsQualID("e0").(*Event).ExtraNote.Get()[0].Title, "Annex1")
-	test.AssertEQ(len(chart.GetObjectByAbsQualID("a0").(*Annex).AttachTo.Get()), 1)
-	test.AssertEQ(chart.GetObjectByAbsQualID("a0").(*Annex).AttachTo.Get()[0].(*Event).GetTitle(), "Event0")
-	test.AssertEQ(len(chart.GetObjectByAbsQualID("a1").(*Annex).ExtraNoteOf.Get()), 2)
-	test.AssertEQ(chart.GetObjectByAbsQualID("a1").(*Annex).ExtraNoteOf.Get()[0].(*Event).GetTitle(), "Event0")
-	test.AssertEQ(len(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()), 1)
-	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].IsUnresolved(), true) 
-	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].GetAbsQualifiedID(), "e4") 
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("e0").(*Event).ContinuedFrom.Get()), 1)
+	test.AssertEQ(chart.GetObjectByQualifiedID("e0").(*Event).ContinuedFrom.Get()[0].GetTitle(), "Event1")
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("e1").(*Event).ContinuedTo.Get()), 1)
+	test.AssertEQ(chart.GetObjectByQualifiedID("e1").(*Event).ContinuedTo.Get()[0].GetTitle(), "Event0")
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("e0").(*Event).Attached.Get()), 1)
+	test.AssertEQ(chart.GetObjectByQualifiedID("e0").(*Event).Attached.Get()[0].Title, "Annex0")
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("e0").(*Event).ExtraNote.Get()), 1)
+	test.AssertEQ(chart.GetObjectByQualifiedID("e0").(*Event).ExtraNote.Get()[0].Title, "Annex1")
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("a0").(*Annex).AttachTo.Get()), 1)
+	test.AssertEQ(chart.GetObjectByQualifiedID("a0").(*Annex).AttachTo.Get()[0].(*Event).GetTitle(), "Event0")
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("a1").(*Annex).ExtraNoteOf.Get()), 2)
+	test.AssertEQ(chart.GetObjectByQualifiedID("a1").(*Annex).ExtraNoteOf.Get()[0].(*Event).GetTitle(), "Event0")
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("e1").(*Event).ContinuedFrom.Get()), 1)
+	test.AssertEQ(chart.GetObjectByQualifiedID("e1").(*Event).ContinuedFrom.Get()[0].IsUnresolved(), true) 
+	test.AssertEQ(chart.GetObjectByQualifiedID("e1").(*Event).ContinuedFrom.Get()[0].GetQualifiedID(), "e4") 
 
 	// Mimic runtime chart manipulation
 	// E.g., add event/annex, create/remove links, change dates, ...
@@ -261,7 +259,7 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	}
 
 	// Move category.
-	e1 := chart.GetObjectByAbsQualID("e1").(*Event)
+	e1 := chart.GetObjectByQualifiedID("e1").(*Event)
 	e1.SetCategory("Some Category")
 	eids3 := []string{"e2", "e0", "e3"}
 	for i, eobj := range chart.GetEventsInCategory("") {
@@ -301,10 +299,10 @@ func TestLinkedObjects_Chart(t *testing.T) {
 		return
 	}
 	test.AssertEQ(nev3.GetIntrinsicID(), "e4")
-	test.AssertEQ(chart.GetObjectByAbsQualID("e1").(*Event).ContinuedFrom.Get()[0].GetTitle(), "New event 2")
+	test.AssertEQ(chart.GetObjectByQualifiedID("e1").(*Event).ContinuedFrom.Get()[0].GetTitle(), "New event 2")
 	test.AssertEQ(nev3.ContinuedTo.Get()[0].GetTitle(), "Event1")
 
-	e0 := chart.GetObjectByAbsQualID("e0").(*Event)
+	e0 := chart.GetObjectByQualifiedID("e0").(*Event)
 	nev3.ContinuedFrom.Link(e0, true)
 	test.AssertEQ(nev3.ContinuedFrom.Get()[0].GetTitle(), "Event0")
 	test.AssertEQ(e0.ContinuedTo.Get()[0].GetTitle(), "New event 2")
@@ -329,7 +327,7 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.AssertEQ(len(nev3.ContinuedTo.Get()), 0)
 
 	// Create AttachTo.
-	a0 := chart.GetObjectByAbsQualID("a0").(*Annex)
+	a0 := chart.GetObjectByQualifiedID("a0").(*Annex)
 	a0.AttachTo.Link(nev3, true)
 	test.AssertEQ(len(a0.AttachTo.Get()), 2)
 	test.AssertEQ(len(nev3.Attached.Get()), 1)
@@ -341,7 +339,7 @@ func TestLinkedObjects_Chart(t *testing.T) {
 	test.AssertEQ(len(e0.Attached.Get()), 0)
 
 	// Create ExtraNoteOf.
-	a1 := chart.GetObjectByAbsQualID("a1").(*Annex)
+	a1 := chart.GetObjectByQualifiedID("a1").(*Annex)
 	nax1 := CreateEmptyAnnex()
 	nax1.Title = "New annex"
 	if err := chart.AddObject(nax1); err != nil {
@@ -369,13 +367,18 @@ func TestSimpleSubchartEmbedding_Chart(t *testing.T) {
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Loading single_event subchart...")
-	sc1, wsc1 := chart.GetObjectByAbsQualID("e2").(*Event).GetSubchart()
+	sc1, wsc1 := chart.GetObjectByQualifiedID("e2").(*Event).GetSubchart()
 	test.PrintAllWarnings(wsc1)
 
 	t.Logf("Investigating loaded subchart...")
 	test.AssertEQ(sc1.GetObjectByIntrinsicID("e0").(*Event).GetTitle(), "Wherever")
-	test.AssertEQ(chart.GetObjectByAbsQualID("e2/e0").(*Event).GetTitle(), "Wherever")
-	test.AssertEQ(chart.GetObjectByRelQualID("e2/e0", chart).(*Event).GetTitle(), "Wherever")
+	test.AssertEQ(chart.GetObjectByQualifiedID("e2/e0").(*Event).GetTitle(), "Wherever")
+
+	e2e0 := chart.GetObjectByQualifiedID("e2/e0").(*Event)
+	test.AssertEQ(e2e0.GetIntrinsicID(), "e0")
+	test.AssertEQ(e2e0.GetQualifiedID(), "e2/e0")
+	test.AssertEQ(e2e0.GetRelQualifiedID(sc1), "e0")
+	test.AssertEQ(e2e0.GetRelQualifiedID(chart), "e2/e0")
 
 	t.Logf("End test.")
 }

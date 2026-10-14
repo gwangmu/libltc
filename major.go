@@ -1,7 +1,6 @@
 package libltc
 
 import (
-	"fmt"
 	"errors"
 	"math"
 	"strings"
@@ -26,8 +25,8 @@ type IMajor interface {
 	IsUnresolved() bool
 
 	GetIntrinsicID() string 
+	GetQualifiedID() string
 	GetRelQualifiedID(baseChart *Chart) string
-	GetAbsQualifiedID() string
 
 	GetParent() IMajor
 	SetParent(p IMajor)
@@ -155,11 +154,11 @@ func (this *MajorCommon) GetIntrinsicID() string {
 
 func (this *MajorCommon) GetRelQualifiedID(baseChart *Chart) (ret string) {
 	if this.IsUnresolved() {
-		ret = this.GetAbsQualifiedID()
+		ret = this.GetQualifiedID()
 		if this.unresRefcer != nil {
 			if c := this.unresRefcer.GetChart(); c != nil {
 				if eceobj := c.GetEmbeddingEvent(); eceobj != nil {
-					ret = strings.TrimPrefix(eceobj.GetAbsQualifiedID(), ret)
+					ret = strings.TrimPrefix(eceobj.GetQualifiedID(), ret)
 				}
 			}
 		}
@@ -174,21 +173,21 @@ func (this *MajorCommon) GetRelQualifiedID(baseChart *Chart) (ret string) {
 	}
 }
 
-func (this *MajorCommon) GetAbsQualifiedID() (ret string) {
+func (this *MajorCommon) GetQualifiedID() (ret string) {
 	if this.IsUnresolved() {
 		unresRelQualID := this.unresRelQualID
 		prefixid := ""
 		if this.unresRefcer != nil {
 			if c := this.unresRefcer.GetChart(); c != nil {
 				if eceobj := c.GetEmbeddingEvent(); eceobj != nil {
-					prefixid = eceobj.GetAbsQualifiedID() + "/"
+					prefixid = eceobj.GetQualifiedID() + "/"
 				}
 			}
 		}
 		return prefixid + unresRelQualID
 	} else {
 		if this.parent != nil {
-			ret = this.parent.GetAbsQualifiedID() + "/"
+			ret = this.parent.GetQualifiedID() + "/"
 		}
 		ret += this.GetIntrinsicID()
 		return
@@ -277,7 +276,7 @@ func (this *MajorCommon) RemoveAttr(key string, value string) {
 
 func (this *MajorCommon) convIDRelToAbs(relid string) string {
 	if this.parent != nil {
-		return this.parent.GetAbsQualifiedID() + "/" + relid
+		return this.parent.GetQualifiedID() + "/" + relid
 	} else {
 		return relid
 	}
@@ -285,7 +284,7 @@ func (this *MajorCommon) convIDRelToAbs(relid string) string {
 
 func (this *MajorCommon) convIDAbsToRel(absid string) string {
 	if this.parent != nil {
-		return strings.TrimPrefix(absid, this.parent.GetAbsQualifiedID() + "/")
+		return strings.TrimPrefix(absid, this.parent.GetQualifiedID() + "/")
 	} else {
 		return absid
 	}

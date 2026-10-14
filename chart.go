@@ -177,15 +177,8 @@ func (this *Chart) setEmbeddingEvent(o *Event) {
 
 //-- method (main object manipulation)
 
-func (this *Chart) GetObjectByAbsQualID(absQualID string) IMajor {
+func (this *Chart) GetObjectByQualifiedID(absQualID string) IMajor {
 	return this.getObjectByQualID(absQualID, this)
-}
-
-func (this *Chart) GetObjectByRelQualID(relQualID string, baseChart *Chart) IMajor {
-	if baseChart == nil {
-		baseChart = this
-	}
-	return this.getObjectByQualID(relQualID, baseChart)
 }
 
 func (this *Chart) GetObjectByIntrinsicID(intrID string) IMajor {
@@ -545,6 +538,10 @@ func CreateEmptyChart() *Chart {
 //-- method (util)
 
 func (this *Chart) getObjectByQualID(qualID string, baseChart *Chart) IMajor {
+	if baseChart == nil {
+		baseChart = this
+	}
+
 	inChartQualIDs := splitIntoInChartQualIDs(qualID)
 	curChart := baseChart 
 	for i, inChartQualID := range inChartQualIDs {

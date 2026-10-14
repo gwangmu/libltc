@@ -145,7 +145,7 @@ func TestAttachedAnnex_Annex(t *testing.T) {
 	// 'AttachTo:e0' should have been reserved at annex creation.
 	test.AssertEQ(len(a0.AttachTo.Get()), 1)
 	test.AssertEQ(a0.AttachTo.Get()[0].GetIntrinsicID(), "e0")
-	test.AssertEQ(a0.AttachTo.Get()[0].GetAbsQualifiedID(), "e0")
+	test.AssertEQ(a0.AttachTo.Get()[0].GetQualifiedID(), "e0")
 	test.AssertEQ(a0.AttachTo.Get()[0].IsUnresolved(), true)
 	test.AssertEQ(a0.AttachTo.Get()[0].getmNumberID(), mNID_Unassigned)
 
@@ -207,7 +207,7 @@ func TestAttachedAnnex_Annex(t *testing.T) {
 	// 'ExtraNoteOf:e0' should have been reserved at annex creation.
 	test.AssertEQ(len(a1.ExtraNoteOf.Get()), 1)
 	test.AssertEQ(a1.ExtraNoteOf.Get()[0].GetIntrinsicID(), "e0")
-	test.AssertEQ(a1.ExtraNoteOf.Get()[0].GetAbsQualifiedID(), "e0")
+	test.AssertEQ(a1.ExtraNoteOf.Get()[0].GetQualifiedID(), "e0")
 	test.AssertEQ(a1.ExtraNoteOf.Get()[0].IsUnresolved(), true)
 	test.AssertEQ(a1.ExtraNoteOf.Get()[0].getmNumberID(), mNID_Unassigned)
 

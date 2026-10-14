@@ -62,7 +62,7 @@ func reserveLinkImpl[SrcT IMajor, SinkT IMajor](
 
 	absQualID := osrc.convIDRelToAbs(relQualID)
 	idx := epSrc.find(func (elem SinkT) bool {
-		return elem.GetAbsQualifiedID() == absQualID
+		return elem.GetQualifiedID() == absQualID
 	})
 
 	// If the same ID was not reserved, add unresolved.
@@ -78,9 +78,9 @@ func linkImpl[SrcT IMajor, SinkT IMajor](
 	epSrc := getepSource(osrc)
 	epSink := getepSink(osink)
 
-    absQualID := osink.GetAbsQualifiedID() 
+    absQualID := osink.GetQualifiedID() 
 	idx := epSrc.find(func (elem SinkT) bool {
-		return elem.GetAbsQualifiedID() == absQualID
+		return elem.GetQualifiedID() == absQualID
 	})
 
 	if idx != -1 {
@@ -112,7 +112,7 @@ func unlinkImpl[SrcT IMajor, SinkT IMajor](
 	epSrc := getepSource(osrc)
 	epSink := getepSink(osink)
 
-    absQualID := osink.GetAbsQualifiedID() 
+    absQualID := osink.GetQualifiedID() 
 	idx := epSrc.find(func (elem SinkT) bool {
 		return elem.Equal(osink)
 	})
@@ -137,7 +137,7 @@ func unreserveLinkImpl[SrcT IMajor, SinkT IMajor](
 	epSrc := getepSource(osrc)
 
 	idx := epSrc.find(func (elem SinkT) bool {
-		return elem.GetAbsQualifiedID() == absQualID
+		return elem.GetQualifiedID() == absQualID
 	})
 
 	// If the same ID was reserved, (break and) remove it.

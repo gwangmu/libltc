@@ -64,7 +64,7 @@ func TestContinuedEvent_Event(t *testing.T) {
 	// 'e0' should have been reserved at event creation.
 	test.AssertEQ(len(e1.ContinuedFrom.Get()), 1)
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].GetIntrinsicID(), "e0")
-	test.AssertEQ(e1.ContinuedFrom.Get()[0].GetAbsQualifiedID(), "e0")
+	test.AssertEQ(e1.ContinuedFrom.Get()[0].GetQualifiedID(), "e0")
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].IsUnresolved(), true)
 	test.AssertEQ(e1.ContinuedFrom.Get()[0].getmNumberID(), mNID_Unassigned)
 
@@ -185,7 +185,7 @@ func TestBrokenEvent_Event(t *testing.T) {
 	t.Logf("Investigating loaded event...")
 	test.AssertEQ(e0.GetAttrs("OldID")[0], "borked")
 	test.AssertEQ(e0.GetIntrinsicID(), "?")
-	test.AssertEQ(e0.GetAbsQualifiedID(), "?")
+	test.AssertEQ(e0.GetQualifiedID(), "?")
 
 	t.Logf("Loading event '%s'...", *file.Event[1].Title)
 	e1, w1 := createEventFromParsed(file.Event[1])
