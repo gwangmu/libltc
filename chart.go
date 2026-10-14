@@ -178,37 +178,14 @@ func (this *Chart) setEmbeddingEvent(o *Event) {
 //-- method (main object manipulation)
 
 func (this *Chart) GetObjectByAbsQualID(absQualID string) IMajor {
-	inChartQualIDs := splitIntoInChartQualIDs(absQualID)
-	curChart := this
-	for i, inChartQualID := range inChartQualIDs {
-		curObj := curChart.GetObjectByRelQualID(inChartQualID, curChart)
-
-		if curObj != nil {
-			if i == len(inChartQualIDs) - 1 {
-				return curObj
-			} else if eobj, ok := curObj.(*Event); ok {
-				if eobj.IsChartEmbedding() && eobj.IsSubchartLoaded() {
-					curChart, _ = eobj.GetSubchart()
-					continue
-				} else {
-					break
-				}
-			}
-		}
-	}
-	return nil
+	return this.getObjectByQualID(absQualID, this)
 }
 
 func (this *Chart) GetObjectByRelQualID(relQualID string, baseChart *Chart) IMajor {
-	objs := this.getObjectsWithIDGetter(relQualID, func (obj IMajor) string {
-		return obj.GetRelQualifiedID(baseChart)
-	}, true)
-
-	if len(objs) > 0 {
-		return objs[0]
-	} else {
-		return nil
+	if baseChart == nil {
+		baseChart = this
 	}
+	return this.getObjectByQualID(relQualID, baseChart)
 }
 
 func (this *Chart) GetObjectByIntrinsicID(intrID string) IMajor {
@@ -566,6 +543,40 @@ func CreateEmptyChart() *Chart {
 }
 
 //-- method (util)
+
+func (this *Chart) getObjectByQualID(qualID string, baseChart *Chart) IMajor {
+	inChartQualIDs := splitIntoInChartQualIDs(qualID)
+	curChart := baseChart 
+	for i, inChartQualID := range inChartQualIDs {
+		curObj := curChart.getObjectByInChartQualID(inChartQualID, curChart)
+
+		if curObj != nil {
+			if i == len(inChartQualIDs) - 1 {
+				return curObj
+			} else if eobj, ok := curObj.(*Event); ok {
+				if eobj.IsChartEmbedding() && eobj.IsSubchartLoaded() {
+					curChart, _ = eobj.GetSubchart()
+					continue
+				} else {
+					break
+				}
+			}
+		}
+	}
+	return nil
+}
+
+func (this *Chart) getObjectByInChartQualID(relQualID string, baseChart *Chart) IMajor {
+	objs := this.getObjectsWithIDGetter(relQualID, func (obj IMajor) string {
+		return obj.GetRelQualifiedID(baseChart)
+	}, true)
+
+	if len(objs) > 0 {
+		return objs[0]
+	} else {
+		return nil
+	}
+}
 
 func (this *Chart) getObjectsWithIDGetter(id string, idGetter func(IMajor) string, onlyFirst bool) (ret []IMajor) {
 	objKind := findObjectKindByID(id)

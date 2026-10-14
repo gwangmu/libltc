@@ -375,6 +375,7 @@ func TestSimpleSubchartEmbedding_Chart(t *testing.T) {
 	t.Logf("Investigating loaded subchart...")
 	test.AssertEQ(sc1.GetObjectByIntrinsicID("e0").(*Event).GetTitle(), "Wherever")
 	test.AssertEQ(chart.GetObjectByAbsQualID("e2/e0").(*Event).GetTitle(), "Wherever")
+	test.AssertEQ(chart.GetObjectByRelQualID("e2/e0", chart).(*Event).GetTitle(), "Wherever")
 
 	t.Logf("End test.")
 }

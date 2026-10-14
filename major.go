@@ -1,6 +1,7 @@
 package libltc
 
 import (
+	"fmt"
 	"errors"
 	"math"
 	"strings"
@@ -164,7 +165,7 @@ func (this *MajorCommon) GetRelQualifiedID(baseChart *Chart) (ret string) {
 		}
 		return
 	} else {
-		if this.parent != nil && (this.GetChart() != baseChart || 
+		if this.parent != nil && (this.chart != baseChart || 
 			this.parent.GetChart() == baseChart) {
 			ret = this.parent.GetRelQualifiedID(baseChart) + "/"
 		}
