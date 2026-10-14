@@ -104,16 +104,13 @@ func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
         warns.Add("@0@ had a start date before the infinite past. corrected.", this)
 	}
        
-	/*
-	// TODO: move 'correct...' to 'common.go:utils'.
-	amb, inv := this.correctLocalStartEndDates(this.GetStartDate())
+	amb, inv := this.correctStartEndDates(this.GetStartDate())
 	if amb {
         warns.Add("@0@ had an ambiguous date. corrected.", this)
     }
 	if inv {
         warns.Add("@0@ had an inverted start/end date pair. corrected.", this)
     }
-	*/
 
 	return
 }
@@ -351,4 +348,24 @@ func CreateEmptyImport() *Import {
 	}
 	cimport.enclosing = cimport
 	return cimport
+}
+
+//-- method (util)
+
+func (this *Import) correctStartEndDates(oldStartDate Time) (ambiguous bool, inverted bool) {
+	nts, nte, amb, inv := correctStartEndDatePair(this.GetStartDate(), this.GetEndDate())
+
+	// Reflect corrected results.
+	if !this.GetStartDate().Equal(nts) {
+		this.startDate = &nts
+	}
+
+	if !this.GetEndDate().Equal(nte) {
+		this.endDate = &nte
+	}
+
+	ambiguous = amb
+	inverted = inv
+
+	return
 }
