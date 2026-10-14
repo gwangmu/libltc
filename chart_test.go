@@ -375,10 +375,69 @@ func TestSimpleSubchartEmbedding_Chart(t *testing.T) {
 	test.AssertEQ(chart.GetObjectByQualifiedID("e2/e0").(*Event).GetTitle(), "Wherever")
 
 	e2e0 := chart.GetObjectByQualifiedID("e2/e0").(*Event)
+	test.AssertEQ(e2e0.IsUnresolved(), false)
 	test.AssertEQ(e2e0.GetIntrinsicID(), "e0")
 	test.AssertEQ(e2e0.GetQualifiedID(), "e2/e0")
 	test.AssertEQ(e2e0.GetRelQualifiedID(sc1), "e0")
 	test.AssertEQ(e2e0.GetRelQualifiedID(chart), "e2/e0")
+
+	t.Logf("Loading single_annex subchart...")
+	sc2, wsc2 := chart.GetObjectByQualifiedID("e3").(*Event).GetSubchart()
+	test.PrintAllWarnings(wsc2)
+
+	t.Logf("Investigating loaded subchart...")
+	test.AssertEQ(sc2.GetObjectByIntrinsicID("a0").(*Annex).Title, "Whatever")
+	test.AssertEQ(chart.GetObjectByQualifiedID("e3/a0").(*Annex).Title, "Whatever")
+
+	e3a0 := chart.GetObjectByQualifiedID("e3/a0").(*Annex)
+	test.AssertEQ(e3a0.IsUnresolved(), false)
+	test.AssertEQ(e3a0.GetIntrinsicID(), "a0")
+	test.AssertEQ(e3a0.GetQualifiedID(), "e3/a0")
+	test.AssertEQ(e3a0.GetRelQualifiedID(sc2), "a0")
+	test.AssertEQ(e3a0.GetRelQualifiedID(chart), "e3/a0")
+
+	t.Logf("End test.")
+}
+
+func TestComplexSubchartEmbedding_Chart(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'subchart_embed_complex.ltc'...")
+	chart, wc := CreateChart("subchart_embed_complex.ltc")
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Loading subchart_embed_simple subchart...")
+	sc1, wsc1 := chart.GetObjectByQualifiedID("e0").(*Event).GetSubchart()
+	ssc1, wssc1 := chart.GetObjectByQualifiedID("e0/e2").(*Event).GetSubchart()
+	ssc2, wssc2 := chart.GetObjectByQualifiedID("e0/e3").(*Event).GetSubchart()
+	test.PrintAllWarnings(wsc1)
+	test.PrintAllWarnings(wssc1)
+	test.PrintAllWarnings(wssc2)
+
+	t.Logf("Investigating loaded subchart...")
+	test.AssertEQ(ssc1.GetObjectByIntrinsicID("e0").(*Event).GetTitle(), "Wherever")
+	test.AssertEQ(sc1.GetObjectByQualifiedID("e2/e0").(*Event).GetTitle(), "Wherever")
+	test.AssertEQ(chart.GetObjectByQualifiedID("e0/e2/e0").(*Event).GetTitle(), "Wherever")
+
+	e0e2e0 := chart.GetObjectByQualifiedID("e0/e2/e0").(*Event)
+	test.AssertEQ(e0e2e0.IsUnresolved(), false) 
+	test.AssertEQ(e0e2e0.GetIntrinsicID(), "e0")
+	test.AssertEQ(e0e2e0.GetQualifiedID(), "e0/e2/e0")
+	test.AssertEQ(e0e2e0.GetRelQualifiedID(ssc1), "e0")
+	test.AssertEQ(e0e2e0.GetRelQualifiedID(sc1), "e2/e0")
+	test.AssertEQ(e0e2e0.GetRelQualifiedID(chart), "e0/e2/e0")
+
+	test.AssertEQ(ssc2.GetObjectByIntrinsicID("a0").(*Annex).Title, "Whatever")
+	test.AssertEQ(sc1.GetObjectByQualifiedID("e3/a0").(*Annex).Title, "Whatever")
+	test.AssertEQ(chart.GetObjectByQualifiedID("e0/e3/a0").(*Annex).Title, "Whatever")
+
+	e0e3a0 := chart.GetObjectByQualifiedID("e0/e3/a0").(*Annex)
+	test.AssertEQ(e0e3a0.IsUnresolved(), false) 
+	test.AssertEQ(e0e3a0.GetIntrinsicID(), "a0")
+	test.AssertEQ(e0e3a0.GetQualifiedID(), "e0/e3/a0")
+	test.AssertEQ(e0e3a0.GetRelQualifiedID(ssc2), "a0")
+	test.AssertEQ(e0e3a0.GetRelQualifiedID(sc1), "e3/a0")
+	test.AssertEQ(e0e3a0.GetRelQualifiedID(chart), "e0/e3/a0")
 
 	t.Logf("End test.")
 }

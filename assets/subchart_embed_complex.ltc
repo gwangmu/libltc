@@ -11,6 +11,11 @@ Sex = "Male"
 
 [[Event]]
 ID = "e0"
+Title = "Chart-embedding (subchart_embed_simple)"
+EmbedChart = "./subchart_embed_simple.ltc"
+
+[[Event]]
+ID = "e1"
 Title = "Chart-embedding (linked_obj)"
 EmbedChart = "./linked_objs.ltc"
 
