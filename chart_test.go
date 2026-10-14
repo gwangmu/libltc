@@ -439,5 +439,61 @@ func TestComplexSubchartEmbedding_Chart(t *testing.T) {
 	test.AssertEQ(e0e3a0.GetRelQualifiedID(sc1), "e3/a0")
 	test.AssertEQ(e0e3a0.GetRelQualifiedID(chart), "e0/e3/a0")
 
+	test.AssertEQ(chart.GetObjectByIntrinsicID("a0").(*Annex).AttachTo.Get()[0].IsUnresolved(), false)
+	test.AssertEQ(chart.GetObjectByIntrinsicID("a0").(*Annex).AttachTo.Get()[0].(*Event).GetTitle(), "Dummy1")
+	
+	t.Logf("Loading linked_objs subchart...")
+	sc2, wsc2 := chart.GetObjectByQualifiedID("e1").(*Event).GetSubchart()
+	test.PrintAllWarnings(wsc1)
+
+	t.Logf("Investigating loaded subchart...")
+	test.AssertWarnContains(wsc2, "Event1.*dangling 'ContinuedFrom'")
+	test.AssertEQ(len(sc2.GetObjectByIntrinsicID("e0").(*Event).ContinuedFrom.Get()), 1)
+	test.AssertEQ(sc2.GetObjectByIntrinsicID("e0").(*Event).ContinuedFrom.Get()[0].GetTitle(), "Event1")
+	test.AssertEQ(len(sc2.GetObjectByQualifiedID("e1").(*Event).ContinuedTo.Get()), 1)
+	test.AssertEQ(sc2.GetObjectByQualifiedID("e1").(*Event).ContinuedTo.Get()[0].GetTitle(), "Event0")
+	test.AssertEQ(len(sc2.GetObjectByQualifiedID("e0").(*Event).Attached.Get()), 1)
+	test.AssertEQ(sc2.GetObjectByQualifiedID("e0").(*Event).Attached.Get()[0].Title, "Annex0")
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("e1/e0").(*Event).ExtraNote.Get()), 1)
+	test.AssertEQ(chart.GetObjectByQualifiedID("e1/e0").(*Event).ExtraNote.Get()[0].Title, "Annex1")
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("e1/a0").(*Annex).AttachTo.Get()), 1)
+	test.AssertEQ(chart.GetObjectByQualifiedID("e1/a0").(*Annex).AttachTo.Get()[0].(*Event).GetTitle(), "Event0")
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("e1/a1").(*Annex).ExtraNoteOf.Get()), 2)
+	test.AssertEQ(chart.GetObjectByQualifiedID("e1/a1").(*Annex).ExtraNoteOf.Get()[0].(*Event).GetTitle(), "Event0")
+	test.AssertEQ(len(chart.GetObjectByQualifiedID("e1/e1").(*Event).ContinuedFrom.Get()), 1)
+	test.AssertEQ(sc2.GetObjectByQualifiedID("e1").(*Event).ContinuedFrom.Get()[0].IsUnresolved(), true) 
+	test.AssertEQ(sc2.GetObjectByQualifiedID("e1").(*Event).ContinuedFrom.Get()[0].GetQualifiedID(), "e4") 
+
+	nax1 := CreateEmptyAnnex()
+	e1e1 := sc2.GetObjectByIntrinsicID("e1").(*Event)
+	nax1.Title = "New annex"
+	chart.AddObject(nax1)
+
+	// Cross-subchart 'forward' refs should be possible.
+	// NOTE: 'back' refs are not possible. (i.e., subchart objs refing the main chart objs)
+	nax1.AttachTo.Link(e1e1, true)
+	
+	test.AssertEQ(len(nax1.AttachTo.Get()), 1)
+	test.AssertEQ(nax1.AttachTo.Get()[0].(*Event).GetTitle(), "Event1")
+	test.AssertEQ(len(e1e1.Attached.Get()), 1)
+	test.AssertEQ(e1e1.Attached.Get()[0].Title, "New annex")
+
+	// Unreserving an ID should erase the ref altogether. 
+	nax1.AttachTo.Unreserve("e1/e1")
+
+	test.AssertEQ(len(nax1.AttachTo.Get()), 0)
+	test.AssertEQ(len(e1e1.Attached.Get()), 0)
+
+	nax1.AttachTo.Link(e1e1, true)
+
+	test.AssertEQ(len(nax1.AttachTo.Get()), 1)
+	test.AssertEQ(len(e1e1.Attached.Get()), 1)
+
+	// Removing an object 'unresolve' refs, not 'unreserve' them.
+	chart.RemoveObject(nax1)
+
+	test.AssertEQ(len(nax1.AttachTo.Get()), 1)
+	test.AssertEQ(len(e1e1.Attached.Get()), 0)
+
 	t.Logf("End test.")
 }
