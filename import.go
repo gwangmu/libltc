@@ -98,7 +98,7 @@ func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
 		this.SetStartDate(InfinitePast)
 	}
        
-	amb, inv := this.correctStartEndDates(this.GetStartDate())
+	amb, inv := this.correctStartEndDateMasks(this.GetStartDate())
 	if amb {
         warns.Add("@0@ had an ambiguous date. corrected.", this)
     }
@@ -214,6 +214,10 @@ func (this *Import) SetLink(v string) (warns warning.Warnings) {
 	var moreWarns warning.Warnings
 	var err error
 
+	if this.link == v {
+		return
+	}
+
 	// Unexport itself from the chart.
 	moreWarns = this.unexportMaskedObjects()
 	warns.Concat(moreWarns)
@@ -236,62 +240,102 @@ func (this *Import) SetLink(v string) (warns warning.Warnings) {
 	return
 }
 
-func (this *Import) SetStartDate(v Time) (warns warning.Warnings) {
-	// TODO: unexport itself from the chart.
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	// TODO: update `startDate` to 'v' (fix order, etc).
-	// TODO: export itself to the chart.
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
-
+func (this *Import) SetStartDate(t Time) (warns warning.Warnings) {
 	var moreWarns warning.Warnings
-	var err error
+
+	if this.mask.startDate != nil && this.mask.startDate.Equal(t) {
+		return
+	}
 
 	// Unexport itself from the chart.
 	moreWarns = this.unexportMaskedObjects()
 	warns.Concat(moreWarns)
 
-	// Update `startDate` to 'v' (fix order, etc).
-	
+	// Update `startDate` to 't' (fix order, etc).
+	oldStartDate := this.GetStartDate()
+	t.SetUsage(TUK_Start)
+    this.mask.startDate = &t
+	this.sanitizeStartEndDateMasks(true)
+	this.correctStartEndDateMasks(oldStartDate)
+
+	// Export itself to the chart.
+	moreWarns = this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) UnsetStartDate() (warns warning.Warnings) {
-	// TODO: unexport itself from the chart.
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	// TODO: update `startDate` to InfinitePast.
-	// TODO: export itself to the chart.
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
+	var moreWarns warning.Warnings
+
+	if this.mask.startDate == nil {
+		return
+	}
+
+	// Unexport itself from the chart.
+	moreWarns = this.unexportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	// Update `startDate` to floating.
+	oldStartDate := this.GetStartDate()
+    this.mask.startDate = nil 
+	this.sanitizeStartEndDateMasks(true)
+	this.correctStartEndDateMasks(oldStartDate)
+
+	// Export itself to the chart.
+	moreWarns = this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
-func (this *Import) SetEndDate(v Time) (warns warning.Warnings) {
-	// TODO: unexport itself from the chart.
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	// TODO: update `endDate` to 'v' (fix order, etc).
-	// TODO: export itself to the chart.
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
+func (this *Import) SetEndDate(t Time) (warns warning.Warnings) {
+	var moreWarns warning.Warnings
+
+	if this.mask.endDate != nil && this.mask.endDate.Equal(t) {
+		return
+	}
+
+	// Unexport itself from the chart.
+	moreWarns = this.unexportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	// Update `endDate` to 't' (fix order, etc).
+	oldStartDate := this.GetStartDate()
+	t.SetUsage(TUK_End)
+    this.mask.endDate = &t
+	this.sanitizeStartEndDateMasks(false)
+    this.correctStartEndDateMasks(oldStartDate)
+
+	// Export itself to the chart.
+	moreWarns = this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) UnsetEndDate() (warns warning.Warnings) {
-	// TODO: unexport itself from the chart.
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	// TODO: update `endDate` to InfiniteFuture.
-	// TODO: export itself to the chart.
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
+	var moreWarns warning.Warnings
+
+	if this.mask.endDate == nil {
+		return
+	}
+
+	// Unexport itself from the chart.
+	moreWarns = this.unexportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	// Update `endDate` to floating.
+	oldStartDate := this.GetStartDate()
+    this.mask.endDate = nil
+	this.sanitizeStartEndDateMasks(false)
+    this.correctStartEndDateMasks(oldStartDate)
+
+	// Export itself to the chart.
+	moreWarns = this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) SetOffsetDate(v Time) (warns warning.Warnings) {
@@ -472,7 +516,19 @@ func CreateEmptyImport() *Import {
 
 //-- method (util)
 
-func (this *Import) correctStartEndDates(oldStartDate Time) (ambiguous bool, inverted bool) {
+func (this *Import) sanitizeStartEndDateMasks(fixedStart bool) {
+	nts, nte, sanitized := sanitizeStartEndDatePair(this.GetStartDate(), this.GetEndDate(), fixedStart)
+
+	if sanitized {
+		if fixedStart {
+			this.mask.endDate = &nte
+		} else {
+			this.mask.startDate = &nts
+		}
+	}
+}
+
+func (this *Import) correctStartEndDateMasks(oldStartDate Time) (ambiguous bool, inverted bool) {
 	nts, nte, amb, inv := correctStartEndDatePair(this.GetStartDate(), this.GetEndDate())
 
 	// Reflect corrected results.

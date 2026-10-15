@@ -878,24 +878,25 @@ func convIDInternalToString(kind MajorKind, nid mNumberID) string {
 func sanitizeStartEndDatePair(ts Time, te Time, fixedStart bool) (nts Time, nte Time, sanitized bool) {
 	nts = ts
 	nte = te
+	sanitized = false
 
 	if fixedStart {
 		if ts.isFloating() {
-			nte := UnknownTime
+			nte = UnknownTime
 			nte.SetUsage(TUK_End)
 			sanitized = true
 		} else if te.isFloating() {
-			nte := InfiniteFuture
+			nte = InfiniteFuture
 			nte.SetUsage(TUK_End)
 			sanitized = true
 		}
 	} else {
 		if te.isFloating() {
-			nts := UnknownTime
+			nts = UnknownTime
 			nts.SetUsage(TUK_Start)
 			sanitized = true
 		} else if ts.isFloating() {
-			nts := InfinitePast
+			nts = InfinitePast
 			nts.SetUsage(TUK_Start)
 			sanitized = true
 		}

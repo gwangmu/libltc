@@ -331,12 +331,14 @@ func (this *Event) SetEmbedChartLink(uri string) {
 func (this *Event) UnsetLocalStartDate() {
 	oldStartDate := this.GetStartDate()
 	this.localStartDate = nil
+	this.sanitizeLocalStartEndDates(true)
     this.correctLocalStartEndDates(oldStartDate)
 }
 
 func (this *Event) UnsetLocalEndDate() {
 	oldStartDate := this.GetStartDate()
 	this.localEndDate = nil
+	this.sanitizeLocalStartEndDates(false)
     this.correctLocalStartEndDates(oldStartDate)
 }
 
