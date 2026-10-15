@@ -875,6 +875,35 @@ func convIDInternalToString(kind MajorKind, nid mNumberID) string {
 	}
 }
 
+func sanitizeStartEndDatePair(ts Time, te Time, fixedStart bool) (nts Time, nte Time, sanitized bool) {
+	nts = ts
+	nte = te
+
+	if fixedStart {
+		if ts.isFloating() {
+			nte := UnknownTime
+			nte.SetUsage(TUK_End)
+			sanitized = true
+		} else if te.isFloating() {
+			nte := InfiniteFuture
+			nte.SetUsage(TUK_End)
+			sanitized = true
+		}
+	} else {
+		if te.isFloating() {
+			nts := UnknownTime
+			nts.SetUsage(TUK_Start)
+			sanitized = true
+		} else if ts.isFloating() {
+			nts := InfinitePast
+			nts.SetUsage(TUK_Start)
+			sanitized = true
+		}
+	}
+
+	return
+}
+
 // Only outcome: none, ambiguous, inverted, or ambigous AND THEN inverted.
 func correctStartEndDatePair(ts Time, te Time) (nts Time, nte Time, ambiguous bool, inverted bool) {
 	nts = ts

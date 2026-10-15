@@ -211,10 +211,11 @@ func (this *Import) IsLoaded() bool {
 //-- method (setters)
 
 func (this *Import) SetLink(v string) (warns warning.Warnings) {
+	var moreWarns warning.Warnings
 	var err error
 
 	// Unexport itself from the chart.
-	moreWarns := this.unexportMaskedObjects()
+	moreWarns = this.unexportMaskedObjects()
 	warns.Concat(moreWarns)
 
 	// Reload `loadedChart`
@@ -245,6 +246,16 @@ func (this *Import) SetStartDate(v Time) (warns warning.Warnings) {
 	// TODO:    use the offset period mask
 	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
+
+	var moreWarns warning.Warnings
+	var err error
+
+	// Unexport itself from the chart.
+	moreWarns = this.unexportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	// Update `startDate` to 'v' (fix order, etc).
+	
 }
 
 func (this *Import) UnsetStartDate() (warns warning.Warnings) {

@@ -351,15 +351,7 @@ func (this *Event) SetStartDate(t Time) {
 	oldStartDate := this.GetStartDate()
 	t.SetUsage(TUK_Start)
     this.localStartDate = &t
-	if this.GetStartDate().isFloating() {
-		te := UnknownTime
-		te.SetUsage(TUK_End)
-		this.localEndDate = &te
-	} else if this.GetEndDate().isFloating() {
-		te := InfiniteFuture
-		te.SetUsage(TUK_End)
-		this.localEndDate = &te
-	}
+	this.sanitizeLocalStartEndDates(true)
 	this.correctLocalStartEndDates(oldStartDate)
 }
 
@@ -368,15 +360,7 @@ func (this *Event) SetEndDate(t Time) {
 	oldStartDate := this.GetStartDate()
 	t.SetUsage(TUK_End)
     this.localEndDate = &t
-	if this.GetEndDate().isFloating() {
-		ts := UnknownTime
-		ts.SetUsage(TUK_Start)
-		this.localStartDate = &ts
-	} else if this.GetStartDate().isFloating() {
-		ts := InfinitePast
-		ts.SetUsage(TUK_Start)
-		this.localStartDate = &ts
-	}
+	this.sanitizeLocalStartEndDates(false)
     this.correctLocalStartEndDates(oldStartDate)
 }
 
@@ -565,6 +549,19 @@ func (this *Event) unloadEmbeddedChart() {
 
 func (this *Event) isEmbeddedChartLoaded() bool {
 	return this.embeddedChart != nil
+}
+
+// Ensure that both start and end are either floating or non-floating at the same time.
+func (this *Event) sanitizeLocalStartEndDates(fixedStart bool) {
+	nts, nte, sanitized := sanitizeStartEndDatePair(this.GetStartDate(), this.GetEndDate(), fixedStart)
+
+	if sanitized {
+		if fixedStart {
+			this.localEndDate = &nte
+		} else {
+			this.localStartDate = &nts
+		}
+	}
 }
 
 func (this *Event) correctLocalStartEndDates(oldStartDate Time) (ambiguous bool, inverted bool) {

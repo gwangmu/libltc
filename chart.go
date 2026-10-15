@@ -57,7 +57,10 @@ func (this *Chart) resolveReferenceTo(obj IMajor) {
 		caobj.ExtraNoteOf.Link(obj, false)
 	}
 
-	// TODO: for import objects, call itself with imported objects inside.
+	if iobj, ok := obj.(*Import); ok {
+		// TODO: for import objects, call itself with imported objects inside.
+		panic("Unimplemented")
+	}
 }
 
 func (this *Chart) unresolveReferenceTo(obj IMajor) {
@@ -86,7 +89,10 @@ func (this *Chart) unresolveReferenceTo(obj IMajor) {
 		annex.ExtraNoteOf.Unlink(obj)
 	}
 
-	// TODO: for import objects, call itself with imported objects inside.
+	if iobj, ok := obj.(*Import); ok {
+		// TODO: for import objects, call itself with imported objects inside.
+		panic("Unimplemented")
+	}
 }
 
 func (this *Chart) changeAnnexCreateDate(aobj *Annex) {
