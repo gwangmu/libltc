@@ -280,6 +280,7 @@ type Import struct {
 	Link string 			`toml:"Link"`
 	StartDate *Time			`toml:"StartDate,omitempty"`
 	EndDate *Time			`toml:"EndDate,omitempty"`
+	OffsetDate *Time		`toml:"OffsetDate,omitempty"`
 	Categories *[]string	`toml:"Categories,omitempty"`
 	Note string				`toml:"Note,omitempty"`
 	Attrs []string			`toml:"Attrs,omitempty"`
@@ -294,6 +295,7 @@ func (this Import) Summary() (ret string) {
 		wse{"ID", this.ID},
 		wse{"From", this.StartDate},
 		wse{"To", this.EndDate},
+		wse{"Offset", this.OffsetDate},
 	)
 	if (len(extraStr) > 0) {
 		ret += " (" + extraStr + ")"
@@ -304,7 +306,7 @@ func (this Import) Summary() (ret string) {
 
 func (this Import) IsUnknown() bool {
 	return this.Link == "" && this.StartDate == nil &&
-			this.EndDate == nil
+			this.EndDate == nil && this.OffsetDate == nil
 }
 
 //-- struct Import: interface IDiagnosable

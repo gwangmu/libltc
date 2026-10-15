@@ -70,6 +70,7 @@ func (this *Import) Summary() (ret string) {
 			wse{"Link", this.GetLink()},
 			wse{"Started", this.GetStartDate()}, 
 			wse{"Ended", this.GetEndDate()},
+			wse{"Offset", this.GetOffsetDate()},
 		)
 	}
 	if (len(extraStr) > 0) {
@@ -81,7 +82,8 @@ func (this *Import) Summary() (ret string) {
 
 func (this Import) IsUnknown() bool {
 	return this.GetIntrinsicID() == "" && this.GetStartDate().IsUnknown() &&
-		this.GetEndDate().IsUnknown() && this.GetLink() == ""
+		this.GetEndDate().IsUnknown() && this.GetOffsetDate().IsUnknown() &&
+		this.GetLink() == ""
 }
 
 //-- interface IDiagnosable
@@ -160,6 +162,14 @@ func (this *Import) GetEndDate() Time {
 		return CreateEmptyTime(TUK_End) 
 	}
 }
+func (this *Import) GetOffsetDate() Time {
+	if this.offsetDate != nil {
+		return *this.offsetDate
+	} else {
+		return CreateEmptyTime(TUK_General) 
+	}
+}
+
 
 func (this *Import) GetImportCategories() *[]string {
 	return this.categories
@@ -244,6 +254,16 @@ func (this *Import) UnsetEndDate() {
 	panic("Unimplemented")
 }
 
+func (this *Import) SetOffsetDate(v Time) {
+	// TODO: read above
+	panic("Unimplemented")
+}
+
+func (this *Import) UnsetOffsetDate() {
+	// TODO: read above
+	panic("Unimplemented")
+}
+
 func (this *Import) SetImportCategories(v []string) {
 	// TODO: unresolveReferenceTo all imported objects.
 	// TODO: change `categories`.
@@ -310,6 +330,11 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	if o.EndDate != nil {
 		endDate := createTimeFromParsed(o.EndDate, TUK_End)
 		cimport.endDate = &endDate
+	}
+
+	if o.OffsetDate != nil {
+		endDate := createTimeFromParsed(o.OffsetDate, TUK_General)
+		cimport.offsetDate = &endDate
 	}
 
 	if o.Categories != nil {
