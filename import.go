@@ -13,7 +13,7 @@ type Import struct {
 	link string
 	startDate *Time
 	endDate *Time
-	offsetDate *Time
+	offsetDate *Time			// Unfortunately, using it assumes Gregorian calendars.
 	categories *[]string		// nil: any categories
 	exclCategories []string
 	
@@ -119,7 +119,6 @@ func (this *Import) DiagnoseNonLocal() (warns warning.Warnings) {
 		return
 	}
 
-	// TODO: move this to MajorCommon
 	// Check invalid ID.
 	if this.numID == mNID_Invalid {
 		newNumID := this.chart.getNextNumberID(MOK_Import)
@@ -127,7 +126,6 @@ func (this *Import) DiagnoseNonLocal() (warns warning.Warnings) {
 		warns.Add("@0@ had an invalid ID. auto-corrected to 'i%d'.", this, newNumID)
 	}
 
-	// TODO: move this to MajorCommon
 	// Check duplicate ID.
 	for _, iobj := range this.chart.GetImports() {
 		if iobj != this && iobj.numID == this.numID {
@@ -217,89 +215,162 @@ func (this *Import) IsLoaded() bool {
 //-- method (setters)
 
 func (this *Import) SetLink(v string) {
-	// TODO: unresolveReferenceTo all imported objects.
-	// TODO: unload `loadedChart`
-	// TODO:  - shot down all caches.
-	// TODO:  - release `loadedChart`
-	// TODO: reload `loadedChart`
-	// TODO:  - replace `loadedChart`
+	// TODO: dissociate itself from the chart.
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
+	// TODO: (re)load `loadedChart`
+	// TODO:  - (re)create `loadedChart`
 	// TODO:  - set parents of imported objects to `this` 
-	// TODO: cache imported objects with period/category masks
-	// TODO: resolveReferenceTo all imported objects.
+	// TODO: offset all imported objects
+	// TODO: associate itself to the chart.
+	// TODO:  - cache objects with period/category masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
 }
 
 func (this *Import) SetStartDate(v Time) {
-	// TODO: unresolveReferenceTo all imported objects.
-	// TODO: change and correct `startDate`.
-	// TODO: re-cache imported objects with period/category masks
-	// TODO: resolveReferenceTo all imported objects.
+	// TODO: dissociate itself from the chart.
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
+	// TODO: update `startDate` to 'v' (fix order, etc).
+	// TODO: associate itself to the chart.
+	// TODO:  - cache objects with period/category masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
 }
 
 func (this *Import) UnsetStartDate() {
-	// TODO: read above
+	// TODO: dissociate itself from the chart.
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
+	// TODO: update `startDate` to InfinitePast.
+	// TODO: associate itself to the chart.
+	// TODO:  - cache objects with period/category masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
 }
 
 func (this *Import) SetEndDate(v Time) {
-	// TODO: unresolveReferenceTo all imported objects.
-	// TODO: change and correct `endDate`.
-	// TODO: re-cache imported objects with period/category masks
-	// TODO: resolveReferenceTo all imported objects.
+	// TODO: dissociate itself from the chart.
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
+	// TODO: update `endDate` to 'v' (fix order, etc).
+	// TODO: associate itself to the chart.
+	// TODO:  - cache objects with period/category masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
 }
 
 func (this *Import) UnsetEndDate() {
-	// TODO: read above
+	// TODO: dissociate itself from the chart.
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
+	// TODO: update `endDate` to InfiniteFuture.
+	// TODO: associate itself to the chart.
+	// TODO:  - cache objects with period/category masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
 }
 
 func (this *Import) SetOffsetDate(v Time) {
-	// TODO: read above
+	// TODO: return if `offsetDate` is the same.
+	// TODO: un-offset all imported objects.
+	// TODO: update 'offsetDate'.
+	// TODO: offset all imported objects
 	panic("Unimplemented")
 }
 
 func (this *Import) UnsetOffsetDate() {
-	// TODO: read above
+	// TODO: return if `offsetDate` is nil
+	// TODO: un-offset all imported objects.
+	// TODO: update 'offsetDate'.
+	// TODO: offset all imported objects
 	panic("Unimplemented")
 }
 
 func (this *Import) SetImportCategories(v []string) {
-	// TODO: unresolveReferenceTo all imported objects.
-	// TODO: change `categories`.
-	// TODO: re-cache imported objects with period/category masks
-	// TODO: resolveReferenceTo all imported objects.
+	// TODO: return if 'v' equals to `categories`.
+	// TODO: dissociate itself from the chart.
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
+	// TODO: set `categories`. 
+	// TODO: associate itself to the chart.
+	// TODO:  - cache objects with period/category masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
 }
 
 func (this *Import) AddImportCategory(cat string) {
-	// TODO: read above
+	// TODO: return if 'cat' already exists in `categories`.
+	// TODO: add 'cat' to `categories`. 
+	// TODO: return if no object in 'cat'.
+	// TODO: associate 'cat' objects to the chart.
+	// TODO:  - cache objects with period/category masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
 }
 
 func (this *Import) RemoveImportCategory(cat string) {
-	// TODO: read above
+	// TODO: return if 'cat' doesn't exist in `categories`.
+	// TODO: remove 'cat' from `categories`. 
+	// TODO: return if no object in 'cat'.
+	// TODO: dissociate 'cat' objects from the chart.
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
 	panic("Unimplemented")
 }
 
 func (this *Import) UnsetImportCategories() {
-	// TODO: read above
+	// TODO: return if `categories` is nil.
+	// TODO: dissociate itself from the chart.
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
+	// TODO: nil-ify `categories`. 
+	// TODO: associate itself to the chart.
+	// TODO:  - cache objects with period/category masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
 }
 
 func (this *Import) SetExclCategories(v []string) {
-	// TODO: read above
+	// TODO: return if 'v' equals to `exclCategories`.
+	// TODO: dissociate itself from the chart.
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
+	// TODO: set `exclCategories`. 
+	// TODO: associate itself to the chart.
+	// TODO:  - cache objects with period/category masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
 }
 
 func (this *Import) AddExclCategory(cat string) {
-	// TODO: read above
+	// TODO: return if 'cat' already exists in `exclCategories`.
+	// TODO: add 'cat' to `exclCategories`. 
+	// TODO: return if no object in 'cat'.
+	// TODO: associate 'cat' objects to the chart.
+	// TODO:  - cache objects with period/category masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
 	panic("Unimplemented")
 }
 
 func (this *Import) RemoveExclCategory(cat string) {
-	// TODO: read above
+	// TODO: return if 'cat' doesn't exist in `exclCategories`.
+	// TODO: remove 'cat' from `exclCategories`. 
+	// TODO: return if no object in 'cat'.
+	// TODO: dissociate 'cat' objects from the chart.
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
 	panic("Unimplemented")
 }
 
