@@ -497,8 +497,8 @@ func (this *Chart) ReserveEventCategory(category string) {
 	}
 }
 
+// Remove the category only if it's empty.
 func (this *Chart) RemoveEventCategory(category string) error {
-	// TODO: remove events if it's only empty.
 	if evs, ok := this.events[category]; ok {
 		if len(evs) != 0 {
 			return errors.New("Not an empty category")
