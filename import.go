@@ -338,20 +338,46 @@ func (this *Import) UnsetEndDate() (warns warning.Warnings) {
 	return
 }
 
-func (this *Import) SetOffsetDate(v Time) (warns warning.Warnings) {
-	// TODO: return if `offsetDate` is the same.
-	// TODO: un-offset all imported objects.
-	// TODO: update 'offsetDate'.
-	// TODO: offset all imported objects
-	panic("Unimplemented")
+func (this *Import) SetOffsetDate(t Time) (warns warning.Warnings) {
+	var moreWarns warning.Warnings
+
+	if this.offsetDate != nil && this.offsetDate.Equal(t) {
+		return
+	}
+
+	// Un-offset all imported objects.
+	moreWarns = this.unoffsetLoadedObjects()
+	warns.Concat(moreWarns)
+
+	// Update 'offsetDate'.
+	this.offsetDate = &t
+
+	// Offset all imported objects.
+	moreWarns = this.offsetLoadedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) UnsetOffsetDate() (warns warning.Warnings) {
-	// TODO: return if `offsetDate` is nil
-	// TODO: un-offset all imported objects.
-	// TODO: update 'offsetDate'.
-	// TODO: offset all imported objects
-	panic("Unimplemented")
+	var moreWarns warning.Warnings
+
+	if this.offsetDate == nil {
+		return
+	}
+
+	// Un-offset all imported objects.
+	moreWarns = this.unoffsetLoadedObjects()
+	warns.Concat(moreWarns)
+
+	// Unset 'offsetDate'.
+	this.offsetDate = nil
+
+	// Offset all imported objects.
+	moreWarns = this.offsetLoadedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) SetImportCategories(v []string) (warns warning.Warnings) {
