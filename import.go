@@ -11,21 +11,23 @@ type Import struct {
 	Note Note
 
 	link string
-	startDate *Time
-	endDate *Time
-	offsetDate *Time			// Unfortunately, using it assumes Gregorian calendars.
-	categories *[]string		// nil: any categories
-	exclCategories []string
-	
 	loadedChart *Chart
-	cache importCache
+	offsetDate *Time			// Unfortunately, using it assumes Gregorian calendars.
+	cache importChartCache
+	mask importChartMask
 }
 
-type importCache struct {
+type importChartCache struct {
 	events []*Event
 	annexs []*Annex
 	imports []*Import
-	initialWarns warning.Warnings
+}
+
+type importChartMask struct {
+	startDate *Time
+	endDate *Time
+	importCates *[]string		// nil: any categories
+	exclCates []string
 }
 
 func (this *Import) Equal(that IMajor) bool {
@@ -90,12 +92,6 @@ func (this Import) IsUnknown() bool {
 //-- interface IDiagnosable
 
 func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
-	if this.IsLoaded() {
-		warns.Concat(this.cache.initialWarns)
-	} else {
-		warns.Add("@0@ cannot load the linked chart.", this)
-	}
-
 	if this.GetStartDate().IsInfiniteFuture() && this.GetEndDate().isFloating() {
 		this.SetEndDate(InfiniteFuture)
 	} else if this.GetEndDate().IsInfinitePast() && this.GetStartDate().isFloating() {
@@ -147,16 +143,16 @@ func (this *Import) GetLink() string {
 }
 
 func (this *Import) GetStartDate() Time {
-	if this.startDate != nil {
-		return *this.startDate
+	if this.mask.startDate != nil {
+		return *this.mask.startDate
 	} else {
 		return CreateEmptyTime(TUK_Start) 
 	}
 }
 
 func (this *Import) GetEndDate() Time {
-	if this.endDate != nil {
-		return *this.endDate
+	if this.mask.endDate != nil {
+		return *this.mask.endDate
 	} else {
 		return CreateEmptyTime(TUK_End) 
 	}
@@ -171,11 +167,11 @@ func (this *Import) GetOffsetDate() Time {
 
 
 func (this *Import) GetImportCategories() *[]string {
-	return this.categories
+	return this.mask.importCates
 }
 
 func (this *Import) GetExclCategories() []string {
-	return this.exclCategories
+	return this.mask.exclCates
 }
 
 func (this *Import) GetImportedChart() *Chart {
@@ -214,22 +210,32 @@ func (this *Import) IsLoaded() bool {
 
 //-- method (setters)
 
-func (this *Import) SetLink(v string) {
-	// TODO: unexport itself from the chart.
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	// TODO: (re)load `loadedChart`
-	// TODO:  - (re)create `loadedChart`
-	// TODO:  - set parents of imported objects to `this` 
-	// TODO: offset all imported objects
-	// TODO: export itself to the chart.
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
+func (this *Import) SetLink(v string) (warns warning.Warnings) {
+	var err error
+
+	// Unexport itself from the chart.
+	moreWarns := this.unexportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	// Reload `loadedChart`
+	moreWarns, err = this.reloadLink()
+	warns.Concat(moreWarns)
+	if err != nil {
+		return
+	}
+
+	// Offset all imported objects
+	moreWarns = this.offsetLoadedObjects()
+	warns.Concat(moreWarns)
+
+	// Export itself to the chart.
+	moreWarns = this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
-func (this *Import) SetStartDate(v Time) {
+func (this *Import) SetStartDate(v Time) (warns warning.Warnings) {
 	// TODO: unexport itself from the chart.
 	// TODO:  - unresolveReferenceTo objects.
 	// TODO:  - shot down caches.
@@ -241,7 +247,7 @@ func (this *Import) SetStartDate(v Time) {
 	panic("Unimplemented")
 }
 
-func (this *Import) UnsetStartDate() {
+func (this *Import) UnsetStartDate() (warns warning.Warnings) {
 	// TODO: unexport itself from the chart.
 	// TODO:  - unresolveReferenceTo objects.
 	// TODO:  - shot down caches.
@@ -253,7 +259,7 @@ func (this *Import) UnsetStartDate() {
 	panic("Unimplemented")
 }
 
-func (this *Import) SetEndDate(v Time) {
+func (this *Import) SetEndDate(v Time) (warns warning.Warnings) {
 	// TODO: unexport itself from the chart.
 	// TODO:  - unresolveReferenceTo objects.
 	// TODO:  - shot down caches.
@@ -265,7 +271,7 @@ func (this *Import) SetEndDate(v Time) {
 	panic("Unimplemented")
 }
 
-func (this *Import) UnsetEndDate() {
+func (this *Import) UnsetEndDate() (warns warning.Warnings) {
 	// TODO: unexport itself from the chart.
 	// TODO:  - unresolveReferenceTo objects.
 	// TODO:  - shot down caches.
@@ -277,7 +283,7 @@ func (this *Import) UnsetEndDate() {
 	panic("Unimplemented")
 }
 
-func (this *Import) SetOffsetDate(v Time) {
+func (this *Import) SetOffsetDate(v Time) (warns warning.Warnings) {
 	// TODO: return if `offsetDate` is the same.
 	// TODO: un-offset all imported objects.
 	// TODO: update 'offsetDate'.
@@ -285,7 +291,7 @@ func (this *Import) SetOffsetDate(v Time) {
 	panic("Unimplemented")
 }
 
-func (this *Import) UnsetOffsetDate() {
+func (this *Import) UnsetOffsetDate() (warns warning.Warnings) {
 	// TODO: return if `offsetDate` is nil
 	// TODO: un-offset all imported objects.
 	// TODO: update 'offsetDate'.
@@ -293,7 +299,7 @@ func (this *Import) UnsetOffsetDate() {
 	panic("Unimplemented")
 }
 
-func (this *Import) SetImportCategories(v []string) {
+func (this *Import) SetImportCategories(v []string) (warns warning.Warnings) {
 	// TODO: return if 'v' equals to `categories`.
 	// TODO: unexport itself from the chart.
 	// TODO:  - unresolveReferenceTo objects.
@@ -306,7 +312,7 @@ func (this *Import) SetImportCategories(v []string) {
 	panic("Unimplemented")
 }
 
-func (this *Import) AddImportCategory(cat string) {
+func (this *Import) AddImportCategory(cat string) (warns warning.Warnings) {
 	// TODO: return if 'cat' already exists in `categories`.
 	// TODO: add 'cat' to `categories`. 
 	// TODO: return if no object in 'cat'.
@@ -317,7 +323,7 @@ func (this *Import) AddImportCategory(cat string) {
 	panic("Unimplemented")
 }
 
-func (this *Import) RemoveImportCategory(cat string) {
+func (this *Import) RemoveImportCategory(cat string) (warns warning.Warnings) {
 	// TODO: return if 'cat' doesn't exist in `categories`.
 	// TODO: remove 'cat' from `categories`. 
 	// TODO: return if no object in 'cat'.
@@ -327,7 +333,7 @@ func (this *Import) RemoveImportCategory(cat string) {
 	panic("Unimplemented")
 }
 
-func (this *Import) UnsetImportCategories() {
+func (this *Import) UnsetImportCategories() (warns warning.Warnings) {
 	// TODO: return if `categories` is nil.
 	// TODO: unexport itself from the chart.
 	// TODO:  - unresolveReferenceTo objects.
@@ -340,7 +346,7 @@ func (this *Import) UnsetImportCategories() {
 	panic("Unimplemented")
 }
 
-func (this *Import) SetExclCategories(v []string) {
+func (this *Import) SetExclCategories(v []string) (warns warning.Warnings) {
 	// TODO: return if 'v' equals to `exclCategories`.
 	// TODO: unexport itself from the chart.
 	// TODO:  - unresolveReferenceTo objects.
@@ -353,7 +359,7 @@ func (this *Import) SetExclCategories(v []string) {
 	panic("Unimplemented")
 }
 
-func (this *Import) AddExclCategory(cat string) {
+func (this *Import) AddExclCategory(cat string) (warns warning.Warnings) {
 	// TODO: return if 'cat' already exists in `exclCategories`.
 	// TODO: add 'cat' to `exclCategories`. 
 	// TODO: return if no object in 'cat'.
@@ -364,7 +370,7 @@ func (this *Import) AddExclCategory(cat string) {
 	panic("Unimplemented")
 }
 
-func (this *Import) RemoveExclCategory(cat string) {
+func (this *Import) RemoveExclCategory(cat string) (warns warning.Warnings) {
 	// TODO: return if 'cat' doesn't exist in `exclCategories`.
 	// TODO: remove 'cat' from `exclCategories`. 
 	// TODO: return if no object in 'cat'.
@@ -396,12 +402,12 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 
 	if o.StartDate != nil {
 		startDate := createTimeFromParsed(o.StartDate, TUK_Start)
-		cimport.startDate = &startDate
+		cimport.mask.startDate = &startDate
 	}
 
 	if o.EndDate != nil {
 		endDate := createTimeFromParsed(o.EndDate, TUK_End)
-		cimport.endDate = &endDate
+		cimport.mask.endDate = &endDate
 	}
 
 	if o.OffsetDate != nil {
@@ -409,22 +415,30 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 		cimport.offsetDate = &endDate
 	}
 
-	if o.Categories != nil {
-		tmpcats := *o.Categories
-		cimport.categories = &tmpcats
+	if o.mask.importCates != nil {
+		tmpcats := *o.mask.importCates
+		cimport.mask.importCates = &tmpcats
 	}
 
 	for exclcats, ok := cimport.attrs["ExcludeCategory"]; ok {
 		for _, exclcat := range exclcats {
-			cimport.exclCategories = append(cimport.exclCategories, exclcat)
+			cimport.mask.exclCates = append(cimport.mask.exclCates, exclcat)
 		}
 	}
 
-	// TODO: eagerly load imported objects. warn if it failed.
-	panic("Unimplemented")
-
 	moreWarns = cimport.DiagnoseLocal()
 	warns.Concat(moreWarns)
+
+	// Eagerly load linked chart.
+	moreWarnsR, errR := this.reloadLink();
+	warns.Concat(moreWarnsR)
+	if errR != nil {
+		moreWarnsO := this.offsetLoadedObjects()
+		warns.Concat(moreWarnsO)
+
+		moreWarnsE := this.exportMaskedObjects()
+		warns.Concat(moreWarnsE)
+	}
 
 	return cimport, warns
 }
@@ -436,12 +450,10 @@ func CreateEmptyImport() *Import {
 		Note: Note{},
 
 		link: "",
-		startDate: nil,
-		endDate: nil,
-		categories: nil,
-
 		loadedChart: nil,
-		cache: importCache{},
+		offsetDate: nil,
+		cache: importChartCache{},
+		mask: importChartMask{},
 	}
 	cimport.enclosing = cimport
 	return cimport
@@ -454,11 +466,11 @@ func (this *Import) correctStartEndDates(oldStartDate Time) (ambiguous bool, inv
 
 	// Reflect corrected results.
 	if !this.GetStartDate().Equal(nts) {
-		this.startDate = &nts
+		this.mask.startDate = &nts
 	}
 
 	if !this.GetEndDate().Equal(nte) {
-		this.endDate = &nte
+		this.mask.endDate = &nte
 	}
 
 	ambiguous = amb
@@ -467,10 +479,41 @@ func (this *Import) correctStartEndDates(oldStartDate Time) (ambiguous bool, inv
 	return
 }
 
-func (this *Import) loadLink() (warns warning.Warnings) {
-	if this.loadedChart == nil {
-		// TODO: read above
-		panic("Unimplemented")
-	}
+func (this *Import) offsetLoadedObjects() (warns warning.Warnings) {
+	// TODO: things to do:
+	// TODO:  - offset all objects in the chart.
+	panic("Unimplemented")
+}
+
+func (this *Import) unoffsetLoadedObjects() (warns warning.Warnings) {
+	// TODO: things to do:
+	// TODO:  - un-offset all objects in the chart.
+	panic("Unimplemented")
+}
+
+func (this *Import) exportMaskedObjects() (warns warning.Warnings) {
+	// TODO: cache first. resolve only new caches.
+	// TODO: resolve: only if associated to a chart.
+	// TODO: things to do:
+	// TODO:  - cache objects with period/category/exclCategory masks
+	// TODO:    use the offset period mask
+	// TODO:  - resolveReferenceTo objects.
+	panic("Unimplemented")
+}
+
+func (this *Import) unexportMaskedObjects() (warns warning.Warnings) {
+	// TODO: cache first. unresolve only old caches. 
+	// TODO: unresolve: only if associated to a chart.
+	// TODO: things to do:
+	// TODO:  - unresolveReferenceTo objects.
+	// TODO:  - shot down caches.
+	panic("Unimplemented")
+}
+
+func (this *Import) reloadLink() (warns warning.Warnings, err error) {
+	// TODO: things to do:
+	// TODO:  - (re)create `loadedChart`
+	// TODO:  - set parents of imported objects to `this` 
+	panic("Unimplemented")
 	return
 }
