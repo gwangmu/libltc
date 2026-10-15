@@ -657,6 +657,16 @@ func (this *Chart) getObjectsWithIDGetter(id string, idGetter func(IMajor) strin
 	return 
 }
 
+func (this *Chart) offsetObjectTimes(t Time) {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Chart) unoffsetObjectTimes(t Time) {
+	// TODO
+	panic("Unimplemented")
+}
+
 func splitIntoInChartQualIDs(absQualID string) (ret []string) {
 	re := regexp.MustCompile(`e[0-9]+/`)
 
