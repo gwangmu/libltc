@@ -283,6 +283,31 @@ func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end T
 	}
 }
 
+func (this *Chart) GetAnnexsBetween(start Time, end Time) (ret []*Annex) {
+	start.SetUsage(TUK_Start)
+	end.SetUsage(TUK_End)
+
+	inbound := false 
+	for _, aobj := range this.annexs {
+		if !inbound {
+			// Check inbound (based on CreateDate).
+			inbound = aobj.GetCreateDate().IsAfter(start)
+		}
+		
+		if inbound {
+			// Check out-of-bound (based on CreateDate).
+			if aobj.GetCreateDate().IsAfter(end) {
+				break
+			}
+		}
+
+		if inbound {
+			ret = append(ret, aobj)
+		}
+	}
+	return
+}
+
 func (this *Chart) AddObject(obj IMajor) error {
 	if obj == nil || obj.GetKind() == MOK_Unknown {
 		return errors.New("Bogus object. Cannot add to the chart")

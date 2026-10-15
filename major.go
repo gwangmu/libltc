@@ -29,7 +29,7 @@ type IMajor interface {
 	GetRelQualifiedID(baseChart *Chart) string
 
 	GetParent() IMajor
-	SetParent(p IMajor)
+	setParent(p IMajor)
 
 	IsImported() bool	// Imported by an import object?
 	IsEmbedded() bool	// Embedded in an event object? (incl. subchart objs)
@@ -201,7 +201,7 @@ func (this *MajorCommon) GetParent() IMajor {
 	return this.parent
 }
 
-func (this *MajorCommon) SetParent(p IMajor) {
+func (this *MajorCommon) setParent(p IMajor) {
 	this.parent = p
 }
 

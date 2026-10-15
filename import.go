@@ -214,7 +214,6 @@ func (this *Import) IsLoaded() bool {
 
 func (this *Import) SetLink(v string) (warns warning.Warnings) {
 	var moreWarns warning.Warnings
-	var err error
 
 	if this.link == v {
 		return
@@ -225,11 +224,8 @@ func (this *Import) SetLink(v string) (warns warning.Warnings) {
 	warns.Concat(moreWarns)
 
 	// Reload `loadedChart`
-	moreWarns, err = this.reloadLink()
+	moreWarns = this.reloadLink()
 	warns.Concat(moreWarns)
-	if err != nil {
-		return
-	}
 
 	// Offset all imported objects
 	moreWarns = this.offsetLoadedObjects()
@@ -590,15 +586,12 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	warns.Concat(moreWarns)
 
 	// Eagerly load linked chart.
-	moreWarnsR, errR := cimport.reloadLink();
-	warns.Concat(moreWarnsR)
-	if errR != nil {
-		moreWarnsO := cimport.offsetLoadedObjects()
-		warns.Concat(moreWarnsO)
-
-		moreWarnsE := cimport.exportMaskedObjects()
-		warns.Concat(moreWarnsE)
-	}
+	moreWarns = cimport.reloadLink();
+	warns.Concat(moreWarns)
+	moreWarns = cimport.offsetLoadedObjects()
+	warns.Concat(moreWarns)
+	moreWarns = cimport.exportMaskedObjects()
+	warns.Concat(moreWarns)
 
 	return cimport, warns
 }
@@ -652,50 +645,90 @@ func (this *Import) correctStartEndDateMasks(oldStartDate Time) (ambiguous bool,
 }
 
 func (this *Import) offsetLoadedObjects() (warns warning.Warnings) {
-	// TODO: things to do:
-	// TODO:  - offset all objects in the chart.
-	panic("Unimplemented")
-
 	if this.loadedChart == nil || this.offsetDate == nil {
 		return
+	} else {
+		// TODO: Offset events. (subchart: ignore, embed event: make local)
+		// TODO: Offset annexs.
+		// TODO: Offset imports (recursive).
+		this.loadedChart.offsetObjectTimes(*this.offsetDate)
+		return
 	}
-
-	// TODO: Offset events. (subchart: ignore, embed event: make local)
-	// TODO: Offset annexs.
-	// TODO: Offset imports (recursive).
-
-	return
 }
 
 func (this *Import) unoffsetLoadedObjects() (warns warning.Warnings) {
-	// TODO: things to do:
-	// TODO:  - un-offset all objects in the chart.
-	panic("Unimplemented")
+	if this.loadedChart == nil || this.offsetDate == nil {
+		return
+	} else {
+		// TODO: Offset events. (subchart: ignore, embed event: make local)
+		// TODO: Offset annexs.
+		// TODO: Offset imports (recursive).
+		this.loadedChart.unoffsetObjectTimes(*this.offsetDate)
+		return
+	}
 }
 
 func (this *Import) exportMaskedObjects() (warns warning.Warnings) {
 	// TODO: cache first. resolve only new caches.
-	// TODO: resolve: only if associated to a chart.
-	// TODO: things to do:
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
+
+	if this.loadedChart == nil {
+		return
+	}
+
+	this.cache = importChartCache{}
+
+	maskStartDate, maskEndDate := InfinitePast, InfiniteFuture
+	if this.mask.startDate != nil {
+		maskStartDate = *this.mask.startDate
+	}
+	if this.mask.endDate != nil {
+		maskEndDate = *this.mask.endDate
+	}
+
+	// Cache events.
+	for _, category := range this.loadedChart.GetEventCategories() {
+		if slices.Contains(this.mask.exclCates, category) {
+			continue
+		}
+		if this.mask.importCates != nil && !slices.Contains(*this.mask.importCates, category) {
+			continue
+		}
+		nevs := this.loadedChart.GetEventsInCategoryBetween(category, maskStartDate, maskEndDate)
+		this.cache.events = append(this.cache.events, nevs...)
+	}
+
+	// Cache annexs.
+	this.cache.annexs = this.loadedChart.GetAnnexsBetween(maskStartDate, maskEndDate)
+
+	// Cache imports. (include all)
+	this.cache.imports = this.loadedChart.GetImports()
+
+	if this.chart != nil {
+		this.chart.resolveReferenceTo(this)
+	}
+
+	return
 }
 
 func (this *Import) unexportMaskedObjects() (warns warning.Warnings) {
 	// TODO: cache first. unresolve only old caches. 
-	// TODO: unresolve: only if associated to a chart.
-	// TODO: things to do:
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	panic("Unimplemented")
+
+	if this.chart != nil {
+		this.chart.unresolveReferenceTo(this)
+	}
+	
+	this.cache = importChartCache{}
+
+	return
 }
 
-func (this *Import) reloadLink() (warns warning.Warnings, err error) {
-	// TODO: things to do:
-	// TODO:  - (re)create `loadedChart`
-	// TODO:  - set parents of imported objects to `this` 
-	panic("Unimplemented")
+func (this *Import) reloadLink() (warns warning.Warnings) {
+	chart, moreWarns := CreateChart(this.link)
+	warns.Concat(moreWarns)
+
+	for _, mobj := range chart.GetAllMajors(false) {
+		mobj.setParent(this)
+	}
+
 	return
 }

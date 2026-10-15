@@ -527,7 +527,7 @@ func (this *Event) loadEmbeddedChart() (warns warning.Warnings) {
 
 			// Update 'parent's of all subchart objects.
 			for _, obj := range echart.GetAllMajors(false) {
-				obj.SetParent(this)
+				obj.setParent(this)
 			}
 
 			// Resolve possible unresolved references.
