@@ -551,15 +551,33 @@ func (this Time) IsAmbiguous() bool {
 // Hyperreal-style infinity sum is maybe useful, but it's also future work.
 // The returning time's usage follows that of LHS (i.e., 'this').
 func (this Time) Add(that Time) Time {
+	return this.addOrSub(that, false)
+}
+
+func (this Time) Sub(that Time) Time {
+	return this.addOrSub(that, true)
+}
+
+func (this Time) addOrSub(that Time, negate bool) Time {
+	infPastThat := false
+	infFutureThat := false
+	if !negate {
+		infPastThat = that.IsInfinitePast()
+		infFutureThat = that.IsInfiniteFuture()
+	} else {
+		infPastThat = that.IsInfiniteFuture()
+		infFutureThat = that.IsInfinitePast()
+	}
+
 	if this.isFloating() || that.isFloating() {
 		ret := UnknownTime
 		ret.SetUsage(this.GetUsage())
 		return ret
-	} else if this.IsInfinitePast() || that.IsInfinitePast() {
+	} else if this.IsInfinitePast() || infPastThat {
 		ret := InfinitePast
 		ret.SetUsage(this.GetUsage())
 		return ret
-	} else if this.IsInfiniteFuture() || that.IsInfiniteFuture() {
+	} else if this.IsInfiniteFuture() || infFutureThat {
 		ret := InfiniteFuture
 		ret.SetUsage(this.GetUsage())
 		return ret
@@ -573,12 +591,19 @@ func (this Time) Add(that Time) Time {
 
 		// Add years, months, and days.
 		// Those are too big, so they may cause an overflow.
-		got1.AddDate(got2.Year(), int(got2.Month()), got2.Day())
+		got2y, got2m, got2d := got2.Year(), int(got2.Month()), got2.Day()
+		if negate {
+			got2y, got2m, got2d = -got2y, -got2m, -got2d
+		}
+		got1.AddDate(got2y, got2m, got2d)
 
 		// Add smaller bits using duration.
 		got2 = time.Date(got1.Year(), got1.Month(), got1.Day(),
 			got2.Hour(), got2.Minute(), got2.Second(), 0, got1.Location())
 		dur := got2.Sub(got1)
+		if negate {
+			dur = -dur
+		}
 		got1 = got1.Add(dur)
 
 		// Convert back to LTC time.
