@@ -322,22 +322,6 @@ func CreateEmptyMajorCommon() *MajorCommon {
 
 //-- vvv Constants vvv
 
-//-- type mTimeKind
-
-type mTimeKind int
-const (
-	mTK_Year mTimeKind = iota
-	mTK_Month
-	mTK_Day
-	mTK_Hour
-	mTK_Minute
-	mTK_Second
-)
-
-const mTKValue_Max int = math.MaxInt
-const mTKValue_Min int = math.MinInt 
-const mTKValue_Unknown int = -1 
-
 //-- type mNumberID
 
 type mNumberID uint64

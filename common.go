@@ -3,6 +3,7 @@ package libltc
 import (
 	"fmt"
 	"maps"
+	"math"
 	"regexp"
 	"slices"
 	"strconv"
@@ -153,43 +154,43 @@ func (this Time) GetGOTime() time.Time {
 
 	mc := this.GetMonth() 
 	switch mc {
-	case mTKValue_Max:
+	case TKValue_Max:
 		// FIXME: currently using the Gragorian calendar max.
 		mc = 12
-	case mTKValue_Min:
+	case TKValue_Min:
 		mc = 1
 	}
 
 	dc := this.GetDay()
 	switch dc {
-	case mTKValue_Max:
+	case TKValue_Max:
 		// FIXME: currently using the Gragorian calendar max.
 		dc = time.Date(0, time.Month(mc+1), 0, 0, 0, 0, 0, this.GetTimezone()).Day()
-	case mTKValue_Min:
+	case TKValue_Min:
 		dc = 1
 	}
 
 	hc := this.GetHour()
 	switch hc {
-	case mTKValue_Max:
+	case TKValue_Max:
 		hc = 23
-	case mTKValue_Min:
+	case TKValue_Min:
 		hc = 0
 	}
 
 	mmc := this.GetMinute()
 	switch mmc {
-	case mTKValue_Max:
+	case TKValue_Max:
 		mmc = 59
-	case mTKValue_Min:
+	case TKValue_Min:
 		mmc = 0
 	}
 
 	sc := this.GetSecond()
 	switch sc {
-	case mTKValue_Max:
+	case TKValue_Max:
 		sc = 59
-	case mTKValue_Min:
+	case TKValue_Min:
 		sc = 0
 	}
 
@@ -208,11 +209,11 @@ func (this Time) GetYear() int {
 	if this.year == nil {
 		switch this.usage {
 		case TUK_End:
-			return mTKValue_Max
+			return TKValue_Max
 		case TUK_Start:
-			return mTKValue_Min 
+			return TKValue_Min 
 		default:
-			return mTKValue_Unknown
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.year
@@ -222,11 +223,11 @@ func (this Time) GetYear() int {
 func (this Time) GetYearString() string {
 	v := this.GetYear() 
 	switch v {
-	case mTKValue_Max:
+	case TKValue_Max:
 		return "****"
-	case mTKValue_Min:
+	case TKValue_Min:
 		return "____"
-	case mTKValue_Unknown:
+	case TKValue_Unknown:
 		return "????"
 	default:
 		return fmt.Sprintf("%04d", v)
@@ -237,11 +238,11 @@ func (this Time) GetMonth() int {
 	if this.month == nil {
 		switch this.usage {
 		case TUK_End:
-			return mTKValue_Max
+			return TKValue_Max
 		case TUK_Start:
-			return mTKValue_Min 
+			return TKValue_Min 
 		default:
-			return mTKValue_Unknown
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.month
@@ -251,11 +252,11 @@ func (this Time) GetMonth() int {
 func (this Time) GetMonthString() string {
 	v := this.GetMonth() 
 	switch v {
-	case mTKValue_Max:
+	case TKValue_Max:
 		return "**"
-	case mTKValue_Min:
+	case TKValue_Min:
 		return "__"
-	case mTKValue_Unknown:
+	case TKValue_Unknown:
 		return "??"
 	default:
 		return fmt.Sprintf("%02d", v)
@@ -266,11 +267,11 @@ func (this Time) GetDay() int {
 	if this.day == nil {
 		switch this.usage {
 		case TUK_End:
-			return mTKValue_Max
+			return TKValue_Max
 		case TUK_Start:
-			return mTKValue_Min 
+			return TKValue_Min 
 		default:
-			return mTKValue_Unknown
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.day
@@ -280,11 +281,11 @@ func (this Time) GetDay() int {
 func (this Time) GetDayString() string {
 	v := this.GetDay() 
 	switch v {
-	case mTKValue_Max:
+	case TKValue_Max:
 		return "**"
-	case mTKValue_Min:
+	case TKValue_Min:
 		return "__"
-	case mTKValue_Unknown:
+	case TKValue_Unknown:
 		return "??"
 	default:
 		return fmt.Sprintf("%02d", v)
@@ -295,11 +296,11 @@ func (this Time) GetHour() int {
 	if this.hour == nil {
 		switch this.usage {
 		case TUK_End:
-			return mTKValue_Max
+			return TKValue_Max
 		case TUK_Start:
-			return mTKValue_Min 
+			return TKValue_Min 
 		default:
-			return mTKValue_Unknown
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.hour
@@ -309,11 +310,11 @@ func (this Time) GetHour() int {
 func (this Time) GetHourString() string {
 	v := this.GetHour()
 	switch v {
-	case mTKValue_Max:
+	case TKValue_Max:
 		return "**"
-	case mTKValue_Min:
+	case TKValue_Min:
 		return "__"
-	case mTKValue_Unknown:
+	case TKValue_Unknown:
 		return "??"
 	default:
 		return fmt.Sprintf("%02d", v)
@@ -324,11 +325,11 @@ func (this Time) GetMinute() int {
 	if this.minute == nil {
 		switch this.usage {
 		case TUK_End:
-			return mTKValue_Max
+			return TKValue_Max
 		case TUK_Start:
-			return mTKValue_Min 
+			return TKValue_Min 
 		default:
-			return mTKValue_Unknown
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.minute
@@ -338,11 +339,11 @@ func (this Time) GetMinute() int {
 func (this Time) GetMinuteString() string {
 	v := this.GetMinute()
 	switch v {
-	case mTKValue_Max:
+	case TKValue_Max:
 		return "**"
-	case mTKValue_Min:
+	case TKValue_Min:
 		return "__"
-	case mTKValue_Unknown:
+	case TKValue_Unknown:
 		return "??"
 	default:
 		return fmt.Sprintf("%02d", v)
@@ -353,11 +354,11 @@ func (this Time) GetSecond() int {
 	if this.second == nil {
 		switch this.usage {
 		case TUK_End:
-			return mTKValue_Max
+			return TKValue_Max
 		case TUK_Start:
-			return mTKValue_Min 
+			return TKValue_Min 
 		default:
-			return mTKValue_Unknown
+			return TKValue_Unknown
 		}
 	} else {
 		return *this.second
@@ -367,11 +368,11 @@ func (this Time) GetSecond() int {
 func (this Time) GetSecondString() string {
 	v := this.GetSecond()
 	switch v {
-	case mTKValue_Max:
+	case TKValue_Max:
 		return "**"
-	case mTKValue_Min:
+	case TKValue_Min:
 		return "__"
-	case mTKValue_Unknown:
+	case TKValue_Unknown:
 		return "??"
 	default:
 		return fmt.Sprintf("%02d", v)
@@ -538,9 +539,53 @@ func (this Time) Equal(that Time) bool {
 }
 
 // NOTE: infinite times are both unknown and ambiguous.
-
 func (this Time) IsAmbiguous() bool {
 	return this.year == nil || this.month == nil
+}
+
+// Limitation 1: this method assumes Gregorian calendars.
+// Supporting non-Gregorian calendars is future work.
+// Limitation 2: the timezone of RHS is ignored. (i.e., UTC assumed)
+// Limitation 3: Adding infinity or adding to infinity result in infinity.
+// Adding infinite future to infinite past is undefined.
+// Hyperreal-style infinity sum is maybe useful, but it's also future work.
+// The returning time's usage follows that of LHS (i.e., 'this').
+func (this Time) Add(that Time) Time {
+	if this.isFloating() || that.isFloating() {
+		ret := UnknownTime
+		ret.SetUsage(this.GetUsage())
+		return ret
+	} else if this.IsInfinitePast() || that.IsInfinitePast() {
+		ret := InfinitePast
+		ret.SetUsage(this.GetUsage())
+		return ret
+	} else if this.IsInfiniteFuture() || that.IsInfiniteFuture() {
+		ret := InfiniteFuture
+		ret.SetUsage(this.GetUsage())
+		return ret
+	} else {
+		that.SetUsage(TUK_General)
+		that.SetTimezone(nil)
+		
+		// Convert them to GO times.
+		got1 := this.GetGOTime()
+		got2 := that.GetGOTime()
+
+		// Add years, months, and days.
+		// Those are too big, so they may cause an overflow.
+		got1.AddDate(got2.Year(), int(got2.Month()), got2.Day())
+
+		// Add smaller bits using duration.
+		got2 = time.Date(got1.Year(), got1.Month(), got1.Day(),
+			got2.Hour(), got2.Minute(), got2.Second(), 0, got1.Location())
+		dur := got2.Sub(got1)
+		got1 = got1.Add(dur)
+
+		// Convert back to LTC time.
+		ret := this
+		ret.SetGOTime(got1, true)
+		return ret
+	}	
 }
 
 //-- struct NoteSnippet: method
@@ -964,3 +1009,21 @@ func correctStartEndDatePair(ts Time, te Time) (nts Time, nte Time, ambiguous bo
 
 	return
 }
+
+//-- vvv Constants vvv
+
+//-- type mTimeKind
+
+type mTimeKind int
+const (
+	mTK_Year mTimeKind = iota
+	mTK_Month
+	mTK_Day
+	mTK_Hour
+	mTK_Minute
+	mTK_Second
+)
+
+const TKValue_Max int = math.MaxInt
+const TKValue_Min int = math.MinInt 
+const TKValue_Unknown int = -1 

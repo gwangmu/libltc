@@ -1,6 +1,8 @@
 package libltc
 
 import (
+	"slices"
+
 	"github.com/gwangmu/libltc/warning"
 	"github.com/gwangmu/libltc/internal/file"
 )
@@ -381,84 +383,161 @@ func (this *Import) UnsetOffsetDate() (warns warning.Warnings) {
 }
 
 func (this *Import) SetImportCategories(v []string) (warns warning.Warnings) {
-	// TODO: return if 'v' equals to `categories`.
-	// TODO: unexport itself from the chart.
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	// TODO: set `categories`. 
-	// TODO: export itself to the chart.
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
+	var moreWarns warning.Warnings
+
+	// Return if it's the same.
+	if this.mask.importCates != nil && slices.Equal(*this.mask.importCates, v) {
+		return
+	}
+
+	// Unexport itself from the chart.
+	moreWarns = this.unexportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	// Set `importCates`. 
+    this.mask.importCates = &v 
+
+	// Re-export.
+	moreWarns = this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) AddImportCategory(cat string) (warns warning.Warnings) {
-	// TODO: return if 'cat' already exists in `categories`.
-	// TODO: add 'cat' to `categories`. 
-	// TODO: return if no object in 'cat'.
-	// TODO: export 'cat' objects to the chart.
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
+	// Return if it's already in.
+	if this.mask.importCates != nil && slices.Contains(*this.mask.importCates, cat) {
+		return
+	}
+
+	// Add 'cat' to `categories`. 
+	if this.mask.importCates == nil {
+		this.mask.importCates = &[]string{ cat }
+	} else {
+		*this.mask.importCates = append(*this.mask.importCates, cat)
+	}
+
+	// Return if the category is empty.
+	if this.loadedChart != nil && len(this.loadedChart.GetEventsInCategory(cat)) == 0 {
+		return
+	}
+
+	// Re-export.
+	moreWarns := this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) RemoveImportCategory(cat string) (warns warning.Warnings) {
-	// TODO: return if 'cat' doesn't exist in `categories`.
-	// TODO: remove 'cat' from `categories`. 
-	// TODO: return if no object in 'cat'.
-	// TODO: unexport 'cat' objects from the chart.
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	panic("Unimplemented")
+	// Remove 'cat' from `categories`. 
+	if this.mask.importCates != nil {
+		idx := slices.Index(*this.mask.importCates, cat)
+		if idx != -1 {
+			*this.mask.importCates = append((*this.mask.importCates)[:idx], (*this.mask.importCates)[idx+1:]...)
+		} else {
+			return
+		}
+	} else {
+		return
+	}
+
+	// Return if the category is empty.
+	if this.loadedChart != nil && len(this.loadedChart.GetEventsInCategory(cat)) == 0 {
+		return
+	}
+
+	// Re-export.
+	moreWarns := this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) UnsetImportCategories() (warns warning.Warnings) {
-	// TODO: return if `categories` is nil.
-	// TODO: unexport itself from the chart.
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	// TODO: nil-ify `categories`. 
-	// TODO: export itself to the chart.
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
+	var moreWarns warning.Warnings
+
+	// Return if it's nil.
+	if this.mask.importCates == nil {
+		return
+	}
+
+	// Unexport itself from the chart.
+	moreWarns = this.unexportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	// Set `importCates`. 
+    this.mask.importCates = nil 
+
+	// Re-export.
+	moreWarns = this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) SetExclCategories(v []string) (warns warning.Warnings) {
-	// TODO: return if 'v' equals to `exclCategories`.
-	// TODO: unexport itself from the chart.
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	// TODO: set `exclCategories`. 
-	// TODO: export itself to the chart.
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
+	var moreWarns warning.Warnings
+
+	// Return if it's the same.
+	if slices.Equal(this.mask.exclCates, v) {
+		return
+	}
+
+	// Unexport itself from the chart.
+	moreWarns = this.unexportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	// Set `exclCates`. 
+    this.mask.exclCates = v 
+
+	// Re-export.
+	moreWarns = this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) AddExclCategory(cat string) (warns warning.Warnings) {
-	// TODO: return if 'cat' already exists in `exclCategories`.
-	// TODO: add 'cat' to `exclCategories`. 
-	// TODO: return if no object in 'cat'.
-	// TODO: export 'cat' objects to the chart.
-	// TODO:  - cache objects with period/category/exclCategory masks
-	// TODO:    use the offset period mask
-	// TODO:  - resolveReferenceTo objects.
-	panic("Unimplemented")
+	// Return if it's already in.
+	if slices.Contains(this.mask.exclCates, cat) {
+		return
+	}
+
+	// Add 'cat' to `exclCates`. 
+	this.mask.exclCates = append(this.mask.exclCates, cat)
+
+	// Return if the category is empty.
+	if this.loadedChart != nil && len(this.loadedChart.GetEventsInCategory(cat)) == 0 {
+		return
+	}
+
+	// Re-export.
+	moreWarns := this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 func (this *Import) RemoveExclCategory(cat string) (warns warning.Warnings) {
-	// TODO: return if 'cat' doesn't exist in `exclCategories`.
-	// TODO: remove 'cat' from `exclCategories`. 
-	// TODO: return if no object in 'cat'.
-	// TODO: unexport 'cat' objects from the chart.
-	// TODO:  - unresolveReferenceTo objects.
-	// TODO:  - shot down caches.
-	panic("Unimplemented")
+	// Remove 'cat' from `categories`. 
+	idx := slices.Index(this.mask.exclCates, cat)
+	if idx != -1 {
+		this.mask.exclCates = append(this.mask.exclCates[:idx], this.mask.exclCates[idx+1:]...)
+	} else {
+		return
+	}
+
+	// Return if the category is empty.
+	if this.loadedChart != nil && len(this.loadedChart.GetEventsInCategory(cat)) == 0 {
+		return
+	}
+
+	// Re-export.
+	moreWarns := this.exportMaskedObjects()
+	warns.Concat(moreWarns)
+
+	return
 }
 
 //-- method (creation)
@@ -576,6 +655,16 @@ func (this *Import) offsetLoadedObjects() (warns warning.Warnings) {
 	// TODO: things to do:
 	// TODO:  - offset all objects in the chart.
 	panic("Unimplemented")
+
+	if this.loadedChart == nil || this.offsetDate == nil {
+		return
+	}
+
+	// TODO: Offset events. (subchart: ignore, embed event: make local)
+	// TODO: Offset annexs.
+	// TODO: Offset imports (recursive).
+
+	return
 }
 
 func (this *Import) unoffsetLoadedObjects() (warns warning.Warnings) {
