@@ -553,6 +553,20 @@ func (this *Event) isEmbeddedChartLoaded() bool {
 	return this.embeddedChart != nil
 }
 
+func (this *Event) shiftStartEndDatesRaw(t Time) {
+	nts := this.GetStartDate().Add(t)
+	this.localStartDate = nil
+	if !this.GetStartDate().Equal(nts) {
+		this.localStartDate = &nts
+	}
+	
+	nte := this.GetEndDate()
+	this.localEndDate = nil
+	if !this.GetEndDate().Equal(nte) {
+		this.localEndDate = &nte
+	}
+}
+
 // Ensure that both start and end are either floating or non-floating at the same time.
 func (this *Event) sanitizeLocalStartEndDates(fixedStart bool) {
 	nts, nte, sanitized := sanitizeStartEndDatePair(this.GetStartDate(), this.GetEndDate(), fixedStart)

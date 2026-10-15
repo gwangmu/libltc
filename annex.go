@@ -368,6 +368,12 @@ func CreateEmptyAnnex() *Annex {
 	return aobj
 }
 
+//-- method (util)
+
+func (this *Annex) shiftCreateDateRaw(t Time) {
+	this.createDate = this.createDate.Add(t)
+}
+
 //-- method (private)
 
 func tryEncode(encoding string, data []byte) (string, error) {

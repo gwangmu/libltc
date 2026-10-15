@@ -99,6 +99,14 @@ func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
 	} else if this.GetEndDate().IsInfinitePast() && this.GetStartDate().isFloating() {
 		this.SetStartDate(InfinitePast)
 	}
+
+	if this.offsetDate != nil {
+		t := *this.offsetDate
+		if t.IsInfinite() || t.isFloating() {
+			this.offsetDate = nil
+			warns.Add("@0@ had a wrong offset date '%s'. changed to no offset.", this, t.String())
+		}
+	}
        
 	amb, inv := this.correctStartEndDateMasks(this.GetStartDate())
 	if amb {
@@ -190,6 +198,21 @@ func (this *Import) GetAllImportedAnnexs() []*Annex {
 
 func (this *Import) GetAllImportedImports() []*Import {
 	return this.cache.imports
+}
+
+func (this *Import) GetDirectImportedEvents() []*Event {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Import) GetDirectImportedAnnexs() []*Annex {
+	// TODO
+	panic("Unimplemented")
+}
+
+func (this *Import) GetDirectImportedImports() []*Import {
+	// TODO
+	panic("Unimplemented")
 }
 
 func (this *Import) GetAllImportedObjects() []IMajor {
@@ -340,6 +363,11 @@ func (this *Import) SetOffsetDate(t Time) (warns warning.Warnings) {
 	var moreWarns warning.Warnings
 
 	if this.offsetDate != nil && this.offsetDate.Equal(t) {
+		return
+	}
+		
+	if t.IsInfinite() || t.isFloating() {
+		warns.Add("cannot set a wrong offset date '%s'.", this, t.String())
 		return
 	}
 
@@ -648,10 +676,22 @@ func (this *Import) offsetLoadedObjects() (warns warning.Warnings) {
 	if this.loadedChart == nil || this.offsetDate == nil {
 		return
 	} else {
-		// TODO: Offset events. (subchart: ignore, embed event: make local)
-		// TODO: Offset annexs.
-		// TODO: Offset imports (recursive).
-		this.loadedChart.offsetObjectTimes(*this.offsetDate)
+		toff := *this.offsetDate
+		
+		if toff.IsInfinite() || toff.isFloating() {
+			warns.Add("!!!INTERNAL WARN!!! @0@ has a wrong offset date '%s'. cannot offset.", this, toff.String())
+			return
+		}
+
+		for _, eobj := range this.loadedChart.GetEvents() {
+			eobj.shiftStartEndDatesRaw(toff)
+		}
+		for _, aobj := range this.loadedChart.GetAnnexs() {
+			aobj.shiftCreateDateRaw(toff)
+		}
+		// NOTE: nested imported objects must have been included in the objects
+		// returned by the 'loadedChart', and the import objects themselves 
+		// don't have to be offset.
 		return
 	}
 }
@@ -660,16 +700,25 @@ func (this *Import) unoffsetLoadedObjects() (warns warning.Warnings) {
 	if this.loadedChart == nil || this.offsetDate == nil {
 		return
 	} else {
-		// TODO: Offset events. (subchart: ignore, embed event: make local)
-		// TODO: Offset annexs.
-		// TODO: Offset imports (recursive).
-		this.loadedChart.offsetObjectTimes(this.offsetDate.Negate())
+		toff := this.offsetDate.Negate()
+		
+		if toff.IsInfinite() || toff.isFloating() {
+			warns.Add("!!!INTERNAL WARN!!! @0@ has a wrong offset date '%s'. cannot offset.", this, toff.String())
+			return
+		}
+		
+		for _, eobj := range this.loadedChart.GetEvents() {
+			eobj.shiftStartEndDatesRaw(toff)
+		}
+		for _, aobj := range this.loadedChart.GetAnnexs() {
+			aobj.shiftCreateDateRaw(toff)
+		}
 		return
 	}
 }
 
 func (this *Import) exportMaskedObjects() (warns warning.Warnings) {
-	// TODO: cache first. resolve only new caches.
+	// FIXME: cache first. resolve only new caches.
 
 	if this.loadedChart == nil {
 		return
@@ -711,7 +760,7 @@ func (this *Import) exportMaskedObjects() (warns warning.Warnings) {
 }
 
 func (this *Import) unexportMaskedObjects() (warns warning.Warnings) {
-	// TODO: cache first. unresolve only old caches. 
+	// FIXME: cache first. unresolve only old caches. 
 
 	if this.chart != nil {
 		this.chart.unresolveReferenceTo(this)

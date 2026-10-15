@@ -58,8 +58,20 @@ func (this *Chart) resolveReferenceTo(obj IMajor) {
 	}
 
 	if _, ok := obj.(*Import); ok {
-		// TODO: for import objects, call itself with imported objects inside.
 		panic("Unimplemented")
+
+		/*
+		// TODO: for import objects, call itself with (non-import) imported objects inside.
+		for _, ieobj := range iobj.GetDirectImportedEvents() {
+			this.resolveReferenceTo(ieobj)
+		}
+		for _, iaobj := range iobj.GetDirectImportedAnnexs() {
+			this.resolveReferenceTo(iaobj)
+		}
+		for _, iiobj := range iobj.GetDirectImportedImports() {
+			this.resolveReferenceTo(iiobj)
+		}
+		*/
 	}
 }
 
@@ -655,12 +667,6 @@ func (this *Chart) getObjectsWithIDGetter(id string, idGetter func(IMajor) strin
 		}
 	}
 	return 
-}
-
-func (this *Chart) offsetObjectTimes(t Time) {
-	// TODO: if 't' is positive, offset objects in reverse.
-	// TODO: otherwise, do it in order.
-	panic("Unimplemented")
 }
 
 func splitIntoInChartQualIDs(absQualID string) (ret []string) {
