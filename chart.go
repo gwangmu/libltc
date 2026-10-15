@@ -61,7 +61,7 @@ func (this *Chart) resolveReferenceTo(obj IMajor) {
 		panic("Unimplemented")
 
 		/*
-		// TODO: for import objects, call itself with (non-import) imported objects inside.
+		// TODO: for import objects, call itself with imported objects inside.
 		for _, ieobj := range iobj.GetDirectImportedEvents() {
 			this.resolveReferenceTo(ieobj)
 		}
