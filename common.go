@@ -551,14 +551,8 @@ func (this Time) IsAmbiguous() bool {
 // Hyperreal-style infinity sum is maybe useful, but it's also future work.
 // The returning time's usage follows that of LHS (i.e., 'this').
 func (this Time) Add(that Time) Time {
-	return this.addOrSub(that, false)
-}
+	_, negate := that.Attrs["Negative"]
 
-func (this Time) Sub(that Time) Time {
-	return this.addOrSub(that, true)
-}
-
-func (this Time) addOrSub(that Time, negate bool) Time {
 	infPastThat := false
 	infFutureThat := false
 	if !negate {
@@ -611,6 +605,20 @@ func (this Time) addOrSub(that Time, negate bool) Time {
 		ret.SetGOTime(got1, true)
 		return ret
 	}	
+}
+
+func (this Time) Sub(that Time) Time {
+	return this.Add(that.Negate())
+}
+
+func (this Time) Negate() Time {
+	if _, ok := this.Attrs["Negative"]; ok {
+		delete(this.Attrs, "Negative")
+	} else {
+		this.Attrs["Negative"] = []string{""}
+	}
+		
+	return this
 }
 
 //-- struct NoteSnippet: method

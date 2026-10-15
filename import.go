@@ -663,7 +663,7 @@ func (this *Import) unoffsetLoadedObjects() (warns warning.Warnings) {
 		// TODO: Offset events. (subchart: ignore, embed event: make local)
 		// TODO: Offset annexs.
 		// TODO: Offset imports (recursive).
-		this.loadedChart.unoffsetObjectTimes(*this.offsetDate)
+		this.loadedChart.offsetObjectTimes(this.offsetDate.Negate())
 		return
 	}
 }

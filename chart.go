@@ -658,12 +658,8 @@ func (this *Chart) getObjectsWithIDGetter(id string, idGetter func(IMajor) strin
 }
 
 func (this *Chart) offsetObjectTimes(t Time) {
-	// TODO
-	panic("Unimplemented")
-}
-
-func (this *Chart) unoffsetObjectTimes(t Time) {
-	// TODO
+	// TODO: if 't' is positive, offset objects in reverse.
+	// TODO: otherwise, do it in order.
 	panic("Unimplemented")
 }
 
