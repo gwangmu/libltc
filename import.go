@@ -13,6 +13,7 @@ type Import struct {
 	link string
 	startDate *Time
 	endDate *Time
+	offsetDate *Time
 	categories *[]string		// nil: any categories
 	exclCategories []string
 	
@@ -392,8 +393,9 @@ func (this *Import) correctStartEndDates(oldStartDate Time) (ambiguous bool, inv
 }
 
 func (this *Import) loadLink() (warns warning.Warnings) {
-	if loadedChart == nil {
-
+	if this.loadedChart == nil {
+		// TODO: read above
+		panic("Unimplemented")
 	}
 	return
 }
