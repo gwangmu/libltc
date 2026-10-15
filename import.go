@@ -415,12 +415,12 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 		cimport.offsetDate = &endDate
 	}
 
-	if o.mask.importCates != nil {
-		tmpcats := *o.mask.importCates
+	if o.Categories != nil {
+		tmpcats := *o.Categories
 		cimport.mask.importCates = &tmpcats
 	}
 
-	for exclcats, ok := cimport.attrs["ExcludeCategory"]; ok {
+	if exclcats, ok := cimport.attrs["ExcludeCategory"]; ok {
 		for _, exclcat := range exclcats {
 			cimport.mask.exclCates = append(cimport.mask.exclCates, exclcat)
 		}
@@ -430,13 +430,13 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	warns.Concat(moreWarns)
 
 	// Eagerly load linked chart.
-	moreWarnsR, errR := this.reloadLink();
+	moreWarnsR, errR := cimport.reloadLink();
 	warns.Concat(moreWarnsR)
 	if errR != nil {
-		moreWarnsO := this.offsetLoadedObjects()
+		moreWarnsO := cimport.offsetLoadedObjects()
 		warns.Concat(moreWarnsO)
 
-		moreWarnsE := this.exportMaskedObjects()
+		moreWarnsE := cimport.exportMaskedObjects()
 		warns.Concat(moreWarnsE)
 	}
 
