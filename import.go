@@ -201,18 +201,33 @@ func (this *Import) GetAllImportedImports() []*Import {
 }
 
 func (this *Import) GetDirectImportedEvents() []*Event {
-	// TODO
-	panic("Unimplemented")
+	ret := []*Event{}
+	for _, obj := range this.cache.events {
+		if obj.GetParent() == this {
+			ret = append(ret, obj)
+		}
+	}
+	return ret
 }
 
 func (this *Import) GetDirectImportedAnnexs() []*Annex {
-	// TODO
-	panic("Unimplemented")
+	ret := []*Annex{}
+	for _, obj := range this.cache.annexs {
+		if obj.GetParent() == this {
+			ret = append(ret, obj)
+		}
+	}
+	return ret
 }
 
 func (this *Import) GetDirectImportedImports() []*Import {
-	// TODO
-	panic("Unimplemented")
+	ret := []*Import{}
+	for _, obj := range this.cache.imports {
+		if obj.GetParent() == this {
+			ret = append(ret, obj)
+		}
+	}
+	return ret
 }
 
 func (this *Import) GetAllImportedObjects() []IMajor {
@@ -753,7 +768,7 @@ func (this *Import) exportMaskedObjects() (warns warning.Warnings) {
 	this.cache.imports = this.loadedChart.GetImports()
 
 	if this.chart != nil {
-		this.chart.resolveReferenceTo(this)
+		this.chart.addImportedObjects(this)
 	}
 
 	return
@@ -763,7 +778,7 @@ func (this *Import) unexportMaskedObjects() (warns warning.Warnings) {
 	// FIXME: cache first. unresolve only old caches. 
 
 	if this.chart != nil {
-		this.chart.unresolveReferenceTo(this)
+		this.chart.removeImportedObjects(this)
 	}
 	
 	this.cache = importChartCache{}
@@ -776,7 +791,10 @@ func (this *Import) reloadLink() (warns warning.Warnings) {
 	warns.Concat(moreWarns)
 
 	for _, mobj := range chart.GetAllMajors(false) {
-		mobj.setParent(this)
+		// 'parent == nil' means it's on the top level. Make 'this' the new parent.
+		if mobj.GetParent() == nil {
+			mobj.setParent(this)
+		}
 	}
 
 	return

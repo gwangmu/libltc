@@ -56,23 +56,6 @@ func (this *Chart) resolveReferenceTo(obj IMajor) {
 		caobj.AttachTo.Link(obj, false)
 		caobj.ExtraNoteOf.Link(obj, false)
 	}
-
-	if _, ok := obj.(*Import); ok {
-		panic("Unimplemented")
-
-		/*
-		// TODO: for import objects, call itself with imported objects inside.
-		for _, ieobj := range iobj.GetDirectImportedEvents() {
-			this.resolveReferenceTo(ieobj)
-		}
-		for _, iaobj := range iobj.GetDirectImportedAnnexs() {
-			this.resolveReferenceTo(iaobj)
-		}
-		for _, iiobj := range iobj.GetDirectImportedImports() {
-			this.resolveReferenceTo(iiobj)
-		}
-		*/
-	}
 }
 
 func (this *Chart) unresolveReferenceTo(obj IMajor) {
@@ -99,11 +82,6 @@ func (this *Chart) unresolveReferenceTo(obj IMajor) {
 	for _, annex := range this.annexs {
 		annex.AttachTo.Unlink(obj)
 		annex.ExtraNoteOf.Unlink(obj)
-	}
-
-	if _, ok := obj.(*Import); ok {
-		// TODO: for import objects, call itself with imported objects inside.
-		panic("Unimplemented")
 	}
 }
 
@@ -393,27 +371,37 @@ func (this *Chart) AddObject(obj IMajor) error {
 		// Resolve references.
 		this.resolveReferenceTo(iobj)
 		iobj.resolveReferenceTo(this)
-		for _, imobj := range iobj.GetAllImportedObjects() {
-			this.resolveReferenceTo(imobj)
-			// NOTE: Not the other way round. No back reference.
-		}
 
 		// Insert 'obj' to the slice.
 		this.imports = append(this.imports, iobj)
-		for _, ieobj := range iobj.GetAllImportedEvents() {
-			category := ieobj.GetCategory()
-			this.ReserveEventCategory(category)
-			this.events[category] = insertEventToSlice(this.events[category], ieobj)
-		}
-		for _, iaobj := range iobj.GetAllImportedAnnexs() {
-			this.annexs = insertAnnexToSlice(this.annexs, iaobj)
-		}
-		for _, iiobj := range iobj.GetAllImportedImports() {
-			this.imports = append(this.imports, iiobj)
-		}
+
+		// Recursively add imported objects.
+		this.addImportedObjects(iobj)
 	}
 
 	return nil
+}
+
+func (this *Chart) addImportedObjects(iobj *Import) {
+	if iobj.IsLoaded() {
+		for _, imobj := range iobj.GetDirectImportedEvents() {
+			// The number ID shouldn't have been changed, but correct it
+			// anyway as a precautionary measure.
+			orgNumID := imobj.numID
+			this.AddObject(imobj)
+			imobj.setNumberID(orgNumID)	
+		}
+		for _, imobj := range iobj.GetDirectImportedAnnexs() {
+			orgNumID := imobj.numID
+			this.AddObject(imobj)
+			imobj.setNumberID(orgNumID)
+		}
+		for _, imobj := range iobj.GetDirectImportedImports() {
+			orgNumID := imobj.numID
+			this.AddObject(imobj)
+			imobj.setNumberID(orgNumID)
+		}
+	}
 }
 
 func (this *Chart) RemoveObject(obj IMajor) {
@@ -423,13 +411,13 @@ func (this *Chart) RemoveObject(obj IMajor) {
 
 	objKind := obj.GetKind()
 
-	// Dissociate 'obj' to this chart.
-	obj.setChart(nil)
-	obj.setNumberID(mNID_Unassigned)
-
 	switch objKind {
 	case MOK_Event:
 		eobj, _ := obj.(*Event)
+
+		// Dissociate 'obj' to this chart.
+		obj.setChart(nil)
+		obj.setNumberID(mNID_Unassigned)
 
 		// Remove 'obj' from the slice.
 		category := eobj.GetCategory()
@@ -441,6 +429,10 @@ func (this *Chart) RemoveObject(obj IMajor) {
 	case MOK_Annex:
 		aobj, _ := obj.(*Annex)
 
+		// Dissociate 'obj' to this chart.
+		obj.setChart(nil)
+		obj.setNumberID(mNID_Unassigned)
+
 		// Remove 'obj' from the slice.
 		this.annexs = removeMajorFromSlice[Annex](this.annexs, aobj)
 
@@ -449,6 +441,10 @@ func (this *Chart) RemoveObject(obj IMajor) {
 		aobj.unresolveReferenceTo(this)
 	case MOK_Import:
 		iobj, _ := obj.(*Import)
+
+		// Dissociate 'obj' to this chart.
+		obj.setChart(nil)
+		obj.setNumberID(mNID_Unassigned)
 
 		// Remove 'obj' from the slice.
 		this.imports = removeMajorFromSlice[Import](this.imports, iobj)
@@ -466,9 +462,31 @@ func (this *Chart) RemoveObject(obj IMajor) {
 		// Unresolve references.
 		this.unresolveReferenceTo(iobj)
 		iobj.unresolveReferenceTo(this)
-		for _, imobj := range iobj.GetAllImportedObjects() {
-			this.unresolveReferenceTo(imobj)
-			// NOTE: Not the other way round. No back reference.
+
+		// Recursively remove imported objects.
+		this.removeImportedObjects(iobj)
+	}
+}
+
+func (this *Chart) removeImportedObjects(iobj *Import) {
+	if iobj.IsLoaded() {
+		for _, imobj := range iobj.GetDirectImportedEvents() {
+			orgNumID := imobj.numID
+			this.RemoveObject(imobj)
+			imobj.setChart(iobj.loadedChart)
+			imobj.setNumberID(orgNumID)
+		}
+		for _, imobj := range iobj.GetDirectImportedAnnexs() {
+			orgNumID := imobj.numID
+			this.RemoveObject(imobj)
+			imobj.setChart(iobj.loadedChart)
+			imobj.setNumberID(orgNumID)
+		}
+		for _, imobj := range iobj.GetDirectImportedImports() {
+			orgNumID := imobj.numID
+			this.RemoveObject(imobj)
+			imobj.setChart(iobj.loadedChart)
+			imobj.setNumberID(orgNumID)
 		}
 	}
 }
