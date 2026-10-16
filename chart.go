@@ -1,7 +1,6 @@
 package libltc
 
 import (
-	"fmt"
 	"errors"
 	"slices"
 	"strings"
@@ -243,7 +242,7 @@ func (this *Chart) GetEventsInCategory(category string) []*Event {
 
 // start, end: all inclusive.
 func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end Time) (ret []*Event) {
-	start.SetUsage(TUK_General)
+	start.SetUsage(TUK_Start)
 	end.SetUsage(TUK_End)
 
 	if evs, ok := this.events[category]; !ok {

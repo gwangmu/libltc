@@ -511,8 +511,16 @@ func (this Time) IsAfter(that Time) bool {
 		return false 
 	} else {
 		if this.usage == that.usage {
-			// Give 'this' a little more edge.
-			that.SetUsage(TUK_General)
+			// Give 'this' a little more edge so that it returns true
+			// when 'this' and 'that' are simultaneous.
+			switch this.usage {
+			case TUK_Start:
+				this.SetUsage(TUK_General)
+			case TUK_End: 
+				that.SetUsage(TUK_General)
+			case TUK_General:
+				that.SetUsage(TUK_Start)
+			}
 		}
 		// The 'compare' using the 'time' package should be correct as long as
 		// the calendar system is "monotonic", meaing bigger higher units mean
