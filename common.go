@@ -577,9 +577,6 @@ func (this Time) Add(that Time) Time {
 	this.SetUsage(TUK_General)
 	that.SetUsage(TUK_General)
 
-	fmt.Println(this.String())
-	fmt.Println(that.String())
-
 	infPastThat := false
 	infFutureThat := false
 	if !negate {
@@ -665,7 +662,6 @@ func (this Time) Add(that Time) Time {
 		}
 
 		ret.usage = orgUsage
-		fmt.Println(ret.String())
 		return ret
 	}	
 }
