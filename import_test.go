@@ -250,6 +250,32 @@ func TestImportStartEndDates_Import(t *testing.T) {
 		test.AssertSetEQ(gotIDs, wantIDs)
 	}
 
+	t.Logf("Adjusting import start/end...")
+	i14 := chart.GetObjectByQualifiedID("i14").(*Import)
+	i14.SetEndDate(TimeAt(2026, 1, 11))
+	idx := slices.Index(wantIDs, "i14/a1")
+	wantIDs = append(wantIDs[:idx], wantIDs[idx+1:]...)
+	{
+		gotIDs := []string{}
+		for _, iobj := range chart.GetAllMajors(false) {
+			gotIDs = append(gotIDs, iobj.GetQualifiedID())
+		}
+		slices.Sort(gotIDs)
+		test.AssertSetEQ(gotIDs, wantIDs)
+	}
+
+	i13 := chart.GetObjectByQualifiedID("i13").(*Import)
+	i13.SetEndDate(TimeAt(2026, 1, 10))
+	wantIDs = append(wantIDs, "i13/e0", "i13/a0")
+	{
+		gotIDs := []string{}
+		for _, iobj := range chart.GetAllMajors(false) {
+			gotIDs = append(gotIDs, iobj.GetQualifiedID())
+		}
+		slices.Sort(gotIDs)
+		test.AssertSetEQ(gotIDs, wantIDs)
+	}
+
 	t.Logf("End test.")
 }
 

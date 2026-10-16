@@ -58,8 +58,6 @@ A time object consists of six optional integer-typed fields (`Year`, `Month`, `D
 
 `Timezone` is a TZ identifier or abbreviation defined in the IANA Time Zone database. Although `Timezone` is `"UTC"` by default, if `Timezone` is unspecified, chart readers may assume the time to be the local time of the subject in the context of the enclosing object. `Attrs` is an attribute list. Recognized attributes below:
 
- - `Incremental`: If not the [chart subject](#Subject)'s `StartDate`, the time is incremental to the _containing_ chart's subject's `StartDate`.
- - `Relative`: Within [import objects](#Import), the time is relative to the _imported_ chart's subject's `StartDate`.
  - `Approx`: The time is approximate.
  - `Untracked`: At the boundary of a certain period, the time outside this period is untracked.
  - `Emphasized`: The time should be emphasized.
