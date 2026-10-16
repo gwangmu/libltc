@@ -11,5 +11,5 @@ Sex = "Male"
 
 [[Import]]
 ID = "i0"
-OffsetDate = { Hour = 25 }
+OffsetDate = { Month = 1 }
 Link = "./linked_objs.ltc"

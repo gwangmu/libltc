@@ -705,10 +705,12 @@ func (this *Import) offsetLoadedObjects() (warns warning.Warnings) {
 			return
 		}
 
-		for _, eobj := range this.loadedChart.GetEvents() {
+		evs := slices.Clone(this.loadedChart.GetEvents()) 
+		for _, eobj := range evs {
 			eobj.shiftStartEndDatesRaw(toff)
 		}
-		for _, aobj := range this.loadedChart.GetAnnexs() {
+		ans := slices.Clone(this.loadedChart.GetAnnexs())
+		for _, aobj := range ans {
 			aobj.shiftCreateDateRaw(toff)
 		}
 		// NOTE: nested imported objects must have been included in the objects
