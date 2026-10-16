@@ -218,8 +218,8 @@ func TestLinkedObjectsAcrossImport_Import(t *testing.T) {
 func TestManagedImport_Import(t *testing.T) {
 	test.Initialize(t, "assets")
 
-	t.Logf("Loading 'managed_import.ltc'...")
-	chart, wc := CreateChart("managed_import.ltc")
+	t.Logf("Loading 'start_end_import.ltc'...")
+	chart, wc := CreateChart("start_end_import.ltc")
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Investigating loaded chart...")
@@ -229,6 +229,14 @@ func TestManagedImport_Import(t *testing.T) {
  	wantIDs = append(wantIDs, "i2", "i2/a1", "i2/e1") 
  	wantIDs = append(wantIDs, "i3", "i3/a1", "i3/e1") 
  	wantIDs = append(wantIDs, "i4") 
+ 	wantIDs = append(wantIDs, "i5", "i5/a0", "i5/e0", "i5/a1", "i5/e1")
+ 	wantIDs = append(wantIDs, "i6", "i6/a0", "i6/e0", "i6/a1", "i6/e1")
+ 	wantIDs = append(wantIDs, "i7", "i7/a0", "i7/e0", "i7/a1", "i7/e1") 
+ 	wantIDs = append(wantIDs, "i8", "i8/a0", "i8/a1", "i8/e0") 
+ 	wantIDs = append(wantIDs, "i9", "i9/a0", "i9/e0") 
+ 	wantIDs = append(wantIDs, "i10") 
+ 	wantIDs = append(wantIDs, "i11", "i11/a0", "i11/e0", "i11/a1", "i11/e1") 
+ 	wantIDs = append(wantIDs, "i12", "i12/a0", "i12/e0", "i12/a1", "i12/e1") 
 	{
 		gotIDs := []string{}
 		for _, iobj := range chart.GetAllMajors(false) {

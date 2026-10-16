@@ -33,3 +33,43 @@ Link = "./linked_objs.ltc"
 ID = "i4"
 StartDate = { Year = 2026, Month = 1, Day = 13 }
 Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i5"
+EndDate = { Year = 2026 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i6"
+EndDate = { Year = 2026, Month = 1 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i7"
+EndDate = { Year = 2026, Month = 1, Day = 13 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i8"
+EndDate = { Year = 2026, Month = 1, Day = 12 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i9"
+EndDate = { Year = 2026, Month = 1, Day = 10 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i10"
+EndDate = { Year = 2026, Month = 1, Day = 9 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i11"
+EndDate = {}
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i12"
+StartDate = {}
+Link = "./linked_objs.ltc"

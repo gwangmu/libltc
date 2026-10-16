@@ -600,11 +600,19 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 
 	if o.StartDate != nil {
 		startDate := createTimeFromParsed(o.StartDate, TUK_Start)
+		if startDate.isFloating() {
+			startDate = InfinitePast
+			startDate.SetUsage(TUK_Start)
+		}
 		cimport.mask.startDate = &startDate
 	}
 
 	if o.EndDate != nil {
 		endDate := createTimeFromParsed(o.EndDate, TUK_End)
+		if endDate.isFloating() {
+			endDate = InfiniteFuture
+			endDate.SetUsage(TUK_End)
+		}
 		cimport.mask.endDate = &endDate
 	}
 
