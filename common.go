@@ -157,6 +157,8 @@ func (this Time) GetGOTime() time.Time {
 	case TKValue_Max:
 		// FIXME: currently using the Gragorian calendar max.
 		mc = 12
+	case TKValue_Unknown:
+		fallthrough
 	case TKValue_Min:
 		mc = 1
 	}
@@ -166,6 +168,8 @@ func (this Time) GetGOTime() time.Time {
 	case TKValue_Max:
 		// FIXME: currently using the Gragorian calendar max.
 		dc = time.Date(0, time.Month(mc+1), 0, 0, 0, 0, 0, this.GetTimezone()).Day()
+	case TKValue_Unknown:
+		fallthrough
 	case TKValue_Min:
 		dc = 1
 	}
@@ -174,6 +178,8 @@ func (this Time) GetGOTime() time.Time {
 	switch hc {
 	case TKValue_Max:
 		hc = 23
+	case TKValue_Unknown:
+		fallthrough
 	case TKValue_Min:
 		hc = 0
 	}
@@ -182,6 +188,8 @@ func (this Time) GetGOTime() time.Time {
 	switch mmc {
 	case TKValue_Max:
 		mmc = 59
+	case TKValue_Unknown:
+		fallthrough
 	case TKValue_Min:
 		mmc = 0
 	}
@@ -190,6 +198,8 @@ func (this Time) GetGOTime() time.Time {
 	switch sc {
 	case TKValue_Max:
 		sc = 59
+	case TKValue_Unknown:
+		fallthrough
 	case TKValue_Min:
 		sc = 0
 	}

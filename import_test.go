@@ -1,6 +1,7 @@
 package libltc 
 
 import (
+	"slices"
 	"testing"
 	"github.com/gwangmu/libltc/internal/test"
 )
@@ -210,6 +211,32 @@ func TestLinkedObjectsAcrossImport_Import(t *testing.T) {
 	i1.SetLink("./single_event.ltc")
 	chart.AddObject(i1)
 	test.AssertEQ(a1.AttachTo.Get()[0].(*Event).GetTitle(), "Wherever")
+
+	t.Logf("End test.")
+}
+
+func TestManagedImport_Import(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'managed_import.ltc'...")
+	chart, wc := CreateChart("managed_import.ltc")
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Investigating loaded chart...")
+	wantIDs := []string{}
+ 	wantIDs = append(wantIDs, "i0", "i0/a0", "i0/e0", "i0/a1", "i0/e1")
+	wantIDs = append(wantIDs, "i1", "i1/a0", "i1/e0", "i1/a1", "i1/e1")
+ 	wantIDs = append(wantIDs, "i2", "i2/a1", "i2/e1") 
+ 	wantIDs = append(wantIDs, "i3", "i3/a1", "i3/e1") 
+ 	wantIDs = append(wantIDs, "i4") 
+	{
+		gotIDs := []string{}
+		for _, iobj := range chart.GetAllMajors(false) {
+			gotIDs = append(gotIDs, iobj.GetQualifiedID())
+		}
+		slices.Sort(gotIDs)
+		test.AssertSetEQ(gotIDs, wantIDs)
+	}
 
 	t.Logf("End test.")
 }

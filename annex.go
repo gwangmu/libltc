@@ -236,6 +236,7 @@ func (this *Annex) IsIndirect() bool {
 
 func (this *Annex) SetCreateDate(t Time) {
 	oldCreateDate := this.createDate
+	t.SetUsage(TUK_General)
 	this.createDate = t
 	if !oldCreateDate.Equal(t) && this.chart != nil {
 		this.chart.changeAnnexCreateDate(this)

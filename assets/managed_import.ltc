@@ -1,0 +1,35 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+Sex = "Male"
+
+[[Import]]
+ID = "i0"
+StartDate = { Year = 2026 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i1"
+StartDate = { Year = 2026, Month = 1 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i2"
+StartDate = { Year = 2026, Month = 1, Day = 11 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i3"
+StartDate = { Year = 2026, Month = 1, Day = 12 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i4"
+StartDate = { Year = 2026, Month = 1, Day = 13 }
+Link = "./linked_objs.ltc"
