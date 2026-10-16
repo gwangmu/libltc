@@ -184,10 +184,6 @@ func (this *Import) GetExclCategories() []string {
 	return this.mask.exclCates
 }
 
-func (this *Import) GetImportedChart() *Chart {
-	return this.loadedChart
-}
-
 func (this *Import) GetAllImportedEvents() []*Event {
 	return this.cache.events
 }
@@ -256,6 +252,8 @@ func (this *Import) SetLink(v string) (warns warning.Warnings) {
 	if this.link == v {
 		return
 	}
+
+	this.link = v
 
 	// Unexport itself from the chart.
 	moreWarns = this.unexportMaskedObjects()
@@ -629,7 +627,7 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 	warns.Concat(moreWarns)
 
 	// Eagerly load linked chart.
-	moreWarns = cimport.reloadLink();
+	moreWarns = cimport.reloadLink()
 	warns.Concat(moreWarns)
 	moreWarns = cimport.offsetLoadedObjects()
 	warns.Concat(moreWarns)
@@ -796,6 +794,8 @@ func (this *Import) reloadLink() (warns warning.Warnings) {
 			mobj.setParent(this)
 		}
 	}
+
+	this.loadedChart = chart
 
 	return
 }

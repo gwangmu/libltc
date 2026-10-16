@@ -4,6 +4,7 @@ import (
 	"reflect"
 	"regexp"
 	"runtime"
+	"slices"
 	"strings"
 	"testing"
 	"path/filepath"
@@ -83,6 +84,27 @@ func (_ WarnContains) String() string {
 	return "⊇"
 }
 
+type SetEQ[T comparable] struct {}
+func (_ SetEQ[T]) Test(_got any, _want any) bool {
+	got, gotok := _got.([]T)
+	want, wantok := _want.([]T)
+
+	if !gotok || !wantok || len(got) != len(want) {
+		return false
+	}
+
+	for _, egot := range got {
+		if !slices.Contains(want, egot) {
+			return false
+		}
+	}
+
+	return true
+}
+func (_ SetEQ[T]) String() string {
+	return "≡"
+}
+
 func Assert[Pred IPredicate](got any, want any) {
 	_, fname, fno, ok := runtime.Caller(2)
 	if ok {
@@ -97,6 +119,8 @@ func Assert[Pred IPredicate](got any, want any) {
 		fcg = "q"
 	} else if reflect.ValueOf(got).Kind() == reflect.Ptr {
 		fcg = "p"
+	} else if reflect.ValueOf(got).Kind() == reflect.Slice {
+		fcg = "v"
 	}
 
 	fcw := "#v"
@@ -104,6 +128,8 @@ func Assert[Pred IPredicate](got any, want any) {
 		fcw = "q"
 	} else if reflect.ValueOf(want).Kind() == reflect.Ptr {
 		fcw = "p"
+	} else if reflect.ValueOf(got).Kind() == reflect.Slice {
+		fcw = "v"
 	}
 
 	var pred Pred
@@ -128,6 +154,10 @@ func AssertContains(got string, want string) {
 
 func AssertWarnContains(gotw warning.Warnings, want string) {
 	Assert[WarnContains](gotw, want)
+}
+
+func AssertSetEQ[T comparable](got []T, want []T) {
+	Assert[SetEQ[T]](got, want)
 }
 
 func PrintAllWarnings(warns warning.Warnings) {
