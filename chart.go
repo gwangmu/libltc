@@ -567,14 +567,20 @@ func createChartFromParsed(o *file.File) (*Chart, warning.Warnings) {
 	// Diagnose main objects. (non-local: comfirmed after adding to chart)
 	for _, cevs := range chart.events {
 		for _, cevent := range cevs {
-			warns.Concat(cevent.DiagnoseNonLocal())
+			if cevent.parent == nil {
+				warns.Concat(cevent.DiagnoseNonLocal())
+			}
 		}
 	}
 	for _, cannex := range chart.annexs {
-		warns.Concat(cannex.DiagnoseNonLocal())
+		if cannex.parent == nil {
+			warns.Concat(cannex.DiagnoseNonLocal())
+		}
 	}
 	for _, cimport := range chart.imports {
-		warns.Concat(cimport.DiagnoseNonLocal())
+		if cimport.parent == nil {
+			warns.Concat(cimport.DiagnoseNonLocal())
+		}
 	}
 
 	return chart, warns

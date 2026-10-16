@@ -1,0 +1,29 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+Sex = "Male"
+
+[[Event]]
+ID = "e0"
+Title = "Event0"
+StartDate = { Year = 2026, Month = 1, Day = 10 }
+EndDate = { Year = 2026, Month = 1, Day = 10 }
+Attrs = [ "ContinuedFrom:i0/e1" ]
+
+[[Annex]]
+ID = "a0"
+Title = "Annex0"
+CreateDate = { Year = 2026, Month = 1, Day = 10 }
+Attrs = [ "AttachTo:i0/i0" ]
+
+[[Annex]]
+ID = "a1"
+Title = "Annex1"
+CreateDate = { Year = 2026, Month = 1, Day = 12 }
+Attrs = [ "ExtraNoteOf:e0", "ExtraNoteOf:a2" ]

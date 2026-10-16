@@ -126,7 +126,8 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 
 	// Check duplicate ID.
 	for _, aobj := range this.chart.GetAnnexs() {
-		if aobj != this && aobj.numID == this.numID {
+		// Only check against the object on the same import level.
+		if aobj != this && aobj.parent == this.parent && aobj.numID == this.numID {
 			this.AddAttr("OldID", this.GetIntrinsicID())
 			newNumID := this.chart.getNextNumberID(MOK_Annex)
 			this.numID = newNumID
@@ -371,7 +372,11 @@ func CreateEmptyAnnex() *Annex {
 //-- method (util)
 
 func (this *Annex) shiftCreateDateRaw(t Time) {
+	oldCreateDate := this.GetCreateDate()
 	this.createDate = this.createDate.Add(t)
+	if !oldCreateDate.Equal(t) && this.chart != nil {
+		this.chart.changeAnnexCreateDate(this)
+	}
 }
 
 //-- method (private)

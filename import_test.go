@@ -99,3 +99,23 @@ func TestSingleImport_Import(t *testing.T) {
 
 	t.Logf("End test.")
 }
+
+func TestNestedImport_Import(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'nested_import.ltc'...")
+	chart, wc := CreateChart("nested_import.ltc")
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Investigating loaded chart...")
+	{
+		gotIDs := []string{}
+		wantIDs := []string{ "i0", "i0/i0", "i0/i0/e0" }
+		for _, iobj := range chart.GetAllMajors(false) {
+			gotIDs = append(gotIDs, iobj.GetQualifiedID())
+		}
+		test.AssertSetEQ(gotIDs, wantIDs)
+	}
+
+	t.Logf("End test.")
+}

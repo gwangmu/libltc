@@ -134,7 +134,8 @@ func (this *Import) DiagnoseNonLocal() (warns warning.Warnings) {
 
 	// Check duplicate ID.
 	for _, iobj := range this.chart.GetImports() {
-		if iobj != this && iobj.numID == this.numID {
+		// Only check against the object on the same import level.
+		if iobj != this && iobj.parent == this.parent && iobj.numID == this.numID {
 			this.AddAttr("OldID", this.GetIntrinsicID())
 			newNumID := this.chart.getNextNumberID(MOK_Import)
 			this.numID = newNumID

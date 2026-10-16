@@ -156,7 +156,8 @@ func (this *Event) DiagnoseNonLocal() (warns warning.Warnings) {
 	// Check duplicate ID.
 	for _, category := range this.chart.GetEventCategories() {
 		for _, eobj := range this.chart.GetEventsInCategory(category) {
-			if eobj != this && eobj.numID == this.numID {
+			// Only check against the object on the same import level.
+			if eobj != this && eobj.parent == this.parent && eobj.numID == this.numID {
 				this.AddAttr("OldID", this.GetIntrinsicID())
 				newNumID := this.chart.getNextNumberID(MOK_Event)
 				this.numID = newNumID
@@ -554,6 +555,8 @@ func (this *Event) isEmbeddedChartLoaded() bool {
 }
 
 func (this *Event) shiftStartEndDatesRaw(t Time) {
+	oldStartDate := this.GetStartDate()
+
 	nts := this.GetStartDate().Add(t)
 	this.localStartDate = nil
 	if !this.GetStartDate().Equal(nts) {
@@ -565,6 +568,11 @@ func (this *Event) shiftStartEndDatesRaw(t Time) {
 	if !this.GetEndDate().Equal(nte) {
 		this.localEndDate = &nte
 	}
+
+    // Notify chart if 'StartDate' was changed.
+    if !oldStartDate.Equal(this.GetStartDate()) && this.chart != nil {
+        this.chart.changeEventStartDate(this)
+    }
 }
 
 // Ensure that both start and end are either floating or non-floating at the same time.
