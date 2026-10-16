@@ -567,9 +567,18 @@ func (this Time) IsAmbiguous() bool {
 // Limitation 3: Adding infinity or adding to infinity result in infinity.
 // Adding infinite future to infinite past is undefined.
 // Hyperreal-style infinity sum is maybe useful, but it's also future work.
-// The returning time's usage follows that of LHS (i.e., 'this').
+// Adding actually takes place for two general times, but the end result will
+// follow the usage of 'this'.
 func (this Time) Add(that Time) Time {
-	_, negate := that.Attrs["Negative"]
+	_, nonegate := that.Attrs["Negative"]
+	negate := !nonegate
+
+	orgUsage := this.GetUsage()
+	this.SetUsage(TUK_General)
+	that.SetUsage(TUK_General)
+
+	fmt.Println(this.String())
+	fmt.Println(that.String())
 
 	infPastThat := false
 	infFutureThat := false
@@ -596,33 +605,86 @@ func (this Time) Add(that Time) Time {
 	} else {
 		that.SetUsage(TUK_General)
 		that.SetTimezone(nil)
-		
-		// Convert them to GO times.
-		got1 := this.GetGOTime()
-		got2 := that.GetGOTime()
 
-		// Add years, months, and days.
-		// Those are too big, so they may cause an overflow.
-		got2y, got2m, got2d := got2.Year(), int(got2.Month()), got2.Day()
-		if negate {
-			got2y, got2m, got2d = -got2y, -got2m, -got2d
+		ret := CreateEmptyTime(TUK_General)
+		ret.Attrs = this.Attrs
+		ret.timezone = this.timezone
+
+		ntc_s, ntv_s, tset_s := sumTimeValues(this.GetSecond(), that.GetSecond(), 0, 60)
+		if tset_s {
+			ret.SetSecond(ntv_s)
 		}
-		got1.AddDate(got2y, got2m, got2d)
-
-		// Add smaller bits using duration.
-		got2 = time.Date(got1.Year(), got1.Month(), got1.Day(),
-			got2.Hour(), got2.Minute(), got2.Second(), 0, got1.Location())
-		dur := got2.Sub(got1)
-		if negate {
-			dur = -dur
+		ntc_m, ntv_m, tset_m := sumTimeValues(this.GetMinute(), that.GetMinute(), ntc_s, 60)
+		if tset_m {
+			ret.SetMinute(ntv_m)
 		}
-		got1 = got1.Add(dur)
+		ntc_h, ntv_h, tset_h := sumTimeValues(this.GetHour(), that.GetHour(), ntc_m, 24)
+		if tset_h {
+			ret.SetHour(ntv_h)
+		}
+		ntc_d, ntv_d, tset_d := sumTimeValues(this.GetDay(), that.GetDay(), ntc_h, 31)
+		if tset_d {
+			ret.SetDay(ntv_d)
+		}
+		ntc_M, ntv_M, tset_M := sumTimeValues(this.GetMonth(), that.GetMonth(), ntc_d, 12)
+		if tset_M {
+			ret.SetMonth(ntv_M)
+		}
+		_, ntv_y, tset_y := sumTimeValues(this.GetYear(), that.GetYear(), ntc_M, TKValue_Max)
+		if tset_y {
+			ret.SetYear(ntv_y)
+		}
 
-		// Convert back to LTC time.
-		ret := this
-		ret.SetGOTime(got1, true)
+		if ret.GetDay() != TKValue_Unknown {
+			for {
+				lastdayofmonth := time.Date(0, time.Month(ret.GetMonth()+1), 0, 0, 0, 0, 0, this.GetTimezone()).Day()
+				if ret.GetDay() > lastdayofmonth {
+					if ret.GetMonth() == TKValue_Unknown {
+						ret.SetMonth(0)
+					}
+					ret.SetMonth(ret.GetMonth() + 1)
+					ret.SetDay(ret.GetDay() - lastdayofmonth)
+				} else {
+					break
+				}
+			}
+		}
+
+		if ret.GetMonth() != TKValue_Unknown {
+			for {
+				if ret.GetMonth() > 12 {
+					if ret.GetYear() == TKValue_Unknown {
+						ret.SetYear(0)
+					}
+					ret.SetYear(ret.GetYear() + 1)
+					ret.SetMonth(ret.GetMonth() - 12)
+				} else {
+					break
+				}
+			}
+		}
+
+		ret.usage = orgUsage
+		fmt.Println(ret.String())
 		return ret
 	}	
+}
+
+func sumTimeValues(tv1 int, tv2 int, tc int, tmax int) (ntc int, ntv int, tset bool) {
+	if tc != 0 || tv1 != TKValue_Unknown || tv2 != TKValue_Unknown {
+		if tv1 == TKValue_Unknown {
+			tv1 = 0
+		}
+		if tv2 == TKValue_Unknown {
+			tv2 = 0
+		}
+		tvsum := tv1 + tv2 + tc
+		ntc, ntv = tvsum / tmax, tvsum % tmax 
+		if tv1 != TKValue_Unknown && ntv != 0 {
+			tset = true
+		}
+	}
+	return
 }
 
 func (this Time) Sub(that Time) Time {

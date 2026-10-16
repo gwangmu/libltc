@@ -279,4 +279,15 @@ func TestImportStartEndDates_Import(t *testing.T) {
 	t.Logf("End test.")
 }
 
-// TODO: offset
+func TestImportOffsetDate_Import(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'offset_import.ltc'...")
+	chart, wc := CreateChart("offset_import.ltc")
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Investigating loaded chart...")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i0/e0").(*Event).GetStartDate().String(), "2026-02-10")
+
+	t.Logf("End test.")
+}
