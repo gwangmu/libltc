@@ -20,14 +20,14 @@ Attrs = [ "ContinuedFrom:i0/e1" ]
 ID = "a0"
 Title = "Annex0"
 CreateDate = { Year = 2026, Month = 1, Day = 10 }
-Attrs = [ "AttachTo:i0/i0" ]
+Attrs = [ "AttachTo:i0/i0/i0", "AttachTo:i1/e0" ]
 
 [[Annex]]
 ID = "a1"
 Title = "Annex1"
 CreateDate = { Year = 2026, Month = 1, Day = 12 }
-Attrs = [ "ExtraNoteOf:e0", "ExtraNoteOf:a2" ]
+Attrs = [ "ExtraNoteOf:e0", "ExtraNoteOf:i0/i0/i0/e0" ]
 
 [[Import]]
 ID = "i0"
-Link
+Link = "./nested_import.ltc"

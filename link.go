@@ -1,5 +1,7 @@
 package libltc 
 
+import "fmt"
+
 // endpoints are the "endpoints" of links. Each main object should include it
 // with an appropriate field name.
 

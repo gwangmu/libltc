@@ -415,36 +415,39 @@ func (this *Chart) RemoveObject(obj IMajor) {
 	case MOK_Event:
 		eobj, _ := obj.(*Event)
 
-		// Dissociate 'obj' to this chart.
-		obj.setChart(nil)
-		obj.setNumberID(mNID_Unassigned)
+		// Unresolve references.
+		this.unresolveReferenceTo(eobj)
+		eobj.unresolveReferenceTo(this)
 
 		// Remove 'obj' from the slice.
 		category := eobj.GetCategory()
 		this.events[category] = removeMajorFromSlice[Event](this.events[category], eobj)
 
-		// Unresolve references.
-		this.unresolveReferenceTo(eobj)
-		eobj.unresolveReferenceTo(this)
-	case MOK_Annex:
-		aobj, _ := obj.(*Annex)
-
 		// Dissociate 'obj' to this chart.
 		obj.setChart(nil)
 		obj.setNumberID(mNID_Unassigned)
-
-		// Remove 'obj' from the slice.
-		this.annexs = removeMajorFromSlice[Annex](this.annexs, aobj)
+	case MOK_Annex:
+		aobj, _ := obj.(*Annex)
 
 		// Unresolve references.
 		this.unresolveReferenceTo(aobj)
 		aobj.unresolveReferenceTo(this)
-	case MOK_Import:
-		iobj, _ := obj.(*Import)
+
+		// Remove 'obj' from the slice.
+		this.annexs = removeMajorFromSlice[Annex](this.annexs, aobj)
 
 		// Dissociate 'obj' to this chart.
 		obj.setChart(nil)
 		obj.setNumberID(mNID_Unassigned)
+	case MOK_Import:
+		iobj, _ := obj.(*Import)
+
+		// Recursively remove imported objects.
+		this.removeImportedObjects(iobj)
+
+		// Unresolve references.
+		this.unresolveReferenceTo(iobj)
+		iobj.unresolveReferenceTo(this)
 
 		// Remove 'obj' from the slice.
 		this.imports = removeMajorFromSlice[Import](this.imports, iobj)
@@ -459,12 +462,9 @@ func (this *Chart) RemoveObject(obj IMajor) {
 			this.imports = removeMajorFromSlice[Import](this.imports, iiobj)
 		}
 
-		// Unresolve references.
-		this.unresolveReferenceTo(iobj)
-		iobj.unresolveReferenceTo(this)
-
-		// Recursively remove imported objects.
-		this.removeImportedObjects(iobj)
+		// Dissociate 'obj' to this chart.
+		obj.setChart(nil)
+		obj.setNumberID(mNID_Unassigned)
 	}
 }
 

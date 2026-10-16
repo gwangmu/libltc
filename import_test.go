@@ -167,3 +167,44 @@ func TestNestedImport_Import(t *testing.T) {
 
 	t.Logf("End test.")
 }
+
+func TestLinkedObjectsAcrossImport_Import(t *testing.T) {
+	test.Initialize(t, "assets")
+
+	t.Logf("Loading 'linked_objs_2.ltc'...")
+	chart, wc := CreateChart("linked_objs_2.ltc")
+	test.PrintAllWarnings(wc)
+
+	t.Logf("Investigating loaded chart...")
+	e0 := chart.GetObjectByQualifiedID("e0").(*Event)
+	test.AssertEQ(e0.ContinuedFrom.Get()[0].GetTitle(), "Event1")
+	test.AssertEQ(e0.ContinuedFrom.Get()[0].GetQualifiedID(), "i0/e1")
+
+	a0 := chart.GetObjectByQualifiedID("a0").(*Annex)
+	test.AssertEQ(a0.AttachTo.Get()[0].(*Import).GetLink(), "./single_event.ltc")
+	test.AssertEQ(a0.AttachTo.Get()[0].GetQualifiedID(), "i0/i0/i0")
+
+	a1 := chart.GetObjectByQualifiedID("a1").(*Annex)
+	test.AssertEQ(a1.ExtraNoteOf.Get()[0].(*Event).GetTitle(), "Event0")
+	test.AssertEQ(a1.ExtraNoteOf.Get()[1].(*Event).GetTitle(), "Wherever")
+	test.AssertEQ(a1.ExtraNoteOf.Get()[1].GetQualifiedID(), "i0/i0/i0/e0")
+
+	t.Logf("Adding import './single_event.ltc'...")
+	i1 := CreateEmptyImport()
+	i1.SetLink("./single_event.ltc")
+	chart.AddObject(i1)
+	test.AssertEQ(a0.AttachTo.Get()[1].IsUnresolved(), false)
+	test.AssertEQ(a0.AttachTo.Get()[1].(*Event).GetTitle(), "Wherever")
+
+	t.Logf("Creating link to import (then removing import)...")
+	a1.AttachTo.Link(chart.GetObjectByQualifiedID("i1/e0"), true)
+	test.AssertEQ(len(a1.AttachTo.Get()), 1)
+	test.AssertEQ(a1.AttachTo.Get()[0].(*Event).GetTitle(), "Wherever")
+
+	chart.RemoveObject(i1)
+	test.AssertEQ(len(a1.AttachTo.Get()), 1)
+	test.AssertEQ(a1.AttachTo.Get()[0].IsUnresolved(), true)
+	test.AssertEQ(a1.AttachTo.Get()[0].GetQualifiedID(), "i1/e0")
+
+	t.Logf("End test.")
+}
