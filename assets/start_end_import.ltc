@@ -73,3 +73,21 @@ Link = "./linked_objs.ltc"
 ID = "i12"
 StartDate = {}
 Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i13"
+StartDate = { Year = 2026, Month = 1, Day = 12 }
+EndDate = { Year = 2026, Month = 1, Day = 12 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i14"
+StartDate = { Year = 2026, Month = 1, Day = 10 }
+EndDate = { Year = 2026, Month = 1, Day = 12 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i15"
+StartDate = { Year = 2026, Month = 1, Day = 12 }
+EndDate = { Year = 2026, Month = 1, Day = 10 }
+Link = "./linked_objs.ltc"

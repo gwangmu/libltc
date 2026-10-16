@@ -215,7 +215,7 @@ func TestLinkedObjectsAcrossImport_Import(t *testing.T) {
 	t.Logf("End test.")
 }
 
-func TestManagedImport_Import(t *testing.T) {
+func TestImportStartEndDates_Import(t *testing.T) {
 	test.Initialize(t, "assets")
 
 	t.Logf("Loading 'start_end_import.ltc'...")
@@ -223,6 +223,7 @@ func TestManagedImport_Import(t *testing.T) {
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Investigating loaded chart...")
+	test.AssertWarnContains(wc, "inverted")
 	wantIDs := []string{}
  	wantIDs = append(wantIDs, "i0", "i0/a0", "i0/e0", "i0/a1", "i0/e1")
 	wantIDs = append(wantIDs, "i1", "i1/a0", "i1/e0", "i1/a1", "i1/e1")
@@ -237,6 +238,9 @@ func TestManagedImport_Import(t *testing.T) {
  	wantIDs = append(wantIDs, "i10") 
  	wantIDs = append(wantIDs, "i11", "i11/a0", "i11/e0", "i11/a1", "i11/e1") 
  	wantIDs = append(wantIDs, "i12", "i12/a0", "i12/e0", "i12/a1", "i12/e1") 
+ 	wantIDs = append(wantIDs, "i13", "i13/a1") 
+ 	wantIDs = append(wantIDs, "i14", "i14/a0", "i14/a1", "i14/e0") 
+ 	wantIDs = append(wantIDs, "i15", "i15/a0", "i15/a1", "i15/e0") 
 	{
 		gotIDs := []string{}
 		for _, iobj := range chart.GetAllMajors(false) {
