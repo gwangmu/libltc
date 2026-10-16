@@ -27,3 +27,7 @@ ID = "a1"
 Title = "Annex1"
 CreateDate = { Year = 2026, Month = 1, Day = 12 }
 Attrs = [ "ExtraNoteOf:e0", "ExtraNoteOf:a2" ]
+
+[[Import]]
+ID = "i0"
+Link

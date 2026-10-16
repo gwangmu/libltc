@@ -110,51 +110,55 @@ func TestNestedImport_Import(t *testing.T) {
 	t.Logf("Investigating loaded chart...")
 	{
 		gotIDs := []string{}
-		wantIDs := []string{ "i0", "i0/i0", "i0/i0/e0" }
+		wantIDs := []string{ "e0", "e1", "i0", "i0/i0", "i0/i0/e0" }
 		for _, iobj := range chart.GetAllMajors(false) {
 			gotIDs = append(gotIDs, iobj.GetQualifiedID())
 		}
 		test.AssertSetEQ(gotIDs, wantIDs)
 	}
 
+	t.Logf("Adding import './single_import.ltc'...")
 	i1 := CreateEmptyImport()
 	i1.SetLink("./single_import.ltc")
 	chart.AddObject(i1)
 	{
 		gotIDs := []string{}
-		wantIDs := []string{ "i0", "i0/i0", "i0/i0/e0", "i1", "i1/i0", "i1/i0/e0" }
+		wantIDs := []string{ "e0", "e1", "i0", "i0/i0", "i0/i0/e0", "i1", "i1/i0", "i1/i0/e0" }
 		for _, iobj := range chart.GetAllMajors(false) {
 			gotIDs = append(gotIDs, iobj.GetQualifiedID())
 		}
 		test.AssertSetEQ(gotIDs, wantIDs)
 	}
 
+	t.Logf("Adding import './nested_import.ltc'...")
 	i2 := CreateEmptyImport()
 	i2.SetLink("./nested_import.ltc")
 	chart.AddObject(i2)
 	{
 		gotIDs := []string{}
-		wantIDs := []string{ "i0", "i0/i0", "i0/i0/e0", "i1", "i1/i0", "i1/i0/e0", "i2", "i2/i0", "i2/i0/i0", "i2/i0/i0/e0" }
+		wantIDs := []string{ "e0", "e1", "i0", "i0/i0", "i0/i0/e0", "i1", "i1/i0", "i1/i0/e0", "i2", "i2/e0", "i2/e1", "i2/i0", "i2/i0/i0", "i2/i0/i0/e0" }
 		for _, iobj := range chart.GetAllMajors(false) {
 			gotIDs = append(gotIDs, iobj.GetQualifiedID())
 		}
 		test.AssertSetEQ(gotIDs, wantIDs)
 	}
 
+	t.Logf("Changing import from './nested_import.ltc' to './single_event.ltc...")
 	i2.SetLink("./single_event.ltc")
 	{
 		gotIDs := []string{}
-		wantIDs := []string{ "i0", "i0/i0", "i0/i0/e0", "i1", "i1/i0", "i1/i0/e0", "i2", "i2/e0" }
+		wantIDs := []string{ "e0", "e1", "i0", "i0/i0", "i0/i0/e0", "i1", "i1/i0", "i1/i0/e0", "i2", "i2/e0" }
 		for _, iobj := range chart.GetAllMajors(false) {
 			gotIDs = append(gotIDs, iobj.GetQualifiedID())
 		}
 		test.AssertSetEQ(gotIDs, wantIDs)
 	}
 
+	t.Logf("Removing import './single_import.ltc'...")
 	chart.RemoveObject(i1)
 	{
 		gotIDs := []string{}
-		wantIDs := []string{ "i0", "i0/i0", "i0/i0/e0", "i2", "i2/e0" }
+		wantIDs := []string{ "e0", "e1", "i0", "i0/i0", "i0/i0/e0", "i2", "i2/e0" }
 		for _, iobj := range chart.GetAllMajors(false) {
 			gotIDs = append(gotIDs, iobj.GetQualifiedID())
 		}
