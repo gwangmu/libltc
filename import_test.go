@@ -196,7 +196,7 @@ func TestLinkedObjectsAcrossImport_Import(t *testing.T) {
 	test.AssertEQ(a0.AttachTo.Get()[1].IsUnresolved(), false)
 	test.AssertEQ(a0.AttachTo.Get()[1].(*Event).GetTitle(), "Wherever")
 
-	t.Logf("Creating link to import (then removing import)...")
+	t.Logf("Creating link to import (then removing and re-adding import)...")
 	a1.AttachTo.Link(chart.GetObjectByQualifiedID("i1/e0"), true)
 	test.AssertEQ(len(a1.AttachTo.Get()), 1)
 	test.AssertEQ(a1.AttachTo.Get()[0].(*Event).GetTitle(), "Wherever")
@@ -205,6 +205,11 @@ func TestLinkedObjectsAcrossImport_Import(t *testing.T) {
 	test.AssertEQ(len(a1.AttachTo.Get()), 1)
 	test.AssertEQ(a1.AttachTo.Get()[0].IsUnresolved(), true)
 	test.AssertEQ(a1.AttachTo.Get()[0].GetQualifiedID(), "i1/e0")
+
+	i1 = CreateEmptyImport()
+	i1.SetLink("./single_event.ltc")
+	chart.AddObject(i1)
+	test.AssertEQ(a1.AttachTo.Get()[0].(*Event).GetTitle(), "Wherever")
 
 	t.Logf("End test.")
 }
