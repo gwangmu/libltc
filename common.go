@@ -573,7 +573,6 @@ func (this Time) Add(that Time) Time {
 	negate := !nonegate
 
 	orgUsage := this.GetUsage()
-	this.SetUsage(TUK_General)
 	that.SetUsage(TUK_General)
 	that.SetTimezone(nil)
 
@@ -665,15 +664,14 @@ func (this Time) Add(that Time) Time {
 
 func sumTimeValues(tv1 int, tv2 int, tc int, tmax int) (ntc int, ntv int, tset bool) {
 	if tc != 0 || tv1 != TKValue_Unknown || tv2 != TKValue_Unknown {
-		if tv1 == TKValue_Unknown {
-			tv1 = 0
-		}
-		if tv2 == TKValue_Unknown {
-			tv2 = 0
-		}
-		tvsum := tv1 + tv2 + tc
-		ntc, ntv = tvsum / tmax, tvsum % tmax 
-		if tv1 != TKValue_Unknown && ntv != 0 {
+		ctv1 := max(min(tv1, tmax-1), 0)
+		ctv2 := max(min(tv2, tmax-1), 0)
+
+		ctvsum := ctv1 + ctv2 + tc
+		ntc, ntv = ctvsum / tmax, ctvsum % tmax 
+		fmt.Printf("%d --> %d, %d --> %d : %d, %d\n", tv1, ctv1, tv2, ctv2, ntc, ntv)
+		if !(tv1 == TKValue_Max && ntv == tmax-1) && 
+			!(tv1 != TKValue_Max && ntv == 0) {
 			tset = true
 		}
 	}

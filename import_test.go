@@ -287,7 +287,7 @@ func TestImportOffsetDate_Import(t *testing.T) {
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Investigating loaded chart...")
-	test.AssertEQ(chart.GetObjectByQualifiedID("i0/e0").(*Event).GetStartDate().String(), "2026-02-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i0/e0").(*Event).GetEndDate().String(), "2026-02-10")
 	test.AssertEQ(chart.GetObjectByQualifiedID("i0/a0").(*Annex).GetCreateDate().String(), "2026-02-10")
 
 	t.Logf("End test.")

@@ -563,7 +563,7 @@ func (this *Event) shiftStartEndDatesRaw(t Time) {
 		this.localStartDate = &nts
 	}
 	
-	nte := this.GetEndDate()
+	nte := this.GetEndDate().Add(t)
 	this.localEndDate = nil
 	if !this.GetEndDate().Equal(nte) {
 		this.localEndDate = &nte
