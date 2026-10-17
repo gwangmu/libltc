@@ -276,14 +276,14 @@ func (this *Annex) Diagnose() warning.Warnings {
 //-- struct Import
 
 type Import struct {
-	ID string				`toml:"ID"`
-	Link string 			`toml:"Link"`
-	StartDate *Time			`toml:"StartDate,omitempty"`
-	EndDate *Time			`toml:"EndDate,omitempty"`
-	OffsetDate *Time		`toml:"OffsetDate,omitempty"`
-	Categories *[]string	`toml:"Categories,omitempty"`
-	Note string				`toml:"Note,omitempty"`
-	Attrs []string			`toml:"Attrs,omitempty"`
+	ID string					`toml:"ID"`
+	Link string 				`toml:"Link"`
+	MaskStartDate *Time			`toml:"MaskStartDate,omitempty"`
+	MaskEndDate *Time			`toml:"MaskEndDate,omitempty"`
+	MaskCategories *[]string	`toml:"MaskCategories,omitempty"`
+	OffsetDate *Time			`toml:"OffsetDate,omitempty"`
+	Note string					`toml:"Note,omitempty"`
+	Attrs []string				`toml:"Attrs,omitempty"`
 }
 
 //-- struct Import: interface IWarningObj
@@ -293,8 +293,8 @@ func (this Import) Summary() (ret string) {
 
 	extraStr := warning.BuildSummaryString(
 		wse{"ID", this.ID},
-		wse{"From", this.StartDate},
-		wse{"To", this.EndDate},
+		wse{"From", this.MaskStartDate},
+		wse{"To", this.MaskEndDate},
 		wse{"Offset", this.OffsetDate},
 	)
 	if (len(extraStr) > 0) {
@@ -305,8 +305,8 @@ func (this Import) Summary() (ret string) {
 }
 
 func (this Import) IsUnknown() bool {
-	return this.Link == "" && this.StartDate == nil &&
-			this.EndDate == nil && this.OffsetDate == nil
+	return this.Link == "" && this.MaskStartDate == nil &&
+			this.MaskEndDate == nil && this.OffsetDate == nil
 }
 
 //-- struct Import: interface IDiagnosable

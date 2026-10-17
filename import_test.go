@@ -254,7 +254,7 @@ func TestImportStartEndDates_Import(t *testing.T) {
 
 	t.Logf("Adjusting import start/end...")
 	i14 := chart.GetObjectByQualifiedID("i14").(*Import)
-	i14.SetEndDate(TimeAt(2026, 1, 11))
+	i14.SetMaskEndDate(TimeAt(2026, 1, 11))
 	idx := slices.Index(wantIDs, "i14/a1")
 	wantIDs = append(wantIDs[:idx], wantIDs[idx+1:]...)
 	{
@@ -267,7 +267,7 @@ func TestImportStartEndDates_Import(t *testing.T) {
 	}
 
 	i13 := chart.GetObjectByQualifiedID("i13").(*Import)
-	i13.SetEndDate(TimeAt(2026, 1, 10))
+	i13.SetMaskEndDate(TimeAt(2026, 1, 10))
 	wantIDs = append(wantIDs, "i13/e0", "i13/a0")
 	{
 		gotIDs := []string{}

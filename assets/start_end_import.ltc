@@ -11,83 +11,83 @@ Sex = "Male"
 
 [[Import]]
 ID = "i0"
-StartDate = { Year = 2026 }
+MaskStartDate = { Year = 2026 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i1"
-StartDate = { Year = 2026, Month = 1 }
+MaskStartDate = { Year = 2026, Month = 1 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i2"
-StartDate = { Year = 2026, Month = 1, Day = 11 }
+MaskStartDate = { Year = 2026, Month = 1, Day = 11 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i3"
-StartDate = { Year = 2026, Month = 1, Day = 12 }
+MaskStartDate = { Year = 2026, Month = 1, Day = 12 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i4"
-StartDate = { Year = 2026, Month = 1, Day = 13 }
+MaskStartDate = { Year = 2026, Month = 1, Day = 13 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i5"
-EndDate = { Year = 2026 }
+MaskEndDate = { Year = 2026 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i6"
-EndDate = { Year = 2026, Month = 1 }
+MaskEndDate = { Year = 2026, Month = 1 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i7"
-EndDate = { Year = 2026, Month = 1, Day = 13 }
+MaskEndDate = { Year = 2026, Month = 1, Day = 13 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i8"
-EndDate = { Year = 2026, Month = 1, Day = 12 }
+MaskEndDate = { Year = 2026, Month = 1, Day = 12 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i9"
-EndDate = { Year = 2026, Month = 1, Day = 10 }
+MaskEndDate = { Year = 2026, Month = 1, Day = 10 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i10"
-EndDate = { Year = 2026, Month = 1, Day = 9 }
+MaskEndDate = { Year = 2026, Month = 1, Day = 9 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i11"
-EndDate = {}
+MaskEndDate = {}
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i12"
-StartDate = {}
+MaskStartDate = {}
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i13"
-StartDate = { Year = 2026, Month = 1, Day = 12 }
-EndDate = { Year = 2026, Month = 1, Day = 12 }
+MaskStartDate = { Year = 2026, Month = 1, Day = 12 }
+MaskEndDate = { Year = 2026, Month = 1, Day = 12 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i14"
-StartDate = { Year = 2026, Month = 1, Day = 10 }
-EndDate = { Year = 2026, Month = 1, Day = 12 }
+MaskStartDate = { Year = 2026, Month = 1, Day = 10 }
+MaskEndDate = { Year = 2026, Month = 1, Day = 12 }
 Link = "./linked_objs.ltc"
 
 [[Import]]
 ID = "i15"
-StartDate = { Year = 2026, Month = 1, Day = 12 }
-EndDate = { Year = 2026, Month = 1, Day = 10 }
+MaskStartDate = { Year = 2026, Month = 1, Day = 12 }
+MaskEndDate = { Year = 2026, Month = 1, Day = 10 }
 Link = "./linked_objs.ltc"

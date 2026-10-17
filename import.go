@@ -73,8 +73,8 @@ func (this *Import) Summary() (ret string) {
 			wse{"ID", this.GetIntrinsicID()},
 			wse{"OldID", maybeOldID},
 			wse{"Link", this.GetLink()},
-			wse{"Started", this.GetStartDate()}, 
-			wse{"Ended", this.GetEndDate()},
+			wse{"Started", this.GetMaskStartDate()}, 
+			wse{"Ended", this.GetMaskEndDate()},
 			wse{"Offset", this.GetOffsetDate()},
 		)
 	}
@@ -86,18 +86,18 @@ func (this *Import) Summary() (ret string) {
 }
 
 func (this Import) IsUnknown() bool {
-	return this.GetIntrinsicID() == "" && this.GetStartDate().IsUnknown() &&
-		this.GetEndDate().IsUnknown() && this.GetOffsetDate().IsUnknown() &&
+	return this.GetIntrinsicID() == "" && this.GetMaskStartDate().IsUnknown() &&
+		this.GetMaskEndDate().IsUnknown() && this.GetOffsetDate().IsUnknown() &&
 		this.GetLink() == ""
 }
 
 //-- interface IDiagnosable
 
 func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
-	if this.GetStartDate().IsInfiniteFuture() && this.GetEndDate().IsFloating() {
-		this.SetEndDate(InfiniteFuture)
-	} else if this.GetEndDate().IsInfinitePast() && this.GetStartDate().IsFloating() {
-		this.SetStartDate(InfinitePast)
+	if this.GetMaskStartDate().IsInfiniteFuture() && this.GetMaskEndDate().IsFloating() {
+		this.SetMaskEndDate(InfiniteFuture)
+	} else if this.GetMaskEndDate().IsInfinitePast() && this.GetMaskStartDate().IsFloating() {
+		this.SetMaskStartDate(InfinitePast)
 	}
 
 	if this.offsetDate != nil {
@@ -108,7 +108,7 @@ func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
 		}
 	}
        
-	amb, inv := this.correctStartEndDateMasks(this.GetStartDate())
+	amb, inv := this.correctStartEndDateMasks(this.GetMaskStartDate())
 	if amb {
         warns.Add("@0@ had an ambiguous date. corrected.", this)
     }
@@ -153,7 +153,7 @@ func (this *Import) GetLink() string {
 	return this.link
 }
 
-func (this *Import) GetStartDate() Time {
+func (this *Import) GetMaskStartDate() Time {
 	if this.mask.startDate != nil {
 		return this.mask.startDate.Clone()
 	} else {
@@ -161,7 +161,7 @@ func (this *Import) GetStartDate() Time {
 	}
 }
 
-func (this *Import) GetEndDate() Time {
+func (this *Import) GetMaskEndDate() Time {
 	if this.mask.endDate != nil {
 		return this.mask.endDate.Clone()
 	} else {
@@ -275,7 +275,7 @@ func (this *Import) SetLink(v string) (warns warning.Warnings) {
 	return
 }
 
-func (this *Import) SetStartDate(t Time) (warns warning.Warnings) {
+func (this *Import) SetMaskStartDate(t Time) (warns warning.Warnings) {
 	var moreWarns warning.Warnings
 
 	if this.mask.startDate != nil && this.mask.startDate.Equal(t) {
@@ -287,11 +287,11 @@ func (this *Import) SetStartDate(t Time) (warns warning.Warnings) {
 	warns.Concat(moreWarns)
 
 	// Update `startDate` to 't' (fix order, etc).
-	oldStartDate := this.GetStartDate()
+	oldMaskStartDate := this.GetMaskStartDate()
 	t.SetUsage(TUK_Start)
     this.mask.startDate = &t
 	this.sanitizeStartEndDateMasks(true)
-	this.correctStartEndDateMasks(oldStartDate)
+	this.correctStartEndDateMasks(oldMaskStartDate)
 
 	// Export itself to the chart.
 	moreWarns = this.exportMaskedObjects()
@@ -300,7 +300,7 @@ func (this *Import) SetStartDate(t Time) (warns warning.Warnings) {
 	return
 }
 
-func (this *Import) UnsetStartDate() (warns warning.Warnings) {
+func (this *Import) UnsetMaskStartDate() (warns warning.Warnings) {
 	var moreWarns warning.Warnings
 
 	if this.mask.startDate == nil {
@@ -312,10 +312,10 @@ func (this *Import) UnsetStartDate() (warns warning.Warnings) {
 	warns.Concat(moreWarns)
 
 	// Update `startDate` to floating.
-	oldStartDate := this.GetStartDate()
+	oldMaskStartDate := this.GetMaskStartDate()
     this.mask.startDate = nil 
 	this.sanitizeStartEndDateMasks(true)
-	this.correctStartEndDateMasks(oldStartDate)
+	this.correctStartEndDateMasks(oldMaskStartDate)
 
 	// Export itself to the chart.
 	moreWarns = this.exportMaskedObjects()
@@ -324,7 +324,7 @@ func (this *Import) UnsetStartDate() (warns warning.Warnings) {
 	return
 }
 
-func (this *Import) SetEndDate(t Time) (warns warning.Warnings) {
+func (this *Import) SetMaskEndDate(t Time) (warns warning.Warnings) {
 	var moreWarns warning.Warnings
 
 	if this.mask.endDate != nil && this.mask.endDate.Equal(t) {
@@ -336,11 +336,11 @@ func (this *Import) SetEndDate(t Time) (warns warning.Warnings) {
 	warns.Concat(moreWarns)
 
 	// Update `endDate` to 't' (fix order, etc).
-	oldStartDate := this.GetStartDate()
+	oldMaskStartDate := this.GetMaskStartDate()
 	t.SetUsage(TUK_End)
     this.mask.endDate = &t
 	this.sanitizeStartEndDateMasks(false)
-    this.correctStartEndDateMasks(oldStartDate)
+    this.correctStartEndDateMasks(oldMaskStartDate)
 
 	// Export itself to the chart.
 	moreWarns = this.exportMaskedObjects()
@@ -349,7 +349,7 @@ func (this *Import) SetEndDate(t Time) (warns warning.Warnings) {
 	return
 }
 
-func (this *Import) UnsetEndDate() (warns warning.Warnings) {
+func (this *Import) UnsetMaskEndDate() (warns warning.Warnings) {
 	var moreWarns warning.Warnings
 
 	if this.mask.endDate == nil {
@@ -361,10 +361,10 @@ func (this *Import) UnsetEndDate() (warns warning.Warnings) {
 	warns.Concat(moreWarns)
 
 	// Update `endDate` to floating.
-	oldStartDate := this.GetStartDate()
+	oldMaskStartDate := this.GetMaskStartDate()
     this.mask.endDate = nil
 	this.sanitizeStartEndDateMasks(false)
-    this.correctStartEndDateMasks(oldStartDate)
+    this.correctStartEndDateMasks(oldMaskStartDate)
 
 	// Export itself to the chart.
 	moreWarns = this.exportMaskedObjects()
@@ -603,8 +603,8 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 
 	cimport.link = o.Link
 
-	if o.StartDate != nil {
-		startDate := createTimeFromParsed(o.StartDate, TUK_Start)
+	if o.MaskStartDate != nil {
+		startDate := createTimeFromParsed(o.MaskStartDate, TUK_Start)
 		if startDate.IsFloating() {
 			startDate = InfinitePast
 			startDate.SetUsage(TUK_Start)
@@ -612,8 +612,8 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 		cimport.mask.startDate = &startDate
 	}
 
-	if o.EndDate != nil {
-		endDate := createTimeFromParsed(o.EndDate, TUK_End)
+	if o.MaskEndDate != nil {
+		endDate := createTimeFromParsed(o.MaskEndDate, TUK_End)
 		if endDate.IsFloating() {
 			endDate = InfiniteFuture
 			endDate.SetUsage(TUK_End)
@@ -626,8 +626,8 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 		cimport.offsetDate = &endDate
 	}
 
-	if o.Categories != nil {
-		tmpcats := *o.Categories
+	if o.MaskCategories != nil {
+		tmpcats := *o.MaskCategories
 		cimport.mask.importCates = &tmpcats
 	}
 
@@ -670,7 +670,7 @@ func CreateEmptyImport() *Import {
 //-- method (util)
 
 func (this *Import) sanitizeStartEndDateMasks(fixedStart bool) {
-	nts, nte, sanitized := sanitizeStartEndDatePair(this.GetStartDate(), this.GetEndDate(), fixedStart)
+	nts, nte, sanitized := sanitizeStartEndDatePair(this.GetMaskStartDate(), this.GetMaskEndDate(), fixedStart)
 
 	if sanitized {
 		if fixedStart {
@@ -681,15 +681,15 @@ func (this *Import) sanitizeStartEndDateMasks(fixedStart bool) {
 	}
 }
 
-func (this *Import) correctStartEndDateMasks(oldStartDate Time) (ambiguous bool, inverted bool) {
-	nts, nte, amb, inv := correctStartEndDatePair(this.GetStartDate(), this.GetEndDate())
+func (this *Import) correctStartEndDateMasks(oldMaskStartDate Time) (ambiguous bool, inverted bool) {
+	nts, nte, amb, inv := correctStartEndDatePair(this.GetMaskStartDate(), this.GetMaskEndDate())
 
 	// Reflect corrected results.
-	if !this.GetStartDate().Equal(nts) {
+	if !this.GetMaskStartDate().Equal(nts) {
 		this.mask.startDate = &nts
 	}
 
-	if !this.GetEndDate().Equal(nte) {
+	if !this.GetMaskEndDate().Equal(nte) {
 		this.mask.endDate = &nte
 	}
 
