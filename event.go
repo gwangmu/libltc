@@ -16,6 +16,10 @@ type Event struct {
 	localStartDate *Time
 	localEndDate *Time
 
+	timeOffed bool
+	preoffLocalStartDate *Time
+	preoffLocalEndDate *Time
+
 	category string
 
 	chartEmbedLink *string
@@ -557,6 +561,14 @@ func (this *Event) isEmbeddedChartLoaded() bool {
 func (this *Event) shiftStartEndDatesRaw(t Time) {
 	oldStartDate := this.GetStartDate()
 
+	if this.timeOffed {
+		this.unshiftStartEndDatesRaw()
+	} else {
+		this.preoffLocalStartDate = this.localStartDate
+		this.preoffLocalEndDate = this.localEndDate
+		this.timeOffed = true
+	}
+
 	nts := this.GetStartDate().Add(t)
 	this.localStartDate = nil
 	if !this.GetStartDate().Equal(nts) {
@@ -573,6 +585,14 @@ func (this *Event) shiftStartEndDatesRaw(t Time) {
     if !oldStartDate.Equal(this.GetStartDate()) && this.chart != nil {
         this.chart.changeEventStartDate(this)
     }
+}
+
+func (this *Event) unshiftStartEndDatesRaw() {
+	if this.timeOffed {
+		this.localStartDate = this.preoffLocalStartDate
+		this.localEndDate = this.preoffLocalEndDate
+		this.timeOffed = false
+	}
 }
 
 // Ensure that both start and end are either floating or non-floating at the same time.

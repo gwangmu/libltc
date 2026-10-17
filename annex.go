@@ -17,6 +17,9 @@ type Annex struct {
 
 	createDate Time
 
+	timeOffed bool
+	preoffCreateDate Time
+
 	format string
 	encoding string
 	rawData []byte
@@ -374,9 +377,24 @@ func CreateEmptyAnnex() *Annex {
 
 func (this *Annex) shiftCreateDateRaw(t Time) {
 	oldCreateDate := this.GetCreateDate()
+
+	if this.timeOffed {
+		this.unshiftCreateDateRaw()
+	} else {
+		this.preoffCreateDate = this.createDate
+		this.timeOffed = true
+	}
+
 	this.createDate = this.createDate.Add(t)
 	if !oldCreateDate.Equal(t) && this.chart != nil {
 		this.chart.changeAnnexCreateDate(this)
+	}
+}
+
+func (this *Annex) unshiftCreateDateRaw() {
+	if this.timeOffed {
+		this.createDate = this.preoffCreateDate
+		this.timeOffed = false
 	}
 }
 

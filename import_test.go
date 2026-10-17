@@ -363,5 +363,13 @@ func TestImportOffsetDate_Import(t *testing.T) {
 	test.AssertEQ(chart.GetObjectByQualifiedID("i1/a0").(*Annex).GetCreateDate().String(), "2026-01-10 01:40:??")
 	test.AssertEQ(chart.GetObjectByQualifiedID("i1/a1").(*Annex).GetCreateDate().String(), "2026-01-12 01:40:??")
 
+	i1.UnsetOffsetDate()
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e0").(*Event).GetStartDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e0").(*Event).GetEndDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e1").(*Event).GetStartDate().String(), "2026-01-12")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e1").(*Event).GetEndDate().String(), "2026-01-13")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/a0").(*Annex).GetCreateDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/a1").(*Annex).GetCreateDate().String(), "2026-01-12")
+
 	t.Logf("End test.")
 }

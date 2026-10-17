@@ -724,21 +724,13 @@ func (this *Import) unoffsetLoadedObjects() (warns warning.Warnings) {
 	if this.loadedChart == nil || this.offsetDate == nil {
 		return
 	} else {
-		toff := *this.offsetDate
-		ntoff := toff.Negate()
-		
-		if toff.IsInfinite() || toff.isFloating() {
-			warns.Add("!!!INTERNAL WARN!!! @0@ has a wrong offset date '%s'. cannot offset.", this, toff.String())
-			return
-		}
-		
 		evs := slices.Clone(this.loadedChart.GetEvents()) 
 		for _, eobj := range evs {
-			eobj.shiftStartEndDatesRaw(ntoff)
+			eobj.unshiftStartEndDatesRaw()
 		}
 		ans := slices.Clone(this.loadedChart.GetAnnexs())
 		for _, aobj := range ans {
-			aobj.shiftCreateDateRaw(ntoff)
+			aobj.unshiftCreateDateRaw()
 		}
 		return
 	}
