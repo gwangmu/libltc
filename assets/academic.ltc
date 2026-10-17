@@ -8,7 +8,13 @@ NoteFormat = "Markdown"
 Name = { First = "Univerity class record" }
 
 [[Import]]
+ID = "i0"
+OffsetDate = { Year = 2026, Month = 8, Day = 31 }
+Link = "./curriculum_1.ltc"
+Note = "My first semester"
+
+[[Import]]
 ID = "i1"
-#OffsetDate = { Year = 2026, Month = 8, Day = 31 } This fucks up start dates. Why?
+OffsetDate = { Year = 2026, Month = 8, Day = 31 }
 Link = "./curriculum_2.ltc"
 Note = "My first semester"

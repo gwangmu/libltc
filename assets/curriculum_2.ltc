@@ -15,3 +15,27 @@ Category = "Lecture"
 StartDate = { Day = 4, Hour = 14, Minute = 0 }
 EndDate = { Day = 4, Hour = 15, Minute = 15 }
 Note = "Come to the class"
+
+[[Event]]
+ID = "e1"
+Title = "Week 1: recitation"
+Category = "Recitation"
+StartDate = { Day = 5, Hour = 14, Minute = 0 }
+EndDate = { Day = 5, Hour = 14, Minute = 50 }
+Note = "Come to the lab"
+
+[[Event]]
+ID = "e2"
+Title = "Week 2: bosons" 
+Category = "Lecture"
+StartDate = { Day = 11, Hour = 14, Minute = 0 }
+EndDate = { Day = 11, Hour = 15, Minute = 15 }
+Note = "Come to the class"
+
+[[Event]]
+ID = "e3"
+Title = "Week 2: recitation"
+Category = "Recitation"
+StartDate = { Day = 12, Hour = 14, Minute = 0 }
+EndDate = { Day = 12, Hour = 14, Minute = 50 }
+Note = "Come to the lab"
