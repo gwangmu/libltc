@@ -569,8 +569,7 @@ func (this Time) IsAmbiguous() bool {
 // Hyperreal-style infinity sum is maybe useful, but it's also future work.
 // The usage of the end result will follow 'this'.
 func (this Time) Add(that Time) Time {
-	_, nonegate := that.Attrs["Negative"]
-	negate := !nonegate
+	_, negate := that.Attrs["Negative"]
 
 	orgUsage := this.GetUsage()
 	that.SetUsage(TUK_General)
@@ -601,27 +600,27 @@ func (this Time) Add(that Time) Time {
 		ret.Attrs = this.Attrs
 		ret.timezone = this.timezone
 
-		ntc_s, ntv_s, tset_s := sumTimeValues(this.GetSecond(), that.GetSecond(), 0, 60)
+		ntc_s, ntv_s, tset_s := sumTimeValues(this.GetSecond(), that.GetSecond(), 0, 60, negate)
 		if tset_s {
 			ret.SetSecond(ntv_s)
 		}
-		ntc_m, ntv_m, tset_m := sumTimeValues(this.GetMinute(), that.GetMinute(), ntc_s, 60)
+		ntc_m, ntv_m, tset_m := sumTimeValues(this.GetMinute(), that.GetMinute(), ntc_s, 60, negate)
 		if tset_m {
 			ret.SetMinute(ntv_m)
 		}
-		ntc_h, ntv_h, tset_h := sumTimeValues(this.GetHour(), that.GetHour(), ntc_m, 24)
+		ntc_h, ntv_h, tset_h := sumTimeValues(this.GetHour(), that.GetHour(), ntc_m, 24, negate)
 		if tset_h {
 			ret.SetHour(ntv_h)
 		}
-		ntc_d, ntv_d, tset_d := sumTimeValues(this.GetDay(), that.GetDay(), ntc_h, 31)
+		ntc_d, ntv_d, tset_d := sumTimeValues(this.GetDay(), that.GetDay(), ntc_h, 31, negate)
 		if tset_d {
 			ret.SetDay(ntv_d)
 		}
-		ntc_M, ntv_M, tset_M := sumTimeValues(this.GetMonth(), that.GetMonth(), ntc_d, 12)
+		ntc_M, ntv_M, tset_M := sumTimeValues(this.GetMonth(), that.GetMonth(), ntc_d, 12, negate)
 		if tset_M {
 			ret.SetMonth(ntv_M)
 		}
-		_, ntv_y, tset_y := sumTimeValues(this.GetYear(), that.GetYear(), ntc_M, TKValue_Max)
+		_, ntv_y, tset_y := sumTimeValues(this.GetYear(), that.GetYear(), ntc_M, TKValue_Max, negate)
 		if tset_y {
 			ret.SetYear(ntv_y)
 		}
@@ -658,10 +657,11 @@ func (this Time) Add(that Time) Time {
 		ret.usage = orgUsage
 	}	
 
+	//fmt.Printf("%s + %s = %s\n", this.String(), that.String(), ret.String())
 	return ret
 }
 
-func sumTimeValues(tv1 int, tv2 int, tc int, tmax int) (ntc int, ntv int, tset bool) {
+func sumTimeValues(tv1 int, tv2 int, tc int, tmax int, negate bool) (ntc int, ntv int, tset bool) {
 	if tc != 0 || tv1 != TKValue_Unknown || tv2 != TKValue_Unknown {
 		ctv1 := tv1 
 		switch ctv1 {
@@ -683,8 +683,17 @@ func sumTimeValues(tv1 int, tv2 int, tc int, tmax int) (ntc int, ntv int, tset b
 			ctv2 = 0
 		}
 
+		if negate {
+			ctv2 = -ctv2
+		}
+
 		ctvsum := ctv1 + ctv2 + tc
 		ntc, ntv = ctvsum / tmax, ctvsum % tmax 
+		for ntv < 0 {
+			ntc -= 1
+			ntv += tmax
+		}
+		//fmt.Printf("%d --> %d, %d --> %d, %d : %d, %d\n", tv1, ctv1, tv2, ctv2, tc, ntc, ntv)
 		if !(tv1 == TKValue_Max && ntv == tmax-1) && 
 			!(tv1 != TKValue_Max && ntv == 0) {
 			tset = true

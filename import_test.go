@@ -308,5 +308,19 @@ func TestImportOffsetDate_Import(t *testing.T) {
 	test.AssertEQ(chart.GetObjectByQualifiedID("i2/a0").(*Annex).GetCreateDate().String(), "2026-01-11")
 	test.AssertEQ(chart.GetObjectByQualifiedID("i2/a1").(*Annex).GetCreateDate().String(), "2026-01-13")
 
+	test.AssertEQ(chart.GetObjectByQualifiedID("i3/e0").(*Event).GetStartDate().String(), "2026-01-11 01:__:__")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i3/e0").(*Event).GetEndDate().String(), "2026-01-12 00:**:**")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i3/e1").(*Event).GetStartDate().String(), "2026-01-13 01:__:__")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i3/e1").(*Event).GetEndDate().String(), "2026-01-15 00:**:**")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i3/a0").(*Annex).GetCreateDate().String(), "2026-01-11 01:??:??")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i3/a1").(*Annex).GetCreateDate().String(), "2026-01-13 01:??:??")
+
+	test.AssertEQ(chart.GetObjectByQualifiedID("i4/e0").(*Event).GetStartDate().String(), "2026-01-09 23:__:__")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i4/e0").(*Event).GetEndDate().String(), "2026-01-10 22:**:**")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i4/e1").(*Event).GetStartDate().String(), "2026-01-11 23:__:__")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i4/e1").(*Event).GetEndDate().String(), "2026-01-13 22:**:**")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i4/a0").(*Annex).GetCreateDate().String(), "2026-01-09 23:??:??")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i4/a1").(*Annex).GetCreateDate().String(), "2026-01-11 23:??:??")
+
 	t.Logf("End test.")
 }

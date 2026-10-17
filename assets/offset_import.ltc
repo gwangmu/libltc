@@ -23,3 +23,13 @@ Link = "./linked_objs.ltc"
 ID = "i2"
 OffsetDate = { Hour = 24 }
 Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i3"
+OffsetDate = { Hour = 25 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i4"
+OffsetDate = { Hour = 1, Attrs = [ "Negative" ] }
+Link = "./linked_objs.ltc"
