@@ -658,7 +658,6 @@ func (this Time) Add(that Time) Time {
 		ret.usage = orgUsage
 	}	
 
-	fmt.Printf("%s + %s = %s\n", this.String(), that.String(), ret.String())
 	return ret
 }
 
@@ -669,7 +668,6 @@ func sumTimeValues(tv1 int, tv2 int, tc int, tmax int) (ntc int, ntv int, tset b
 
 		ctvsum := ctv1 + ctv2 + tc
 		ntc, ntv = ctvsum / tmax, ctvsum % tmax 
-		fmt.Printf("%d --> %d, %d --> %d : %d, %d\n", tv1, ctv1, tv2, ctv2, ntc, ntv)
 		if !(tv1 == TKValue_Max && ntv == tmax-1) && 
 			!(tv1 != TKValue_Max && ntv == 0) {
 			tset = true
