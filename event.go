@@ -260,7 +260,7 @@ func (this *Event) IsChartEmbedding() bool {
 // NOTE: 'Get{Start,End}Date' should be either both floating or both non-floating.
 func (this *Event) GetStartDate() Time {
 	if this.localStartDate != nil {
-		return *this.localStartDate
+		return this.localStartDate.Clone()
 	} else if this.embeddedEvent != nil {
 		return this.embeddedEvent.GetStartDate()
 	} else {
@@ -271,7 +271,7 @@ func (this *Event) GetStartDate() Time {
 // NOTE: 'Get{Start,End}Date' should be either both floating or both non-floating.
 func (this *Event) GetEndDate() Time {
 	if this.localEndDate != nil {
-		return *this.localEndDate
+		return this.localEndDate.Clone()
 	} else if this.embeddedEvent != nil {
 		return this.embeddedEvent.GetEndDate()
 	} else {

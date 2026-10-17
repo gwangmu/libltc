@@ -103,9 +103,9 @@ func TestBrokenIDAnnex_Chart(t *testing.T) {
 	test.AssertWarnContains(wc, "Broken ID.*OldID:borked.*corrected")
 	test.AssertWarnContains(wc, "Wrong ID.*non-standard.*ID")
 	test.AssertWarnContains(wc, "Wrong ID.*OldID:e0.*corrected")
-	test.AssertWarnContains(wc, "Annex1.*OldID:a1.*corrected")
 	test.AssertWarnContains(wc, "Annex2.*OldID:a1.*corrected")
 	test.AssertWarnContains(wc, "Annex3.*OldID:a1.*corrected")
+	test.AssertWarnContains(wc, "Annex4.*OldID:a1.*corrected")
 
 	// Ensure no duplicate IDs.
 	aaIDs := []string{}

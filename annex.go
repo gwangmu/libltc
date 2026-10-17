@@ -184,7 +184,7 @@ func (this *Annex) DiagnoseNonLocal() (warns warning.Warnings) {
 //-- method (getters)
 
 func (this *Annex) GetCreateDate() Time {
-	return this.createDate
+	return this.createDate.Clone()
 }
 
 func (this *Annex) GetFormat() string {

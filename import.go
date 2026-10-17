@@ -155,7 +155,7 @@ func (this *Import) GetLink() string {
 
 func (this *Import) GetStartDate() Time {
 	if this.mask.startDate != nil {
-		return *this.mask.startDate
+		return this.mask.startDate.Clone()
 	} else {
 		return CreateEmptyTime(TUK_Start) 
 	}
@@ -163,14 +163,14 @@ func (this *Import) GetStartDate() Time {
 
 func (this *Import) GetEndDate() Time {
 	if this.mask.endDate != nil {
-		return *this.mask.endDate
+		return this.mask.endDate.Clone()
 	} else {
 		return CreateEmptyTime(TUK_End) 
 	}
 }
 func (this *Import) GetOffsetDate() Time {
 	if this.offsetDate != nil {
-		return *this.offsetDate
+		return this.offsetDate.Clone()
 	} else {
 		return CreateEmptyTime(TUK_General) 
 	}
@@ -724,18 +724,21 @@ func (this *Import) unoffsetLoadedObjects() (warns warning.Warnings) {
 	if this.loadedChart == nil || this.offsetDate == nil {
 		return
 	} else {
-		toff := this.offsetDate.Negate()
+		toff := *this.offsetDate
+		ntoff := toff.Negate()
 		
 		if toff.IsInfinite() || toff.isFloating() {
 			warns.Add("!!!INTERNAL WARN!!! @0@ has a wrong offset date '%s'. cannot offset.", this, toff.String())
 			return
 		}
 		
-		for _, eobj := range this.loadedChart.GetEvents() {
-			eobj.shiftStartEndDatesRaw(toff)
+		evs := slices.Clone(this.loadedChart.GetEvents()) 
+		for _, eobj := range evs {
+			eobj.shiftStartEndDatesRaw(ntoff)
 		}
-		for _, aobj := range this.loadedChart.GetAnnexs() {
-			aobj.shiftCreateDateRaw(toff)
+		ans := slices.Clone(this.loadedChart.GetAnnexs())
+		for _, aobj := range ans {
+			aobj.shiftCreateDateRaw(ntoff)
 		}
 		return
 	}

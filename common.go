@@ -706,7 +706,9 @@ func (this Time) Sub(that Time) Time {
 	return this.Add(that.Negate())
 }
 
-func (this Time) Negate() Time {
+func (this Time) Negate() (ret Time) {
+	ret = this.Clone()
+
 	if _, ok := this.Attrs["Negative"]; ok {
 		delete(this.Attrs, "Negative")
 	} else {
@@ -838,6 +840,17 @@ func CreateTimeFromTag(tagstr string) Time {
 	}
 
 	return ret
+}
+
+func (this Time) Clone() (ret Time) {
+	ret = this
+	
+	ret.Attrs = map[string][]string{}
+	for ak, avs := range this.Attrs {
+		ret.Attrs[ak] = slices.Clone(avs)
+	}
+
+	return
 }
 
 var InfinitePast Time = Time{ Attrs: map[string][]string{ "InfinitePast": []string{""} } }
