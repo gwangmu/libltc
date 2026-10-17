@@ -567,8 +567,7 @@ func (this Time) IsAmbiguous() bool {
 // Limitation 3: Adding infinity or adding to infinity result in infinity.
 // Adding infinite future to infinite past is undefined.
 // Hyperreal-style infinity sum is maybe useful, but it's also future work.
-// Adding actually takes place for two general times, but the end result will
-// follow the usage of 'this'.
+// The usage of the end result will follow 'this'.
 func (this Time) Add(that Time) Time {
 	_, nonegate := that.Attrs["Negative"]
 	negate := !nonegate
@@ -576,6 +575,7 @@ func (this Time) Add(that Time) Time {
 	orgUsage := this.GetUsage()
 	this.SetUsage(TUK_General)
 	that.SetUsage(TUK_General)
+	that.SetTimezone(nil)
 
 	infPastThat := false
 	infFutureThat := false
@@ -587,23 +587,18 @@ func (this Time) Add(that Time) Time {
 		infFutureThat = that.IsInfinitePast()
 	}
 
-	if this.isFloating() || that.isFloating() {
-		ret := UnknownTime
-		ret.SetUsage(this.GetUsage())
-		return ret
-	} else if this.IsInfinitePast() || infPastThat {
-		ret := InfinitePast
-		ret.SetUsage(this.GetUsage())
-		return ret
-	} else if this.IsInfiniteFuture() || infFutureThat {
-		ret := InfiniteFuture
-		ret.SetUsage(this.GetUsage())
-		return ret
-	} else {
-		that.SetUsage(TUK_General)
-		that.SetTimezone(nil)
+	ret := CreateEmptyTime(TUK_General)
 
-		ret := CreateEmptyTime(TUK_General)
+	if this.isFloating() || that.isFloating() {
+		ret = UnknownTime
+		ret.SetUsage(this.GetUsage())
+	} else if this.IsInfinitePast() || infPastThat {
+		ret = InfinitePast
+		ret.SetUsage(this.GetUsage())
+	} else if this.IsInfiniteFuture() || infFutureThat {
+		ret = InfiniteFuture
+		ret.SetUsage(this.GetUsage())
+	} else {
 		ret.Attrs = this.Attrs
 		ret.timezone = this.timezone
 
@@ -662,8 +657,10 @@ func (this Time) Add(that Time) Time {
 		}
 
 		ret.usage = orgUsage
-		return ret
 	}	
+
+	fmt.Printf("%s + %s = %s\n", this.String(), that.String(), ret.String())
+	return ret
 }
 
 func sumTimeValues(tv1 int, tv2 int, tc int, tmax int) (ntc int, ntv int, tset bool) {
