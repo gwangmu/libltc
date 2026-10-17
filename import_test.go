@@ -354,8 +354,7 @@ func TestImportOffsetDate_Import(t *testing.T) {
 
 	t.Logf("Changing offset...")
 	i1 := chart.GetObjectByQualifiedID("i1").(*Import)
-	tt := i1.GetOffsetDate().Add(TimeAt(0, 0, 0, 0, 40))
-	i1.SetOffsetDate(tt)
+	i1.ShiftOffsetDate(TimeAt(0, 0, 0, 0, 40))
 	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e0").(*Event).GetStartDate().String(), "2026-01-10 01:40:__")
 	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e0").(*Event).GetEndDate().String(), "2026-01-11 01:39:**")
 	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e1").(*Event).GetStartDate().String(), "2026-01-12 01:40:__")

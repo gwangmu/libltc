@@ -399,6 +399,11 @@ func (this *Import) SetOffsetDate(t Time) (warns warning.Warnings) {
 	return
 }
 
+// Convenience wrapper that combines '{Get,Set}OffsetDate'.
+func (this *Import) ShiftOffsetDate(t Time) (warns warning.Warnings) {
+	return this.SetOffsetDate(this.GetOffsetDate().Add(t))
+}
+
 func (this *Import) UnsetOffsetDate() (warns warning.Warnings) {
 	var moreWarns warning.Warnings
 
