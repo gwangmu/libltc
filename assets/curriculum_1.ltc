@@ -5,7 +5,7 @@ CalendarSystem = "Gregorian"
 NoteFormat = "Markdown"
 
 [Subject]
-Name = { First = "General relativity" }
+Name = { First = "General relativity", Last = "(Prof. Fabulous)" }
 StartDate = { Day = 0 }
 
 [[Event]]
