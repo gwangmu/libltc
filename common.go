@@ -125,8 +125,11 @@ func (this Time) String() (ret string) {
 	}
 
 	ret += strings.Join(stime[0:3], "-")
-	if this.hour != nil || this.minute != nil || this.second != nil {
-		ret += " " + strings.Join(stime[3:6], ":")
+	if this.hour != nil || this.minute != nil {
+		ret += " " + strings.Join(stime[3:5], ":")
+		if this.second != nil {
+			ret += ":" + stime[6]
+		}
 	}
 	if len(sextra) != 0 {
 		ret += " (" + strings.Join(sextra, ", ") + ")"
