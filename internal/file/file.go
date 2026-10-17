@@ -361,7 +361,6 @@ func (this Name) IsUnknown() bool {
 	return this.First == "" && this.Middle == "" && this.Last == "" &&
 		len(this.Attrs) == 0
 }
-
 //-- struct Name: interface IDiagnosable
 
 func (this *Name) Diagnose() warning.Warnings {

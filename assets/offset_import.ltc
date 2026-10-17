@@ -33,3 +33,23 @@ Link = "./linked_objs.ltc"
 ID = "i4"
 OffsetDate = { Hour = 1, Attrs = [ "Negative" ] }
 Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i5"
+OffsetDate = { Hour = -1 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i6"
+OffsetDate = {}
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i7"
+OffsetDate = { Attrs = [ "??" ] }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i8"
+OffsetDate = { Attrs = [ "InfiniteFuture" ] }
+Link = "./linked_objs.ltc"

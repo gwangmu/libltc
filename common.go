@@ -1154,4 +1154,4 @@ const (
 
 const TKValue_Max int = math.MaxInt
 const TKValue_Min int = math.MinInt 
-const TKValue_Unknown int = -1 
+const TKValue_Unknown int = math.MinInt + 1 

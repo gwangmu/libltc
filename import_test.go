@@ -322,5 +322,35 @@ func TestImportOffsetDate_Import(t *testing.T) {
 	test.AssertEQ(chart.GetObjectByQualifiedID("i4/a0").(*Annex).GetCreateDate().String(), "2026-01-09 23:??:??")
 	test.AssertEQ(chart.GetObjectByQualifiedID("i4/a1").(*Annex).GetCreateDate().String(), "2026-01-11 23:??:??")
 
+	test.AssertEQ(chart.GetObjectByQualifiedID("i5/e0").(*Event).GetStartDate().String(), "2026-01-09 23:__:__")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i5/e0").(*Event).GetEndDate().String(), "2026-01-10 22:**:**")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i5/e1").(*Event).GetStartDate().String(), "2026-01-11 23:__:__")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i5/e1").(*Event).GetEndDate().String(), "2026-01-13 22:**:**")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i5/a0").(*Annex).GetCreateDate().String(), "2026-01-09 23:??:??")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i5/a1").(*Annex).GetCreateDate().String(), "2026-01-11 23:??:??")
+
+	test.AssertWarnContains(wc, "wrong offset date.*\\(unknown\\)")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i6/e0").(*Event).GetStartDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i6/e0").(*Event).GetEndDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i6/e1").(*Event).GetStartDate().String(), "2026-01-12")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i6/e1").(*Event).GetEndDate().String(), "2026-01-13")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i6/a0").(*Annex).GetCreateDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i6/a1").(*Annex).GetCreateDate().String(), "2026-01-12")
+
+	test.AssertEQ(chart.GetObjectByQualifiedID("i7/e0").(*Event).GetStartDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i7/e0").(*Event).GetEndDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i7/e1").(*Event).GetStartDate().String(), "2026-01-12")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i7/e1").(*Event).GetEndDate().String(), "2026-01-13")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i7/a0").(*Annex).GetCreateDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i7/a1").(*Annex).GetCreateDate().String(), "2026-01-12")
+
+	test.AssertWarnContains(wc, "wrong offset date.*\\(inf\\)")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i8/e0").(*Event).GetStartDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i8/e0").(*Event).GetEndDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i8/e1").(*Event).GetStartDate().String(), "2026-01-12")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i8/e1").(*Event).GetEndDate().String(), "2026-01-13")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i8/a0").(*Annex).GetCreateDate().String(), "2026-01-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i8/a1").(*Annex).GetCreateDate().String(), "2026-01-12")
+
 	t.Logf("End test.")
 }
