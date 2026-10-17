@@ -287,8 +287,26 @@ func TestImportOffsetDate_Import(t *testing.T) {
 	test.PrintAllWarnings(wc)
 
 	t.Logf("Investigating loaded chart...")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i0/e0").(*Event).GetStartDate().String(), "2026-02-10")
 	test.AssertEQ(chart.GetObjectByQualifiedID("i0/e0").(*Event).GetEndDate().String(), "2026-02-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i0/e1").(*Event).GetStartDate().String(), "2026-02-12")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i0/e1").(*Event).GetEndDate().String(), "2026-02-13")
 	test.AssertEQ(chart.GetObjectByQualifiedID("i0/a0").(*Annex).GetCreateDate().String(), "2026-02-10")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i0/a1").(*Annex).GetCreateDate().String(), "2026-02-12")
+
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e0").(*Event).GetStartDate().String(), "2026-01-10 01:__:__")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e0").(*Event).GetEndDate().String(), "2026-01-11 00:**:**")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e1").(*Event).GetStartDate().String(), "2026-01-12 01:__:__")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/e1").(*Event).GetEndDate().String(), "2026-01-14 00:**:**")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/a0").(*Annex).GetCreateDate().String(), "2026-01-10 01:??:??")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i1/a1").(*Annex).GetCreateDate().String(), "2026-01-12 01:??:??")
+
+	test.AssertEQ(chart.GetObjectByQualifiedID("i2/e0").(*Event).GetStartDate().String(), "2026-01-11")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i2/e0").(*Event).GetEndDate().String(), "2026-01-11")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i2/e1").(*Event).GetStartDate().String(), "2026-01-13")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i2/e1").(*Event).GetEndDate().String(), "2026-01-14")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i2/a0").(*Annex).GetCreateDate().String(), "2026-01-11")
+	test.AssertEQ(chart.GetObjectByQualifiedID("i2/a1").(*Annex).GetCreateDate().String(), "2026-01-13")
 
 	t.Logf("End test.")
 }

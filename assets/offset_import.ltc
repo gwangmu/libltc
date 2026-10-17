@@ -13,3 +13,13 @@ Sex = "Male"
 ID = "i0"
 OffsetDate = { Month = 1 }
 Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i1"
+OffsetDate = { Hour = 1 }
+Link = "./linked_objs.ltc"
+
+[[Import]]
+ID = "i2"
+OffsetDate = { Hour = 24 }
+Link = "./linked_objs.ltc"

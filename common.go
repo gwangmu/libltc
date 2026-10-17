@@ -663,8 +663,25 @@ func (this Time) Add(that Time) Time {
 
 func sumTimeValues(tv1 int, tv2 int, tc int, tmax int) (ntc int, ntv int, tset bool) {
 	if tc != 0 || tv1 != TKValue_Unknown || tv2 != TKValue_Unknown {
-		ctv1 := max(min(tv1, tmax-1), 0)
-		ctv2 := max(min(tv2, tmax-1), 0)
+		ctv1 := tv1 
+		switch ctv1 {
+		case TKValue_Max:
+			ctv1 = tmax-1
+		case TKValue_Unknown:
+			fallthrough
+		case TKValue_Min:
+			ctv1 = 0
+		}
+
+		ctv2 := tv2
+		switch ctv2 {
+		case TKValue_Max:
+			ctv2 = tmax-1
+		case TKValue_Unknown:
+			fallthrough
+		case TKValue_Min:
+			ctv2 = 0
+		}
 
 		ctvsum := ctv1 + ctv2 + tc
 		ntc, ntv = ctvsum / tmax, ctvsum % tmax 
