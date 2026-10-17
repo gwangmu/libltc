@@ -94,15 +94,15 @@ func (this Import) IsUnknown() bool {
 //-- interface IDiagnosable
 
 func (this *Import) DiagnoseLocal() (warns warning.Warnings) {
-	if this.GetStartDate().IsInfiniteFuture() && this.GetEndDate().isFloating() {
+	if this.GetStartDate().IsInfiniteFuture() && this.GetEndDate().IsFloating() {
 		this.SetEndDate(InfiniteFuture)
-	} else if this.GetEndDate().IsInfinitePast() && this.GetStartDate().isFloating() {
+	} else if this.GetEndDate().IsInfinitePast() && this.GetStartDate().IsFloating() {
 		this.SetStartDate(InfinitePast)
 	}
 
 	if this.offsetDate != nil {
 		t := *this.offsetDate
-		if t.IsInfinite() || t.isFloating() {
+		if t.IsInfinite() || t.IsFloating() {
 			this.offsetDate = nil
 			warns.Add("@0@ had a wrong offset date '%s'. changed to no offset.", this, t.String())
 		}
@@ -380,7 +380,7 @@ func (this *Import) SetOffsetDate(t Time) (warns warning.Warnings) {
 		return
 	}
 		
-	if t.IsInfinite() || t.isFloating() {
+	if t.IsInfinite() || t.IsFloating() {
 		warns.Add("cannot set a wrong offset date '%s'.", this, t.String())
 		return
 	}
@@ -605,7 +605,7 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 
 	if o.StartDate != nil {
 		startDate := createTimeFromParsed(o.StartDate, TUK_Start)
-		if startDate.isFloating() {
+		if startDate.IsFloating() {
 			startDate = InfinitePast
 			startDate.SetUsage(TUK_Start)
 		}
@@ -614,7 +614,7 @@ func createImportFromParsed(o file.Import) (*Import, warning.Warnings) {
 
 	if o.EndDate != nil {
 		endDate := createTimeFromParsed(o.EndDate, TUK_End)
-		if endDate.isFloating() {
+		if endDate.IsFloating() {
 			endDate = InfiniteFuture
 			endDate.SetUsage(TUK_End)
 		}
@@ -705,7 +705,7 @@ func (this *Import) offsetLoadedObjects() (warns warning.Warnings) {
 	} else {
 		toff := *this.offsetDate
 		
-		if toff.IsInfinite() || toff.isFloating() {
+		if toff.IsInfinite() || toff.IsFloating() {
 			warns.Add("!!!INTERNAL WARN!!! @0@ has a wrong offset date '%s'. cannot offset.", this, toff.String())
 			return
 		}

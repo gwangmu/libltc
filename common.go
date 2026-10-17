@@ -518,14 +518,14 @@ func (this Time) IsInfinite() bool {
 	return this.IsInfiniteFuture() || this.IsInfinitePast()
 }
 
-func (this Time) isFloating() bool {
+func (this Time) IsFloating() bool {
 	return this.IsUnknown() && !this.IsInfinite()
 }
 
 // Return value is undefined if either of the times is unknown (non-inf) or ambiguous.
 // Infinite futures are after themselves. Same for infinite pasts.
 func (this Time) IsAfter(that Time) bool {
- 	if this.isFloating() || that.isFloating() { 
+ 	if this.IsFloating() || that.IsFloating() { 
 		return false
 	} else if this.IsInfiniteFuture() || that.IsInfinitePast() {
 		return true
@@ -662,7 +662,7 @@ func (this Time) Add(that Time) Time {
 
 	ret := CreateEmptyTime(TUK_General)
 
-	if this.isFloating() || that.isFloating() {
+	if this.IsFloating() || that.IsFloating() {
 		ret = UnknownTime
 		ret.SetUsage(this.GetUsage())
 	} else if this.IsInfinitePast() || infPastThat {
@@ -770,7 +770,7 @@ func sumTimeValues(tv1 int, tv2 int, tc int, tmax int, negate bool) (ntc int, nt
 		}
 		//fmt.Printf("%d --> %d, %d --> %d, %d : %d, %d\n", tv1, ctv1, tv2, ctv2, tc, ntc, ntv)
 		if !(tv1 == TKValue_Max && ntv == tmax-1) && 
-			!(tv1 != TKValue_Max && ntv == 0) {
+			!((tv1 == TKValue_Min || tv1 == TKValue_Unknown) && ntv == 0) {
 			tset = true
 		}
 	}
@@ -1142,21 +1142,21 @@ func sanitizeStartEndDatePair(ts Time, te Time, fixedStart bool) (nts Time, nte 
 	sanitized = false
 
 	if fixedStart {
-		if ts.isFloating() {
+		if ts.IsFloating() {
 			nte = UnknownTime
 			nte.SetUsage(TUK_End)
 			sanitized = true
-		} else if te.isFloating() {
+		} else if te.IsFloating() {
 			nte = InfiniteFuture
 			nte.SetUsage(TUK_End)
 			sanitized = true
 		}
 	} else {
-		if te.isFloating() {
+		if te.IsFloating() {
 			nts = UnknownTime
 			nts.SetUsage(TUK_Start)
 			sanitized = true
-		} else if ts.isFloating() {
+		} else if ts.IsFloating() {
 			nts = InfinitePast
 			nts.SetUsage(TUK_Start)
 			sanitized = true
@@ -1172,7 +1172,7 @@ func correctStartEndDatePair(ts Time, te Time) (nts Time, nte Time, ambiguous bo
 	nte = te
 
 	// Correct ambiguity.
-	if !ts.isFloating() && !ts.IsInfinite() && ts.IsAmbiguous() && !te.IsAmbiguous() {
+	if !ts.IsFloating() && !ts.IsInfinite() && ts.IsAmbiguous() && !te.IsAmbiguous() {
 		newStartDate := ts
 		if ts.year == nil && ts.month == nil {
 			// Can still be inverted. To be treated below.
@@ -1190,7 +1190,7 @@ func correctStartEndDatePair(ts Time, te Time) (nts Time, nte Time, ambiguous bo
 
 		nts = newStartDate
 		ambiguous = true
-	} else if !te.isFloating() && !te.IsInfinite() && te.IsAmbiguous() && !ts.IsAmbiguous() {
+	} else if !te.IsFloating() && !te.IsInfinite() && te.IsAmbiguous() && !ts.IsAmbiguous() {
 		newEndDate := te
 		if te.year == nil && te.month == nil {
 			// Can still be inverted. To be treated below.
@@ -1210,7 +1210,7 @@ func correctStartEndDatePair(ts Time, te Time) (nts Time, nte Time, ambiguous bo
 	}
 
 	// Correct order.
-	if !nts.isFloating() && !nte.isFloating() {
+	if !nts.IsFloating() && !nte.IsFloating() {
 		if nts.IsAfter(nte) {
 			tmpt := nts
 			tmpsu := nts.GetUsage()

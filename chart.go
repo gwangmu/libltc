@@ -248,11 +248,11 @@ func (this *Chart) GetUnknownDateEventsInCategory(category string) (ret []*Event
 		for _, eobj := range evs {
 			if !inbound {
 				// Check inbound (based on StartDate).
-				inbound = eobj.GetStartDate().isFloating() && eobj.GetEndDate().isFloating()
+				inbound = eobj.GetStartDate().IsFloating() && eobj.GetEndDate().IsFloating()
 			}
 			
 			if inbound {
-				if !(eobj.GetStartDate().isFloating() && eobj.GetEndDate().isFloating()) {
+				if !(eobj.GetStartDate().IsFloating() && eobj.GetEndDate().IsFloating()) {
 					break
 				}
 			}
@@ -328,12 +328,12 @@ func (this *Chart) GetUnknownDateAnnexs() (ret []*Annex) {
 	for _, aobj := range this.annexs {
 		if !inbound {
 			// Check inbound (based on CreateDate).
-			inbound = aobj.GetCreateDate().isFloating()
+			inbound = aobj.GetCreateDate().IsFloating()
 		}
 		
 		if inbound {
 			// Check out-of-bound (based on CreateDate).
-			if !aobj.GetCreateDate().isFloating() {
+			if !aobj.GetCreateDate().IsFloating() {
 				break
 			}
 		}
