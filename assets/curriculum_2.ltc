@@ -1,0 +1,17 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Quantum gravity" }
+StartDate = { Day = 0 }
+
+[[Event]]
+ID = "e0"
+Title = "Week 1: quantum physics"
+Category = "Lecture"
+StartDate = { Day = 4, Hour = 14, Minute = 0 }
+EndDate = { Day = 4, Hour = 15, Minute = 15 }
+Note = "Come to the class"

@@ -217,12 +217,16 @@ func (this Time) GetGOTime() time.Time {
 
 func (this Time) GetYear() int {
 	if this.year == nil {
-		switch this.usage {
-		case TUK_End:
-			return TKValue_Max
-		case TUK_Start:
-			return TKValue_Min 
-		default:
+		if this.month == nil && this.day == nil && this.hour == nil && this.minute == nil && this.second == nil {
+			switch this.usage {
+			case TUK_End:
+				return TKValue_Max
+			case TUK_Start:
+				return TKValue_Min 
+			default:
+				return TKValue_Unknown
+			}
+		} else {
 			return TKValue_Unknown
 		}
 	} else {
@@ -246,12 +250,16 @@ func (this Time) GetYearString() string {
 
 func (this Time) GetMonth() int {
 	if this.month == nil {
-		switch this.usage {
-		case TUK_End:
-			return TKValue_Max
-		case TUK_Start:
-			return TKValue_Min 
-		default:
+		if this.day == nil && this.hour == nil && this.minute == nil && this.second == nil {
+			switch this.usage {
+			case TUK_End:
+				return TKValue_Max
+			case TUK_Start:
+				return TKValue_Min 
+			default:
+				return TKValue_Unknown
+			}
+		} else {
 			return TKValue_Unknown
 		}
 	} else {
@@ -275,12 +283,16 @@ func (this Time) GetMonthString() string {
 
 func (this Time) GetDay() int {
 	if this.day == nil {
-		switch this.usage {
-		case TUK_End:
-			return TKValue_Max
-		case TUK_Start:
-			return TKValue_Min 
-		default:
+		if this.hour == nil && this.minute == nil && this.second == nil {
+			switch this.usage {
+			case TUK_End:
+				return TKValue_Max
+			case TUK_Start:
+				return TKValue_Min 
+			default:
+				return TKValue_Unknown
+			}
+		} else {
 			return TKValue_Unknown
 		}
 	} else {
@@ -304,12 +316,16 @@ func (this Time) GetDayString() string {
 
 func (this Time) GetHour() int {
 	if this.hour == nil {
-		switch this.usage {
-		case TUK_End:
-			return TKValue_Max
-		case TUK_Start:
-			return TKValue_Min 
-		default:
+		if this.minute == nil && this.second == nil {
+			switch this.usage {
+			case TUK_End:
+				return TKValue_Max
+			case TUK_Start:
+				return TKValue_Min 
+			default:
+				return TKValue_Unknown
+			}
+		} else {
 			return TKValue_Unknown
 		}
 	} else {
@@ -333,12 +349,16 @@ func (this Time) GetHourString() string {
 
 func (this Time) GetMinute() int {
 	if this.minute == nil {
-		switch this.usage {
-		case TUK_End:
-			return TKValue_Max
-		case TUK_Start:
-			return TKValue_Min 
-		default:
+		if this.second == nil {
+			switch this.usage {
+			case TUK_End:
+				return TKValue_Max
+			case TUK_Start:
+				return TKValue_Min 
+			default:
+				return TKValue_Unknown
+			}
+		} else {
 			return TKValue_Unknown
 		}
 	} else {
@@ -505,28 +525,83 @@ func (this Time) isFloating() bool {
 // Return value is undefined if either of the times is unknown (non-inf) or ambiguous.
 // Infinite futures are after themselves. Same for infinite pasts.
 func (this Time) IsAfter(that Time) bool {
-	if this.IsInfiniteFuture() || that.IsInfinitePast() {
+ 	if this.isFloating() || that.isFloating() { 
+		return false
+	} else if this.IsInfiniteFuture() || that.IsInfinitePast() {
 		return true
 	} else if this.IsInfinitePast() || that.IsInfiniteFuture() {
 		return false 
 	} else {
-		if this.usage == that.usage {
-			// Give 'this' a little more edge so that it returns true
-			// when 'this' and 'that' are simultaneous.
-			switch this.usage {
-			case TUK_Start:
-				this.SetUsage(TUK_General)
-			case TUK_End: 
-				that.SetUsage(TUK_General)
-			case TUK_General:
-				that.SetUsage(TUK_Start)
+		_, tzoff1 := time.Now().In(this.GetTimezone()).Zone()
+		_, tzoff2 := time.Now().In(that.GetTimezone()).Zone()
+		tzoff := tzoff2 - tzoff1
+
+		thisy := max(this.GetYear(), 0)
+		thisM := max(this.GetMonth(), 0)
+		thisd := max(this.GetDay(), 0)
+		thish := max(this.GetHour(), 0)
+		thism := max(this.GetMinute(), 0)
+		thiss := max(this.GetSecond(), 0)
+
+		thaty := max(that.GetYear(), 0)
+		thatM := max(that.GetMonth(), 0)
+		thatd := max(that.GetDay(), 0)
+		thath := max(that.GetHour(), 0)
+		thatm := max(that.GetMinute(), 0)
+		thats := max(that.GetSecond(), 0) - tzoff
+
+		for thats < 0 {
+			thats += 60
+			thatm -= 1
+		}
+
+		for thatm < 0 {
+			thatm += 60
+			thath -= 1
+		}
+
+		for thath < 0 {
+			thath += 24
+			thatd -= 1
+		}
+
+		for thatd < 0 {
+			for thatM < 0 {
+				thatM += 12
+				thaty -= 1
+			}
+			lastdayofmonth := time.Date(0, time.Month(thatM+1), 0, 0, 0, 0, 0, this.GetTimezone()).Day()
+			thatd += lastdayofmonth 
+			thatM -= 1
+		}
+
+		//fmt.Println(thisy, thisM, thisd, thish, thism, thiss)
+		//fmt.Println(thaty, thatM, thatd, thath, thatm, thats)
+		if thisy > thaty {
+			return true 
+		} else if thisy == thaty {
+			if thisM > thatM {
+				return true 
+			} else if thisM == thatM {
+				if thisd > thatd {
+					return true 
+				} else if thisd == thatd {
+					if thish > thath {
+						return true 
+					} else if thish == thath { 
+						if thism > thatm {
+							return true
+						} else if thism == thatm {
+							if thiss >= thats {
+								return true 
+							}
+						}
+					}
+				}
 			}
 		}
-		// The 'compare' using the 'time' package should be correct as long as
-		// the calendar system is "monotonic", meaing bigger higher units mean
-		// later in time. Assume that the concept of "timezone" is the same in
-		// other calendar systems (i.e., a constant offset in time).
-		return this.GetGOTime().Compare(that.GetGOTime()) > 0
+
+		return false
 	}
 }
 

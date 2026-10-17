@@ -1,4 +1,4 @@
-package libltc 
+package libltc
 
 import (
 	"slices"
@@ -141,6 +141,8 @@ func TestNestedImport_Import(t *testing.T) {
 		for _, iobj := range chart.GetAllMajors(false) {
 			gotIDs = append(gotIDs, iobj.GetQualifiedID())
 		}
+		slices.Sort(gotIDs)
+		slices.Sort(wantIDs)
 		test.AssertSetEQ(gotIDs, wantIDs)
 	}
 

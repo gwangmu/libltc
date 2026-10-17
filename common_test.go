@@ -147,7 +147,7 @@ func TestTimes_Common(t *testing.T) {
 
 	t.Log("Investigating loaded file...")
 	test.AssertEQ(t2s.String(), "1991-__-__")
-	test.AssertEQ(t2e.String(), "****-**-04")
+	test.AssertEQ(t2e.String(), "????-??-04")
 	test.AssertEQ(t2s.IsUnknown(), false)
 	test.AssertEQ(t2e.IsUnknown(), false)
 	test.AssertEQ(t2s.IsAmbiguous(), true)
@@ -165,7 +165,7 @@ func TestTimes_Common(t *testing.T) {
 	test.AssertEQ(t3s.IsAmbiguous(), true)
 	test.AssertEQ(t3e.IsAmbiguous(), false)
 	test.AssertEQ(t3s.IsInfinitePast(), false)
-	test.AssertEQ(t3e.IsAfter(t3s), true)
+	test.AssertEQ(t3e.IsAfter(t3s), false)
 
 	t.Logf("Loading the note '%s'...", *file.Event[4].Title)
 	t4s := createTimeFromParsed(file.Event[4].StartDate, TUK_Start)

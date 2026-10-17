@@ -240,6 +240,31 @@ func (this *Chart) GetEventsInCategory(category string) []*Event {
 	}
 }
 
+func (this *Chart) GetUnknownDateEventsInCategory(category string) (ret []*Event) {
+	if evs, ok := this.events[category]; !ok {
+		return
+	} else {
+		inbound := false 
+		for _, eobj := range evs {
+			if !inbound {
+				// Check inbound (based on StartDate).
+				inbound = eobj.GetStartDate().isFloating() && eobj.GetEndDate().isFloating()
+			}
+			
+			if inbound {
+				if !(eobj.GetStartDate().isFloating() && eobj.GetEndDate().isFloating()) {
+					break
+				}
+			}
+
+			if inbound {
+				ret = append(ret, eobj)
+			}
+		}
+		return
+	}
+}
+
 // start, end: all inclusive.
 func (this *Chart) GetEventsInCategoryBetween(category string, start Time, end Time) (ret []*Event) {
 	start.SetUsage(TUK_Start)
@@ -287,6 +312,28 @@ func (this *Chart) GetAnnexsBetween(start Time, end Time) (ret []*Annex) {
 		if inbound {
 			// Check out-of-bound (based on CreateDate).
 			if aobj.GetCreateDate().IsAfter(end) {
+				break
+			}
+		}
+
+		if inbound {
+			ret = append(ret, aobj)
+		}
+	}
+	return
+}
+
+func (this *Chart) GetUnknownDateAnnexs() (ret []*Annex) {
+	inbound := false 
+	for _, aobj := range this.annexs {
+		if !inbound {
+			// Check inbound (based on CreateDate).
+			inbound = aobj.GetCreateDate().isFloating()
+		}
+		
+		if inbound {
+			// Check out-of-bound (based on CreateDate).
+			if !aobj.GetCreateDate().isFloating() {
 				break
 			}
 		}

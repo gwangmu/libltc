@@ -1,0 +1,27 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "Gwangmu", Last = "Lee", Attrs = [ "Nickname:Lee" ] }
+StartDate = { Year = 1991, Month = 3, Day = 29 }
+Sex = "Male"
+
+[[Event]]
+ID = "e0"
+Title = "My private event"
+Category = "Private"
+StartDate = { Year = 2026, Month = 10, Day = 17 }
+EndDate = { Year = 2026, Month = 10, Day = 17 }
+Note = """
+My private note
+"""
+
+[[Event]]
+ID = "e1"
+Title = "POSTECH"
+Category = "Study & Work"
+StartDate = { Year = 2026, Month = 8, Day = 31 }
+EmbedChart = "./academic.ltc"

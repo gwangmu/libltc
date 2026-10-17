@@ -768,10 +768,20 @@ func (this *Import) exportMaskedObjects() (warns warning.Warnings) {
 		}
 		nevs := this.loadedChart.GetEventsInCategoryBetween(category, maskStartDate, maskEndDate)
 		this.cache.events = append(this.cache.events, nevs...)
+		for _, uev := range this.loadedChart.GetUnknownDateEventsInCategory(category) {
+			if !slices.Contains(this.cache.events, uev) {
+				this.cache.events = append(this.cache.events, uev)
+			}
+		}
 	}
 
 	// Cache annexs.
 	this.cache.annexs = this.loadedChart.GetAnnexsBetween(maskStartDate, maskEndDate)
+	for _, uax := range this.loadedChart.GetUnknownDateAnnexs() {
+		if !slices.Contains(this.cache.annexs, uax) {
+			this.cache.annexs = append(this.cache.annexs, uax)
+		}
+	}
 
 	// Cache imports. (include all)
 	this.cache.imports = this.loadedChart.GetImports()

@@ -1,0 +1,41 @@
+FormatVersion = "26.09.1"
+
+[Setting]
+CalendarSystem = "Gregorian"
+NoteFormat = "Markdown"
+
+[Subject]
+Name = { First = "General relativity" }
+StartDate = { Day = 0 }
+
+[[Event]]
+ID = "e0"
+Title = "Week 1: what are tensors?"
+Category = "Lecture"
+StartDate = { Day = 2, Hour = 14, Minute = 0 }
+EndDate = { Day = 2, Hour = 15, Minute = 15 }
+Note = "Come to the class"
+
+[[Event]]
+ID = "e1"
+Title = "Week 1: recitation"
+Category = "Recitation"
+StartDate = { Day = 5, Hour = 17, Minute = 0 }
+EndDate = { Day = 5, Hour = 17, Minute = 50 }
+Note = "Come to the lab"
+
+[[Event]]
+ID = "e2"
+Title = "Week 2: what are one forms?"
+Category = "Lecture"
+StartDate = { Day = 9, Hour = 14, Minute = 0 }
+EndDate = { Day = 9, Hour = 15, Minute = 15 }
+Note = "Come to the class"
+
+[[Event]]
+ID = "e3"
+Title = "Week 2: recitation"
+Category = "Recitation"
+StartDate = { Day = 12, Hour = 17, Minute = 0 }
+EndDate = { Day = 12, Hour = 17, Minute = 50 }
+Note = "Come to the lab"
